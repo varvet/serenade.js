@@ -1,5 +1,6 @@
-#= require events
 #= require monkey
+#= require monkey/events
+#= require monkey/properties
 #= require monkey/model
 #= require monkey/renderer
 
