@@ -5,10 +5,11 @@ Monkey.Properties =
       set: (value) -> Monkey.Properties.set.call(this, name, value)
 
   set: (property, value) ->
-    @_properties or= {}
-    @_properties[name] = value
+    @properties or= {}
+    @properties[name] = value
     @trigger("change:#{property}", value)
+    @trigger("change", property, value)
 
   get: (property) ->
-    @_properties or= {}
-    @_properties[name]
+    @properties or= {}
+    @properties[name]
