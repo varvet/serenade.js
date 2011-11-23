@@ -95,3 +95,12 @@ MyModel.property('name')
 ### Caching
 
 You can define a caching strategy for these models,
+
+If your model is a constructor, you might want to add the properties to its prototype instead:
+
+``` javascript
+var Model = function(name) {
+  this.set('name', name);
+};
+Monkey.extend(Model.prototype, Monkey.Properties)
+```
