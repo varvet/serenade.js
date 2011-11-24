@@ -40,7 +40,7 @@ If we want the view to update automatically as the model changes, we will have t
 
 ``` coffeescript
 model = { name: 'Jonas' }
-Monkey.extend(model, Monkey.Properties)
+Monkey.Properties.applyTo(model)
 model.property 'name'
 ```
 
@@ -59,3 +59,29 @@ model.name
 ```
 
 Note that Opera and IE8 and below do *not* support this, so you might want to refrain from using this syntax.
+
+## Monkey.Model
+
+It can be quite convenient to use any old JavaScript object as a model, but sometimes we require more powerful abstractions. Monkey offers a base for building objects which is quite powerful. You can use it like this:
+
+``` javascript
+var MyModel = function() {}
+Monkey.Model.applyTo(MyModel)
+var model = new MyModel()
+```
+
+Note that Monkey.Model needs to be applied to a constructor function, because it will add properties to both the constructor funtion itself, as well as its prototype. If you are using CoffeeScript, you can conveniently inherit from Monkey.Model:
+
+``` coffeescript
+class MyModel extends Monkey.Model
+```
+
+You can use the same property declarations in these models:
+
+``` javascript
+MyModel.property('name')
+```
+
+### Caching
+
+You can define a caching strategy for these models,
