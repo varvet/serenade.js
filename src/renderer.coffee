@@ -22,18 +22,20 @@ class Monkey.Renderer
     else
       if value.hasOwnProperty('bind')
         element.setAttribute(name, @model[value.bind] or '')
-        @model.bind "change:#{value.bind}", (newValue) ->
-          if name is 'value'
-            element.value = newValue or ''
-          else
-            element.setAttribute(name, newValue or '')
+        if @model.bind
+          @model.bind "change:#{value.bind}", (newValue) ->
+            if name is 'value'
+              element.value = newValue or ''
+            else
+              element.setAttribute(name, newValue or '')
       else
         element.setAttribute(name, value)
 
   boundTextNode: (name) =>
     node = document.createTextNode(@model[name] or '')
-    @model.bind "change:#{name}", (value) ->
-      node.textContent = value or ''
+    if @model.bind
+      @model.bind "change:#{name}", (value) ->
+        node.textContent = value or ''
     node
 
   createElement: (tagName, attributes, nodes...) =>
