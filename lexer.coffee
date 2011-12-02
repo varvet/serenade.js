@@ -6,6 +6,8 @@ STRING = /^"((?:\\.|[^"])*)"/
 
 MULTI_DENT = /^(?:\n[^\n\S]*)+/
 
+WHITESPACE = /^[^\n\S]+/
+
 class Lexer
 
   tokenize: (code, opts = {}) ->
@@ -22,17 +24,24 @@ class Lexer
     while @chunk = code.slice i
       i += @identifierToken() or
            #@commentToken()    or
-           #@whitespaceToken() or
+           @whitespaceToken() or
            @lineToken()       or
-           #@heredocToken()    or
            @stringToken()     or
-           #@numberToken()     or
-           #@regexToken()      or
-           #@jsToken()         or
            @literalToken()
 
-    @error "missing #{tag}" if tag = @ends.pop()
+    while tag = @ends.pop()
+      if tag is 'OUTDENT'
+        @token 'OUTDENT'
+      else
+        @error "missing #{tag}"
     @tokens
+
+  whitespaceToken: ->
+    if match = WHITESPACE.exec @chunk
+      @token 'WHITESPACE', match[0].length
+      match[0].length
+    else
+      0
 
   token: (tag, value) ->
     @tokens.push [tag, value, @line]
@@ -57,25 +66,22 @@ class Lexer
 
     indent = match[0]
     @line += @count indent, '\n'
-    @seenFor = no
     prev = @last @tokens, 1
     size = indent.length - 1 - indent.lastIndexOf '\n'
 
-    if size - @indebt is @indent
+    if size is @indent
       @newlineToken()
-      return indent.length
-
-    if size > @indent
-      diff = size - @indent + @outdebt
+    else if size > @indent
+      diff = size - @indent
       @token 'INDENT', diff
-      @indents.push diff
-      @ends   .push 'OUTDENT'
-      @outdebt = @indebt = 0
+      @ends.push 'OUTDENT'
     else
-      @indebt = 0
-      @outdentToken @indent - size
+      @error('Should be an OUTDENT, yo') unless @last @ends is 'OUTDENT'
+      @ends.pop
+      @token 'OUTDENT', diff
     @indent = size
     indent.length
+
 
   literalToken: ->
     if match = LITERAL.exec @chunk
@@ -86,7 +92,16 @@ class Lexer
         when "=" then @token('ASSIGN', id)
       1
     else
-      @error('WUT??? is #{@chuck.charAt(0)}')
+      @error("WUT??? is '#{@chunk.charAt(0)}'")
+
+  newlineToken: ->
+    @token 'TERMINATOR', '\n' unless @tag() is 'TERMINATOR'
+
+  tag: (index, tag) ->
+    (tok = @last @tokens, index) and if tag then tok[0] = tag else tok[0]
+
+  value: (index, val) ->
+    (tok = @last @tokens, index) and if val then tok[1] = val else tok[1]
 
   error: (message) ->
     throw SyntaxError "#{message} on line #{ @line + 1}"
@@ -99,10 +114,4 @@ class Lexer
 
   last: (array, back) -> array[array.length - (back or 0) - 1]
 
-lexer = new Lexer()
-result = lexer.tokenize '''
-div[foo="bar"]
-  p[test=mox]
-'''
-
-console.log result
+exports.Lexer = Lexer
