@@ -8,6 +8,16 @@ Monkey.js is yet another MVC client side JavaScript framework. Why do we indulge
 * Absolutely no dependencies, everything works without jQuery
 * No need to inherit from base classes anywhere (though you can if you want)
 
+## Architecture
+
+Monkey.js consists of two separate components:
+* A template engine
+* An object-to-service mapper
+
+# Template Engine
+
+Monkey.js derives its power from its template engine. Unlike other frameworks, Monkey.js is oppinionated, and you do not have a choice as to how to construct your templates. You can think of all of Monkey.js as a really advanced template engine. This is mirrored in the fact that you instruct a template to render, and hand it a controller and model to bind to, in return you get a DOM element, which you can inject anywhere on your page. Unlike Rails or Backbone.js for example, the controller does not render the view, its sole responsibility is responding to interaction from the user.
+
 ## A simple example
 
 This is a very simple example:
