@@ -17,11 +17,6 @@ Monkey.registerView 'thing', (t) ->
     t 'p', {},
       t 'textarea', value: { bind: 'barr' }, change: 'didChange', name: 'barr'
 
-Monkey.registerView 'test', (t) ->
-  t 'div', id: 'hellow-world',
-    t 'h1', {}, { bind: 'name' }
-    t 'p', {},
-      t 'a', click: 'showAlert', href: "#", 'Show the alert'
 
 class Thing extends Monkey.Model
   @property 'schmoo'
@@ -46,7 +41,3 @@ window.addEventListener 'load', ->
   view1 = Monkey.render('thing', aThing, Controller)
   sandbox.appendChild view1
 
-  controller = { showAlert: -> alert('Alert!!!') }
-  model = { name: 'Jonas' }
-  result = Monkey.render('test', model, controller)
-  document.querySelector('body').appendChild(result)
