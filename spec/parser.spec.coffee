@@ -1,5 +1,5 @@
-{Parser} = require '../parser'
-{Lexer} = require '../lexer'
+{Parser} = require '../src/grammar'
+{Lexer} = require '../src/lexer'
 
 parse = (view) ->
   Parser.parse(new Lexer().tokenize(view))
