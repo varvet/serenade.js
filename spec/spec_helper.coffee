@@ -1,0 +1,7 @@
+require('../src/monkey')
+require('../src/nodes')
+require('../src/lexer')
+require('../src/properties')
+require('../src/events')
+require('../src/model')
+require('../src/view')

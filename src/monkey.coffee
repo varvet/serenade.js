@@ -1,17 +1,12 @@
 Monkey =
-  render: -> Monkey.Renderer.render(arguments...)
-  registerView: (name, fun) -> Monkey.Renderer._views[name] = fun
+  VERSION: '0.1.0'
+  _views: []
+  render: (name, model, controller) -> @_views[name].compile(@document, model, controller)
+  registerView: (name, template) -> @_views[name] = new Monkey.View(template)
   extend: (target, source) ->
     for key, value of source
       if Object.prototype.hasOwnProperty.call(source, key)
         target[key] = value
+  document: window?.document
 
 exports.Monkey = Monkey
-
-Monkey.Parser = require('./grammar').Parser
-require('./nodes')
-require('./lexer')
-require('./properties')
-require('./events')
-require('./model')
-require('./view')
