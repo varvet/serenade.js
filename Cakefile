@@ -47,7 +47,7 @@ task 'build:browser', 'rebuild the merged script for inclusion in the browser', 
       } else { root.Monkey = Monkey }
     }(this));
   """
-  unless process.env.MINIFY is 'false'
+  if process.env.MINIFY is 'true'
     {parser, uglify} = require 'uglify-js'
     code = uglify.gen_code uglify.ast_squeeze uglify.ast_mangle parser.parse code
   fs.writeFileSync 'extras/monkey.js', header + '\n' + code
