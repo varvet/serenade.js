@@ -187,6 +187,9 @@
         this.token('INDENT', diff);
         this.ends.push('OUTDENT');
       } else {
+        if (!this.last(this.ends === 'OUTDENT')) {
+          this.error('Should be an OUTDENT, yo');
+        }
         this.ends.pop;
         this.token('OUTDENT', diff);
       }
@@ -646,10 +649,7 @@ if (typeof module !== 'undefined' && require.main === module) {
       this.string = string;
     }
     View.prototype.parse = function() {
-      var tokens;
-      tokens = new Monkey.Lexer().tokenize(this.string);
-      console.log(tokens);
-      return parser.parse(tokens);
+      return parser.parse(new Monkey.Lexer().tokenize(this.string));
     };
     View.prototype.compile = function(document, model, controller) {
       return this.parse().compile(document, model, controller);
