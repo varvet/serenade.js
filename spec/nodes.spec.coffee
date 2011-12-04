@@ -14,9 +14,9 @@ compile = (actual, model, controller, callback) ->
       src: [jquery]
       done: (errors, window) ->
         result = actual.compile(window.document, model, controller)
-        window.$('body').append(result)
+        window.document.body.appendChild(result)
         runs ->
-          callback(window.$("body"))
+          callback(window.$("body"), window.document)
   waits(20)
 
 describe 'Monkey.Element', ->
@@ -59,3 +59,11 @@ describe 'Monkey.Element', ->
       model = { name: 'Jonas Nicklas' }
       compile el('div', [], [text('name', true)]), model, {}, (body) ->
         expect(body.find('div')).toHaveText('Jonas Nicklas')
+
+    it 'attaches an event which calls the controller action when triggered', ->
+      controller = { iWasClicked: -> @clicked = true }
+      compile el('div', [attr('click', 'iWasClicked')]), {}, controller, (body, document) ->
+        event = document.createEvent('HTMLEvents')
+        event.initEvent('click', true, true)
+        body.find('div').get(0).dispatchEvent(event)
+        expect(controller.clicked).toBeTruthy()

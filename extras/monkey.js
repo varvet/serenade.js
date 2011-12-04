@@ -270,8 +270,15 @@
 };require['./nodes'] = new function() {
   var exports = this;
   (function() {
-  var Monkey;
+  var EVENTS, Monkey;
+  var __indexOf = Array.prototype.indexOf || function(item) {
+    for (var i = 0, l = this.length; i < l; i++) {
+      if (this[i] === item) return i;
+    }
+    return -1;
+  }, __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
   Monkey = require('./monkey').Monkey;
+  EVENTS = ['click', 'blur', 'focus', 'change', 'mouseover', 'mouseout'];
   Monkey.Element = (function() {
     function Element(name, attributes, children) {
       this.name = name;
@@ -281,16 +288,20 @@
       this.children || (this.children = []);
     }
     Element.prototype.compile = function(document, model, controller) {
-      var attribute, child, childNode, element, _i, _j, _len, _len2, _ref, _ref2;
+      var attribute, child, childNode, element, _i, _j, _len, _len2, _ref, _ref2, _ref3;
       element = document.createElement(this.name);
       _ref = this.attributes;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         attribute = _ref[_i];
-        attribute.compile(element, model, controller);
+        if (_ref2 = attribute.name, __indexOf.call(EVENTS, _ref2) >= 0) {
+          attribute.event(element, model, controller);
+        } else {
+          attribute.compile(element, model, controller);
+        }
       }
-      _ref2 = this.children;
-      for (_j = 0, _len2 = _ref2.length; _j < _len2; _j++) {
-        child = _ref2[_j];
+      _ref3 = this.children;
+      for (_j = 0, _len2 = _ref3.length; _j < _len2; _j++) {
+        child = _ref3[_j];
         childNode = child.compile(document, model, controller);
         element.appendChild(childNode);
       }
@@ -310,6 +321,13 @@
       if (computed !== void 0) {
         return element.setAttribute(this.name, computed);
       }
+    };
+    Attribute.prototype.event = function(element, model, controller) {
+      var callback;
+      callback = __bind(function(e) {
+        return controller[this.value](e);
+      }, this);
+      return element.addEventListener(this.name, callback, false);
     };
     Attribute.prototype.compute = function(model) {
       if (this.bound) {

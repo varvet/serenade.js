@@ -1,5 +1,7 @@
 {Monkey} = require './monkey'
 
+EVENTS = ['click', 'blur', 'focus', 'change', 'mouseover', 'mouseout']
+
 class Monkey.Element
   constructor: (@name, @attributes, @children) ->
     @attributes or= []
@@ -8,13 +10,17 @@ class Monkey.Element
     element = document.createElement(@name)
 
     for attribute in @attributes
-      attribute.compile(element, model, controller)
+      if attribute.name in EVENTS
+        attribute.event(element, model, controller)
+      else
+        attribute.compile(element, model, controller)
 
     for child in @children
       childNode = child.compile(document, model, controller)
       element.appendChild(childNode)
-
     element
+
+
 
 class Monkey.Attribute
   constructor: (@name, @value, @bound) ->
@@ -22,6 +28,9 @@ class Monkey.Attribute
     computed = @compute(model)
     unless computed is undefined
       element.setAttribute(@name, computed)
+  event: (element, model, controller) ->
+    callback = (e) => controller[@value](e)
+    element.addEventListener(@name, callback, false)
   compute: (model) ->
     if @bound
       model[@value]
