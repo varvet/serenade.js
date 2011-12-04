@@ -34,6 +34,13 @@ describe 'Monkey.View', ->
       expect(result.children[0].name).toEqual('p')
       expect(result.children[1].name).toEqual('span')
 
+    it 'can indent back', ->
+      result = parse("div\n\tp\n\t\ta\n\tp")
+      expect(result.name).toEqual('div')
+      expect(result.children[0].name).toEqual('p')
+      expect(result.children[0].children[0].name).toEqual('a')
+      expect(result.children[1].name).toEqual('p')
+
     it 'parses string literals as children on separate lines', ->
       result = parse("div\n\t\"Loca\"\n\tspan")
       expect(result.name).toEqual('div')
