@@ -1,5 +1,6 @@
 require 'sinatra'
 require 'slim'
+require 'coffee-script'
 
 enable :inline_templates
 
@@ -8,7 +9,17 @@ get '/' do
 end
 
 get '/src/monkey.js' do
-  File.read('./extras/monkey.js')
+  # ghetto live reload
+  if ENV['AUTORELOAD']
+    `cake build`
+    `cake build:parser`
+    `cake build:browser`
+  end
+  File.read("./extras/monkey.js")
+end
+
+get '/src/:name.coffee' do |name|
+  CoffeeScript.compile(File.read("./examples/#{name}.coffee"))
 end
 
 get '/src/:name.js' do |name|
@@ -28,5 +39,5 @@ html
   head
     script[src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"]
     script[src="src/monkey.js"]
-    script[src="src/#{@name}.js"]
+    script[src="src/#{@name}"]
   body
