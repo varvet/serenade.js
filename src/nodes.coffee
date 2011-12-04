@@ -27,3 +27,5 @@ class Monkey.Attribute
 class Monkey.TextNode
   constructor: (@value, @bound) ->
   name: 'text'
+  compile: (document, model, constructor) ->
+    textNode = document.createTextNode(@value)

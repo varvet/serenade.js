@@ -35,3 +35,6 @@ describe 'Monkey.Element', ->
 
     it 'compiles a simple element with multiple children', ->
       expectToCompileTo(el('div', [], [el('p'), el('a', [attr('href', 'foo')])]), 'div > a[href=foo]')
+
+    it 'compiles a simple element with a text node child', ->
+      expectToCompileTo(el('div', [], [text('Monkey')]), 'div:contains(Monkey)')
