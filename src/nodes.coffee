@@ -8,7 +8,7 @@ class Monkey.Element
     element = document.createElement(@name)
 
     for attribute in @attributes
-      attributeNode = attribute.compile(element, model, controller)
+      attribute.compile(element, model, controller)
 
     for child in @children
       childNode = child.compile(document, model, controller)
