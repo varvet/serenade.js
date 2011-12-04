@@ -8,9 +8,7 @@
 (function(root) {
   var Monkey = function() {
     function require(path){ return require[path]; }
-    console.log('setting up monkey');
-require['./monkey'] = new function() {
-  console.log('required monkey');
+    require['./monkey'] = new function() {
   var exports = this;
   (function() {
   var Monkey;
@@ -37,9 +35,7 @@ require['./monkey'] = new function() {
   exports.Monkey = Monkey;
 }).call(this);
 
-};console.log('setting up events');
-require['./events'] = new function() {
-  console.log('required events');
+};require['./events'] = new function() {
   var exports = this;
   (function() {
   var Monkey;
@@ -107,9 +103,7 @@ require['./events'] = new function() {
   };
 }).call(this);
 
-};console.log('setting up lexer');
-require['./lexer'] = new function() {
-  console.log('required lexer');
+};require['./lexer'] = new function() {
   var exports = this;
   (function() {
   var IDENTIFIER, LITERAL, MULTI_DENT, Monkey, STRING, WHITESPACE;
@@ -193,9 +187,6 @@ require['./lexer'] = new function() {
         this.token('INDENT', diff);
         this.ends.push('OUTDENT');
       } else {
-        if (!this.last(this.ends === 'OUTDENT')) {
-          this.error('Should be an OUTDENT, yo');
-        }
         this.ends.pop;
         this.token('OUTDENT', diff);
       }
@@ -255,9 +246,7 @@ require['./lexer'] = new function() {
   })();
 }).call(this);
 
-};console.log('setting up model');
-require['./model'] = new function() {
-  console.log('required model');
+};require['./model'] = new function() {
   var exports = this;
   (function() {
   var Monkey;
@@ -274,9 +263,7 @@ require['./model'] = new function() {
   })();
 }).call(this);
 
-};console.log('setting up nodes');
-require['./nodes'] = new function() {
-  console.log('required nodes');
+};require['./nodes'] = new function() {
   var exports = this;
   (function() {
   var Monkey;
@@ -336,9 +323,7 @@ require['./nodes'] = new function() {
   })();
 }).call(this);
 
-};console.log('setting up parser');
-require['./parser'] = new function() {
-  console.log('required parser');
+};require['./parser'] = new function() {
   var exports = this;
   /* Jison generated parser */
 var parser = (function(){
@@ -604,9 +589,7 @@ if (typeof module !== 'undefined' && require.main === module) {
   exports.main(typeof process !== 'undefined' ? process.argv.slice(1) : require("system").args);
 }
 }
-};console.log('setting up properties');
-require['./properties'] = new function() {
-  console.log('required properties');
+};require['./properties'] = new function() {
   var exports = this;
   (function() {
   var Monkey;
@@ -635,9 +618,7 @@ require['./properties'] = new function() {
   };
 }).call(this);
 
-};console.log('setting up view');
-require['./view'] = new function() {
-  console.log('required view');
+};require['./view'] = new function() {
   var exports = this;
   (function() {
   var Monkey, parser;
@@ -665,7 +646,10 @@ require['./view'] = new function() {
       this.string = string;
     }
     View.prototype.parse = function() {
-      return parser.parse(new Monkey.Lexer().tokenize(this.string));
+      var tokens;
+      tokens = new Monkey.Lexer().tokenize(this.string);
+      console.log(tokens);
+      return parser.parse(tokens);
     };
     View.prototype.compile = function(document, model, controller) {
       return this.parse().compile(document, model, controller);
