@@ -81,6 +81,7 @@ class Monkey.Lexer
       @error('Should be an OUTDENT, yo') unless @last(@ends) is 'OUTDENT'
       @ends.pop
       @token 'OUTDENT', diff
+      @token 'TERMINATOR', '\n'
     @indent = size
     indent.length
 
