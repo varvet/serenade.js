@@ -250,23 +250,6 @@
   })();
 }).call(this);
 
-};require['./model'] = new function() {
-  var exports = this;
-  (function() {
-  var Monkey;
-  Monkey = require('./monkey').Monkey;
-  Monkey.Model = (function() {
-    function Model() {}
-    Monkey.extend(Model.prototype, Monkey.Events);
-    Monkey.extend(Model.prototype, Monkey.Properties);
-    Model.property = function() {
-      var _ref;
-      return (_ref = this.prototype).property.apply(_ref, arguments);
-    };
-    return Model;
-  })();
-}).call(this);
-
 };require['./nodes'] = new function() {
   var exports = this;
   (function() {
@@ -346,7 +329,7 @@
     TextNode.prototype.name = 'text';
     TextNode.prototype.compile = function(document, model, constructor) {
       var textNode;
-      return textNode = document.createTextNode(this.compute(model));
+      return textNode = document.createTextNode(this.compute(model) || '');
     };
     TextNode.prototype.compute = function(model) {
       if (this.bound) {
@@ -652,6 +635,23 @@ if (typeof module !== 'undefined' && require.main === module) {
       return this.properties[name];
     }
   };
+}).call(this);
+
+};require['./model'] = new function() {
+  var exports = this;
+  (function() {
+  var Monkey;
+  Monkey = require('./monkey').Monkey;
+  Monkey.Model = (function() {
+    function Model() {}
+    Monkey.extend(Model.prototype, Monkey.Events);
+    Monkey.extend(Model.prototype, Monkey.Properties);
+    Model.property = function() {
+      var _ref;
+      return (_ref = this.prototype).property.apply(_ref, arguments);
+    };
+    return Model;
+  })();
 }).call(this);
 
 };require['./view'] = new function() {
