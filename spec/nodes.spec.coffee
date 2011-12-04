@@ -7,34 +7,55 @@ el = (name, attributes, children) -> new Monkey.Element(name, attributes, childr
 attr = (name, value, bound=false) -> new Monkey.Attribute(name, value, bound)
 text = (value, bound=false) -> new Monkey.TextNode(value, bound)
 
-expectToCompileTo = (actual, selector) ->
+compile = (actual, model, controller, callback) ->
   runs ->
     jsdom.env
       html: '<body></body>'
       src: [jquery]
       done: (errors, window) ->
-        result = actual.compile(window.document, {}, {})
+        result = actual.compile(window.document, model, controller)
         window.$('body').append(result)
         runs ->
-          expect(window.$("body > #{selector}").length).toEqual(1)
+          callback(window.$("body"))
   waits(20)
 
 describe 'Monkey.Element', ->
   describe '#compile', ->
     it 'compiles a simple element', ->
-      expectToCompileTo(el('div'), 'div')
+      compile el('div'), {}, {}, (body) ->
+        expect(body).toHaveElement('div')
 
     it 'compiles a simple element with an attribute', ->
-      expectToCompileTo(el('div', [attr('id', 'foo')]), 'div#foo')
+      compile el('div', [attr('id', 'foo')]), {}, {}, (body) ->
+        expect(body).toHaveElement('div#foo')
 
     it 'compiles a simple element with attributes', ->
-      expectToCompileTo(el('div', [attr('id', 'foo'), attr('class', 'bar')]), 'div#foo.bar')
+      compile el('div', [attr('id', 'foo'), attr('class', 'bar')]), {}, {}, (body) ->
+        expect(body).toHaveElement('div#foo.bar')
 
     it 'compiles a simple element with a child', ->
-      expectToCompileTo(el('div', [], [el('p')]), 'div > p')
+      compile el('div', [], [el('p')]), {}, {}, (body) ->
+        expect(body).toHaveElement('div > p')
 
     it 'compiles a simple element with multiple children', ->
-      expectToCompileTo(el('div', [], [el('p'), el('a', [attr('href', 'foo')])]), 'div > a[href=foo]')
+      compile el('div', [], [el('p'), el('a', [attr('href', 'foo')])]), {}, {}, (body) ->
+        expect(body).toHaveElement('div > a[href=foo]')
 
     it 'compiles a simple element with a text node child', ->
-      expectToCompileTo(el('div', [], [text('Monkey')]), 'div:contains(Monkey)')
+      compile el('div', [], [text('Monkey')]), {}, {}, (body) ->
+        expect(body).toHaveElement('div:contains(Monkey)')
+
+    it 'does not add bound attribute if value is undefined in model', ->
+      model = { name: 'jonas' }
+      compile el('div', [attr('id', 'foo', true)]), model, {}, (body) ->
+        expect(body.find('div').get(0).hasAttribute('id')).toBeFalsy()
+
+    it 'get bound attributes from the model', ->
+      model = { name: 'jonas' }
+      compile el('div', [attr('id', 'name', true)]), model, {}, (body) ->
+        expect(body).toHaveElement('div#jonas')
+
+    it 'get bound text from the model', ->
+      model = { name: 'Jonas Nicklas' }
+      compile el('div', [], [text('name', true)]), model, {}, (body) ->
+        expect(body.find('div')).toHaveText('Jonas Nicklas')

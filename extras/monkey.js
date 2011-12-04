@@ -286,8 +286,7 @@
       _ref = this.attributes;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         attribute = _ref[_i];
-        attributeNode = attribute.compile(document, model, controller);
-        element.setAttributeNode(attributeNode);
+        attributeNode = attribute.compile(element, model, controller);
       }
       _ref2 = this.children;
       for (_j = 0, _len2 = _ref2.length; _j < _len2; _j++) {
@@ -305,11 +304,19 @@
       this.value = value;
       this.bound = bound;
     }
-    Attribute.prototype.compile = function(document, model, constructor) {
-      var attribute;
-      attribute = document.createAttribute(this.name);
-      attribute.nodeValue = this.value;
-      return attribute;
+    Attribute.prototype.compile = function(element, model, constructor) {
+      var computed;
+      computed = this.compute(model);
+      if (computed !== void 0) {
+        return element.setAttribute(this.name, computed);
+      }
+    };
+    Attribute.prototype.compute = function(model) {
+      if (this.bound) {
+        return model[this.value];
+      } else {
+        return this.value;
+      }
     };
     return Attribute;
   })();
@@ -321,7 +328,14 @@
     TextNode.prototype.name = 'text';
     TextNode.prototype.compile = function(document, model, constructor) {
       var textNode;
-      return textNode = document.createTextNode(this.value);
+      return textNode = document.createTextNode(this.compute(model));
+    };
+    TextNode.prototype.compute = function(model) {
+      if (this.bound) {
+        return model[this.value];
+      } else {
+        return this.value;
+      }
     };
     return TextNode;
   })();

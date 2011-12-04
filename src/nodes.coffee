@@ -8,8 +8,7 @@ class Monkey.Element
     element = document.createElement(@name)
 
     for attribute in @attributes
-      attributeNode = attribute.compile(document, model, controller)
-      element.setAttributeNode(attributeNode)
+      attributeNode = attribute.compile(element, model, controller)
 
     for child in @children
       childNode = child.compile(document, model, controller)
@@ -19,13 +18,23 @@ class Monkey.Element
 
 class Monkey.Attribute
   constructor: (@name, @value, @bound) ->
-  compile: (document, model, constructor) ->
-    attribute = document.createAttribute(@name)
-    attribute.nodeValue = @value
-    attribute
+  compile: (element, model, constructor) ->
+    computed = @compute(model)
+    unless computed is undefined
+      element.setAttribute(@name, computed)
+  compute: (model) ->
+    if @bound
+      model[@value]
+    else
+      @value
 
 class Monkey.TextNode
   constructor: (@value, @bound) ->
   name: 'text'
   compile: (document, model, constructor) ->
-    textNode = document.createTextNode(@value)
+    textNode = document.createTextNode(@compute(model))
+  compute: (model) ->
+    if @bound
+      model[@value]
+    else
+      @value
