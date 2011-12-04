@@ -1,19 +1,6 @@
 # mygenerator.js
 Parser = require("jison").Parser
 
-Monkey = {}
-class Monkey.Element
-  constructor: (@name, @attributes, @children) ->
-    @attributes or= []
-    @children or= []
-class Monkey.Attribute
-  constructor: (@name, @value, @bound) ->
-class Monkey.TextNode
-  constructor: (@value, @bound) ->
-  name: 'text'
-
-tokens = ['IDENTIFIER']
-
 unwrap = /^function\s*\(\)\s*\{\s*return\s*([\s\S]*);\s*\}/
 
 o = (patternString, action, options) ->
@@ -76,17 +63,6 @@ grammar =
   #'IDENTIFIER = IDENTIFIER|STRING_LITERAL'
   #'IDENTIFIER LPAREN argument* RPARENS'
   #
-parser = new Parser(tokens: tokens, bnf: grammar, startSymbol: 'Root')
-
-parser.lexer =
-  lex: ->
-    [tag, @yytext, @yylineno] = @tokens[@pos++] or ['']
-    tag
-  setInput: (@tokens) ->
-    @pos = 0
-  upcomingInput: ->
-    ""
-
-parser.yy = { Monkey }
+parser = new Parser(tokens: [], bnf: grammar, startSymbol: 'Root')
 
 exports.Parser = parser

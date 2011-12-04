@@ -6,4 +6,4 @@ Monkey =
       if Object.prototype.hasOwnProperty.call(source, key)
         target[key] = value
 
-window.Monkey = Monkey
+exports.Monkey = Monkey
