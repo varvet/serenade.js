@@ -29,9 +29,7 @@ task 'build:browser', 'rebuild the merged script for inclusion in the browser', 
   requires = ''
   for name in ['monkey', 'events', 'lexer', 'model', 'nodes', 'parser', 'properties', 'view']
     requires += """
-      console.log('setting up #{name}');
       require['./#{name}'] = new function() {
-        console.log('required #{name}');
         var exports = this;
         #{fs.readFileSync "lib/#{name}.js"}
       };
