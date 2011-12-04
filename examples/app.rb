@@ -5,7 +5,8 @@ require 'coffee-script'
 enable :inline_templates
 
 get '/' do
-
+  @examples = Dir.glob('examples/*.{js,coffee}').map { |e| e.split('/').last }
+  slim :index
 end
 
 get '/src/monkey.js' do
@@ -28,12 +29,21 @@ end
 
 get '/:name' do |name|
   @name = name
-  slim :thingy
+  slim :show
 end
 
 __END__
 
-@@ thingy
+@@ index
+doctype html
+html
+  head
+  body
+    - @examples.each do |example|
+      p
+        a[href="/#{example}"] = example
+
+@@ show
 doctype html
 html
   head
