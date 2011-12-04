@@ -29,3 +29,9 @@ describe 'Monkey.Element', ->
 
     it 'compiles a simple element with attributes', ->
       expectToCompileTo(el('div', [attr('id', 'foo'), attr('class', 'bar')]), 'div#foo.bar')
+
+    it 'compiles a simple element with a child', ->
+      expectToCompileTo(el('div', [], [el('p')]), 'div > p')
+
+    it 'compiles a simple element with multiple children', ->
+      expectToCompileTo(el('div', [], [el('p'), el('a', [attr('href', 'foo')])]), 'div > a[href=foo]')

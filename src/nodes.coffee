@@ -11,6 +11,10 @@ class Monkey.Element
       attributeNode = attribute.compile(document, model, controller)
       element.setAttributeNode(attributeNode)
 
+    for child in @children
+      childNode = child.compile(document, model, controller)
+      element.appendChild(childNode)
+
     element
 
 class Monkey.Attribute
