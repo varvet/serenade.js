@@ -7,3 +7,11 @@ Monkey =
         target[key] = value
 
 exports.Monkey = Monkey
+
+Monkey.Parser = require('./grammar').Parser
+require('./nodes')
+require('./lexer')
+require('./properties')
+require('./events')
+require('./model')
+require('./view')

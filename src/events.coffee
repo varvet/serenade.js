@@ -1,4 +1,6 @@
-Events =
+{Monkey} = require './monkey'
+
+Monkey.Events =
   bind: (ev, callback) ->
     evs   = ev.split(' ')
     calls = @hasOwnProperty('_callbacks') and @_callbacks or= {}
@@ -42,5 +44,3 @@ Events =
       @_callbacks[ev] = list
       break
     @
-
-window.Events = Events

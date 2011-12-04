@@ -1,3 +1,5 @@
+{Monkey} = require './monkey'
+
 IDENTIFIER = /^[a-zA-Z][a-zA-Z0-9\-]*/
 
 LITERAL = /^[\[\]=]/
@@ -8,7 +10,7 @@ MULTI_DENT = /^(?:\n[^\n\S]*)+/
 
 WHITESPACE = /^[^\n\S]+/
 
-class Lexer
+class Monkey.Lexer
 
   tokenize: (code, opts = {}) ->
     @code    = code           # The remainder of the source code.
@@ -113,5 +115,3 @@ class Lexer
     num
 
   last: (array, back) -> array[array.length - (back or 0) - 1]
-
-exports.Lexer = Lexer

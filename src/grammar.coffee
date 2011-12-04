@@ -1,6 +1,3 @@
-# mygenerator.js
-Parser = require("jison").Parser
-
 unwrap = /^function\s*\(\)\s*\{\s*return\s*([\s\S]*);\s*\}/
 
 o = (patternString, action, options) ->
@@ -11,10 +8,9 @@ o = (patternString, action, options) ->
   action = action.replace /\b(?:Block\.wrap|extend)\b/g, 'yy.$&'
   [patternString, "$$ = #{action};", options]
 
-# a grammar in JSON
 grammar =
   Root: [
-    o '', -> []
+    o '', -> null
     ['Element', 'return $$']
   ]
   Element: [
@@ -60,9 +56,7 @@ grammar =
     o 'IDENTIFIER ASSIGN STRING_LITERAL', -> new Monkey.Attribute($1, $3, false)
   ]
 
-  #'IDENTIFIER = IDENTIFIER|STRING_LITERAL'
-  #'IDENTIFIER LPAREN argument* RPARENS'
-  #
-parser = new Parser(tokens: [], bnf: grammar, startSymbol: 'Root')
+Jison = require("jison").Parser
+parser = new Jison(tokens: [], bnf: grammar, startSymbol: 'Root')
 
 exports.Parser = parser

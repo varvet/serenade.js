@@ -1,3 +1,5 @@
+{Monkey} = require './monkey'
+
 class Monkey.Model
   Monkey.extend(@prototype, Monkey.Events)
   Monkey.extend(@prototype, Monkey.Properties)

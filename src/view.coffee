@@ -1,9 +1,6 @@
 {Monkey} = require './monkey'
-require './nodes'
-{Parser} = require './grammar'
-{Lexer} = require './lexer'
 
-Parser.lexer =
+Monkey.Parser.lexer =
   lex: ->
     [tag, @yytext, @yylineno] = @tokens[@pos++] or ['']
     tag
@@ -12,11 +9,9 @@ Parser.lexer =
   upcomingInput: ->
     ""
 
-Parser.yy = { Monkey }
+Monkey.Parser.yy = { Monkey }
 
-class View
+class Monkey.View
   constructor: (@string) ->
   parse: ->
-    Parser.parse(new Lexer().tokenize(@string))
-
-exports.View = View
+    Monkey.Parser.parse(new Monkey.Lexer().tokenize(@string))

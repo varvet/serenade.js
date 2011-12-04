@@ -1,10 +1,9 @@
 {Monkey} = require '../src/monkey'
-{View} = require '../src/view'
 
 describe 'Monkey.View', ->
   describe '#parse', ->
     parse = (view) ->
-      new View(view).parse()
+      new Monkey.View(view).parse()
 
     it 'parses a single tag', ->
       expect(parse('div').name).toEqual('div')

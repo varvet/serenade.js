@@ -1,3 +1,5 @@
+{Monkey} = require './monkey'
+
 Monkey.Properties =
   property: (name) ->
     Object.defineProperty @, name,
