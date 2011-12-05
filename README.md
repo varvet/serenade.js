@@ -25,10 +25,10 @@ This is a very simple example:
 ``` coffeescript
 # register a view
 Monkey.registerView 'test', '''
-  #hellow-world
-    h1 = name
+  div[id="hello-world"]
+    h1 name
     p
-      a[click=showAlert href="#"] Show the alert
+      a[click=showAlert href="#"] "Show the alert"
 '''
 
 # set up model and controller
@@ -39,7 +39,8 @@ model = { name: 'Jonas' }
 result = Monkey.render('test', model, controller)
 
 # Now insert it into the page
-document.querySelector('body').appendChild(result)
+window.onload = ->
+  document.body.appendChild(result)
 ```
 
 This example is written in CoffeeScript for easier readability, but there is nothing stopping you from writing this in plain JavaScript as well.
@@ -49,8 +50,8 @@ You may notice that model and controller are just plain JavaScript objects, this
 If we want the view to update automatically as the model changes, we will have to add some functionality to our model. Thankfully this is quite simple:
 
 ``` coffeescript
-model = { name: 'Jonas' }
-Monkey.Properties.applyTo(model)
+model = {}
+Monkey.extend(model, Monkey.Properties)
 model.property 'name'
 ```
 
@@ -70,17 +71,25 @@ model.name
 
 Note that Opera and IE8 and below do *not* support this, so you might want to refrain from using this syntax.
 
+If your model is a constructor, you might want to add the properties to its prototype instead:
+
+``` javascript
+var MyModel = function(name) {
+  this.set('name', name);
+};
+Monkey.extend(MyModel.prototype, Monkey.Properties)
+```
+
+Or in CoffeeScript:
+
+``` coffeescript
+class MyModel
+  Monkey.extend(@prototype, Monkey.Properties)
+```
+
 ## Monkey.Model
 
 It can be quite convenient to use any old JavaScript object as a model, but sometimes we require more powerful abstractions. Monkey offers a base for building objects which is quite powerful. You can use it like this:
-
-``` javascript
-var MyModel = function() {}
-Monkey.Model.applyTo(MyModel)
-var model = new MyModel()
-```
-
-Note that Monkey.Model needs to be applied to a constructor function, because it will add properties to both the constructor funtion itself, as well as its prototype. If you are using CoffeeScript, you can conveniently inherit from Monkey.Model:
 
 ``` coffeescript
 class MyModel extends Monkey.Model
@@ -90,17 +99,4 @@ You can use the same property declarations in these models:
 
 ``` javascript
 MyModel.property('name')
-```
-
-### Caching
-
-You can define a caching strategy for these models,
-
-If your model is a constructor, you might want to add the properties to its prototype instead:
-
-``` javascript
-var Model = function(name) {
-  this.set('name', name);
-};
-Monkey.extend(Model.prototype, Monkey.Properties)
 ```
