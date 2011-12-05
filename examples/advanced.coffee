@@ -1,21 +1,19 @@
 Monkey.registerView 'thing', '''
   div[id="monkey"]
     p
-      a[click=doThing] "Do thing"
-    p[mousover=over mouseout=out]
+      a[click=doThing href="#"] "Do thing"
+    p[mouseover=over mouseout=out]
       "Mouse over this area to change"
     p
-      strong "Thing:"
-      " "
+      strong "Thing: "
       span schmoo
     p
-      strong "Barr:"
-      " "
+      strong "Barr: "
       span barr
     p
       input[type="text" value=schmoo change=didChange name="schmoo"]
     p
-      input[type="text" value=schmoo change=didChange name="barr"]
+      input[type="text" value=barr change=didChange name="barr"]
 '''
 
 
