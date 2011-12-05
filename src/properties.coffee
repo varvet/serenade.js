@@ -8,10 +8,10 @@ Monkey.Properties =
 
   set: (property, value) ->
     @properties or= {}
-    @properties[name] = value
+    @properties[property] = value
     @trigger("change:#{property}", value)
     @trigger("change", property, value)
 
   get: (property) ->
     @properties or= {}
-    @properties[name]
+    @properties[property]

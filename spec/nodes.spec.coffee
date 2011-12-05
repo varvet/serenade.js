@@ -67,3 +67,37 @@ describe 'Monkey.Element', ->
         event.initEvent('click', true, true)
         body.find('div').get(0).dispatchEvent(event)
         expect(controller.clicked).toBeTruthy()
+
+    it 'changes bound attributes as they are changed', ->
+      model = new Monkey.Model
+      model.set('name', 'jonas')
+      compile el('div', [attr('id', 'name', true)]), model, {}, (body) ->
+        expect(body).toHaveElement('div#jonas')
+        model.set('name', 'peter')
+        expect(body).toHaveElement('div#peter')
+
+    it 'removes attributes and reattaches them as they are set to undefined', ->
+      model = new Monkey.Model
+      model.set('name', 'jonas')
+      compile el('div', [attr('id', 'name', true)]), model, {}, (body) ->
+        expect(body).toHaveElement('div#jonas')
+        model.set('name', undefined)
+        expect(body.find('div').get(0).hasAttribute('id')).toBeFalsy()
+        model.set('name', 'peter')
+        expect(body).toHaveElement('div#peter')
+
+    it 'handles value specially', ->
+      model = new Monkey.Model
+      model.set('name', 'jonas')
+      compile el('input', [attr('value', 'name', true)]), model, {}, (body) ->
+        body.find('input').val('changed')
+        model.set('name', 'peter')
+        expect(body.find('input').val()).toEqual('peter')
+
+    it 'changes bound text nodes as they are changed', ->
+      model = new Monkey.Model
+      model.set('name', 'Jonas Nicklas')
+      compile el('div', [], [text('name', true)]), model, {}, (body) ->
+        expect(body.find('div')).toHaveText('Jonas Nicklas')
+        model.set('name', 'Peter Pan')
+        expect(body.find('div')).toHaveText('Peter Pan')
