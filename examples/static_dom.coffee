@@ -13,4 +13,5 @@ Monkey.registerView 'test', '''
 element = Monkey.render('test', {}, {})
 
 # Add it to page on load
-$ -> $('body').append(element)
+window.onload = ->
+  document.body.appendChild(element)

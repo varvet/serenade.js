@@ -5,9 +5,10 @@ Monkey.registerView 'test', '''
       a[click=showAlert href="#"] "Show the alert"
 '''
 
-$ ->
-  controller = { showAlert: -> alert('Alert!!!') }
-  model = { name: 'Jonas' }
-  result = Monkey.render('test', model, controller)
+controller = { showAlert: -> alert('Alert!!!') }
+model = { name: 'Jonas' }
 
-  $('body').append(result)
+result = Monkey.render('test', model, controller)
+
+window.onload = ->
+  document.body.appendChild(result)

@@ -45,7 +45,6 @@ html
 doctype html
 html
   head
-    script[src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"]
     script[src="src/monkey.js"]
     script[src="src/#{@name}"]
   body

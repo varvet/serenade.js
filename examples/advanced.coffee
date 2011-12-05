@@ -34,6 +34,6 @@ class Controller
 
 window.aThing = new Thing()
 
-$ ->
+window.onload = ->
   view = Monkey.render('thing', aThing, new Controller())
   sandbox = document.body.appendChild(view)
