@@ -12,9 +12,7 @@ end
 get '/src/monkey.js' do
   # ghetto live reload
   if ENV['AUTORELOAD']
-    `cake build`
-    `cake build:parser`
-    `cake build:browser`
+    `cake build; cake build:parser; cake build:browser`
   end
   File.read("./extras/monkey.js")
 end
