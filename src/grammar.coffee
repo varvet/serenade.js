@@ -37,6 +37,7 @@ grammar =
 
   Child: [
     o 'Element', -> $1
+    o 'Instruction', -> $1
     o 'STRING_LITERAL', -> new Monkey.TextNode($1, false)
   ]
 
@@ -54,6 +55,21 @@ grammar =
   Attribute: [
     o 'IDENTIFIER ASSIGN IDENTIFIER', -> new Monkey.Attribute($1, $3, true)
     o 'IDENTIFIER ASSIGN STRING_LITERAL', -> new Monkey.Attribute($1, $3, false)
+  ]
+
+  Instruction: [
+    o 'INSTRUCT WHITESPACE IDENTIFIER WHITESPACE InstructionArgumentsList', -> new Monkey.Instruction($3, $5)
+    o 'Instruction INDENT ChildList OUTDENT', -> $1.children = $3; $1
+  ]
+
+  InstructionArgumentsList: [
+    o 'InstructionArgument', -> [$1]
+    o 'InstructionArgumentsList WHITESPACE InstructionArgument', -> $1.concat $3
+  ]
+
+  InstructionArgument: [
+    o 'IDENTIFIER', -> $1
+    o 'STRING_LITERAL', -> $1
   ]
 
 Jison = require("jison").Parser

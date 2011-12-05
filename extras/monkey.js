@@ -115,7 +115,7 @@
 
   IDENTIFIER = /^[a-zA-Z][a-zA-Z0-9\-]*/;
 
-  LITERAL = /^[\[\]=]/;
+  LITERAL = /^[\[\]=-]/;
 
   STRING = /^"((?:\\.|[^"])*)"/;
 
@@ -224,6 +224,9 @@
             break;
           case "=":
             this.token('ASSIGN', id);
+            break;
+          case "-":
+            this.token('INSTRUCT', id);
         }
         return 1;
       } else {
@@ -272,12 +275,22 @@
 };require['./nodes'] = new function() {
   var exports = this;
   (function() {
-  var EVENTS, Monkey;
+  var EVENTS, Monkey, extract_from_model;
   var __hasProp = Object.prototype.hasOwnProperty, __indexOf = Array.prototype.indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (__hasProp.call(this, i) && this[i] === item) return i; } return -1; };
 
   Monkey = require('./monkey').Monkey;
 
   EVENTS = ['click', 'blur', 'focus', 'change', 'mouseover', 'mouseout'];
+
+  extract_from_model = function(model, value, bound) {
+    if (bound && model.get) {
+      return model.get(value);
+    } else if (bound) {
+      return model[value];
+    } else {
+      return value;
+    }
+  };
 
   Monkey.Element = (function() {
 
@@ -290,7 +303,7 @@
     }
 
     Element.prototype.compile = function(document, model, controller) {
-      var attribute, child, childNode, element, _i, _j, _len, _len2, _ref, _ref2, _ref3;
+      var attribute, child, childNode, element, node, _i, _j, _k, _len, _len2, _len3, _ref, _ref2, _ref3;
       element = document.createElement(this.name);
       _ref = this.attributes;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -305,7 +318,14 @@
       for (_j = 0, _len2 = _ref3.length; _j < _len2; _j++) {
         child = _ref3[_j];
         childNode = child.compile(document, model, controller);
-        element.appendChild(childNode);
+        if (childNode.nodeName) {
+          element.appendChild(childNode);
+        } else {
+          for (_k = 0, _len3 = childNode.length; _k < _len3; _k++) {
+            node = childNode[_k];
+            element.appendChild(node);
+          }
+        }
       }
       return element;
     };
@@ -350,13 +370,7 @@
     };
 
     Attribute.prototype.compute = function(model) {
-      if (this.bound && model.get) {
-        return model.get(this.value);
-      } else if (this.bound) {
-        return model[this.value];
-      } else {
-        return this.value;
-      }
+      return extract_from_model(model, this.value, this.bound);
     };
 
     return Attribute;
@@ -372,7 +386,7 @@
 
     TextNode.prototype.name = 'text';
 
-    TextNode.prototype.compile = function(document, model, constructor) {
+    TextNode.prototype.compile = function(document, model, controller) {
       var textNode;
       var _this = this;
       textNode = document.createTextNode(this.compute(model) || '');
@@ -387,16 +401,45 @@
     };
 
     TextNode.prototype.compute = function(model) {
-      if (this.bound && model.get) {
-        return model.get(this.value);
-      } else if (this.bound) {
-        return model[this.value];
-      } else {
-        return this.value;
-      }
+      return extract_from_model(model, this.value, this.bound);
     };
 
     return TextNode;
+
+  })();
+
+  Monkey.Instruction = (function() {
+
+    function Instruction(command, _arguments, children) {
+      this.command = command;
+      this.arguments = _arguments;
+      this.children = children;
+    }
+
+    Instruction.prototype.compile = function(document, model, controller) {
+      return this[this.command](document, model, controller);
+    };
+
+    Instruction.prototype.collection = function(document, model, controller) {
+      var child, elements, item, _i, _j, _len, _len2, _ref, _ref2;
+      elements = [];
+      _ref = this.compute(model);
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        item = _ref[_i];
+        _ref2 = this.children;
+        for (_j = 0, _len2 = _ref2.length; _j < _len2; _j++) {
+          child = _ref2[_j];
+          elements.push(child.compile(document, item, controller));
+        }
+      }
+      return elements;
+    };
+
+    Instruction.prototype.compute = function(model) {
+      return extract_from_model(model, this.arguments[0], true);
+    };
+
+    return Instruction;
 
   })();
 
@@ -409,9 +452,9 @@ var parser = (function(){
 undefined
 var parser = {trace: function trace() { },
 yy: {},
-symbols_: {"error":2,"Root":3,"Element":4,"IDENTIFIER":5,"AttributeArgument":6,"INDENT":7,"ChildList":8,"OUTDENT":9,"WHITESPACE":10,"InlineChildList":11,"InlineChild":12,"STRING_LITERAL":13,"Child":14,"TERMINATOR":15,"LPAREN":16,"RPAREN":17,"AttributeList":18,"Attribute":19,"ASSIGN":20,"$accept":0,"$end":1},
-terminals_: {2:"error",5:"IDENTIFIER",7:"INDENT",9:"OUTDENT",10:"WHITESPACE",13:"STRING_LITERAL",15:"TERMINATOR",16:"LPAREN",17:"RPAREN",20:"ASSIGN"},
-productions_: [0,[3,0],[3,1],[4,2],[4,5],[4,4],[11,1],[11,3],[12,1],[12,1],[8,0],[8,1],[8,3],[14,1],[14,1],[6,0],[6,2],[6,3],[18,1],[18,3],[19,3],[19,3]],
+symbols_: {"error":2,"Root":3,"Element":4,"IDENTIFIER":5,"AttributeArgument":6,"INDENT":7,"ChildList":8,"OUTDENT":9,"WHITESPACE":10,"InlineChildList":11,"InlineChild":12,"STRING_LITERAL":13,"Child":14,"TERMINATOR":15,"Instruction":16,"LPAREN":17,"RPAREN":18,"AttributeList":19,"Attribute":20,"ASSIGN":21,"INSTRUCT":22,"InstructionArgumentsList":23,"InstructionArgument":24,"$accept":0,"$end":1},
+terminals_: {2:"error",5:"IDENTIFIER",7:"INDENT",9:"OUTDENT",10:"WHITESPACE",13:"STRING_LITERAL",15:"TERMINATOR",17:"LPAREN",18:"RPAREN",21:"ASSIGN",22:"INSTRUCT"},
+productions_: [0,[3,0],[3,1],[4,2],[4,5],[4,4],[11,1],[11,3],[12,1],[12,1],[8,0],[8,1],[8,3],[14,1],[14,1],[14,1],[6,0],[6,2],[6,3],[19,1],[19,3],[20,3],[20,3],[16,5],[16,4],[23,1],[23,3],[24,1],[24,1]],
 performAction: function anonymous(yytext,yyleng,yylineno,yy,yystate,$$,_$) {
 
 var $0 = $$.length - 1;
@@ -442,25 +485,42 @@ case 12:this.$ = $$[$0-2].concat($$[$0]);
 break;
 case 13:this.$ = $$[$0];
 break;
-case 14:this.$ = new yy.Monkey.TextNode($$[$0], false);
+case 14:this.$ = $$[$0];
 break;
-case 15:this.$ = [];
+case 15:this.$ = new yy.Monkey.TextNode($$[$0], false);
 break;
 case 16:this.$ = [];
 break;
-case 17:this.$ = $$[$0-1];
+case 17:this.$ = [];
 break;
-case 18:this.$ = [$$[$0]];
+case 18:this.$ = $$[$0-1];
 break;
-case 19:this.$ = $$[$0-2].concat($$[$0]);
+case 19:this.$ = [$$[$0]];
 break;
-case 20:this.$ = new yy.Monkey.Attribute($$[$0-2], $$[$0], true);
+case 20:this.$ = $$[$0-2].concat($$[$0]);
 break;
-case 21:this.$ = new yy.Monkey.Attribute($$[$0-2], $$[$0], false);
+case 21:this.$ = new yy.Monkey.Attribute($$[$0-2], $$[$0], true);
+break;
+case 22:this.$ = new yy.Monkey.Attribute($$[$0-2], $$[$0], false);
+break;
+case 23:this.$ = new yy.Monkey.Instruction($$[$0-2], $$[$0]);
+break;
+case 24:this.$ = (function () {
+        $$[$0-3].children = $$[$0-1];
+        return $$[$0-3];
+      }());
+break;
+case 25:this.$ = [$$[$0]];
+break;
+case 26:this.$ = $$[$0-2].concat($$[$0]);
+break;
+case 27:this.$ = $$[$0];
+break;
+case 28:this.$ = $$[$0];
 break;
 }
 },
-table: [{1:[2,1],3:1,4:2,5:[1,3]},{1:[3]},{1:[2,2]},{1:[2,15],6:4,7:[2,15],9:[2,15],10:[2,15],15:[2,15],16:[1,5]},{1:[2,3],7:[1,6],9:[2,3],10:[1,7],15:[2,3]},{5:[1,11],17:[1,8],18:9,19:10},{4:14,5:[1,3],8:12,9:[2,10],13:[1,15],14:13,15:[2,10]},{5:[1,18],11:16,12:17,13:[1,19]},{1:[2,16],7:[2,16],9:[2,16],10:[2,16],15:[2,16]},{10:[1,21],17:[1,20]},{10:[2,18],17:[2,18]},{20:[1,22]},{9:[1,23],15:[1,24]},{9:[2,11],15:[2,11]},{9:[2,13],15:[2,13]},{9:[2,14],15:[2,14]},{1:[2,5],9:[2,5],10:[1,25],15:[2,5]},{1:[2,6],9:[2,6],10:[2,6],15:[2,6]},{1:[2,8],9:[2,8],10:[2,8],15:[2,8]},{1:[2,9],9:[2,9],10:[2,9],15:[2,9]},{1:[2,17],7:[2,17],9:[2,17],10:[2,17],15:[2,17]},{5:[1,11],19:26},{5:[1,27],13:[1,28]},{1:[2,4],9:[2,4],15:[2,4]},{4:14,5:[1,3],13:[1,15],14:29},{5:[1,18],12:30,13:[1,19]},{10:[2,19],17:[2,19]},{10:[2,20],17:[2,20]},{10:[2,21],17:[2,21]},{9:[2,12],15:[2,12]},{1:[2,7],9:[2,7],10:[2,7],15:[2,7]}],
+table: [{1:[2,1],3:1,4:2,5:[1,3]},{1:[3]},{1:[2,2]},{1:[2,16],6:4,7:[2,16],9:[2,16],10:[2,16],15:[2,16],17:[1,5]},{1:[2,3],7:[1,6],9:[2,3],10:[1,7],15:[2,3]},{5:[1,11],18:[1,8],19:9,20:10},{4:14,5:[1,3],8:12,9:[2,10],13:[1,16],14:13,15:[2,10],16:15,22:[1,17]},{5:[1,20],11:18,12:19,13:[1,21]},{1:[2,17],7:[2,17],9:[2,17],10:[2,17],15:[2,17]},{10:[1,23],18:[1,22]},{10:[2,19],18:[2,19]},{21:[1,24]},{9:[1,25],15:[1,26]},{9:[2,11],15:[2,11]},{9:[2,13],15:[2,13]},{7:[1,27],9:[2,14],15:[2,14]},{9:[2,15],15:[2,15]},{10:[1,28]},{1:[2,5],9:[2,5],10:[1,29],15:[2,5]},{1:[2,6],9:[2,6],10:[2,6],15:[2,6]},{1:[2,8],9:[2,8],10:[2,8],15:[2,8]},{1:[2,9],9:[2,9],10:[2,9],15:[2,9]},{1:[2,18],7:[2,18],9:[2,18],10:[2,18],15:[2,18]},{5:[1,11],20:30},{5:[1,31],13:[1,32]},{1:[2,4],9:[2,4],15:[2,4]},{4:14,5:[1,3],13:[1,16],14:33,16:15,22:[1,17]},{4:14,5:[1,3],8:34,9:[2,10],13:[1,16],14:13,15:[2,10],16:15,22:[1,17]},{5:[1,35]},{5:[1,20],12:36,13:[1,21]},{10:[2,20],18:[2,20]},{10:[2,21],18:[2,21]},{10:[2,22],18:[2,22]},{9:[2,12],15:[2,12]},{9:[1,37],15:[1,26]},{10:[1,38]},{1:[2,7],9:[2,7],10:[2,7],15:[2,7]},{7:[2,24],9:[2,24],15:[2,24]},{5:[1,41],13:[1,42],23:39,24:40},{7:[2,23],9:[2,23],10:[1,43],15:[2,23]},{7:[2,25],9:[2,25],10:[2,25],15:[2,25]},{7:[2,27],9:[2,27],10:[2,27],15:[2,27]},{7:[2,28],9:[2,28],10:[2,28],15:[2,28]},{5:[1,41],13:[1,42],24:44},{7:[2,26],9:[2,26],10:[2,26],15:[2,26]}],
 defaultActions: {2:[2,2]},
 parseError: function parseError(str, hash) {
     throw new Error(str);

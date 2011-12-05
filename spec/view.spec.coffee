@@ -80,3 +80,10 @@ describe 'Monkey.View', ->
       expect(result.children[1].name).toEqual('text')
       expect(result.children[1].value).toEqual('bar')
       expect(result.children[1].bound).toEqual(true)
+
+    it 'parses instructions', ->
+      result = parse("div[id=foo]\n\t- view example\n\t\tspan")
+      expect(result.name).toEqual('div')
+      expect(result.children[0].command).toEqual('view')
+      expect(result.children[0].arguments).toEqual(['example'])
+      expect(result.children[0].children[0].name).toEqual('span')

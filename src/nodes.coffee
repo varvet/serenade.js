@@ -2,6 +2,14 @@
 
 EVENTS = ['click', 'blur', 'focus', 'change', 'mouseover', 'mouseout']
 
+extract_from_model = (model, value, bound) ->
+  if bound and model.get
+    model.get(value)
+  else if bound
+    model[value]
+  else
+    value
+
 class Monkey.Element
   constructor: (@name, @attributes, @children) ->
     @attributes or= []
@@ -17,7 +25,10 @@ class Monkey.Element
 
     for child in @children
       childNode = child.compile(document, model, controller)
-      element.appendChild(childNode)
+      if childNode.nodeName
+        element.appendChild(childNode)
+      else
+        element.appendChild(node) for node in childNode
     element
 
 class Monkey.Attribute
@@ -38,27 +49,30 @@ class Monkey.Attribute
   event: (element, model, controller) ->
     callback = (e) => controller[@value](e)
     element.addEventListener(@name, callback, false)
-  compute: (model) ->
-    if @bound and model.get
-      model.get(@value)
-    else if @bound
-      model[@value]
-    else
-      @value
+  compute: (model) -> extract_from_model(model, @value, @bound)
 
 class Monkey.TextNode
   constructor: (@value, @bound) ->
   name: 'text'
-  compile: (document, model, constructor) ->
+  compile: (document, model, controller) ->
     textNode = document.createTextNode(@compute(model) or '')
     if @bound
       model.bind? "change:#{@value}", (value) =>
         textNode.nodeValue = value or ''
     textNode
-  compute: (model) ->
-    if @bound and model.get
-      model.get(@value)
-    else if @bound
-      model[@value]
-    else
-      @value
+  compute: (model) -> extract_from_model(model, @value, @bound)
+
+class Monkey.Instruction
+  constructor: (@command, @arguments, @children) ->
+  compile: (document, model, controller) ->
+    @[@command](document, model, controller)
+
+  collection: (document, model, controller) ->
+    elements = []
+    for item in @compute(model)
+      for child in @children
+        elements.push child.compile(document, item, controller)
+    elements
+
+  compute: (model) -> extract_from_model(model, @arguments[0], true)
+

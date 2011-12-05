@@ -6,6 +6,7 @@ jquery = fs.readFileSync("spec/jquery.js").toString()
 el = (name, attributes, children) -> new Monkey.Element(name, attributes, children)
 attr = (name, value, bound=false) -> new Monkey.Attribute(name, value, bound)
 text = (value, bound=false) -> new Monkey.TextNode(value, bound)
+ins = (command, args, children) -> new Monkey.Instruction(command, args, children)
 
 compile = (actual, model, controller, callback) ->
   runs ->
@@ -101,3 +102,13 @@ describe 'Monkey.Element', ->
         expect(body.find('div')).toHaveText('Jonas Nicklas')
         model.set('name', 'Peter Pan')
         expect(body.find('div')).toHaveText('Peter Pan')
+
+    it 'compiles a collection instruction', ->
+      model = { people: [{ name: 'jonas' }, { name: 'peter' }] }
+
+      tree =  el('ul', [], [ins('collection', ['people'], [el('li', [attr('id', 'name', true)])])])
+      compile tree, model, {}, (body) ->
+        expect(body).toHaveElement('ul > li#jonas')
+        expect(body).toHaveElement('ul > li#peter')
+
+

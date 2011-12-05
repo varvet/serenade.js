@@ -5,6 +5,7 @@ require('../src/properties')
 require('../src/events')
 require('../src/model')
 require('../src/view')
+require('../src/collection')
 
 beforeEach ->
   @addMatchers
