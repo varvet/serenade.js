@@ -27,7 +27,7 @@ task 'build:parser', 'rebuild the Jison parser (run build first)', ->
 
 task 'build:browser', 'rebuild the merged script for inclusion in the browser', ->
   requires = ''
-  for name in ['monkey', 'events', 'lexer', 'nodes', 'parser', 'properties', 'model', 'view']
+  for name in ['monkey', 'events', 'lexer', 'nodes', 'parser', 'properties', 'model', 'collection', 'view']
     requires += """
       require['./#{name}'] = new function() {
         var exports = this;

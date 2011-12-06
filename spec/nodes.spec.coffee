@@ -111,4 +111,11 @@ describe 'Monkey.Element', ->
         expect(body).toHaveElement('ul > li#jonas')
         expect(body).toHaveElement('ul > li#peter')
 
+    it 'compiles a Monkey.collection in a collection instruction', ->
+      model = { people: new Monkey.Collection([{ name: 'jonas' }, { name: 'peter' }]) }
+
+      tree =  el('ul', [], [ins('collection', ['people'], [el('li', [attr('id', 'name', true)])])])
+      compile tree, model, {}, (body) ->
+        expect(body).toHaveElement('ul > li#jonas')
+        expect(body).toHaveElement('ul > li#peter')
 

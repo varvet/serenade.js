@@ -2,13 +2,6 @@
 
 EVENTS = ['click', 'blur', 'focus', 'change', 'mouseover', 'mouseout']
 
-extract_from_model = (model, value, bound) ->
-  if bound and model.get
-    model.get(value)
-  else if bound
-    model[value]
-  else
-    value
 
 class Monkey.Element
   type: 'element'
@@ -36,9 +29,9 @@ class Monkey.Attribute
   type: 'attribute'
   constructor: (@name, @value, @bound) ->
   compile: (element, model, constructor) ->
-    computed = @compute(model)
-    unless computed is undefined
-      element.setAttribute(@name, computed)
+    value = @get(model)
+    unless value is undefined
+      element.setAttribute(@name, value)
     if @bound
       model.bind? "change:#{@value}", (value) =>
         if @name is 'value'
@@ -51,19 +44,19 @@ class Monkey.Attribute
   event: (element, model, controller) ->
     callback = (e) => controller[@value](e)
     element.addEventListener(@name, callback, false)
-  compute: (model) -> extract_from_model(model, @value, @bound)
+  get: (model) -> Monkey.get(model, @value, @bound)
 
 class Monkey.TextNode
   type: 'text'
   constructor: (@value, @bound) ->
   name: 'text'
   compile: (document, model, controller) ->
-    textNode = document.createTextNode(@compute(model) or '')
+    textNode = document.createTextNode(@get(model) or '')
     if @bound
       model.bind? "change:#{@value}", (value) =>
         textNode.nodeValue = value or ''
     textNode
-  compute: (model) -> extract_from_model(model, @value, @bound)
+  get: (model) -> Monkey.get(model, @value, @bound)
 
 class Monkey.Instruction
   type: 'instruction'
@@ -73,12 +66,12 @@ class Monkey.Instruction
     @[@command](element, document, model, controller)
 
   collection: (element, document, model, controller) ->
-    collection = @compute(model)
+    collection = @get(model)
     anchor = document.createTextNode('')
     element.appendChild(anchor)
     new Monkey.ViewCollection(anchor, document, collection, controller, @children)
 
-  compute: (model) -> extract_from_model(model, @arguments[0], true)
+  get: (model) -> Monkey.get(model, @arguments[0])
 
 class Monkey.ViewCollection
   constructor: (@anchor, @document, @collection, @controller, @children) ->
@@ -88,7 +81,7 @@ class Monkey.ViewCollection
     parent = @anchor.parentNode
     sibling = @anchor.nextSibling
 
-    for item in @collection
+    Monkey.each @collection, (item) =>
       for child in @children
         newElement = child.compile(@document, item, @controller)
         parent.insertBefore(newElement, sibling)

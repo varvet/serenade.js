@@ -5,3 +5,4 @@ class Monkey.Model
   Monkey.extend(@prototype, Monkey.Properties)
 
   @property: -> @prototype.property(arguments...)
+  @collection: -> @prototype.collection(arguments...)

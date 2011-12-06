@@ -33,6 +33,9 @@ Monkey.registerController 'post', PostController
 Monkey.registerController 'comment', CommentController
 
 window.aPost = new Post()
+
+aPost.comments.update([{body: 'test'}, {body: 'another'}])
+
 window.onload = ->
   view = Monkey.render('post', aPost)
   sandbox = document.body.appendChild(view)
