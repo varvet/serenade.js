@@ -12,23 +12,23 @@ class Monkey.Element
     element = document.createElement(@name)
 
     for attribute in @attributes
-      if attribute.name in EVENTS
-        attribute.event(element, model, controller)
-      else
-        attribute.compile(element, model, controller)
+      attribute.append(element, document, model, controller)
 
     for child in @children
-      if child.type is 'instruction'
-        child.execute(element, document, model, controller)
-      else
-        childNode = child.compile(document, model, controller)
-        element.appendChild(childNode)
+      child.append(element, document, model, controller)
     element
+
+  append: (element, args...) ->
+    element.appendChild(@compile(args...))
+
+  insertAfter: (element, args...) ->
+    element.parentNode.insertBefore(@compile(args...), element.nextSibling)
 
 class Monkey.Attribute
   type: 'attribute'
   constructor: (@name, @value, @bound) ->
-  compile: (element, model, constructor) ->
+
+  attribute: (element, document, model, constructor) ->
     value = @get(model)
     unless value is undefined
       element.setAttribute(@name, value)
@@ -41,9 +41,16 @@ class Monkey.Attribute
         else
           element.setAttribute(@name, value)
 
-  event: (element, model, controller) ->
+  event: (element, document, model, controller) ->
     callback = (e) => controller[@value](e)
     element.addEventListener(@name, callback, false)
+
+  append: (args...) ->
+    if @name in EVENTS
+      @event(args...)
+    else
+      @attribute(args...)
+
   get: (model) -> Monkey.get(model, @value, @bound)
 
 class Monkey.TextNode
@@ -56,13 +63,18 @@ class Monkey.TextNode
       model.bind? "change:#{@value}", (value) =>
         textNode.nodeValue = value or ''
     textNode
+  append: (element, args...) ->
+    element.appendChild(@compile(args...))
   get: (model) -> Monkey.get(model, @value, @bound)
+
+  insertAfter: (element, args...) ->
+    element.parentNode.insertBefore(@compile(args...), element.nextSibling)
 
 class Monkey.Instruction
   type: 'instruction'
   constructor: (@command, @arguments, @children) ->
 
-  execute: (element, document, model, controller) ->
+  append: (element, document, model, controller) ->
     @[@command](element, document, model, controller)
 
   collection: (element, document, model, controller) ->
@@ -71,7 +83,13 @@ class Monkey.Instruction
     element.appendChild(anchor)
     new Monkey.ViewCollection(anchor, document, collection, controller, @children)
 
+  view: (element, document, model, controller) ->
+    view = Monkey._views[@arguments[0]].compile(document, model, controller)
+    element.appendChild(view)
+
   get: (model) -> Monkey.get(model, @arguments[0])
+
+  insertAfter: (element, args...) ->
 
 class Monkey.ViewCollection
   constructor: (@anchor, @document, @collection, @controller, @children) ->
@@ -82,6 +100,5 @@ class Monkey.ViewCollection
     sibling = @anchor.nextSibling
 
     Monkey.each @collection, (item) =>
-      for child in @children
-        newElement = child.compile(@document, item, @controller)
-        parent.insertBefore(newElement, sibling)
+      child.insertAfter(@anchor, @document, item, @controller) for child in @children
+
