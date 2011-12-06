@@ -11,6 +11,7 @@ extract_from_model = (model, value, bound) ->
     value
 
 class Monkey.Element
+  type: 'element'
   constructor: (@name, @attributes, @children) ->
     @attributes or= []
     @children or= []
@@ -24,14 +25,15 @@ class Monkey.Element
         attribute.compile(element, model, controller)
 
     for child in @children
-      childNode = child.compile(document, model, controller)
-      if childNode.nodeName
-        element.appendChild(childNode)
+      if child.type is 'instruction'
+        child.execute(element, document, model, controller)
       else
-        element.appendChild(node) for node in childNode
+        childNode = child.compile(document, model, controller)
+        element.appendChild(childNode)
     element
 
 class Monkey.Attribute
+  type: 'attribute'
   constructor: (@name, @value, @bound) ->
   compile: (element, model, constructor) ->
     computed = @compute(model)
@@ -52,6 +54,7 @@ class Monkey.Attribute
   compute: (model) -> extract_from_model(model, @value, @bound)
 
 class Monkey.TextNode
+  type: 'text'
   constructor: (@value, @bound) ->
   name: 'text'
   compile: (document, model, controller) ->
@@ -63,16 +66,29 @@ class Monkey.TextNode
   compute: (model) -> extract_from_model(model, @value, @bound)
 
 class Monkey.Instruction
+  type: 'instruction'
   constructor: (@command, @arguments, @children) ->
-  compile: (document, model, controller) ->
-    @[@command](document, model, controller)
 
-  collection: (document, model, controller) ->
-    elements = []
-    for item in @compute(model)
-      for child in @children
-        elements.push child.compile(document, item, controller)
-    elements
+  execute: (element, document, model, controller) ->
+    @[@command](element, document, model, controller)
+
+  collection: (element, document, model, controller) ->
+    collection = @compute(model)
+    anchor = document.createTextNode('')
+    element.appendChild(anchor)
+    new Monkey.ViewCollection(anchor, document, collection, controller, @children)
 
   compute: (model) -> extract_from_model(model, @arguments[0], true)
 
+class Monkey.ViewCollection
+  constructor: (@anchor, @document, @collection, @controller, @children) ->
+    @build()
+
+  build: ->
+    parent = @anchor.parentNode
+    sibling = @anchor.nextSibling
+
+    for item in @collection
+      for child in @children
+        newElement = child.compile(@document, item, @controller)
+        parent.insertBefore(newElement, sibling)
