@@ -122,8 +122,24 @@ describe 'Monkey.Element', ->
     it 'compiles a view instruction by fetching and compiling the given view', ->
       # TODO: Figure out how to isolate this test from the parser
       Monkey.registerView('test', 'li[id="foo"]')
-      model = { people: new Monkey.Collection([{ name: 'jonas' }, { name: 'peter' }]) }
 
       tree =  el('ul', [], [ins('view', ['test'])])
-      compile tree, model, {}, (body) ->
+      compile tree, {}, {}, (body) ->
         expect(body).toHaveElement('ul > li#foo')
+
+    it 'changes controller in view', ->
+      # TODO: Figure out how to isolate this test from the parser
+      funked = false
+      class TestCon
+        funk: -> funked = true
+
+      Monkey.registerView('test', 'li[id="foo" click=funk]')
+      Monkey.registerController('test', TestCon)
+
+      tree =  el('ul', [], [ins('view', ['test'])])
+      compile tree, {}, {}, (body, document) ->
+        event = document.createEvent('HTMLEvents')
+        event.initEvent('click', true, true)
+        body.find('li#foo').get(0).dispatchEvent(event)
+
+        expect(funked).toBeTruthy()

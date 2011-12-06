@@ -12,7 +12,10 @@ Monkey =
   registerController: (name, klass) ->
     @_controllers[name] = klass
   controllerFor: (name) ->
-    new (@_controllers[name])()
+    if @_controllers[name]
+      new (@_controllers[name])()
+    else
+      {}
 
   extend: (target, source) ->
     for key, value of source

@@ -75,21 +75,26 @@ class Monkey.Instruction
   constructor: (@command, @arguments, @children) ->
 
   append: (element, document, model, controller) ->
-    @[@command](element, document, model, controller)
-
-  collection: (element, document, model, controller) ->
-    collection = @get(model)
     anchor = document.createTextNode('')
     element.appendChild(anchor)
+    @[@command](anchor, document, model, controller)
+
+  insertAfter: (element, document, model, controller) ->
+    anchor = document.createTextNode('')
+    element.parentNode.insertBefore(anchor, element.nextSibling)
+    @[@command](anchor, document, model, controller)
+
+  collection: (anchor, document, model, controller) ->
+    collection = @get(model)
     new Monkey.ViewCollection(anchor, document, collection, controller, @children)
 
-  view: (element, document, model, controller) ->
-    view = Monkey._views[@arguments[0]].compile(document, model, controller)
-    element.appendChild(view)
+  view: (anchor, document, model, controller) ->
+    newController = Monkey.controllerFor(@arguments[0])
+    newController.parent = controller
+    view = Monkey._views[@arguments[0]].compile(document, model, newController)
+    anchor.parentNode.insertBefore(view, anchor.nextSibling)
 
   get: (model) -> Monkey.get(model, @arguments[0])
-
-  insertAfter: (element, args...) ->
 
 class Monkey.ViewCollection
   constructor: (@anchor, @document, @collection, @controller, @children) ->
@@ -101,4 +106,3 @@ class Monkey.ViewCollection
 
     Monkey.each @collection, (item) =>
       child.insertAfter(@anchor, @document, item, @controller) for child in @children
-

@@ -28,7 +28,11 @@
       return this._controllers[name] = klass;
     },
     controllerFor: function(name) {
-      return new this._controllers[name]();
+      if (this._controllers[name]) {
+        return new this._controllers[name]();
+      } else {
+        return {};
+      }
     },
     extend: function(target, source) {
       var key, value, _results;
@@ -468,31 +472,35 @@
     }
 
     Instruction.prototype.append = function(element, document, model, controller) {
-      return this[this.command](element, document, model, controller);
-    };
-
-    Instruction.prototype.collection = function(element, document, model, controller) {
-      var anchor, collection;
-      collection = this.get(model);
+      var anchor;
       anchor = document.createTextNode('');
       element.appendChild(anchor);
+      return this[this.command](anchor, document, model, controller);
+    };
+
+    Instruction.prototype.insertAfter = function(element, document, model, controller) {
+      var anchor;
+      anchor = document.createTextNode('');
+      element.parentNode.insertBefore(anchor, element.nextSibling);
+      return this[this.command](anchor, document, model, controller);
+    };
+
+    Instruction.prototype.collection = function(anchor, document, model, controller) {
+      var collection;
+      collection = this.get(model);
       return new Monkey.ViewCollection(anchor, document, collection, controller, this.children);
     };
 
-    Instruction.prototype.view = function(element, document, model, controller) {
-      var view;
-      view = Monkey._views[this.arguments[0]].compile(document, model, controller);
-      return element.appendChild(view);
+    Instruction.prototype.view = function(anchor, document, model, controller) {
+      var newController, view;
+      newController = Monkey.controllerFor(this.arguments[0]);
+      newController.parent = controller;
+      view = Monkey._views[this.arguments[0]].compile(document, model, newController);
+      return anchor.parentNode.insertBefore(view, anchor.nextSibling);
     };
 
     Instruction.prototype.get = function(model) {
       return Monkey.get(model, this.arguments[0]);
-    };
-
-    Instruction.prototype.insertAfter = function() {
-      var args, element;
-      element = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
-      return console.log('inserted');
     };
 
     return Instruction;

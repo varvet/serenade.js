@@ -12,7 +12,7 @@ Monkey.registerView 'comment', '''
   li
     p body
     p
-      a[click=highlight]
+      a[click=highlight href="#"] "Highlight"
 '''
 
 class Post extends Monkey.Model
