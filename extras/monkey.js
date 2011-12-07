@@ -352,9 +352,13 @@
     };
 
     Element.prototype.insertAfter = function() {
-      var args, element;
+      var args, element, newEl;
       element = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
-      return element.parentNode.insertBefore(this.compile.apply(this, args), element.nextSibling);
+      newEl = this.compile.apply(this, args);
+      element.parentNode.insertBefore(newEl, element.nextSibling);
+      return function() {
+        return [newEl];
+      };
     };
 
     return Element;
@@ -452,9 +456,13 @@
     };
 
     TextNode.prototype.insertAfter = function() {
-      var args, element;
+      var args, element, newEl;
       element = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
-      return element.parentNode.insertBefore(this.compile.apply(this, args), element.nextSibling);
+      newEl = this.compile.apply(this, args);
+      element.parentNode.insertBefore(newEl, element.nextSibling);
+      return function() {
+        return [newEl];
+      };
     };
 
     return TextNode;
@@ -486,9 +494,12 @@
     };
 
     Instruction.prototype.collection = function(anchor, document, model, controller) {
-      var collection;
+      var collection, vc;
       collection = this.get(model);
-      return new Monkey.ViewCollection(anchor, document, collection, controller, this.children);
+      vc = new Monkey.ViewCollection(anchor, document, collection, controller, this.children);
+      return function() {
+        return [anchor].concat(__slice.call(vc.roots));
+      };
     };
 
     Instruction.prototype.view = function(anchor, document, model, controller) {
@@ -496,7 +507,10 @@
       newController = Monkey.controllerFor(this.arguments[0]);
       newController.parent = controller;
       view = Monkey._views[this.arguments[0]].compile(document, model, newController);
-      return anchor.parentNode.insertBefore(view, anchor.nextSibling);
+      anchor.parentNode.insertBefore(view, anchor.nextSibling);
+      return function() {
+        return [anchor, view];
+      };
     };
 
     Instruction.prototype.get = function(model) {
@@ -510,26 +524,45 @@
   Monkey.ViewCollection = (function() {
 
     function ViewCollection(anchor, document, collection, controller, children) {
+      var _this = this;
       this.anchor = anchor;
       this.document = document;
       this.collection = collection;
       this.controller = controller;
       this.children = children;
+      this.roots = [];
       this.build();
+      if (this.collection.bind) {
+        this.collection.bind('change', function() {
+          return _this.rebuild();
+        });
+      }
     }
 
+    ViewCollection.prototype.rebuild = function() {
+      var element, root, _i, _j, _len, _len2, _ref, _ref2;
+      _ref = this.roots;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        root = _ref[_i];
+        _ref2 = root();
+        for (_j = 0, _len2 = _ref2.length; _j < _len2; _j++) {
+          element = _ref2[_j];
+          element.parentNode.removeChild(element);
+        }
+      }
+      this.roots = [];
+      return this.build();
+    };
+
     ViewCollection.prototype.build = function() {
-      var parent, sibling;
       var _this = this;
-      parent = this.anchor.parentNode;
-      sibling = this.anchor.nextSibling;
       return Monkey.each(this.collection, function(item) {
         var child, _i, _len, _ref, _results;
         _ref = _this.children;
         _results = [];
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           child = _ref[_i];
-          _results.push(child.insertAfter(_this.anchor, _this.document, item, _this.controller));
+          _results.push(_this.roots.push(child.insertAfter(_this.anchor, _this.document, item, _this.controller)));
         }
         return _results;
       });
@@ -837,17 +870,21 @@ if (typeof module !== 'undefined' && require.main === module) {
     };
 
     Collection.prototype.set = function(index, value) {
+      this.list[index] = value;
       this.trigger("change:" + index);
-      this.trigger("change");
-      return this.list[index] = value;
+      return this.trigger("change");
     };
 
     Collection.prototype.push = function(element) {
-      return this.list.push(element);
+      this.list.push(element);
+      this.trigger("add");
+      return this.trigger("change");
     };
 
     Collection.prototype.update = function(list) {
-      return this.list = list;
+      this.list = list;
+      this.trigger("update");
+      return this.trigger("change");
     };
 
     Collection.prototype.forEach = function(fun) {

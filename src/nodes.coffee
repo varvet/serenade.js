@@ -22,7 +22,9 @@ class Monkey.Element
     element.appendChild(@compile(args...))
 
   insertAfter: (element, args...) ->
-    element.parentNode.insertBefore(@compile(args...), element.nextSibling)
+    newEl = @compile(args...)
+    element.parentNode.insertBefore(newEl, element.nextSibling)
+    -> [newEl]
 
 class Monkey.Attribute
   type: 'attribute'
@@ -68,7 +70,9 @@ class Monkey.TextNode
   get: (model) -> Monkey.get(model, @value, @bound)
 
   insertAfter: (element, args...) ->
-    element.parentNode.insertBefore(@compile(args...), element.nextSibling)
+    newEl = @compile(args...)
+    element.parentNode.insertBefore(newEl, element.nextSibling)
+    -> [newEl]
 
 class Monkey.Instruction
   type: 'instruction'
@@ -86,23 +90,31 @@ class Monkey.Instruction
 
   collection: (anchor, document, model, controller) ->
     collection = @get(model)
-    new Monkey.ViewCollection(anchor, document, collection, controller, @children)
+    vc = new Monkey.ViewCollection(anchor, document, collection, controller, @children)
+    -> [anchor, vc.roots...]
 
   view: (anchor, document, model, controller) ->
     newController = Monkey.controllerFor(@arguments[0])
     newController.parent = controller
     view = Monkey._views[@arguments[0]].compile(document, model, newController)
     anchor.parentNode.insertBefore(view, anchor.nextSibling)
+    -> [anchor, view]
 
   get: (model) -> Monkey.get(model, @arguments[0])
 
 class Monkey.ViewCollection
   constructor: (@anchor, @document, @collection, @controller, @children) ->
+    @roots = []
+    @build()
+    @collection.bind('change', => @rebuild()) if @collection.bind
+
+  rebuild: ->
+    for root in @roots
+      for element in root()
+        element.parentNode.removeChild(element)
+    @roots = []
     @build()
 
   build: ->
-    parent = @anchor.parentNode
-    sibling = @anchor.nextSibling
-
     Monkey.each @collection, (item) =>
-      child.insertAfter(@anchor, @document, item, @controller) for child in @children
+      @roots.push(child.insertAfter(@anchor, @document, item, @controller)) for child in @children
