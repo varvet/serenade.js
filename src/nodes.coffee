@@ -1,6 +1,6 @@
 {Monkey} = require './monkey'
 
-EVENTS = ['click', 'blur', 'focus', 'change', 'mouseover', 'mouseout']
+EVENTS = ['click', 'blur', 'focus', 'change', 'mouseover', 'mouseout', 'submit']
 
 
 class Monkey.Element

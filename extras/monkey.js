@@ -315,7 +315,7 @@
 
   Monkey = require('./monkey').Monkey;
 
-  EVENTS = ['click', 'blur', 'focus', 'change', 'mouseover', 'mouseout'];
+  EVENTS = ['click', 'blur', 'focus', 'change', 'mouseover', 'mouseout', 'submit'];
 
   Monkey.Element = (function() {
 

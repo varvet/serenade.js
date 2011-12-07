@@ -3,6 +3,11 @@ Monkey.registerView 'post', '''
     h1 title
     p body
     h3 "Comments"
+    form[submit=postComment]
+      p
+        textarea[change=commentEdited]
+      p
+        input[type="submit" value="Post"]
     ul
       - collection comments
         - view comment
@@ -24,6 +29,12 @@ class Comment extends Monkey.Model
   @property 'body'
 
 class PostController
+  postComment: (event) ->
+    @model.comments.push(@newComment)
+    event.preventDefault()
+
+  commentEdited: (event) ->
+    @newComment = { body: event.target.value }
 
 class CommentController
   highlight: ->
