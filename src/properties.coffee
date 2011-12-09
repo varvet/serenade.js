@@ -15,19 +15,24 @@ Monkey.Properties =
       set: (value) ->
         @get(name).update(value)
 
-  set: (property, value) ->
+  set: (name, value) ->
     @attributes or= {}
-    if @properties?[property]?.set
-      @properties[property].set.call(this, value)
+    if @properties?[name]?.set
+      @properties[name].set.call(this, value)
     else
-      @attributes[property] = value
+      @attributes[name] = value
 
-    @trigger?("change:#{property}", value)
-    @trigger?("change", property, value)
+    @trigger?("change:#{name}", value)
+    # Trigger events for dependencies
+    if @properties
+      for propertyName, property of @properties when name in property.dependsOn
+        @trigger?("change:#{propertyName}", @get(propertyName))
+    # Trigger global change event
+    @trigger?("change", name, value)
 
-  get: (property) ->
+  get: (name) ->
     @attributes or= {}
-    if @properties?[property]?.get
-      @properties[property].get.call(this)
+    if @properties?[name]?.get
+      @properties[name].get.call(this)
     else
-      @attributes[property]
+      @attributes[name]

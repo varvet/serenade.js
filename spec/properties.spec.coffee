@@ -42,14 +42,15 @@ describe 'Monkey.Properties', ->
       @object.property 'foo', get: -> 42
       expect(@object.get('foo')).toEqual(42)
     it 'runs custom getter in context of object', ->
-      @object.schmoo = 'schmoo'
-
-      @object.property 'foo', get: -> @schmoo
-
-      expect(@object.get('foo')).toEqual('schmoo')
-
-    it 'runs custom getter in context of object', ->
       @object.set('first', 'Jonas')
       @object.set('last', 'Nicklas')
       @object.property 'fullName', get: -> [@get('first'), @get('last')].join(' ')
       expect(@object.get('fullName')).toEqual('Jonas Nicklas')
+    it 'binds to dependencies', ->
+      @object.set('first', 'Jonas')
+      @object.set('last', 'Nicklas')
+      @object.property 'fullName',
+        get: -> [@get('first'), @get('last')].join(' ')
+        dependsOn: ['first', 'last']
+      @object.set('first', 'Peter')
+      expect(@object).toHaveReceivedEvent('change:fullName')
