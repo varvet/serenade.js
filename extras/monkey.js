@@ -533,8 +533,14 @@
       this.roots = [];
       this.build();
       if (this.collection.bind) {
-        this.collection.bind('change', function() {
+        this.collection.bind('update', function() {
           return _this.rebuild();
+        });
+        this.collection.bind('set', function() {
+          return _this.rebuild();
+        });
+        this.collection.bind('add', function(item) {
+          return _this.appendItem(item);
         });
       }
     }
@@ -557,15 +563,33 @@
     ViewCollection.prototype.build = function() {
       var _this = this;
       return Monkey.each(this.collection, function(item) {
-        var child, _i, _len, _ref, _results;
-        _ref = _this.children;
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          child = _ref[_i];
-          _results.push(_this.roots.push(child.insertAfter(_this.anchor, _this.document, item, _this.controller)));
-        }
-        return _results;
+        return _this.appendItem(item);
       });
+    };
+
+    ViewCollection.prototype.lastNode = function() {
+      var nodes;
+      nodes = this.nodesFor(this.roots.length - 1);
+      return nodes[nodes.length - 1] || this.anchor;
+    };
+
+    ViewCollection.prototype.nodesFor = function(index) {
+      var _base;
+      return (typeof (_base = this.roots)[index] === "function" ? _base[index]() : void 0) || [];
+    };
+
+    ViewCollection.prototype.appendItem = function(item) {
+      var last, node, nodes, _i, _len, _ref, _results;
+      last = this.lastNode();
+      _ref = this.children;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        node = _ref[_i];
+        nodes = node.insertAfter(last, this.document, item, this.controller);
+        last = nodes()[nodes().length - 1];
+        _results.push(this.roots.push(nodes));
+      }
+      return _results;
     };
 
     return ViewCollection;
@@ -930,20 +954,21 @@ if (typeof module !== 'undefined' && require.main === module) {
 
     Collection.prototype.set = function(index, value) {
       this.list[index] = value;
-      this.trigger("change:" + index);
-      return this.trigger("change");
+      this.trigger("change:" + index, value);
+      this.trigger("set", index, value);
+      return this.trigger("change", this.list);
     };
 
     Collection.prototype.push = function(element) {
       this.list.push(element);
-      this.trigger("add");
-      return this.trigger("change");
+      this.trigger("add", element);
+      return this.trigger("change", this.list);
     };
 
     Collection.prototype.update = function(list) {
       this.list = list;
-      this.trigger("update");
-      return this.trigger("change");
+      this.trigger("update", list);
+      return this.trigger("change", this.list);
     };
 
     Collection.prototype.forEach = function(fun) {

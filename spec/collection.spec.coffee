@@ -25,6 +25,11 @@ describe 'Monkey.Collection', ->
       @collection.bind('change:1', -> changed = true)
       @collection.set(1, 'changed')
       expect(changed).toBeTruthy()
+    it 'triggers a set event', ->
+      changed = false
+      @collection.bind('set', -> changed = true)
+      @collection.set(1, 'changed')
+      expect(changed).toBeTruthy()
 
   describe '#update', ->
     it 'updates length', ->

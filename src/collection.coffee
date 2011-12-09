@@ -9,15 +9,16 @@ class Monkey.Collection
   get: (index) -> @list[index]
   set: (index, value) ->
     @list[index] = value
-    @trigger("change:#{index}")
-    @trigger("change")
+    @trigger("change:#{index}", value)
+    @trigger("set", index, value)
+    @trigger("change", @list)
   push: (element) ->
     @list.push(element)
-    @trigger("add")
-    @trigger("change")
+    @trigger("add", element)
+    @trigger("change", @list)
   update: (list) ->
     @list = list
-    @trigger("update")
-    @trigger("change")
+    @trigger("update", list)
+    @trigger("change", @list)
   forEach: (fun) ->
     Monkey.each(@list, fun)

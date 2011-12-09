@@ -3,14 +3,14 @@ Monkey.registerView 'post', '''
     h1 title
     p body
     h3 "Comments (" commentCount ")"
+    ul
+      - collection comments
+        - view comment
     form[submit=postComment]
       p
         textarea[change=commentEdited]
       p
         input[type="submit" value="Post"]
-    ul
-      - collection comments
-        - view comment
 '''
 
 Monkey.registerView 'comment', '''

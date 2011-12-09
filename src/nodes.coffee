@@ -106,7 +106,10 @@ class Monkey.ViewCollection
   constructor: (@anchor, @document, @collection, @controller, @children) ->
     @roots = []
     @build()
-    @collection.bind('change', => @rebuild()) if @collection.bind
+    if @collection.bind
+      @collection.bind('update', => @rebuild())
+      @collection.bind('set', => @rebuild())
+      @collection.bind('add', (item) => @appendItem(item))
 
   rebuild: ->
     for root in @roots
@@ -117,4 +120,19 @@ class Monkey.ViewCollection
 
   build: ->
     Monkey.each @collection, (item) =>
-      @roots.push(child.insertAfter(@anchor, @document, item, @controller)) for child in @children
+      @appendItem(item)
+
+  lastNode: ->
+    nodes = @nodesFor(@roots.length - 1)
+    nodes[nodes.length - 1] or @anchor
+
+  nodesFor: (index) ->
+    @roots[index]?() or []
+
+  appendItem: (item) ->
+    last = @lastNode()
+    for node in @children
+      nodes = node.insertAfter(last, @document, item, @controller)
+      last = nodes()[nodes().length-1]
+      @roots.push(nodes)
+
