@@ -1,7 +1,7 @@
 {Monkey} = require './monkey'
 
 Monkey.Properties =
-  property: (name, options) ->
+  property: (name, options={}) ->
     @properties or= {}
     @properties[name] = options
     Object.defineProperty @, name,
@@ -11,7 +11,11 @@ Monkey.Properties =
   collection: (name, options) ->
     @property name,
       get: ->
-        @attributes[name] or= new Monkey.Collection([])
+        unless @attributes[name]
+          @attributes[name] = new Monkey.Collection([])
+          @attributes[name].bind 'change', =>
+            @_triggerChangeTo(name, @get(name))
+        @attributes[name]
       set: (value) ->
         @get(name).update(value)
 
@@ -21,14 +25,7 @@ Monkey.Properties =
       @properties[name].set.call(this, value)
     else
       @attributes[name] = value
-
-    @trigger?("change:#{name}", value)
-    # Trigger events for dependencies
-    if @properties
-      for propertyName, property of @properties when name in property.dependsOn
-        @trigger?("change:#{propertyName}", @get(propertyName))
-    # Trigger global change event
-    @trigger?("change", name, value)
+    @_triggerChangeTo(name, value)
 
   get: (name) ->
     @attributes or= {}
@@ -36,3 +33,13 @@ Monkey.Properties =
       @properties[name].get.call(this)
     else
       @attributes[name]
+
+  _triggerChangeTo: (name, value) ->
+    @trigger?("change:#{name}", value)
+    if @properties
+      for propertyName, property of @properties
+        if property.dependsOn
+          dependencies = if typeof(property.dependsOn) is 'string' then [property.dependsOn] else property.dependsOn
+          if name in dependencies
+            @trigger?("change:#{propertyName}", @get(propertyName))
+    @trigger?("change", name: value)

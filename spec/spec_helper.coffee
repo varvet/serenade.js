@@ -2,9 +2,9 @@
 require('../src/events')
 
 originalTrigger = Monkey.Events.trigger
-Monkey.Events.trigger = (name) ->
-  @_triggeredEvents or= []
-  @_triggeredEvents.push(name)
+Monkey.Events.trigger = (name, args...) ->
+  @_triggeredEvents or= {}
+  @_triggeredEvents[name] = args
   originalTrigger.apply(this, arguments)
 
 require('../src/nodes')
@@ -13,6 +13,10 @@ require('../src/properties')
 require('../src/model')
 require('../src/view')
 require('../src/collection')
+
+compareArrays = (one, two) ->
+  fail = true for item, i in one when two[i] isnt item
+  one.length is two.length and not fail
 
 beforeEach ->
   @addMatchers
@@ -32,6 +36,10 @@ beforeEach ->
     toBeEmpty: -> @actual.val() is ""
     toHaveValue: (value) -> @actual.val() is value
     toHaveNumberOfChildren: (number) -> @actual.children().length is parseInt(number)
-    toHaveReceivedEvent: (name) -> name in @actual._triggeredEvents
+    toHaveReceivedEvent: (name, options={}) ->
+      if options.with
+        compareArrays(@actual._triggeredEvents[name], options.with)
+      else
+        @actual._triggeredEvents.hasOwnProperty(name)
 
 root.context = describe

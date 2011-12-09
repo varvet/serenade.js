@@ -2,7 +2,7 @@ Monkey.registerView 'post', '''
   div[id="monkey"]
     h1 title
     p body
-    h3 "Comments"
+    h3 "Comments (" commentCount ")"
     form[submit=postComment]
       p
         textarea[change=commentEdited]
@@ -23,6 +23,7 @@ Monkey.registerView 'comment', '''
 class Post extends Monkey.Model
   @property 'title'
   @property 'body'
+  @property 'commentCount', dependsOn: 'comments', get: -> @comments.length
   @collection 'comments'
 
 class Comment extends Monkey.Model

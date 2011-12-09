@@ -22,8 +22,7 @@ Monkey.Events =
     return false unless list
 
     for callback in list
-      if callback.apply(@, args) is false
-        break
+      callback.apply(@, args)
     true
 
   unbind: (ev, callback) ->

@@ -4,6 +4,8 @@ class Monkey.Collection
   collection: true
   Monkey.extend(@prototype, Monkey.Events)
   constructor: (@list) ->
+    @length = @list.length
+    @bind("change", => @length = @list.length)
   get: (index) -> @list[index]
   set: (index, value) ->
     @list[index] = value

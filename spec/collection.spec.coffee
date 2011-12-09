@@ -26,6 +26,11 @@ describe 'Monkey.Collection', ->
       @collection.set(1, 'changed')
       expect(changed).toBeTruthy()
 
+  describe '#update', ->
+    it 'updates length', ->
+      @collection.update([1,2])
+      expect(@collection.length).toEqual(2)
+
   describe '#push', ->
     it 'adds an item to the collection', ->
       @collection.push('g')
