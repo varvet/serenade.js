@@ -1,8 +1,15 @@
-require('../src/monkey')
+{Monkey} = require '../src/monkey'
+require('../src/events')
+
+originalTrigger = Monkey.Events.trigger
+Monkey.Events.trigger = (name) ->
+  @_triggeredEvents or= []
+  @_triggeredEvents.push(name)
+  originalTrigger.apply(this, arguments)
+
 require('../src/nodes')
 require('../src/lexer')
 require('../src/properties')
-require('../src/events')
 require('../src/model')
 require('../src/view')
 require('../src/collection')
@@ -25,3 +32,6 @@ beforeEach ->
     toBeEmpty: -> @actual.val() is ""
     toHaveValue: (value) -> @actual.val() is value
     toHaveNumberOfChildren: (number) -> @actual.children().length is parseInt(number)
+    toHaveReceivedEvent: (name) -> name in @actual._triggeredEvents
+
+root.context = describe
