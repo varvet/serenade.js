@@ -46,8 +46,10 @@ Monkey.registerController 'comment', CommentController
 
 window.aPost = new Post()
 
-aPost.comments = [{body: 'test'}, {body: 'another'}]
+aPost.set
+  title: 'Monkey.js released!'
+  body: 'New contender in the JS framework wars!'
+  comments: [{body: 'This is cool'}, {body: 'I hate it'}]
 
 window.onload = ->
-  view = Monkey.render('post', aPost)
-  sandbox = document.body.appendChild(view)
+  document.body.appendChild Monkey.render('post', aPost)
