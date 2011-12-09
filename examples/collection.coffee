@@ -45,7 +45,7 @@ Monkey.registerController 'comment', CommentController
 
 window.aPost = new Post()
 
-aPost.comments.update([{body: 'test'}, {body: 'another'}])
+aPost.comments = [{body: 'test'}, {body: 'another'}]
 
 window.onload = ->
   view = Monkey.render('post', aPost)
