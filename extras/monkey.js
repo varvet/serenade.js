@@ -775,10 +775,17 @@ if (typeof module !== 'undefined' && require.main === module) {
 };require['./properties'] = new function() {
   var exports = this;
   (function() {
-  var Monkey;
+  var Monkey, pairToObject;
   var __hasProp = Object.prototype.hasOwnProperty, __indexOf = Array.prototype.indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (__hasProp.call(this, i) && this[i] === item) return i; } return -1; };
 
   Monkey = require('./monkey').Monkey;
+
+  pairToObject = function(one, two) {
+    var temp;
+    temp = {};
+    temp[one] = two;
+    return temp;
+  };
 
   Monkey.Properties = {
     property: function(name, options) {
@@ -801,7 +808,7 @@ if (typeof module !== 'undefined' && require.main === module) {
           if (!this.attributes[name]) {
             this.attributes[name] = new Monkey.Collection([]);
             this.attributes[name].bind('change', function() {
-              return _this._triggerChangeTo(name, _this.get(name));
+              return _this._triggerChangesTo(pairToObject(name, _this.get(name)));
             });
           }
           return this.attributes[name];
@@ -811,15 +818,21 @@ if (typeof module !== 'undefined' && require.main === module) {
         }
       });
     },
-    set: function(name, value) {
-      var _ref, _ref2;
-      this.attributes || (this.attributes = {});
-      if ((_ref = this.properties) != null ? (_ref2 = _ref[name]) != null ? _ref2.set : void 0 : void 0) {
-        this.properties[name].set.call(this, value);
-      } else {
-        this.attributes[name] = value;
+    set: function(attributes, value) {
+      var name, _ref, _ref2;
+      if (typeof attributes === 'string') {
+        attributes = pairToObject(attributes, value);
       }
-      return this._triggerChangeTo(name, value);
+      for (name in attributes) {
+        value = attributes[name];
+        this.attributes || (this.attributes = {});
+        if ((_ref = this.properties) != null ? (_ref2 = _ref[name]) != null ? _ref2.set : void 0 : void 0) {
+          this.properties[name].set.call(this, value);
+        } else {
+          this.attributes[name] = value;
+        }
+      }
+      return this._triggerChangesTo(attributes);
     },
     get: function(name) {
       var _ref, _ref2;
@@ -830,26 +843,29 @@ if (typeof module !== 'undefined' && require.main === module) {
         return this.attributes[name];
       }
     },
-    _triggerChangeTo: function(name, value) {
-      var dependencies, property, propertyName, _ref;
-      if (typeof this.trigger === "function") {
-        this.trigger("change:" + name, value);
-      }
-      if (this.properties) {
-        _ref = this.properties;
-        for (propertyName in _ref) {
-          property = _ref[propertyName];
-          if (property.dependsOn) {
-            dependencies = typeof property.dependsOn === 'string' ? [property.dependsOn] : property.dependsOn;
-            if (__indexOf.call(dependencies, name) >= 0) {
-              if (typeof this.trigger === "function") {
-                this.trigger("change:" + propertyName, this.get(propertyName));
+    _triggerChangesTo: function(attributes) {
+      var dependencies, name, property, propertyName, value, _ref;
+      for (name in attributes) {
+        value = attributes[name];
+        if (typeof this.trigger === "function") {
+          this.trigger("change:" + name, value);
+        }
+        if (this.properties) {
+          _ref = this.properties;
+          for (propertyName in _ref) {
+            property = _ref[propertyName];
+            if (property.dependsOn) {
+              dependencies = typeof property.dependsOn === 'string' ? [property.dependsOn] : property.dependsOn;
+              if (__indexOf.call(dependencies, name) >= 0) {
+                if (typeof this.trigger === "function") {
+                  this.trigger("change:" + propertyName, this.get(propertyName));
+                }
               }
             }
           }
         }
       }
-      return typeof this.trigger === "function" ? this.trigger("change", name, value) : void 0;
+      return typeof this.trigger === "function" ? this.trigger("change", attributes) : void 0;
     }
   };
 

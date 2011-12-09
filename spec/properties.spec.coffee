@@ -37,6 +37,24 @@ describe 'Monkey.Properties', ->
         @object.property 'foo', set: (value) -> setValue = value
         @object.set('foo', 42)
         expect(setValue).toEqual(42)
+    context 'with multiple properties', ->
+      it 'sets those property', ->
+        @object.set(foo: 23, bar: 56)
+        expect(@object.get('foo')).toEqual(23)
+        expect(@object.get('bar')).toEqual(56)
+      it 'triggers a change event', ->
+        @object.set(foo: 23, bar: 56)
+        expect(@object).toHaveReceivedEvent('change')
+      it 'triggers a change event for each property', ->
+        @object.set(foo: 23, bar: 56)
+        expect(@object).toHaveReceivedEvent('change:foo', with: [23])
+        expect(@object).toHaveReceivedEvent('change:bar', with: [56])
+      it 'uses a custom setter', ->
+        setValue = null
+        @object.property 'foo', set: (value) -> setValue = value
+        @object.set(foo: 42, bar: 12)
+        expect(setValue).toEqual(42)
+        expect(@object.get('bar')).toEqual(12)
 
   describe '.get', ->
     it 'reads an existing property', ->
