@@ -2,7 +2,6 @@
 
 EVENTS = ['click', 'blur', 'focus', 'change', 'mouseover', 'mouseout', 'submit']
 
-
 class Monkey.Element
   type: 'element'
   constructor: (@name, @attributes, @children) ->
@@ -110,6 +109,7 @@ class Monkey.ViewCollection
       @collection.bind('update', => @rebuild())
       @collection.bind('set', => @rebuild())
       @collection.bind('add', (item) => @appendItem(item))
+      @collection.bind('delete', (index) => @delete(index))
 
   rebuild: ->
     for root in @roots
@@ -122,17 +122,25 @@ class Monkey.ViewCollection
     Monkey.each @collection, (item) =>
       @appendItem(item)
 
-  lastNode: ->
-    nodes = @nodesFor(@roots.length - 1)
+  lastNodeFor: (index) ->
+    nodes = @nodesFor(index)
     nodes[nodes.length - 1] or @anchor
 
   nodesFor: (index) ->
     @roots[index]?() or []
 
+  set: (index, to) ->
+    for node in @nodesFor(index)
+      node.parentNode.removeChild(node)
+
+  delete: (index) ->
+    for node in @nodesFor(index)
+      node.parentNode.removeChild(node)
+    @roots.splice(index, 1)
+
   appendItem: (item) ->
-    last = @lastNode()
+    last = @lastNodeFor(@roots.length - 1)
     for node in @children
       nodes = node.insertAfter(last, @document, item, @controller)
       last = nodes()[nodes().length-1]
       @roots.push(nodes)
-

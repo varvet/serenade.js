@@ -13,23 +13,17 @@ describe 'Monkey.Collection', ->
   describe '#set', ->
     it 'gets an item in the collection', ->
       expect(@collection.get(0)).toEqual('a')
-      @collection.set(0, 'changed')
-      expect(@collection.get(0)).toEqual('changed')
+      @collection.set(0, 'foo')
+      expect(@collection.get(0)).toEqual('foo')
     it 'triggers a change event', ->
-      changed = false
-      @collection.bind('change', -> changed = true)
-      @collection.set(0, 'changed')
-      expect(changed).toBeTruthy()
+      @collection.set(0, 'foo')
+      expect(@collection).toHaveReceivedEvent('change')
     it 'triggers a specific change event', ->
-      changed = false
-      @collection.bind('change:1', -> changed = true)
-      @collection.set(1, 'changed')
-      expect(changed).toBeTruthy()
+      @collection.set(1, 'foo')
+      expect(@collection).toHaveReceivedEvent('change:1', with: ['foo'])
     it 'triggers a set event', ->
-      changed = false
-      @collection.bind('set', -> changed = true)
-      @collection.set(1, 'changed')
-      expect(changed).toBeTruthy()
+      @collection.set(1, 'foo')
+      expect(@collection).toHaveReceivedEvent('set', with: [1, 'foo'])
 
   describe '#update', ->
     it 'updates length', ->
@@ -41,12 +35,26 @@ describe 'Monkey.Collection', ->
       @collection.push('g')
       expect(@collection.get(3)).toEqual('g')
     it 'triggers a change event', ->
-      changed = false
-      @collection.bind('change', -> changed = true)
       @collection.push('g')
-      expect(changed).toBeTruthy()
+      expect(@collection).toHaveReceivedEvent('change')
     it 'triggers an add event', ->
-      added = false
-      @collection.bind('add', -> added = true)
       @collection.push('g')
-      expect(added).toBeTruthy()
+      expect(@collection).toHaveReceivedEvent('add', with: ['g'])
+
+  describe '#indexOf', ->
+    it 'returns where in the collection the given item is', ->
+      expect(@collection.indexOf('a')).toEqual(0)
+      expect(@collection.indexOf('b')).toEqual(1)
+
+  describe '#delete', ->
+    it 'removes the item from the collection', ->
+      @collection.delete(1)
+      expect(@collection.get(0)).toEqual('a')
+      expect(@collection.get(1)).toEqual('c')
+      expect(@collection.get(2)).toEqual(undefined)
+    it 'triggers a change event', ->
+      @collection.delete(1)
+      expect(@collection).toHaveReceivedEvent('change')
+    it 'triggers a delete event', ->
+      @collection.delete(1)
+      expect(@collection).toHaveReceivedEvent('delete', with: [1])

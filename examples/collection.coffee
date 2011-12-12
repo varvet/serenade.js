@@ -18,6 +18,8 @@ Monkey.registerView 'comment', '''
     p body
     p
       a[click=highlight href="#"] "Highlight"
+      " | "
+      a[click=remove href="#"] "Remove"
 '''
 
 class Post extends Monkey.Model
@@ -38,8 +40,13 @@ class PostController
     @newComment = { body: event.target.value }
 
 class CommentController
-  highlight: ->
+  highlight: (event) ->
     @view.style.backgroundColor = 'red'
+    event.preventDefault()
+  remove: (event) ->
+    comments = @parent.model.comments
+    comments.delete(comments.indexOf(@model))
+    event.preventDefault()
 
 Monkey.registerController 'post', PostController
 Monkey.registerController 'comment', CommentController

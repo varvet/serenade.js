@@ -132,6 +132,17 @@ describe 'Monkey.Element', ->
         expect(body).toHaveElement('ul > li#anders')
         expect(body).toHaveElement('ul > li#jimmy')
 
+    it 'removes item from collection when requested', ->
+      model = { people: new Monkey.Collection([{ name: 'jonas' }, { name: 'peter' }]) }
+
+      tree =  el('ul', [], [ins('collection', ['people'], [el('li', [attr('id', 'name', true)])])])
+      compile tree, model, {}, (body) ->
+        expect(body).toHaveElement('ul > li#jonas')
+        expect(body).toHaveElement('ul > li#peter')
+        model.people.delete(0)
+        expect(body).not.toHaveElement('ul > li#jonas')
+        expect(body).toHaveElement('ul > li#peter')
+
     it 'compiles a view instruction by fetching and compiling the given view', ->
       # TODO: Figure out how to isolate this test from the parser
       Monkey.registerView('test', 'li[id="foo"]')
