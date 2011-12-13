@@ -368,34 +368,36 @@
       this.controller = controller;
     }
     Attribute.prototype.attribute = function(element) {
-      var value, _base;
-      value = this.get();
-      if (value !== void 0) {
-        element.setAttribute(this.ast.name, value);
-      }
+      var _base;
+      this.update(element, this.get());
       if (this.ast.bound) {
         return typeof (_base = this.model).bind == "function" ? _base.bind("change:" + this.ast.value, __bind(function(value) {
-          if (this.ast.name === 'value') {
-            return element.value = value || '';
-          } else if (value === void 0) {
-            return element.removeAttribute(this.ast.name);
-          } else {
-            return element.setAttribute(this.ast.name, value);
-          }
+          return this.update(element, value);
         }, this)) : void 0;
       }
     };
-    Attribute.prototype.event = function(element) {
+    Attribute.prototype.update = function(element, value) {
+      if (this.ast.name === 'value') {
+        return element.value = value || '';
+      } else if (value === void 0) {
+        return element.removeAttribute(this.ast.name);
+      } else {
+        return element.setAttribute(this.ast.name, value);
+      }
+    };
+    Attribute.prototype.event = function(element, name) {
       var callback;
       callback = __bind(function(e) {
         return this.controller[this.ast.value](e);
       }, this);
-      return element.addEventListener(this.ast.name, callback, false);
+      return element.addEventListener(name, callback, false);
     };
     Attribute.prototype.apply = function(element) {
       var _ref;
       if (_ref = this.ast.name, __indexOf.call(EVENTS, _ref) >= 0) {
-        return this.event(element);
+        return this.event(element, this.ast.name);
+      } else if (this.ast.name.match(/^event-/)) {
+        return this.event(element, this.ast.name.replace(/^event-/, ''));
       } else {
         return this.attribute(element);
       }
@@ -456,7 +458,6 @@
       this.children = children;
     }
     Instruction.prototype.compile = function(document, model, controller) {
-      console.log(document, model, controller);
       switch (this.command) {
         case "view":
           return new Monkey.Nodes.View(this, document, model, controller);
@@ -474,7 +475,6 @@
       this.parentController = parentController;
       this.controller = Monkey.controllerFor(this.ast.arguments[0]);
       this.controller.parent = this.parentController;
-      console.log(this.parentController);
       this.view = Monkey._views[this.ast.arguments[0]].render(this.document, this.model, this.controller);
     }
     View.prototype.append = function(inside) {
@@ -622,78 +622,6 @@
       return _results;
     };
     return CollectionItem;
-  })();
-  Monkey.ViewCollection = (function() {
-    function ViewCollection(anchor, document, collection, controller, children) {
-      this.anchor = anchor;
-      this.document = document;
-      this.collection = collection;
-      this.controller = controller;
-      this.children = children;
-      this.roots = [];
-      this.build();
-    }
-    ViewCollection.prototype.rebuild = function() {
-      var element, root, _i, _j, _len, _len2, _ref, _ref2;
-      _ref = this.roots;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        root = _ref[_i];
-        _ref2 = root();
-        for (_j = 0, _len2 = _ref2.length; _j < _len2; _j++) {
-          element = _ref2[_j];
-          element.parentNode.removeChild(element);
-        }
-      }
-      this.roots = [];
-      return this.build();
-    };
-    ViewCollection.prototype.build = function() {
-      return Monkey.each(this.collection, __bind(function(item) {
-        return this.appendItem(item);
-      }, this));
-    };
-    ViewCollection.prototype.lastNodeFor = function(index) {
-      var nodes;
-      nodes = this.nodesFor(index);
-      return nodes[nodes.length - 1] || this.anchor;
-    };
-    ViewCollection.prototype.nodesFor = function(index) {
-      var _base;
-      return (typeof (_base = this.roots)[index] == "function" ? _base[index]() : void 0) || [];
-    };
-    ViewCollection.prototype.set = function(index, to) {
-      var node, _i, _len, _ref, _results;
-      _ref = this.nodesFor(index);
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        node = _ref[_i];
-        _results.push(node.parentNode.removeChild(node));
-      }
-      return _results;
-    };
-    ViewCollection.prototype["delete"] = function(index) {
-      var node, _i, _len, _ref;
-      _ref = this.nodesFor(index);
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        node = _ref[_i];
-        node.parentNode.removeChild(node);
-      }
-      return this.roots.splice(index, 1);
-    };
-    ViewCollection.prototype.appendItem = function(item) {
-      var last, node, nodes, _i, _len, _ref, _results;
-      last = this.lastNodeFor(this.roots.length - 1);
-      _ref = this.children;
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        node = _ref[_i];
-        nodes = node.insertAfter(last, this.document, item, this.controller);
-        last = nodes()[nodes().length - 1];
-        _results.push(this.roots.push(nodes));
-      }
-      return _results;
-    };
-    return ViewCollection;
   })();
 }).call(this);
 

@@ -44,26 +44,28 @@ class Monkey.Nodes.Attribute
   constructor: (@ast, @document, @model, @controller) ->
 
   attribute: (element) ->
-    value = @get()
-    unless value is undefined
-      element.setAttribute(@ast.name, value)
+    @update(element, @get())
     if @ast.bound
-      @model.bind? "change:#{@ast.value}", (value) =>
-        if @ast.name is 'value'
-          element.value = value or ''
-        else if value is undefined
-          element.removeAttribute(@ast.name)
-        else
-          element.setAttribute(@ast.name, value)
+      @model.bind? "change:#{@ast.value}", (value) => @update(element, value)
 
-  event: (element) ->
+  update: (element, value) ->
+    if @ast.name is 'value'
+      element.value = value or ''
+    else if value is undefined
+      element.removeAttribute(@ast.name)
+    else
+      element.setAttribute(@ast.name, value)
+
+  event: (element, name) ->
     callback = (e) =>
       @controller[@ast.value](e)
-    element.addEventListener(@ast.name, callback, false)
+    element.addEventListener(name, callback, false)
 
   apply: (element) ->
     if @ast.name in EVENTS
-      @event(element)
+      @event(element, @ast.name)
+    else if @ast.name.match(/^event-/)
+      @event(element, @ast.name.replace(/^event-/, ''))
     else
       @attribute(element)
 

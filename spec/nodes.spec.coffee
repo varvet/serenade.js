@@ -69,6 +69,14 @@ describe 'Monkey.Element', ->
         body.find('div').get(0).dispatchEvent(event)
         expect(controller.clicked).toBeTruthy()
 
+    it 'attaches an explicit event which calls the controller action when triggered', ->
+      controller = { iWasClicked: -> @clicked = true }
+      compile el('div', [attr('event-click', 'iWasClicked')]), {}, controller, (body, document) ->
+        event = document.createEvent('HTMLEvents')
+        event.initEvent('click', true, true)
+        body.find('div').get(0).dispatchEvent(event)
+        expect(controller.clicked).toBeTruthy()
+
     it 'changes bound attributes as they are changed', ->
       model = new Monkey.Model
       model.set('name', 'jonas')
