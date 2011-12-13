@@ -46,6 +46,7 @@ Monkey.registerView 'test', '''
     p
       a[click=showAlert href="#"] "Show the alert"
 '''
+```
 
 Once we have a view registered, we can render it using `Monkey.render`, passing
 in the model and controller we created before:
