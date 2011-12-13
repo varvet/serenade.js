@@ -2,7 +2,7 @@
 
 IDENTIFIER = /^[a-zA-Z][a-zA-Z0-9\-]*/
 
-LITERAL = /^[\[\]=-]/
+LITERAL = /^[\[\]=\:\-]/
 
 STRING = /^"((?:\\.|[^"])*)"/
 
@@ -94,6 +94,7 @@ class Monkey.Lexer
         when "]" then @token('RPAREN', id)
         when "=" then @token('ASSIGN', id)
         when "-" then @token('INSTRUCT', id)
+        when ":" then @token('SCOPE', id)
       1
     else
       @error("WUT??? is '#{@chunk.charAt(0)}'")

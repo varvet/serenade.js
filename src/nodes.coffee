@@ -35,8 +35,8 @@ class Monkey.Nodes.Element
   lastElement: ->
     @element
 
-class Monkey.AST.Attribute
-  constructor: (@name, @value, @bound) ->
+class Monkey.AST.Property
+  constructor: (@name, @value, @bound, @scope="attribute") ->
   compile: (document, model, controller) ->
     new Monkey.Nodes.Attribute(this, document, model, controller)
 
