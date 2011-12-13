@@ -2,145 +2,188 @@
 
 EVENTS = ['click', 'blur', 'focus', 'change', 'mouseover', 'mouseout', 'submit']
 
-class Monkey.Element
+Monkey.AST = {}
+Monkey.Nodes = {}
+
+class Monkey.AST.Element
   type: 'element'
   constructor: (@name, @attributes, @children) ->
     @attributes or= []
     @children or= []
   compile: (document, model, controller) ->
-    element = document.createElement(@name)
+    new Monkey.Nodes.Element(this, document, model, controller)
 
-    for attribute in @attributes
-      attribute.append(element, document, model, controller)
+class Monkey.Nodes.Element
+  constructor: (@ast, @document, @model, @controller) ->
+    @element = @document.createElement(@ast.name)
 
-    for child in @children
-      child.append(element, document, model, controller)
-    element
+    for attribute in @ast.attributes
+      attribute.compile(@document, @model, @controller).apply(@element)
 
-  append: (element, args...) ->
-    element.appendChild(@compile(args...))
+    for child in @ast.children
+      child.compile(@document, @model, @controller).append(@element)
 
-  insertAfter: (element, args...) ->
-    newEl = @compile(args...)
-    element.parentNode.insertBefore(newEl, element.nextSibling)
-    -> [newEl]
+  append: (inside) ->
+    inside.appendChild(@element)
 
-class Monkey.Attribute
-  type: 'attribute'
+  insertAfter: (after) ->
+    after.parentNode.insertBefore(@element, after.nextSibling)
+
+  remove: ->
+    @element.parentNode.removeChild(@element)
+
+  lastElement: ->
+    @element
+
+class Monkey.AST.Attribute
   constructor: (@name, @value, @bound) ->
+  compile: (document, model, controller) ->
+    new Monkey.Nodes.Attribute(this, document, model, controller)
 
-  attribute: (element, document, model, constructor) ->
-    value = @get(model)
+class Monkey.Nodes.Attribute
+  constructor: (@ast, @document, @model, @controller) ->
+
+  attribute: (element) ->
+    value = @get()
     unless value is undefined
-      element.setAttribute(@name, value)
-    if @bound
-      model.bind? "change:#{@value}", (value) =>
-        if @name is 'value'
+      element.setAttribute(@ast.name, value)
+    if @ast.bound
+      @model.bind? "change:#{@ast.value}", (value) =>
+        if @ast.name is 'value'
           element.value = value or ''
         else if value is undefined
-          element.removeAttribute(@name)
+          element.removeAttribute(@ast.name)
         else
-          element.setAttribute(@name, value)
+          element.setAttribute(@ast.name, value)
 
-  event: (element, document, model, controller) ->
-    callback = (e) => controller[@value](e)
-    element.addEventListener(@name, callback, false)
+  event: (element) ->
+    callback = (e) =>
+      @controller[@ast.value](e)
+    element.addEventListener(@ast.name, callback, false)
 
-  append: (args...) ->
-    if @name in EVENTS
-      @event(args...)
+  apply: (element) ->
+    if @ast.name in EVENTS
+      @event(element)
     else
-      @attribute(args...)
+      @attribute(element)
 
-  get: (model) -> Monkey.get(model, @value, @bound)
+  get: -> Monkey.get(@model, @ast.value, @ast.bound)
 
-class Monkey.TextNode
-  type: 'text'
+class Monkey.AST.TextNode
   constructor: (@value, @bound) ->
   name: 'text'
   compile: (document, model, controller) ->
-    textNode = document.createTextNode(@get(model) or '')
-    if @bound
-      model.bind? "change:#{@value}", (value) =>
-        textNode.nodeValue = value or ''
-    textNode
-  append: (element, args...) ->
-    element.appendChild(@compile(args...))
-  get: (model) -> Monkey.get(model, @value, @bound)
+    new Monkey.Nodes.TextNode(this, document, model, controller)
 
-  insertAfter: (element, args...) ->
-    newEl = @compile(args...)
-    element.parentNode.insertBefore(newEl, element.nextSibling)
-    -> [newEl]
+class Monkey.Nodes.TextNode
+  constructor: (@ast, @document, @model, @controller) ->
+    @textNode = document.createTextNode(@get() or '')
+    if @ast.bound
+      model.bind? "change:#{@ast.value}", (value) =>
+        @textNode.nodeValue = value or ''
 
-class Monkey.Instruction
+  append: (inside) ->
+    inside.appendChild(@textNode)
+
+  insertAfter: (after) ->
+    after.parentNode.insertBefore(@textNode, after.nextSibling)
+
+  remove: ->
+    @textNode.parentNode.removeChild(@textNode)
+
+  lastElement: ->
+    @textNode
+
+  get: (model) -> Monkey.get(@model, @ast.value, @ast.bound)
+
+class Monkey.AST.Instruction
   type: 'instruction'
   constructor: (@command, @arguments, @children) ->
+  compile: (document, model, controller) ->
+    switch @command
+      when "view" then new Monkey.Nodes.View(this, document, model, controller)
+      when "collection" then new Monkey.Nodes.Collection(this, document, model, controller)
 
-  append: (element, document, model, controller) ->
-    anchor = document.createTextNode('')
-    element.appendChild(anchor)
-    @[@command](anchor, document, model, controller)
+class Monkey.Nodes.View
+  constructor: (@ast, @document, @model, @parentController) ->
+    @controller = Monkey.controllerFor(@ast.arguments[0])
+    @controller.parent = @parentController
+    @view = Monkey._views[@ast.arguments[0]].render(@document, @model, @controller)
 
-  insertAfter: (element, document, model, controller) ->
-    anchor = document.createTextNode('')
-    element.parentNode.insertBefore(anchor, element.nextSibling)
-    @[@command](anchor, document, model, controller)
+  append: (inside) ->
+    inside.appendChild(@view)
 
-  collection: (anchor, document, model, controller) ->
-    collection = @get(model)
-    vc = new Monkey.ViewCollection(anchor, document, collection, controller, @children)
-    -> [anchor, vc.roots...]
+  insertAfter: (after) ->
+    after.parentNode.insertBefore(@view, after.nextSibling)
 
-  view: (anchor, document, model, controller) ->
-    newController = Monkey.controllerFor(@arguments[0])
-    newController.parent = controller
-    view = Monkey._views[@arguments[0]].compile(document, model, newController)
-    anchor.parentNode.insertBefore(view, anchor.nextSibling)
-    -> [anchor, view]
+  remove: ->
+    @view.parentNode.removeChild(@view)
 
-  get: (model) -> Monkey.get(model, @arguments[0])
+  lastElement: ->
+    @view
 
-class Monkey.ViewCollection
-  constructor: (@anchor, @document, @collection, @controller, @children) ->
-    @roots = []
-    @build()
+class Monkey.Nodes.Collection
+  constructor: (@ast, @document, @model, @controller) ->
+    @anchor = document.createTextNode('')
+    @collection = @get()
     if @collection.bind
       @collection.bind('update', => @rebuild())
       @collection.bind('set', => @rebuild())
       @collection.bind('add', (item) => @appendItem(item))
       @collection.bind('delete', (index) => @delete(index))
 
+  get: -> Monkey.get(@model, @ast.arguments[0])
+
   rebuild: ->
-    for root in @roots
-      for element in root()
-        element.parentNode.removeChild(element)
-    @roots = []
+    item.remove() for item in @items
     @build()
 
   build: ->
-    Monkey.each @collection, (item) =>
-      @appendItem(item)
-
-  lastNodeFor: (index) ->
-    nodes = @nodesFor(index)
-    nodes[nodes.length - 1] or @anchor
-
-  nodesFor: (index) ->
-    @roots[index]?() or []
-
-  set: (index, to) ->
-    for node in @nodesFor(index)
-      node.parentNode.removeChild(node)
-
-  delete: (index) ->
-    for node in @nodesFor(index)
-      node.parentNode.removeChild(node)
-    @roots.splice(index, 1)
+    @items = []
+    Monkey.forEach @collection, (item) => @appendItem(item)
 
   appendItem: (item) ->
-    last = @lastNodeFor(@roots.length - 1)
-    for node in @children
-      nodes = node.insertAfter(last, @document, item, @controller)
-      last = nodes()[nodes().length-1]
-      @roots.push(nodes)
+    node = new Monkey.Nodes.CollectionItem(@ast.children, @document, item, @controller)
+    node.insertAfter(@lastElement())
+    @items.push(node)
+
+  delete: (index) ->
+    @items[index].remove()
+    @items.splice(index, 1)
+
+  lastItem: ->
+    @items[@items.length - 1]
+
+  lastElement: ->
+    item = @lastItem()
+    if item then item.lastElement() else @anchor
+
+  remove: ->
+    @anchor.parentNode.removeChild(@anchor)
+    item.remove() for item in @items
+
+  append: (inside) ->
+    inside.appendChild(@anchor)
+    @build()
+
+  insertAfter: (after) ->
+    after.parentNode.insertBefore(@anchor, after.nextSibling)
+    @build()
+
+  get: -> Monkey.get(@model, @ast.arguments[0])
+
+class Monkey.Nodes.CollectionItem
+  constructor: (@children, @document, @model, @controller) ->
+    @nodes = (child.compile(@document, @model, @controller) for child in @children)
+
+  insertAfter: (element) ->
+    last = element
+    for node in @nodes
+      node.insertAfter(last)
+      last = node.lastElement()
+
+  lastElement: ->
+    @nodes[@nodes.length-1].lastElement()
+
+  remove: ->
+    node.remove() for node in @nodes

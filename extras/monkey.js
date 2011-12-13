@@ -21,7 +21,7 @@
     },
     render: function(name, model, controller) {
       controller || (controller = this.controllerFor(name));
-      return this._views[name].compile(this.document, model, controller);
+      return this._views[name].render(this.document, model, controller);
     },
     registerController: function(name, klass) {
       return this._controllers[name] = klass;
@@ -55,7 +55,7 @@
         return value;
       }
     },
-    each: function(collection, fun) {
+    forEach: function(collection, fun) {
       var element, _i, _len, _results;
       if (typeof collection.forEach === 'function') {
         return collection.forEach(fun);
@@ -292,7 +292,7 @@
   var exports = this;
   (function() {
   var EVENTS, Monkey;
-  var __slice = Array.prototype.slice, __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; }, __indexOf = Array.prototype.indexOf || function(item) {
+  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; }, __indexOf = Array.prototype.indexOf || function(item) {
     for (var i = 0, l = this.length; i < l; i++) {
       if (this[i] === item) return i;
     }
@@ -300,7 +300,9 @@
   };
   Monkey = require('./monkey').Monkey;
   EVENTS = ['click', 'blur', 'focus', 'change', 'mouseover', 'mouseout', 'submit'];
-  Monkey.Element = (function() {
+  Monkey.AST = {};
+  Monkey.Nodes = {};
+  Monkey.AST.Element = (function() {
     Element.prototype.type = 'element';
     function Element(name, attributes, children) {
       this.name = name;
@@ -310,171 +312,193 @@
       this.children || (this.children = []);
     }
     Element.prototype.compile = function(document, model, controller) {
-      var attribute, child, element, _i, _j, _len, _len2, _ref, _ref2;
-      element = document.createElement(this.name);
-      _ref = this.attributes;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        attribute = _ref[_i];
-        attribute.append(element, document, model, controller);
-      }
-      _ref2 = this.children;
-      for (_j = 0, _len2 = _ref2.length; _j < _len2; _j++) {
-        child = _ref2[_j];
-        child.append(element, document, model, controller);
-      }
-      return element;
-    };
-    Element.prototype.append = function() {
-      var args, element;
-      element = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
-      return element.appendChild(this.compile.apply(this, args));
-    };
-    Element.prototype.insertAfter = function() {
-      var args, element, newEl;
-      element = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
-      newEl = this.compile.apply(this, args);
-      element.parentNode.insertBefore(newEl, element.nextSibling);
-      return function() {
-        return [newEl];
-      };
+      return new Monkey.Nodes.Element(this, document, model, controller);
     };
     return Element;
   })();
-  Monkey.Attribute = (function() {
-    Attribute.prototype.type = 'attribute';
+  Monkey.Nodes.Element = (function() {
+    function Element(ast, document, model, controller) {
+      var attribute, child, _i, _j, _len, _len2, _ref, _ref2;
+      this.ast = ast;
+      this.document = document;
+      this.model = model;
+      this.controller = controller;
+      this.element = this.document.createElement(this.ast.name);
+      _ref = this.ast.attributes;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        attribute = _ref[_i];
+        attribute.compile(this.document, this.model, this.controller).apply(this.element);
+      }
+      _ref2 = this.ast.children;
+      for (_j = 0, _len2 = _ref2.length; _j < _len2; _j++) {
+        child = _ref2[_j];
+        child.compile(this.document, this.model, this.controller).append(this.element);
+      }
+    }
+    Element.prototype.append = function(inside) {
+      return inside.appendChild(this.element);
+    };
+    Element.prototype.insertAfter = function(after) {
+      return after.parentNode.insertBefore(this.element, after.nextSibling);
+    };
+    Element.prototype.remove = function() {
+      return this.element.parentNode.removeChild(this.element);
+    };
+    Element.prototype.lastElement = function() {
+      return this.element;
+    };
+    return Element;
+  })();
+  Monkey.AST.Attribute = (function() {
     function Attribute(name, value, bound) {
       this.name = name;
       this.value = value;
       this.bound = bound;
     }
-    Attribute.prototype.attribute = function(element, document, model, constructor) {
-      var value;
-      value = this.get(model);
+    Attribute.prototype.compile = function(document, model, controller) {
+      return new Monkey.Nodes.Attribute(this, document, model, controller);
+    };
+    return Attribute;
+  })();
+  Monkey.Nodes.Attribute = (function() {
+    function Attribute(ast, document, model, controller) {
+      this.ast = ast;
+      this.document = document;
+      this.model = model;
+      this.controller = controller;
+    }
+    Attribute.prototype.attribute = function(element) {
+      var value, _base;
+      value = this.get();
       if (value !== void 0) {
-        element.setAttribute(this.name, value);
+        element.setAttribute(this.ast.name, value);
       }
-      if (this.bound) {
-        return typeof model.bind == "function" ? model.bind("change:" + this.value, __bind(function(value) {
-          if (this.name === 'value') {
+      if (this.ast.bound) {
+        return typeof (_base = this.model).bind == "function" ? _base.bind("change:" + this.ast.value, __bind(function(value) {
+          if (this.ast.name === 'value') {
             return element.value = value || '';
           } else if (value === void 0) {
-            return element.removeAttribute(this.name);
+            return element.removeAttribute(this.ast.name);
           } else {
-            return element.setAttribute(this.name, value);
+            return element.setAttribute(this.ast.name, value);
           }
         }, this)) : void 0;
       }
     };
-    Attribute.prototype.event = function(element, document, model, controller) {
+    Attribute.prototype.event = function(element) {
       var callback;
       callback = __bind(function(e) {
-        return controller[this.value](e);
+        return this.controller[this.ast.value](e);
       }, this);
-      return element.addEventListener(this.name, callback, false);
+      return element.addEventListener(this.ast.name, callback, false);
     };
-    Attribute.prototype.append = function() {
-      var args, _ref;
-      args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-      if (_ref = this.name, __indexOf.call(EVENTS, _ref) >= 0) {
-        return this.event.apply(this, args);
+    Attribute.prototype.apply = function(element) {
+      var _ref;
+      if (_ref = this.ast.name, __indexOf.call(EVENTS, _ref) >= 0) {
+        return this.event(element);
       } else {
-        return this.attribute.apply(this, args);
+        return this.attribute(element);
       }
     };
-    Attribute.prototype.get = function(model) {
-      return Monkey.get(model, this.value, this.bound);
+    Attribute.prototype.get = function() {
+      return Monkey.get(this.model, this.ast.value, this.ast.bound);
     };
     return Attribute;
   })();
-  Monkey.TextNode = (function() {
-    TextNode.prototype.type = 'text';
+  Monkey.AST.TextNode = (function() {
     function TextNode(value, bound) {
       this.value = value;
       this.bound = bound;
     }
     TextNode.prototype.name = 'text';
     TextNode.prototype.compile = function(document, model, controller) {
-      var textNode;
-      textNode = document.createTextNode(this.get(model) || '');
-      if (this.bound) {
-        if (typeof model.bind == "function") {
-          model.bind("change:" + this.value, __bind(function(value) {
-            return textNode.nodeValue = value || '';
-          }, this));
-        }
-      }
-      return textNode;
-    };
-    TextNode.prototype.append = function() {
-      var args, element;
-      element = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
-      return element.appendChild(this.compile.apply(this, args));
-    };
-    TextNode.prototype.get = function(model) {
-      return Monkey.get(model, this.value, this.bound);
-    };
-    TextNode.prototype.insertAfter = function() {
-      var args, element, newEl;
-      element = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
-      newEl = this.compile.apply(this, args);
-      element.parentNode.insertBefore(newEl, element.nextSibling);
-      return function() {
-        return [newEl];
-      };
+      return new Monkey.Nodes.TextNode(this, document, model, controller);
     };
     return TextNode;
   })();
-  Monkey.Instruction = (function() {
+  Monkey.Nodes.TextNode = (function() {
+    function TextNode(ast, document, model, controller) {
+      this.ast = ast;
+      this.document = document;
+      this.model = model;
+      this.controller = controller;
+      this.textNode = document.createTextNode(this.get() || '');
+      if (this.ast.bound) {
+        if (typeof model.bind == "function") {
+          model.bind("change:" + this.ast.value, __bind(function(value) {
+            return this.textNode.nodeValue = value || '';
+          }, this));
+        }
+      }
+    }
+    TextNode.prototype.append = function(inside) {
+      return inside.appendChild(this.textNode);
+    };
+    TextNode.prototype.insertAfter = function(after) {
+      return after.parentNode.insertBefore(this.textNode, after.nextSibling);
+    };
+    TextNode.prototype.remove = function() {
+      return this.textNode.parentNode.removeChild(this.textNode);
+    };
+    TextNode.prototype.lastElement = function() {
+      return this.textNode;
+    };
+    TextNode.prototype.get = function(model) {
+      return Monkey.get(this.model, this.ast.value, this.ast.bound);
+    };
+    return TextNode;
+  })();
+  Monkey.AST.Instruction = (function() {
     Instruction.prototype.type = 'instruction';
     function Instruction(command, arguments, children) {
       this.command = command;
       this.arguments = arguments;
       this.children = children;
     }
-    Instruction.prototype.append = function(element, document, model, controller) {
-      var anchor;
-      anchor = document.createTextNode('');
-      element.appendChild(anchor);
-      return this[this.command](anchor, document, model, controller);
-    };
-    Instruction.prototype.insertAfter = function(element, document, model, controller) {
-      var anchor;
-      anchor = document.createTextNode('');
-      element.parentNode.insertBefore(anchor, element.nextSibling);
-      return this[this.command](anchor, document, model, controller);
-    };
-    Instruction.prototype.collection = function(anchor, document, model, controller) {
-      var collection, vc;
-      collection = this.get(model);
-      vc = new Monkey.ViewCollection(anchor, document, collection, controller, this.children);
-      return function() {
-        return [anchor].concat(__slice.call(vc.roots));
-      };
-    };
-    Instruction.prototype.view = function(anchor, document, model, controller) {
-      var newController, view;
-      newController = Monkey.controllerFor(this.arguments[0]);
-      newController.parent = controller;
-      view = Monkey._views[this.arguments[0]].compile(document, model, newController);
-      anchor.parentNode.insertBefore(view, anchor.nextSibling);
-      return function() {
-        return [anchor, view];
-      };
-    };
-    Instruction.prototype.get = function(model) {
-      return Monkey.get(model, this.arguments[0]);
+    Instruction.prototype.compile = function(document, model, controller) {
+      console.log(document, model, controller);
+      switch (this.command) {
+        case "view":
+          return new Monkey.Nodes.View(this, document, model, controller);
+        case "collection":
+          return new Monkey.Nodes.Collection(this, document, model, controller);
+      }
     };
     return Instruction;
   })();
-  Monkey.ViewCollection = (function() {
-    function ViewCollection(anchor, document, collection, controller, children) {
-      this.anchor = anchor;
+  Monkey.Nodes.View = (function() {
+    function View(ast, document, model, parentController) {
+      this.ast = ast;
       this.document = document;
-      this.collection = collection;
+      this.model = model;
+      this.parentController = parentController;
+      this.controller = Monkey.controllerFor(this.ast.arguments[0]);
+      this.controller.parent = this.parentController;
+      console.log(this.parentController);
+      this.view = Monkey._views[this.ast.arguments[0]].render(this.document, this.model, this.controller);
+    }
+    View.prototype.append = function(inside) {
+      return inside.appendChild(this.view);
+    };
+    View.prototype.insertAfter = function(after) {
+      return after.parentNode.insertBefore(this.view, after.nextSibling);
+    };
+    View.prototype.remove = function() {
+      return this.view.parentNode.removeChild(this.view);
+    };
+    View.prototype.lastElement = function() {
+      return this.view;
+    };
+    return View;
+  })();
+  Monkey.Nodes.Collection = (function() {
+    function Collection(ast, document, model, controller) {
+      this.ast = ast;
+      this.document = document;
+      this.model = model;
       this.controller = controller;
-      this.children = children;
-      this.roots = [];
-      this.build();
+      this.anchor = document.createTextNode('');
+      this.collection = this.get();
       if (this.collection.bind) {
         this.collection.bind('update', __bind(function() {
           return this.rebuild();
@@ -489,6 +513,125 @@
           return this["delete"](index);
         }, this));
       }
+    }
+    Collection.prototype.get = function() {
+      return Monkey.get(this.model, this.ast.arguments[0]);
+    };
+    Collection.prototype.rebuild = function() {
+      var item, _i, _len, _ref;
+      _ref = this.items;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        item = _ref[_i];
+        item.remove();
+      }
+      return this.build();
+    };
+    Collection.prototype.build = function() {
+      this.items = [];
+      return Monkey.forEach(this.collection, __bind(function(item) {
+        return this.appendItem(item);
+      }, this));
+    };
+    Collection.prototype.appendItem = function(item) {
+      var node;
+      node = new Monkey.Nodes.CollectionItem(this.ast.children, this.document, item, this.controller);
+      node.insertAfter(this.lastElement());
+      return this.items.push(node);
+    };
+    Collection.prototype["delete"] = function(index) {
+      this.items[index].remove();
+      return this.items.splice(index, 1);
+    };
+    Collection.prototype.lastItem = function() {
+      return this.items[this.items.length - 1];
+    };
+    Collection.prototype.lastElement = function() {
+      var item;
+      item = this.lastItem();
+      if (item) {
+        return item.lastElement();
+      } else {
+        return this.anchor;
+      }
+    };
+    Collection.prototype.remove = function() {
+      var item, _i, _len, _ref, _results;
+      this.anchor.parentNode.removeChild(this.anchor);
+      _ref = this.items;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        item = _ref[_i];
+        _results.push(item.remove());
+      }
+      return _results;
+    };
+    Collection.prototype.append = function(inside) {
+      inside.appendChild(this.anchor);
+      return this.build();
+    };
+    Collection.prototype.insertAfter = function(after) {
+      after.parentNode.insertBefore(this.anchor, after.nextSibling);
+      return this.build();
+    };
+    Collection.prototype.get = function() {
+      return Monkey.get(this.model, this.ast.arguments[0]);
+    };
+    return Collection;
+  })();
+  Monkey.Nodes.CollectionItem = (function() {
+    function CollectionItem(children, document, model, controller) {
+      var child;
+      this.children = children;
+      this.document = document;
+      this.model = model;
+      this.controller = controller;
+      this.nodes = (function() {
+        var _i, _len, _ref, _results;
+        _ref = this.children;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          child = _ref[_i];
+          _results.push(child.compile(this.document, this.model, this.controller));
+        }
+        return _results;
+      }).call(this);
+    }
+    CollectionItem.prototype.insertAfter = function(element) {
+      var last, node, _i, _len, _ref, _results;
+      last = element;
+      _ref = this.nodes;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        node = _ref[_i];
+        node.insertAfter(last);
+        _results.push(last = node.lastElement());
+      }
+      return _results;
+    };
+    CollectionItem.prototype.lastElement = function() {
+      return this.nodes[this.nodes.length - 1].lastElement();
+    };
+    CollectionItem.prototype.remove = function() {
+      var node, _i, _len, _ref, _results;
+      _ref = this.nodes;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        node = _ref[_i];
+        _results.push(node.remove());
+      }
+      return _results;
+    };
+    return CollectionItem;
+  })();
+  Monkey.ViewCollection = (function() {
+    function ViewCollection(anchor, document, collection, controller, children) {
+      this.anchor = anchor;
+      this.document = document;
+      this.collection = collection;
+      this.controller = controller;
+      this.children = children;
+      this.roots = [];
+      this.build();
     }
     ViewCollection.prototype.rebuild = function() {
       var element, root, _i, _j, _len, _len2, _ref, _ref2;
@@ -572,19 +715,19 @@ case 1:this.$ = null;
 break;
 case 2:return this.$
 break;
-case 3:this.$ = new yy.Monkey.Element($$[$0-1], $$[$0]);
+case 3:this.$ = new yy.Monkey.AST.Element($$[$0-1], $$[$0]);
 break;
-case 4:this.$ = new yy.Monkey.Element($$[$0-4], $$[$0-3], $$[$0-1]);
+case 4:this.$ = new yy.Monkey.AST.Element($$[$0-4], $$[$0-3], $$[$0-1]);
 break;
-case 5:this.$ = new yy.Monkey.Element($$[$0-3], $$[$0-2], $$[$0]);
+case 5:this.$ = new yy.Monkey.AST.Element($$[$0-3], $$[$0-2], $$[$0]);
 break;
 case 6:this.$ = [$$[$0]];
 break;
 case 7:this.$ = $$[$0-2].concat($$[$0]);
 break;
-case 8:this.$ = new yy.Monkey.TextNode($$[$0], true);
+case 8:this.$ = new yy.Monkey.AST.TextNode($$[$0], true);
 break;
-case 9:this.$ = new yy.Monkey.TextNode($$[$0], false);
+case 9:this.$ = new yy.Monkey.AST.TextNode($$[$0], false);
 break;
 case 10:this.$ = [];
 break;
@@ -596,7 +739,7 @@ case 13:this.$ = $$[$0];
 break;
 case 14:this.$ = $$[$0];
 break;
-case 15:this.$ = new yy.Monkey.TextNode($$[$0], false);
+case 15:this.$ = new yy.Monkey.AST.TextNode($$[$0], false);
 break;
 case 16:this.$ = [];
 break;
@@ -608,11 +751,11 @@ case 19:this.$ = [$$[$0]];
 break;
 case 20:this.$ = $$[$0-2].concat($$[$0]);
 break;
-case 21:this.$ = new yy.Monkey.Attribute($$[$0-2], $$[$0], true);
+case 21:this.$ = new yy.Monkey.AST.Attribute($$[$0-2], $$[$0], true);
 break;
-case 22:this.$ = new yy.Monkey.Attribute($$[$0-2], $$[$0], false);
+case 22:this.$ = new yy.Monkey.AST.Attribute($$[$0-2], $$[$0], false);
 break;
-case 23:this.$ = new yy.Monkey.Instruction($$[$0-2], $$[$0]);
+case 23:this.$ = new yy.Monkey.AST.Instruction($$[$0-2], $$[$0]);
 break;
 case 24:this.$ = (function () {
         $$[$0-3].children = $$[$0-1];
@@ -995,7 +1138,7 @@ if (typeof module !== 'undefined' && require.main === module) {
       return this.trigger("change", this.list);
     };
     Collection.prototype.forEach = function(fun) {
-      return Monkey.each(this.list, fun);
+      return Monkey.forEach(this.list, fun);
     };
     Collection.prototype.indexOf = function(item) {
       return this.list.indexOf(item);
@@ -1039,9 +1182,11 @@ if (typeof module !== 'undefined' && require.main === module) {
     View.prototype.parse = function() {
       return parser.parse(new Monkey.Lexer().tokenize(this.string));
     };
-    View.prototype.compile = function(document, model, controller) {
+    View.prototype.render = function(document, model, controller) {
+      var node;
+      node = this.parse().compile(document, model, controller);
       controller.model = model;
-      return controller.view = this.parse().compile(document, model, controller);
+      return controller.view = node.element;
     };
     return View;
   })();

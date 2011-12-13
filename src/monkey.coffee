@@ -7,7 +7,7 @@ Monkey =
     @_views[name] = new Monkey.View(template)
   render: (name, model, controller) ->
     controller or= @controllerFor(name)
-    @_views[name].compile(@document, model, controller)
+    @_views[name].render(@document, model, controller)
 
   registerController: (name, klass) ->
     @_controllers[name] = klass
@@ -30,7 +30,7 @@ Monkey =
     else
       value
   # Iteration with fallback
-  each: (collection, fun) ->
+  forEach: (collection, fun) ->
     if typeof(collection.forEach) is 'function'
       collection.forEach(fun)
     else

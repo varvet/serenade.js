@@ -21,7 +21,7 @@ class Monkey.Collection
     @trigger("update", list)
     @trigger("change", @list)
   forEach: (fun) ->
-    Monkey.each(@list, fun)
+    Monkey.forEach(@list, fun)
   indexOf: (item) ->
     @list.indexOf(item)
   delete: (index) ->

@@ -3,10 +3,10 @@ jsdom = require("jsdom")
 fs = require('fs')
 jquery = fs.readFileSync("spec/jquery.js").toString()
 
-el = (name, attributes, children) -> new Monkey.Element(name, attributes, children)
-attr = (name, value, bound=false) -> new Monkey.Attribute(name, value, bound)
-text = (value, bound=false) -> new Monkey.TextNode(value, bound)
-ins = (command, args, children) -> new Monkey.Instruction(command, args, children)
+el = (name, attributes, children) -> new Monkey.AST.Element(name, attributes, children)
+attr = (name, value, bound=false) -> new Monkey.AST.Attribute(name, value, bound)
+text = (value, bound=false) -> new Monkey.AST.TextNode(value, bound)
+ins = (command, args, children) -> new Monkey.AST.Instruction(command, args, children)
 
 compile = (actual, model, controller, callback) ->
   runs ->
@@ -15,7 +15,7 @@ compile = (actual, model, controller, callback) ->
       src: [jquery]
       done: (errors, window) ->
         result = actual.compile(window.document, model, controller)
-        window.document.body.appendChild(result)
+        window.document.body.appendChild(result.element)
         runs ->
           callback(window.$("body"), window.document)
   waits(20)
