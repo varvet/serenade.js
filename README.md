@@ -1,6 +1,9 @@
 # Monkey.js
 
-Monkey.js is yet another MVC client side JavaScript framework. Why do we indulge in recreating the wheel? We believe that Monkey.js more closely follows the ideas of classical MVC than competing frameworks and has a number of other advantages as well:
+Monkey.js is yet another MVC client side JavaScript framework. Why do we
+indulge in recreating the wheel? We believe that Monkey.js more closely follows
+the ideas of classical MVC than competing frameworks and has a number of other
+advantages as well:
 
 * Super pretty, powerful yet logic-less template language
 * Data bindings keep your views up-to-date without any extra work
@@ -10,20 +13,33 @@ Monkey.js is yet another MVC client side JavaScript framework. Why do we indulge
 
 ## Architecture
 
-Monkey.js consists of two separate components:
-* A template engine
-* An object-to-service mapper
+In Monkey.js you define templates and render them, handing in a controller and
+a model to the template. Monkey.js then handles getting values from the model
+and updating them dynamically as the model changes, as well as dispatching
+events to the controller when they occur. Templates are "logic-less" in that
+they do not allow the execution of any code. Monkey.js is built around its
+template engine, so unfortunately you do not have a choice as to the template
+language.
 
-# Template Engine
-
-Monkey.js derives its power from its template engine. Unlike other frameworks, Monkey.js is oppinionated, and you do not have a choice as to how to construct your templates. You can think of all of Monkey.js as a really advanced template engine. This is mirrored in the fact that you instruct a template to render, and hand it a controller and model to bind to, in return you get a DOM element, which you can inject anywhere on your page. Unlike Rails or Backbone.js for example, the controller does not render the view, its sole responsibility is responding to interaction from the user.
+Monkey.js also bundles a powerful abstraction for talking with RESTful
+services, you can use Monkey.Model to persist and retrieve data, as well as
+cache data in local storage.
 
 ## A simple example
 
-This is a very simple example:
+Let us start off by creating a model and controller:
 
 ``` coffeescript
-# register a view
+controller = { showAlert: -> alert('Alert!!!') }
+model = { name: 'Jonas' }
+```
+
+As you can see, these are just normal JavaScript objects. Monkey.js does not
+force you to use any kind of base object or class for models and controllers.
+
+Let us now register a view, we are using Monkey.js's own template language here:
+
+``` coffeescript
 Monkey.registerView 'test', '''
   div[id="hello-world"]
     h1 name
@@ -31,23 +47,38 @@ Monkey.registerView 'test', '''
       a[click=showAlert href="#"] "Show the alert"
 '''
 
-# set up model and controller
-controller = { showAlert: -> alert('Alert!!!') }
-model = { name: 'Jonas' }
+Once we have a view registered, we can render it using `Monkey.render`, passing
+in the model and controller we created before:
 
-# render the view
+``` coffeescript
 result = Monkey.render('test', model, controller)
+```
 
-# Now insert it into the page
+The result we are getting back is just a regular DOM element. This element has
+all events already attached, so you can just insert it into the DOM anywhere,
+and you're good to go. Using standard DOM methods, we could do that like this:
+
+``` coffeescript
 window.onload = ->
   document.body.appendChild(result)
 ```
 
-This example is written in CoffeeScript for easier readability, but there is nothing stopping you from writing this in plain JavaScript as well.
+If you're using jQuery, you can use jQuery's `append` function to append the
+document anywhere on the page.
 
-You may notice that model and controller are just plain JavaScript objects, this is the core philosophy of Monkey.js, you should never have to inherit from any base class.
+``` coffeescript
+$ -> $('body').append(result)
+```
 
-If we want the view to update automatically as the model changes, we will have to add some functionality to our model. Thankfully this is quite simple:
+This example is written in CoffeeScript for easier readability, but there is
+nothing stopping you from writing this in plain JavaScript as well.
+
+## Dynamic properties
+
+Unfortunately JavaScript does not make it possible to track changes to
+arbitrary objects, so in order to update the view automatically as the model
+changes, we will have to add some functionality to it. Thankfully this is quite
+simple:
 
 ``` coffeescript
 model = {}
@@ -62,16 +93,21 @@ model.set('name', 'Peter')
 model.get('name')
 ```
 
-In browser which support Object.defineProperty, we can even set and get this property directly, like so:
+In browser which support Object.defineProperty, we can even set and get this
+property directly, like so:
 
 ``` coffeescript
 model.name = 'Peter'
 model.name
 ```
 
-Note that Opera and IE8 and below do *not* support this, so you might want to refrain from using this syntax.
+Note that Opera and IE8 and below do *not* support this, so you might want to
+refrain from using this syntax. Further note that it is not strictly necessary
+to call `model.property 'name'` unless you plan on using this feature, `get`
+and `set` work fine without the property being declared.
 
-If your model is a constructor, you might want to add the properties to its prototype instead:
+If your model is a constructor, you might want to add the properties to its
+prototype instead:
 
 ``` javascript
 var MyModel = function(name) {
@@ -89,7 +125,9 @@ class MyModel
 
 ## Monkey.Model
 
-It can be quite convenient to use any old JavaScript object as a model, but sometimes we require more powerful abstractions. Monkey offers a base for building objects which is quite powerful. You can use it like this:
+It can be quite convenient to use any old JavaScript object as a model, but
+sometimes we require more powerful abstractions. Monkey offers a base for
+building objects which is quite powerful. You can use it like this:
 
 ``` coffeescript
 class MyModel extends Monkey.Model
