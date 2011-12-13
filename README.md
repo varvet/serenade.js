@@ -94,7 +94,7 @@ model.set('name', 'Peter')
 model.get('name')
 ```
 
-In browser which support Object.defineProperty, we can even set and get this
+In browser which support `Object.defineProperty`, we can even set and get this
 property directly, like so:
 
 ``` coffeescript
