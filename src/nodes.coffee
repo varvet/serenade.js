@@ -176,3 +176,4 @@ Monkey.Nodes =
       when "attribute" then new Attribute(ast, element, document, model, controller)
       when "style" then new Style(ast, element, document, model, controller)
       when "event" then new Event(ast, element, document, model, controller)
+      else throw SyntaxError "#{ast.scope} is not a valid scope"
