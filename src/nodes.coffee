@@ -1,7 +1,5 @@
 {Monkey} = require './monkey'
 
-EVENTS = ['click', 'blur', 'focus', 'change', 'mouseover', 'mouseout', 'submit']
-
 Monkey.AST = {}
 Monkey.Nodes = {}
 
@@ -17,8 +15,8 @@ class Monkey.Nodes.Element
   constructor: (@ast, @document, @model, @controller) ->
     @element = @document.createElement(@ast.name)
 
-    for attribute in @ast.properties
-      attribute.compile(@document, @model, @controller).apply(@element)
+    for property in @ast.properties
+      property.attach(@element, @document, @model, @controller)
 
     for child in @ast.children
       child.compile(@document, @model, @controller).append(@element)
@@ -37,48 +35,41 @@ class Monkey.Nodes.Element
 
 class Monkey.AST.Property
   constructor: (@name, @value, @bound, @scope="attribute") ->
-  compile: (document, model, controller) ->
-    new Monkey.Nodes.Attribute(this, document, model, controller)
+  attach: ->
+    switch @scope
+      when "attribute" then new Monkey.Nodes.Attribute(this, arguments...)
+      when "style" then new Monkey.Nodes.Style(this, arguments...)
+      when "event" then new Monkey.Nodes.Event(this, arguments...)
 
-class Monkey.Nodes.Attribute
-  constructor: (@ast, @document, @model, @controller) ->
-
-  updateAttribute: (element, value) ->
-    if @ast.name is 'value'
-      element.value = value or ''
-    else if value is undefined
-      element.removeAttribute(@ast.name)
-    else
-      element.setAttribute(@ast.name, value)
-
-  updateStyle: (element, name, value) ->
-    element.style[name] = value
-
-  attribute: (element) ->
-    @updateAttribute(element, @get())
+class Monkey.Nodes.Style
+  constructor: (@ast, @element, @document, @model, @controller) ->
+    @update()
     if @ast.bound
-      @model.bind? "change:#{@ast.value}", (value) => @updateAttribute(element, value)
+      @model.bind? "change:#{@ast.value}", (value) => @update()
+  update: ->
+    @element.style[@ast.name] = @get()
+  get: -> Monkey.get(@model, @ast.value, @ast.bound)
 
-
-  event: (element, name) ->
+class Monkey.Nodes.Event
+  constructor: (@ast, @element, @document, @model, @controller) ->
     callback = (e) =>
       @controller[@ast.value](e)
-    element.addEventListener(name, callback, false)
+    @element.addEventListener(@ast.name, callback, false)
 
-  style: (element, name) ->
-    @updateStyle(element, name, @get())
+class Monkey.Nodes.Attribute
+  constructor: (@ast, @element, @document, @model, @controller) ->
+    @update()
     if @ast.bound
-      @model.bind? "change:#{@ast.value}", (value) => @updateStyle(element, name, value)
+      @model.bind? "change:#{@ast.value}", (value) => @update()
 
-  apply: (element) ->
-    if @ast.name in EVENTS
-      @event(element, @ast.name)
-    else if @ast.name.match(/^event-/)
-      @event(element, @ast.name.replace(/^event-/, ''))
-    else if @ast.name.match(/^style-/)
-      @style(element, @ast.name.replace(/^style-/, ''))
+  update: ->
+    value = @get()
+    if @ast.name is 'value'
+      @element.value = value or ''
+    else if value is undefined
+      @element.removeAttribute(@ast.name)
     else
-      @attribute(element)
+      @element.setAttribute(@ast.name, value)
 
   get: -> Monkey.get(@model, @ast.value, @ast.bound)
 

@@ -144,7 +144,7 @@
   var IDENTIFIER, LITERAL, MULTI_DENT, Monkey, STRING, WHITESPACE;
   Monkey = require('./monkey').Monkey;
   IDENTIFIER = /^[a-zA-Z][a-zA-Z0-9\-]*/;
-  LITERAL = /^[\[\]=-]/;
+  LITERAL = /^[\[\]=\:\-]/;
   STRING = /^"((?:\\.|[^"])*)"/;
   MULTI_DENT = /^(?:\n[^\n\S]*)+/;
   WHITESPACE = /^[^\n\S]+/;
@@ -248,6 +248,9 @@
             break;
           case "-":
             this.token('INSTRUCT', id);
+            break;
+          case ":":
+            this.token('SCOPE', id);
         }
         return 1;
       } else {
@@ -291,15 +294,9 @@
 };require['./nodes'] = new function() {
   var exports = this;
   (function() {
-  var EVENTS, Monkey;
-  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; }, __indexOf = Array.prototype.indexOf || function(item) {
-    for (var i = 0, l = this.length; i < l; i++) {
-      if (this[i] === item) return i;
-    }
-    return -1;
-  };
+  var Monkey;
+  var __slice = Array.prototype.slice, __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
   Monkey = require('./monkey').Monkey;
-  EVENTS = ['click', 'blur', 'focus', 'change', 'mouseover', 'mouseout', 'submit'];
   Monkey.AST = {};
   Monkey.Nodes = {};
   Monkey.AST.Element = (function() {
@@ -318,7 +315,7 @@
   })();
   Monkey.Nodes.Element = (function() {
     function Element(ast, document, model, controller) {
-      var attribute, child, _i, _j, _len, _len2, _ref, _ref2;
+      var child, property, _i, _j, _len, _len2, _ref, _ref2;
       this.ast = ast;
       this.document = document;
       this.model = model;
@@ -326,8 +323,8 @@
       this.element = this.document.createElement(this.ast.name);
       _ref = this.ast.properties;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        attribute = _ref[_i];
-        attribute.compile(this.document, this.model, this.controller).apply(this.element);
+        property = _ref[_i];
+        property.attach(this.element, this.document, this.model, this.controller);
       }
       _ref2 = this.ast.children;
       for (_j = 0, _len2 = _ref2.length; _j < _len2; _j++) {
@@ -349,71 +346,103 @@
     };
     return Element;
   })();
-  Monkey.AST.Attribute = (function() {
-    function Attribute(name, value, bound) {
+  Monkey.AST.Property = (function() {
+    function Property(name, value, bound, scope) {
       this.name = name;
       this.value = value;
       this.bound = bound;
+      this.scope = scope != null ? scope : "attribute";
     }
-    Attribute.prototype.compile = function(document, model, controller) {
-      return new Monkey.Nodes.Attribute(this, document, model, controller);
+    Property.prototype.attach = function() {
+      switch (this.scope) {
+        case "attribute":
+          return (function(func, args, ctor) {
+            ctor.prototype = func.prototype;
+            var child = new ctor, result = func.apply(child, args);
+            return typeof result == "object" ? result : child;
+          })(Monkey.Nodes.Attribute, [this].concat(__slice.call(arguments)), function() {});
+        case "style":
+          return (function(func, args, ctor) {
+            ctor.prototype = func.prototype;
+            var child = new ctor, result = func.apply(child, args);
+            return typeof result == "object" ? result : child;
+          })(Monkey.Nodes.Style, [this].concat(__slice.call(arguments)), function() {});
+        case "event":
+          return (function(func, args, ctor) {
+            ctor.prototype = func.prototype;
+            var child = new ctor, result = func.apply(child, args);
+            return typeof result == "object" ? result : child;
+          })(Monkey.Nodes.Event, [this].concat(__slice.call(arguments)), function() {});
+      }
     };
-    return Attribute;
+    return Property;
   })();
-  Monkey.Nodes.Attribute = (function() {
-    function Attribute(ast, document, model, controller) {
+  Monkey.Nodes.Style = (function() {
+    function Style(ast, element, document, model, controller) {
+      var _base;
       this.ast = ast;
+      this.element = element;
       this.document = document;
       this.model = model;
       this.controller = controller;
-    }
-    Attribute.prototype.updateAttribute = function(element, value) {
-      if (this.ast.name === 'value') {
-        return element.value = value || '';
-      } else if (value === void 0) {
-        return element.removeAttribute(this.ast.name);
-      } else {
-        return element.setAttribute(this.ast.name, value);
-      }
-    };
-    Attribute.prototype.updateStyle = function(element, name, value) {
-      return element.style[name] = value;
-    };
-    Attribute.prototype.attribute = function(element) {
-      var _base;
-      this.updateAttribute(element, this.get());
+      this.update();
       if (this.ast.bound) {
-        return typeof (_base = this.model).bind == "function" ? _base.bind("change:" + this.ast.value, __bind(function(value) {
-          return this.updateAttribute(element, value);
-        }, this)) : void 0;
+        if (typeof (_base = this.model).bind == "function") {
+          _base.bind("change:" + this.ast.value, __bind(function(value) {
+            return this.update();
+          }, this));
+        }
       }
+    }
+    Style.prototype.update = function() {
+      return this.element.style[this.ast.name] = this.get();
     };
-    Attribute.prototype.event = function(element, name) {
+    Style.prototype.get = function() {
+      return Monkey.get(this.model, this.ast.value, this.ast.bound);
+    };
+    return Style;
+  })();
+  Monkey.Nodes.Event = (function() {
+    function Event(ast, element, document, model, controller) {
       var callback;
+      this.ast = ast;
+      this.element = element;
+      this.document = document;
+      this.model = model;
+      this.controller = controller;
       callback = __bind(function(e) {
         return this.controller[this.ast.value](e);
       }, this);
-      return element.addEventListener(name, callback, false);
-    };
-    Attribute.prototype.style = function(element, name) {
+      this.element.addEventListener(this.ast.name, callback, false);
+    }
+    return Event;
+  })();
+  Monkey.Nodes.Attribute = (function() {
+    function Attribute(ast, element, document, model, controller) {
       var _base;
-      this.updateStyle(element, name, this.get());
+      this.ast = ast;
+      this.element = element;
+      this.document = document;
+      this.model = model;
+      this.controller = controller;
+      this.update();
       if (this.ast.bound) {
-        return typeof (_base = this.model).bind == "function" ? _base.bind("change:" + this.ast.value, __bind(function(value) {
-          return this.updateStyle(element, name, value);
-        }, this)) : void 0;
+        if (typeof (_base = this.model).bind == "function") {
+          _base.bind("change:" + this.ast.value, __bind(function(value) {
+            return this.update();
+          }, this));
+        }
       }
-    };
-    Attribute.prototype.apply = function(element) {
-      var _ref;
-      if (_ref = this.ast.name, __indexOf.call(EVENTS, _ref) >= 0) {
-        return this.event(element, this.ast.name);
-      } else if (this.ast.name.match(/^event-/)) {
-        return this.event(element, this.ast.name.replace(/^event-/, ''));
-      } else if (this.ast.name.match(/^style-/)) {
-        return this.style(element, this.ast.name.replace(/^style-/, ''));
+    }
+    Attribute.prototype.update = function() {
+      var value;
+      value = this.get();
+      if (this.ast.name === 'value') {
+        return this.element.value = value || '';
+      } else if (value === void 0) {
+        return this.element.removeAttribute(this.ast.name);
       } else {
-        return this.attribute(element);
+        return this.element.setAttribute(this.ast.name, value);
       }
     };
     Attribute.prototype.get = function() {
@@ -646,9 +675,9 @@ var parser = (function(){
 undefined
 var parser = {trace: function trace() { },
 yy: {},
-symbols_: {"error":2,"Root":3,"Element":4,"IDENTIFIER":5,"PropertyArgument":6,"INDENT":7,"ChildList":8,"OUTDENT":9,"WHITESPACE":10,"InlineChildList":11,"InlineChild":12,"STRING_LITERAL":13,"Child":14,"TERMINATOR":15,"Instruction":16,"LPAREN":17,"RPAREN":18,"PropertyList":19,"Property":20,"ASSIGN":21,"INSTRUCT":22,"InstructionArgumentsList":23,"InstructionArgument":24,"$accept":0,"$end":1},
-terminals_: {2:"error",5:"IDENTIFIER",7:"INDENT",9:"OUTDENT",10:"WHITESPACE",13:"STRING_LITERAL",15:"TERMINATOR",17:"LPAREN",18:"RPAREN",21:"ASSIGN",22:"INSTRUCT"},
-productions_: [0,[3,0],[3,1],[4,2],[4,5],[4,4],[11,1],[11,3],[12,1],[12,1],[8,0],[8,1],[8,3],[14,1],[14,1],[14,1],[6,0],[6,2],[6,3],[19,1],[19,3],[20,3],[20,3],[16,5],[16,4],[23,1],[23,3],[24,1],[24,1]],
+symbols_: {"error":2,"Root":3,"Element":4,"IDENTIFIER":5,"PropertyArgument":6,"INDENT":7,"ChildList":8,"OUTDENT":9,"WHITESPACE":10,"InlineChildList":11,"InlineChild":12,"STRING_LITERAL":13,"Child":14,"TERMINATOR":15,"Instruction":16,"LPAREN":17,"RPAREN":18,"PropertyList":19,"Property":20,"ASSIGN":21,"SCOPE":22,"INSTRUCT":23,"InstructionArgumentsList":24,"InstructionArgument":25,"$accept":0,"$end":1},
+terminals_: {2:"error",5:"IDENTIFIER",7:"INDENT",9:"OUTDENT",10:"WHITESPACE",13:"STRING_LITERAL",15:"TERMINATOR",17:"LPAREN",18:"RPAREN",21:"ASSIGN",22:"SCOPE",23:"INSTRUCT"},
+productions_: [0,[3,0],[3,1],[4,2],[4,5],[4,4],[11,1],[11,3],[12,1],[12,1],[8,0],[8,1],[8,3],[14,1],[14,1],[14,1],[6,0],[6,2],[6,3],[19,1],[19,3],[20,3],[20,3],[20,5],[20,5],[16,5],[16,4],[24,1],[24,3],[25,1],[25,1]],
 performAction: function anonymous(yytext,yyleng,yylineno,yy,yystate,$$,_$) {
 
 var $0 = $$.length - 1;
@@ -693,28 +722,32 @@ case 19:this.$ = [$$[$0]];
 break;
 case 20:this.$ = $$[$0-2].concat($$[$0]);
 break;
-case 21:this.$ = new yy.Monkey.AST.Attribute($$[$0-2], $$[$0], true);
+case 21:this.$ = new yy.Monkey.AST.Property($$[$0-2], $$[$0], true);
 break;
-case 22:this.$ = new yy.Monkey.AST.Attribute($$[$0-2], $$[$0], false);
+case 22:this.$ = new yy.Monkey.AST.Property($$[$0-2], $$[$0], false);
 break;
-case 23:this.$ = new yy.Monkey.AST.Instruction($$[$0-2], $$[$0]);
+case 23:this.$ = new yy.Monkey.AST.Property($$[$0-2], $$[$0], true, $$[$0-4]);
 break;
-case 24:this.$ = (function () {
+case 24:this.$ = new yy.Monkey.AST.Property($$[$0-2], $$[$0], false, $$[$0-4]);
+break;
+case 25:this.$ = new yy.Monkey.AST.Instruction($$[$0-2], $$[$0]);
+break;
+case 26:this.$ = (function () {
         $$[$0-3].children = $$[$0-1];
         return $$[$0-3];
       }());
 break;
-case 25:this.$ = [$$[$0]];
+case 27:this.$ = [$$[$0]];
 break;
-case 26:this.$ = $$[$0-2].concat($$[$0]);
+case 28:this.$ = $$[$0-2].concat($$[$0]);
 break;
-case 27:this.$ = $$[$0];
+case 29:this.$ = $$[$0];
 break;
-case 28:this.$ = $$[$0];
+case 30:this.$ = $$[$0];
 break;
 }
 },
-table: [{1:[2,1],3:1,4:2,5:[1,3]},{1:[3]},{1:[2,2]},{1:[2,16],6:4,7:[2,16],9:[2,16],10:[2,16],15:[2,16],17:[1,5]},{1:[2,3],7:[1,6],9:[2,3],10:[1,7],15:[2,3]},{5:[1,11],18:[1,8],19:9,20:10},{4:14,5:[1,3],8:12,9:[2,10],13:[1,16],14:13,15:[2,10],16:15,22:[1,17]},{5:[1,20],11:18,12:19,13:[1,21]},{1:[2,17],7:[2,17],9:[2,17],10:[2,17],15:[2,17]},{10:[1,23],18:[1,22]},{10:[2,19],18:[2,19]},{21:[1,24]},{9:[1,25],15:[1,26]},{9:[2,11],15:[2,11]},{9:[2,13],15:[2,13]},{7:[1,27],9:[2,14],15:[2,14]},{9:[2,15],15:[2,15]},{10:[1,28]},{1:[2,5],9:[2,5],10:[1,29],15:[2,5]},{1:[2,6],9:[2,6],10:[2,6],15:[2,6]},{1:[2,8],9:[2,8],10:[2,8],15:[2,8]},{1:[2,9],9:[2,9],10:[2,9],15:[2,9]},{1:[2,18],7:[2,18],9:[2,18],10:[2,18],15:[2,18]},{5:[1,11],20:30},{5:[1,31],13:[1,32]},{1:[2,4],9:[2,4],15:[2,4]},{4:14,5:[1,3],13:[1,16],14:33,16:15,22:[1,17]},{4:14,5:[1,3],8:34,9:[2,10],13:[1,16],14:13,15:[2,10],16:15,22:[1,17]},{5:[1,35]},{5:[1,20],12:36,13:[1,21]},{10:[2,20],18:[2,20]},{10:[2,21],18:[2,21]},{10:[2,22],18:[2,22]},{9:[2,12],15:[2,12]},{9:[1,37],15:[1,26]},{10:[1,38]},{1:[2,7],9:[2,7],10:[2,7],15:[2,7]},{7:[2,24],9:[2,24],15:[2,24]},{5:[1,41],13:[1,42],23:39,24:40},{7:[2,23],9:[2,23],10:[1,43],15:[2,23]},{7:[2,25],9:[2,25],10:[2,25],15:[2,25]},{7:[2,27],9:[2,27],10:[2,27],15:[2,27]},{7:[2,28],9:[2,28],10:[2,28],15:[2,28]},{5:[1,41],13:[1,42],24:44},{7:[2,26],9:[2,26],10:[2,26],15:[2,26]}],
+table: [{1:[2,1],3:1,4:2,5:[1,3]},{1:[3]},{1:[2,2]},{1:[2,16],6:4,7:[2,16],9:[2,16],10:[2,16],15:[2,16],17:[1,5]},{1:[2,3],7:[1,6],9:[2,3],10:[1,7],15:[2,3]},{5:[1,11],18:[1,8],19:9,20:10},{4:14,5:[1,3],8:12,9:[2,10],13:[1,16],14:13,15:[2,10],16:15,23:[1,17]},{5:[1,20],11:18,12:19,13:[1,21]},{1:[2,17],7:[2,17],9:[2,17],10:[2,17],15:[2,17]},{10:[1,23],18:[1,22]},{10:[2,19],18:[2,19]},{21:[1,24],22:[1,25]},{9:[1,26],15:[1,27]},{9:[2,11],15:[2,11]},{9:[2,13],15:[2,13]},{7:[1,28],9:[2,14],15:[2,14]},{9:[2,15],15:[2,15]},{10:[1,29]},{1:[2,5],9:[2,5],10:[1,30],15:[2,5]},{1:[2,6],9:[2,6],10:[2,6],15:[2,6]},{1:[2,8],9:[2,8],10:[2,8],15:[2,8]},{1:[2,9],9:[2,9],10:[2,9],15:[2,9]},{1:[2,18],7:[2,18],9:[2,18],10:[2,18],15:[2,18]},{5:[1,11],20:31},{5:[1,32],13:[1,33]},{5:[1,34]},{1:[2,4],9:[2,4],15:[2,4]},{4:14,5:[1,3],13:[1,16],14:35,16:15,23:[1,17]},{4:14,5:[1,3],8:36,9:[2,10],13:[1,16],14:13,15:[2,10],16:15,23:[1,17]},{5:[1,37]},{5:[1,20],12:38,13:[1,21]},{10:[2,20],18:[2,20]},{10:[2,21],18:[2,21]},{10:[2,22],18:[2,22]},{21:[1,39]},{9:[2,12],15:[2,12]},{9:[1,40],15:[1,27]},{10:[1,41]},{1:[2,7],9:[2,7],10:[2,7],15:[2,7]},{5:[1,42],13:[1,43]},{7:[2,26],9:[2,26],15:[2,26]},{5:[1,46],13:[1,47],24:44,25:45},{10:[2,23],18:[2,23]},{10:[2,24],18:[2,24]},{7:[2,25],9:[2,25],10:[1,48],15:[2,25]},{7:[2,27],9:[2,27],10:[2,27],15:[2,27]},{7:[2,29],9:[2,29],10:[2,29],15:[2,29]},{7:[2,30],9:[2,30],10:[2,30],15:[2,30]},{5:[1,46],13:[1,47],25:49},{7:[2,28],9:[2,28],10:[2,28],15:[2,28]}],
 defaultActions: {2:[2,2]},
 parseError: function parseError(str, hash) {
     throw new Error(str);

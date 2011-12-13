@@ -6,20 +6,20 @@ Monkey.registerView 'post', '''
     ul
       - collection comments
         - view comment
-    form[submit=postComment]
+    form[event:submit=postComment]
       p
-        textarea[change=commentEdited]
+        textarea[event:change=commentEdited]
       p
         input[type="submit" value="Post"]
 '''
 
 Monkey.registerView 'comment', '''
-  li[style-backgroundColor=color]
+  li[style:backgroundColor=color]
     p body
     p
-      a[click=highlight href="#"] "Highlight"
+      a[event:click=highlight href="#"] "Highlight"
       " | "
-      a[click=remove href="#"] "Remove"
+      a[event:click=remove href="#"] "Remove"
 '''
 
 class Post extends Monkey.Model

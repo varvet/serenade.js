@@ -57,8 +57,8 @@ describe 'Monkey.Element', ->
         expect(body).toHaveElement('div#jonas')
 
     it 'get bound style from the model', ->
-      model = { color: 'red' }
-      compile el('div', [prop('style-color', 'color', true)]), model, {}, (body) ->
+      model = { name: 'red' }
+      compile el('div', [prop('color', 'name', true, 'style')]), model, {}, (body) ->
         expect(body.find('div').css('color')).toEqual('red')
 
     it 'get bound text from the model', ->
@@ -68,15 +68,7 @@ describe 'Monkey.Element', ->
 
     it 'attaches an event which calls the controller action when triggered', ->
       controller = { iWasClicked: -> @clicked = true }
-      compile el('div', [prop('click', 'iWasClicked')]), {}, controller, (body, document) ->
-        event = document.createEvent('HTMLEvents')
-        event.initEvent('click', true, true)
-        body.find('div').get(0).dispatchEvent(event)
-        expect(controller.clicked).toBeTruthy()
-
-    it 'attaches an explicit event which calls the controller action when triggered', ->
-      controller = { iWasClicked: -> @clicked = true }
-      compile el('div', [prop('event-click', 'iWasClicked')]), {}, controller, (body, document) ->
+      compile el('div', [prop('click', 'iWasClicked', true, 'event')]), {}, controller, (body, document) ->
         event = document.createEvent('HTMLEvents')
         event.initEvent('click', true, true)
         body.find('div').get(0).dispatchEvent(event)
@@ -92,10 +84,10 @@ describe 'Monkey.Element', ->
 
     it 'changes bound style as they are changed', ->
       model = new Monkey.Model
-      model.set('color', 'red')
-      compile el('div', [prop('style-color', 'color', true)]), model, {}, (body) ->
+      model.set('name', 'red')
+      compile el('div', [prop('color', 'name', true, 'style')]), model, {}, (body) ->
         expect(body.find('div').css('color')).toEqual('red')
-        model.set('color', 'blue')
+        model.set('name', 'blue')
         expect(body.find('div').css('color')).toEqual('blue')
 
     it 'removes attributes and reattaches them as they are set to undefined', ->
@@ -178,7 +170,7 @@ describe 'Monkey.Element', ->
       class TestCon
         funk: -> funked = true
 
-      Monkey.registerView('test', 'li[id="foo" click=funk]')
+      Monkey.registerView('test', 'li[id="foo" event:click=funk]')
       Monkey.registerController('test', TestCon)
 
       tree =  el('ul', [], [ins('view', ['test'])])
