@@ -14,9 +14,9 @@ grammar =
     ['Element', 'return $$']
   ]
   Element: [
-    o 'IDENTIFIER AttributeArgument', -> new Monkey.AST.Element($1, $2)
-    o 'IDENTIFIER AttributeArgument INDENT ChildList OUTDENT', -> new Monkey.AST.Element($1, $2, $4)
-    o 'IDENTIFIER AttributeArgument WHITESPACE InlineChildList', -> new Monkey.AST.Element($1, $2, $4)
+    o 'IDENTIFIER PropertyArgument', -> new Monkey.AST.Element($1, $2)
+    o 'IDENTIFIER PropertyArgument INDENT ChildList OUTDENT', -> new Monkey.AST.Element($1, $2, $4)
+    o 'IDENTIFIER PropertyArgument WHITESPACE InlineChildList', -> new Monkey.AST.Element($1, $2, $4)
   ]
 
   InlineChildList: [
@@ -41,18 +41,18 @@ grammar =
     o 'STRING_LITERAL', -> new Monkey.AST.TextNode($1, false)
   ]
 
-  AttributeArgument: [
+  PropertyArgument: [
     o '', -> []
     o 'LPAREN RPAREN', -> []
-    o 'LPAREN AttributeList RPAREN', -> $2
+    o 'LPAREN PropertyList RPAREN', -> $2
   ]
 
-  AttributeList: [
-    o 'Attribute', -> [$1]
-    o 'AttributeList WHITESPACE Attribute', -> $1.concat $3
+  PropertyList: [
+    o 'Property', -> [$1]
+    o 'PropertyList WHITESPACE Property', -> $1.concat $3
   ]
 
-  Attribute: [
+  Property: [
     o 'IDENTIFIER ASSIGN IDENTIFIER', -> new Monkey.AST.Attribute($1, $3, true)
     o 'IDENTIFIER ASSIGN STRING_LITERAL', -> new Monkey.AST.Attribute($1, $3, false)
   ]

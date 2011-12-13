@@ -7,8 +7,8 @@ Monkey.Nodes = {}
 
 class Monkey.AST.Element
   type: 'element'
-  constructor: (@name, @attributes, @children) ->
-    @attributes or= []
+  constructor: (@name, @properties, @children) ->
+    @properties or= []
     @children or= []
   compile: (document, model, controller) ->
     new Monkey.Nodes.Element(this, document, model, controller)
@@ -17,7 +17,7 @@ class Monkey.Nodes.Element
   constructor: (@ast, @document, @model, @controller) ->
     @element = @document.createElement(@ast.name)
 
-    for attribute in @ast.attributes
+    for attribute in @ast.properties
       attribute.compile(@document, @model, @controller).apply(@element)
 
     for child in @ast.children

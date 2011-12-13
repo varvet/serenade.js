@@ -14,19 +14,19 @@ describe 'Monkey.View', ->
     it 'parses a tag with an attribute', ->
       result = parse('div[id="foo"]')
       expect(result.name).toEqual('div')
-      expect(result.attributes[0].name).toEqual('id')
-      expect(result.attributes[0].value).toEqual('foo')
-      expect(result.attributes[0].bound).toEqual(false)
+      expect(result.properties[0].name).toEqual('id')
+      expect(result.properties[0].value).toEqual('foo')
+      expect(result.properties[0].bound).toEqual(false)
 
-    it 'parses a tag with multiple attributes', ->
+    it 'parses a tag with multiple properties', ->
       result = parse('div[id="foo" class=schmoo]')
       expect(result.name).toEqual('div')
-      expect(result.attributes[0].name).toEqual('id')
-      expect(result.attributes[0].value).toEqual('foo')
-      expect(result.attributes[0].bound).toEqual(false)
-      expect(result.attributes[1].name).toEqual('class')
-      expect(result.attributes[1].value).toEqual('schmoo')
-      expect(result.attributes[1].bound).toEqual(true)
+      expect(result.properties[0].name).toEqual('id')
+      expect(result.properties[0].value).toEqual('foo')
+      expect(result.properties[0].bound).toEqual(false)
+      expect(result.properties[1].name).toEqual('class')
+      expect(result.properties[1].value).toEqual('schmoo')
+      expect(result.properties[1].bound).toEqual(true)
 
     it 'parses child tags', ->
       result = parse("div\n\tp\n\tspan")
