@@ -43,12 +43,7 @@ class Monkey.AST.Attribute
 class Monkey.Nodes.Attribute
   constructor: (@ast, @document, @model, @controller) ->
 
-  attribute: (element) ->
-    @update(element, @get())
-    if @ast.bound
-      @model.bind? "change:#{@ast.value}", (value) => @update(element, value)
-
-  update: (element, value) ->
+  updateAttribute: (element, value) ->
     if @ast.name is 'value'
       element.value = value or ''
     else if value is undefined
@@ -56,16 +51,32 @@ class Monkey.Nodes.Attribute
     else
       element.setAttribute(@ast.name, value)
 
+  updateStyle: (element, name, value) ->
+    element.style[name] = value
+
+  attribute: (element) ->
+    @updateAttribute(element, @get())
+    if @ast.bound
+      @model.bind? "change:#{@ast.value}", (value) => @updateAttribute(element, value)
+
+
   event: (element, name) ->
     callback = (e) =>
       @controller[@ast.value](e)
     element.addEventListener(name, callback, false)
+
+  style: (element, name) ->
+    @updateStyle(element, name, @get())
+    if @ast.bound
+      @model.bind? "change:#{@ast.value}", (value) => @updateStyle(element, name, value)
 
   apply: (element) ->
     if @ast.name in EVENTS
       @event(element, @ast.name)
     else if @ast.name.match(/^event-/)
       @event(element, @ast.name.replace(/^event-/, ''))
+    else if @ast.name.match(/^style-/)
+      @style(element, @ast.name.replace(/^style-/, ''))
     else
       @attribute(element)
 

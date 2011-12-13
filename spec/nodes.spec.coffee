@@ -56,6 +56,11 @@ describe 'Monkey.Element', ->
       compile el('div', [attr('id', 'name', true)]), model, {}, (body) ->
         expect(body).toHaveElement('div#jonas')
 
+    it 'get bound style from the model', ->
+      model = { color: 'red' }
+      compile el('div', [attr('style-color', 'color', true)]), model, {}, (body) ->
+        expect(body.find('div').css('color')).toEqual('red')
+
     it 'get bound text from the model', ->
       model = { name: 'Jonas Nicklas' }
       compile el('div', [], [text('name', true)]), model, {}, (body) ->
@@ -84,6 +89,14 @@ describe 'Monkey.Element', ->
         expect(body).toHaveElement('div#jonas')
         model.set('name', 'peter')
         expect(body).toHaveElement('div#peter')
+
+    it 'changes bound style as they are changed', ->
+      model = new Monkey.Model
+      model.set('color', 'red')
+      compile el('div', [attr('style-color', 'color', true)]), model, {}, (body) ->
+        expect(body.find('div').css('color')).toEqual('red')
+        model.set('color', 'blue')
+        expect(body.find('div').css('color')).toEqual('blue')
 
     it 'removes attributes and reattaches them as they are set to undefined', ->
       model = new Monkey.Model

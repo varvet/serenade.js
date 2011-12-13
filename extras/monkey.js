@@ -367,22 +367,25 @@
       this.model = model;
       this.controller = controller;
     }
-    Attribute.prototype.attribute = function(element) {
-      var _base;
-      this.update(element, this.get());
-      if (this.ast.bound) {
-        return typeof (_base = this.model).bind == "function" ? _base.bind("change:" + this.ast.value, __bind(function(value) {
-          return this.update(element, value);
-        }, this)) : void 0;
-      }
-    };
-    Attribute.prototype.update = function(element, value) {
+    Attribute.prototype.updateAttribute = function(element, value) {
       if (this.ast.name === 'value') {
         return element.value = value || '';
       } else if (value === void 0) {
         return element.removeAttribute(this.ast.name);
       } else {
         return element.setAttribute(this.ast.name, value);
+      }
+    };
+    Attribute.prototype.updateStyle = function(element, name, value) {
+      return element.style[name] = value;
+    };
+    Attribute.prototype.attribute = function(element) {
+      var _base;
+      this.updateAttribute(element, this.get());
+      if (this.ast.bound) {
+        return typeof (_base = this.model).bind == "function" ? _base.bind("change:" + this.ast.value, __bind(function(value) {
+          return this.updateAttribute(element, value);
+        }, this)) : void 0;
       }
     };
     Attribute.prototype.event = function(element, name) {
@@ -392,12 +395,23 @@
       }, this);
       return element.addEventListener(name, callback, false);
     };
+    Attribute.prototype.style = function(element, name) {
+      var _base;
+      this.updateStyle(element, name, this.get());
+      if (this.ast.bound) {
+        return typeof (_base = this.model).bind == "function" ? _base.bind("change:" + this.ast.value, __bind(function(value) {
+          return this.updateStyle(element, name, value);
+        }, this)) : void 0;
+      }
+    };
     Attribute.prototype.apply = function(element) {
       var _ref;
       if (_ref = this.ast.name, __indexOf.call(EVENTS, _ref) >= 0) {
         return this.event(element, this.ast.name);
       } else if (this.ast.name.match(/^event-/)) {
         return this.event(element, this.ast.name.replace(/^event-/, ''));
+      } else if (this.ast.name.match(/^style-/)) {
+        return this.style(element, this.ast.name.replace(/^style-/, ''));
       } else {
         return this.attribute(element);
       }
@@ -1015,7 +1029,6 @@ if (typeof module !== 'undefined' && require.main === module) {
   var Monkey;
   Monkey = require('./monkey').Monkey;
   Monkey.Model = (function() {
-    function Model() {}
     Monkey.extend(Model.prototype, Monkey.Events);
     Monkey.extend(Model.prototype, Monkey.Properties);
     Model.property = function() {
@@ -1026,6 +1039,9 @@ if (typeof module !== 'undefined' && require.main === module) {
       var _ref;
       return (_ref = this.prototype).collection.apply(_ref, arguments);
     };
+    function Model(attributes) {
+      this.set(attributes);
+    }
     return Model;
   })();
 }).call(this);
