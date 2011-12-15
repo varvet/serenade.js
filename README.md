@@ -44,7 +44,7 @@ Monkey.registerView 'test', '''
   div[id="hello-world"]
     h1 name
     p
-      a[click=showAlert href="#"] "Show the alert"
+      a[event:click=showAlert href="#"] "Show the alert"
 '''
 ```
 
@@ -123,6 +123,206 @@ Or in CoffeeScript:
 class MyModel
   Monkey.extend(@prototype, Monkey.Properties)
 ```
+
+## Template Language
+
+The Monkey.js template language is inspired by Slim, Jade and HAML, but not
+identical to any of these.
+
+Any view in Monkey.js must have an element as its root node. Elements may have
+any number of children. Elements can have attributes within square brackets.
+
+This is a single element with no children and an id attribute:
+
+``` slim
+div[id="monkey"]
+```
+
+Indentation is significant and is used to nest elements:
+
+``` slim
+div
+  div[id="page"]
+    div[id="child"]
+  div[id="footer"]
+```
+
+Attributes may be bound to a model value by omitting the quotes:
+
+``` slim
+div[id=modelId]
+```
+
+Similarly text can be added to any element, this may be either
+bound or unbound text or any mix thereof:
+
+``` slim
+div "Name: " name
+```
+
+## Events
+
+Events are dispatched to the controller. The controller may choose to act on
+these events in any way it chooses. The controller has a reference to both the
+model, through `this.model`, and the view, through `this.view`.  These
+properties will be set automatically by Monkey.js as the view is rendered. If
+the view is a subview, the controller can also access its parent controller
+through `this.parent`.
+
+While you *can* access the view and thus dynamically change it from the
+controller through standard DOM manipulation, you should generally avoid doing
+this as much as possible. Ideally your controller should only change properties
+on models, and those changes should then be dynamically reflected in the view.
+This is the essence of the classical MVC pattern.
+
+Events are bound by using the `event:name=bidning` syntax for an element's
+attributes like so:
+
+``` slim
+div
+  h3 "Post"
+  a[href="#" event:click=like] "Like this post"
+```
+
+You can use any DOM event, such as `submit`, `mouseover`, `blur`, `keydown`,
+etc. This will now look up the property `like` on your controller and call it
+as a function. You could implement this as follows:
+
+``` coffeescript
+controller =
+  like: -> @model.set('liked', true)
+```
+
+Note that we do not have to set `@model` ourselves, Monkey.js does this for
+you.
+
+In this example, if we have scrolled down a bit, we would jump to the start of
+the page, since the link points to the `#` anchor. In many JavaScript
+frameworks such as jQuery, we could fix this by returning `false` from the
+event handler. In Monkey.js, returning false does nothing. Thankfully the event
+object is passed into the function call on the controller, so we can use the
+`preventDefault` function to stop the link being followed:
+
+``` coffeescript
+controller =
+  like: (event) ->
+    @model.set('liked', true)
+    event.preventDefault()
+```
+
+You can use `event` for any number of things here, such as attaching the same
+event to multiple targets and then figuring out which triggered the event
+through `event.target`.
+
+Preventing the default action of an event is really, really common, so having
+to call `preventDefault` everywhere gets old very fast. For this reason,
+Monkey.js has a special syntax in its templates to prevent the default action
+without having to do any additional work in the controller. Just append an
+exclamation mark after the event binding:
+
+``` slim
+div
+  h3 "Post"
+  a[href="#" event:click=like!] "Like this post"
+```
+
+## Binding styles
+
+We can change the style of an element by binding its class attribute to a model
+property. If possible, this is what you should do, since it separates styling
+from behaviour. Sometimes however, its necessary to bind a style attribute
+directly. Consider for example if you have a progress bar, whose width should
+be changed based on the `progress` property of a model object.
+
+You can use the special `style:name=value` syntax to dynamically bind styles to
+elements like so:
+
+``` slim
+div[class="progress" style:width=progress]
+```
+
+Style names should be camel-cased, like in JavaScript, not dash-cased, like in
+CSS. That means you should write `style:backgroundColor=color`, not
+`style:background-color=color`.
+
+## Collections
+
+Oftentimes you will want to render a collection of objects in your views.
+Monkey has special syntax for collections built into its template language.
+Assuming you have a model like this:
+
+``` coffeescript
+post =
+  comments: [{ body: 'Hello'}, {body: 'Awesome!'}]
+```
+
+You could output the list of comments like this:
+
+``` slim
+ul[id="comments"]
+  - collection comments
+    li body
+```
+
+Assuming `comments` is a list of objects which have a property called `body`
+this should output one li element for each comment.
+
+If `comments` is an instance of `Monkey.Collection`, Monkey.js will dynamically
+update this collection as comments are added, removed or changed:
+
+``` coffeescript
+post =
+  comments: new Monkey.Collection([{ body: 'Hello'}, {body: 'Awesome!'}])
+```
+
+## Views
+
+It can be convenient to split parts of view into subviews. The `view` instruction
+does just that:
+
+``` slim
+div
+  h3 "Most recent comment"
+  - view post
+```
+
+Assuming that there is a post view registered with `Monkey.registerView('post',
+'...')` that view will now be rendered.
+
+It will often be useful to use the `view` and `collection` instructions
+together:
+
+``` slim
+div
+  h3 "Comments"
+  ul
+    - collection comments
+      - view comment
+```
+
+By default, the subviews will use the same controller as their parent view.
+This can be quite inconvenient in a lot of cases, and we would really like to
+use a specific controller for this new view.
+
+If your controller can be instantiated with JavaScript's `new` operator, you
+can use `registerController` to tell Monkey.js which controller to use for your
+view. Any constructor function in JavaScript and any CoffeeScript class can be
+used here. For example:
+
+``` javascript
+var CommentController = function() {};
+Monkey.registerController 'comment', CommentController
+```
+
+Or in CoffeeScript:
+
+``` coffeescript
+class CommentController
+Monkey.registerController 'comment', CommentController
+```
+
+Monkey.js will now infer that you want to use a `CommentController` with the
+`comment` view.
 
 ## Monkey.Model
 
