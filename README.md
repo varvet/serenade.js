@@ -65,7 +65,7 @@ window.onload = ->
 ```
 
 If you're using jQuery, you can use jQuery's `append` function to append the
-document anywhere on the page.
+element anywhere on the page.
 
 ``` coffeescript
 $ -> $('body').append(result)
@@ -94,7 +94,7 @@ model.set('name', 'Peter')
 model.get('name')
 ```
 
-In browser which support `Object.defineProperty`, we can even set and get this
+In browsers which support `Object.defineProperty`, we can even set and get this
 property directly, like so:
 
 ``` coffeescript
@@ -241,7 +241,7 @@ elements like so:
 div[class="progress" style:width=progress]
 ```
 
-Style names should be camel-cased, like in JavaScript, not dash-cased, like in
+Style names should be camelCased, like in JavaScript, not dash-cased, like in
 CSS. That means you should write `style:backgroundColor=color`, not
 `style:background-color=color`.
 
@@ -264,8 +264,7 @@ ul[id="comments"]
     li body
 ```
 
-Assuming `comments` is a list of objects which have a property called `body`
-this should output one li element for each comment.
+This should output one li element for each comment.
 
 If `comments` is an instance of `Monkey.Collection`, Monkey.js will dynamically
 update this collection as comments are added, removed or changed:
