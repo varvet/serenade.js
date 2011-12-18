@@ -52,7 +52,12 @@ describe 'Monkey.View', ->
       expect(result.children[1].name).toEqual('span')
 
     it 'can indent back', ->
-      result = parse("div\n\tp\n\t\ta\n\tp")
+      result = parse """
+        div
+          p
+            a
+          p
+      """
       expect(result.name).toEqual('div')
       expect(result.children[0].name).toEqual('p')
       expect(result.children[0].children[0].name).toEqual('a')
@@ -104,3 +109,14 @@ describe 'Monkey.View', ->
       expect(result.children[0].command).toEqual('view')
       expect(result.children[0].arguments).toEqual(['example'])
       expect(result.children[0].children[0].name).toEqual('span')
+    it 'does indentation for collections correctly', ->
+      result = parse """
+        div
+          ul
+            - collection foo
+              - view comment
+          form
+      """
+      expect(result.name).toEqual('div')
+      expect(result.children[0].name).toEqual('ul')
+      expect(result.children[1].name).toEqual('form')

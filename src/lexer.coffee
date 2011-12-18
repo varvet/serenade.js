@@ -70,17 +70,20 @@ class Monkey.Lexer
     @line += @count indent, '\n'
     prev = @last @tokens, 1
     size = indent.length - 1 - indent.lastIndexOf '\n'
+    diff = size - @indent
 
     if size is @indent
       @newlineToken()
     else if size > @indent
-      diff = size - @indent
-      @token 'INDENT', diff
+      @token 'INDENT'
+      @indents.push diff
       @ends.push 'OUTDENT'
     else
-      @error('Should be an OUTDENT, yo') unless @last(@ends) is 'OUTDENT'
-      @ends.pop
-      @token 'OUTDENT', diff
+      while diff < 0
+        @error('Should be an OUTDENT, yo') unless @last(@ends) is 'OUTDENT'
+        @ends.pop()
+        diff += @indents.pop()
+        @token 'OUTDENT'
       @token 'TERMINATOR', '\n'
     @indent = size
     indent.length
