@@ -12,6 +12,7 @@
   var exports = this;
   (function() {
   var Monkey;
+
   Monkey = {
     VERSION: '0.1.0',
     _views: [],
@@ -38,15 +39,17 @@
       _results = [];
       for (key in source) {
         value = source[key];
-        _results.push(Object.prototype.hasOwnProperty.call(source, key) ? target[key] = value : void 0);
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          _results.push(target[key] = value);
+        } else {
+          _results.push(void 0);
+        }
       }
       return _results;
     },
-    document: typeof window != "undefined" && window !== null ? window.document : void 0,
+    document: typeof window !== "undefined" && window !== null ? window.document : void 0,
     get: function(model, value, bound) {
-      if (bound == null) {
-        bound = true;
-      }
+      if (bound == null) bound = true;
       if (bound && model.get) {
         return model.get(value);
       } else if (bound) {
@@ -69,15 +72,19 @@
       }
     }
   };
+
   exports.Monkey = Monkey;
+
 }).call(this);
 
 };require['./events'] = new function() {
   var exports = this;
   (function() {
-  var Monkey;
-  var __slice = Array.prototype.slice;
+  var Monkey,
+    __slice = Array.prototype.slice;
+
   Monkey = require('./monkey').Monkey;
+
   Monkey.Events = {
     bind: function(ev, callback) {
       var calls, evs, name, _i, _len;
@@ -101,9 +108,7 @@
       args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
       ev = args.shift();
       list = this.hasOwnProperty('_callbacks') && ((_ref = this._callbacks) != null ? _ref[ev] : void 0);
-      if (!list) {
-        return false;
-      }
+      if (!list) return false;
       for (_i = 0, _len = list.length; _i < _len; _i++) {
         callback = list[_i];
         callback.apply(this, args);
@@ -117,44 +122,49 @@
         return this;
       }
       list = (_ref = this._callbacks) != null ? _ref[ev] : void 0;
-      if (!list) {
-        return this;
-      }
+      if (!list) return this;
       if (!callback) {
         delete this._callbacks[ev];
         return this;
       }
       for (i = 0, _len = list.length; i < _len; i++) {
         cb = list[i];
-        if (cb === callback) {
-          list = list.slice();
-          list.splice(i, 1);
-          this._callbacks[ev] = list;
-          break;
-        }
+        if (!(cb === callback)) continue;
+        list = list.slice();
+        list.splice(i, 1);
+        this._callbacks[ev] = list;
+        break;
       }
       return this;
     }
   };
+
 }).call(this);
 
 };require['./lexer'] = new function() {
   var exports = this;
   (function() {
   var IDENTIFIER, LITERAL, MULTI_DENT, Monkey, STRING, WHITESPACE;
+
   Monkey = require('./monkey').Monkey;
+
   IDENTIFIER = /^[a-zA-Z][a-zA-Z0-9\-]*/;
+
   LITERAL = /^[\[\]=\:\-]/;
+
   STRING = /^"((?:\\.|[^"])*)"/;
+
   MULTI_DENT = /^(?:\n[^\n\S]*)+/;
+
   WHITESPACE = /^[^\n\S]+/;
+
   Monkey.Lexer = (function() {
+
     function Lexer() {}
+
     Lexer.prototype.tokenize = function(code, opts) {
       var i, tag;
-      if (opts == null) {
-        opts = {};
-      }
+      if (opts == null) opts = {};
       this.code = code;
       this.line = opts.line || 0;
       this.indent = 0;
@@ -176,6 +186,7 @@
       }
       return this.tokens;
     };
+
     Lexer.prototype.whitespaceToken = function() {
       var match;
       if (match = WHITESPACE.exec(this.chunk)) {
@@ -185,9 +196,11 @@
         return 0;
       }
     };
+
     Lexer.prototype.token = function(tag, value) {
       return this.tokens.push([tag, value, this.line]);
     };
+
     Lexer.prototype.identifierToken = function() {
       var match;
       if (match = IDENTIFIER.exec(this.chunk)) {
@@ -197,6 +210,7 @@
         return 0;
       }
     };
+
     Lexer.prototype.stringToken = function() {
       var match;
       if (match = STRING.exec(this.chunk)) {
@@ -206,32 +220,36 @@
         return 0;
       }
     };
+
     Lexer.prototype.lineToken = function() {
       var diff, indent, match, prev, size;
-      if (!(match = MULTI_DENT.exec(this.chunk))) {
-        return 0;
-      }
+      if (!(match = MULTI_DENT.exec(this.chunk))) return 0;
       indent = match[0];
       this.line += this.count(indent, '\n');
       prev = this.last(this.tokens, 1);
       size = indent.length - 1 - indent.lastIndexOf('\n');
+      diff = size - this.indent;
       if (size === this.indent) {
         this.newlineToken();
       } else if (size > this.indent) {
-        diff = size - this.indent;
-        this.token('INDENT', diff);
+        this.token('INDENT');
+        this.indents.push(diff);
         this.ends.push('OUTDENT');
       } else {
-        if (this.last(this.ends) !== 'OUTDENT') {
-          this.error('Should be an OUTDENT, yo');
+        while (diff < 0) {
+          if (this.last(this.ends) !== 'OUTDENT') {
+            this.error('Should be an OUTDENT, yo');
+          }
+          this.ends.pop();
+          diff += this.indents.pop();
+          this.token('OUTDENT');
         }
-        this.ends.pop;
-        this.token('OUTDENT', diff);
         this.token('TERMINATOR', '\n');
       }
       this.indent = size;
       return indent.length;
     };
+
     Lexer.prototype.literalToken = function() {
       var id, match;
       if (match = LITERAL.exec(this.chunk)) {
@@ -257,50 +275,61 @@
         return this.error("WUT??? is '" + (this.chunk.charAt(0)) + "'");
       }
     };
+
     Lexer.prototype.newlineToken = function() {
-      if (this.tag() !== 'TERMINATOR') {
-        return this.token('TERMINATOR', '\n');
-      }
+      if (this.tag() !== 'TERMINATOR') return this.token('TERMINATOR', '\n');
     };
+
     Lexer.prototype.tag = function(index, tag) {
       var tok;
       return (tok = this.last(this.tokens, index)) && (tag ? tok[0] = tag : tok[0]);
     };
+
     Lexer.prototype.value = function(index, val) {
       var tok;
       return (tok = this.last(this.tokens, index)) && (val ? tok[1] = val : tok[1]);
     };
+
     Lexer.prototype.error = function(message) {
       throw SyntaxError("" + message + " on line " + (this.line + 1));
     };
+
     Lexer.prototype.count = function(string, substr) {
       var num, pos;
       num = pos = 0;
-      if (!substr.length) {
-        return 1 / 0;
-      }
+      if (!substr.length) return 1 / 0;
       while (pos = 1 + string.indexOf(substr, pos)) {
         num++;
       }
       return num;
     };
+
     Lexer.prototype.last = function(array, back) {
       return array[array.length - (back || 0) - 1];
     };
+
     return Lexer;
+
   })();
+
 }).call(this);
 
 };require['./nodes'] = new function() {
   var exports = this;
   (function() {
-  var Monkey;
-  var __slice = Array.prototype.slice, __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+  var Monkey,
+    __slice = Array.prototype.slice;
+
   Monkey = require('./monkey').Monkey;
+
   Monkey.AST = {};
+
   Monkey.Nodes = {};
+
   Monkey.AST.Element = (function() {
+
     Element.prototype.type = 'element';
+
     function Element(name, properties, children) {
       this.name = name;
       this.properties = properties;
@@ -308,12 +337,17 @@
       this.properties || (this.properties = []);
       this.children || (this.children = []);
     }
+
     Element.prototype.compile = function(document, model, controller) {
       return new Monkey.Nodes.Element(this, document, model, controller);
     };
+
     return Element;
+
   })();
+
   Monkey.Nodes.Element = (function() {
+
     function Element(ast, document, model, controller) {
       var child, property, _i, _j, _len, _len2, _ref, _ref2;
       this.ast = ast;
@@ -332,54 +366,68 @@
         child.compile(this.document, this.model, this.controller).append(this.element);
       }
     }
+
     Element.prototype.append = function(inside) {
       return inside.appendChild(this.element);
     };
+
     Element.prototype.insertAfter = function(after) {
       return after.parentNode.insertBefore(this.element, after.nextSibling);
     };
+
     Element.prototype.remove = function() {
       return this.element.parentNode.removeChild(this.element);
     };
+
     Element.prototype.lastElement = function() {
       return this.element;
     };
+
     return Element;
+
   })();
+
   Monkey.AST.Property = (function() {
+
     function Property(name, value, bound, scope) {
       this.name = name;
       this.value = value;
       this.bound = bound;
       this.scope = scope != null ? scope : "attribute";
     }
+
     Property.prototype.attach = function() {
       switch (this.scope) {
         case "attribute":
           return (function(func, args, ctor) {
             ctor.prototype = func.prototype;
             var child = new ctor, result = func.apply(child, args);
-            return typeof result == "object" ? result : child;
+            return typeof result === "object" ? result : child;
           })(Monkey.Nodes.Attribute, [this].concat(__slice.call(arguments)), function() {});
         case "style":
           return (function(func, args, ctor) {
             ctor.prototype = func.prototype;
             var child = new ctor, result = func.apply(child, args);
-            return typeof result == "object" ? result : child;
+            return typeof result === "object" ? result : child;
           })(Monkey.Nodes.Style, [this].concat(__slice.call(arguments)), function() {});
         case "event":
           return (function(func, args, ctor) {
             ctor.prototype = func.prototype;
             var child = new ctor, result = func.apply(child, args);
-            return typeof result == "object" ? result : child;
+            return typeof result === "object" ? result : child;
           })(Monkey.Nodes.Event, [this].concat(__slice.call(arguments)), function() {});
       }
     };
+
     return Property;
+
   })();
+
   Monkey.Nodes.Style = (function() {
+
     function Style(ast, element, document, model, controller) {
-      var _base;
+      var _base,
+        _this = this;
       this.ast = ast;
       this.element = element;
       this.document = document;
@@ -387,39 +435,51 @@
       this.controller = controller;
       this.update();
       if (this.ast.bound) {
-        if (typeof (_base = this.model).bind == "function") {
-          _base.bind("change:" + this.ast.value, __bind(function(value) {
-            return this.update();
-          }, this));
+        if (typeof (_base = this.model).bind === "function") {
+          _base.bind("change:" + this.ast.value, function(value) {
+            return _this.update();
+          });
         }
       }
     }
+
     Style.prototype.update = function() {
       return this.element.style[this.ast.name] = this.get();
     };
+
     Style.prototype.get = function() {
       return Monkey.get(this.model, this.ast.value, this.ast.bound);
     };
+
     return Style;
+
   })();
+
   Monkey.Nodes.Event = (function() {
+
     function Event(ast, element, document, model, controller) {
-      var callback;
+      var callback,
+        _this = this;
       this.ast = ast;
       this.element = element;
       this.document = document;
       this.model = model;
       this.controller = controller;
-      callback = __bind(function(e) {
-        return this.controller[this.ast.value](e);
-      }, this);
+      callback = function(e) {
+        return _this.controller[_this.ast.value](e);
+      };
       this.element.addEventListener(this.ast.name, callback, false);
     }
+
     return Event;
+
   })();
+
   Monkey.Nodes.Attribute = (function() {
+
     function Attribute(ast, element, document, model, controller) {
-      var _base;
+      var _base,
+        _this = this;
       this.ast = ast;
       this.element = element;
       this.document = document;
@@ -427,13 +487,14 @@
       this.controller = controller;
       this.update();
       if (this.ast.bound) {
-        if (typeof (_base = this.model).bind == "function") {
-          _base.bind("change:" + this.ast.value, __bind(function(value) {
-            return this.update();
-          }, this));
+        if (typeof (_base = this.model).bind === "function") {
+          _base.bind("change:" + this.ast.value, function(value) {
+            return _this.update();
+          });
         }
       }
     }
+
     Attribute.prototype.update = function() {
       var value;
       value = this.get();
@@ -445,61 +506,84 @@
         return this.element.setAttribute(this.ast.name, value);
       }
     };
+
     Attribute.prototype.get = function() {
       return Monkey.get(this.model, this.ast.value, this.ast.bound);
     };
+
     return Attribute;
+
   })();
+
   Monkey.AST.TextNode = (function() {
+
     function TextNode(value, bound) {
       this.value = value;
       this.bound = bound;
     }
+
     TextNode.prototype.name = 'text';
+
     TextNode.prototype.compile = function(document, model, controller) {
       return new Monkey.Nodes.TextNode(this, document, model, controller);
     };
+
     return TextNode;
+
   })();
+
   Monkey.Nodes.TextNode = (function() {
+
     function TextNode(ast, document, model, controller) {
+      var _this = this;
       this.ast = ast;
       this.document = document;
       this.model = model;
       this.controller = controller;
       this.textNode = document.createTextNode(this.get() || '');
       if (this.ast.bound) {
-        if (typeof model.bind == "function") {
-          model.bind("change:" + this.ast.value, __bind(function(value) {
-            return this.textNode.nodeValue = value || '';
-          }, this));
+        if (typeof model.bind === "function") {
+          model.bind("change:" + this.ast.value, function(value) {
+            return _this.textNode.nodeValue = value || '';
+          });
         }
       }
     }
+
     TextNode.prototype.append = function(inside) {
       return inside.appendChild(this.textNode);
     };
+
     TextNode.prototype.insertAfter = function(after) {
       return after.parentNode.insertBefore(this.textNode, after.nextSibling);
     };
+
     TextNode.prototype.remove = function() {
       return this.textNode.parentNode.removeChild(this.textNode);
     };
+
     TextNode.prototype.lastElement = function() {
       return this.textNode;
     };
+
     TextNode.prototype.get = function(model) {
       return Monkey.get(this.model, this.ast.value, this.ast.bound);
     };
+
     return TextNode;
+
   })();
+
   Monkey.AST.Instruction = (function() {
+
     Instruction.prototype.type = 'instruction';
-    function Instruction(command, arguments, children) {
+
+    function Instruction(command, _arguments, children) {
       this.command = command;
-      this.arguments = arguments;
+      this.arguments = _arguments;
       this.children = children;
     }
+
     Instruction.prototype.compile = function(document, model, controller) {
       switch (this.command) {
         case "view":
@@ -508,9 +592,13 @@
           return new Monkey.Nodes.Collection(this, document, model, controller);
       }
     };
+
     return Instruction;
+
   })();
+
   Monkey.Nodes.View = (function() {
+
     function View(ast, document, model, parentController) {
       this.ast = ast;
       this.document = document;
@@ -520,22 +608,31 @@
       this.controller.parent = this.parentController;
       this.view = Monkey._views[this.ast.arguments[0]].render(this.document, this.model, this.controller);
     }
+
     View.prototype.append = function(inside) {
       return inside.appendChild(this.view);
     };
+
     View.prototype.insertAfter = function(after) {
       return after.parentNode.insertBefore(this.view, after.nextSibling);
     };
+
     View.prototype.remove = function() {
       return this.view.parentNode.removeChild(this.view);
     };
+
     View.prototype.lastElement = function() {
       return this.view;
     };
+
     return View;
+
   })();
+
   Monkey.Nodes.Collection = (function() {
+
     function Collection(ast, document, model, controller) {
+      var _this = this;
       this.ast = ast;
       this.document = document;
       this.model = model;
@@ -543,23 +640,25 @@
       this.anchor = document.createTextNode('');
       this.collection = this.get();
       if (this.collection.bind) {
-        this.collection.bind('update', __bind(function() {
-          return this.rebuild();
-        }, this));
-        this.collection.bind('set', __bind(function() {
-          return this.rebuild();
-        }, this));
-        this.collection.bind('add', __bind(function(item) {
-          return this.appendItem(item);
-        }, this));
-        this.collection.bind('delete', __bind(function(index) {
-          return this["delete"](index);
-        }, this));
+        this.collection.bind('update', function() {
+          return _this.rebuild();
+        });
+        this.collection.bind('set', function() {
+          return _this.rebuild();
+        });
+        this.collection.bind('add', function(item) {
+          return _this.appendItem(item);
+        });
+        this.collection.bind('delete', function(index) {
+          return _this["delete"](index);
+        });
       }
     }
+
     Collection.prototype.get = function() {
       return Monkey.get(this.model, this.ast.arguments[0]);
     };
+
     Collection.prototype.rebuild = function() {
       var item, _i, _len, _ref;
       _ref = this.items;
@@ -569,25 +668,31 @@
       }
       return this.build();
     };
+
     Collection.prototype.build = function() {
+      var _this = this;
       this.items = [];
-      return Monkey.forEach(this.collection, __bind(function(item) {
-        return this.appendItem(item);
-      }, this));
+      return Monkey.forEach(this.collection, function(item) {
+        return _this.appendItem(item);
+      });
     };
+
     Collection.prototype.appendItem = function(item) {
       var node;
       node = new Monkey.Nodes.CollectionItem(this.ast.children, this.document, item, this.controller);
       node.insertAfter(this.lastElement());
       return this.items.push(node);
     };
+
     Collection.prototype["delete"] = function(index) {
       this.items[index].remove();
       return this.items.splice(index, 1);
     };
+
     Collection.prototype.lastItem = function() {
       return this.items[this.items.length - 1];
     };
+
     Collection.prototype.lastElement = function() {
       var item;
       item = this.lastItem();
@@ -597,6 +702,7 @@
         return this.anchor;
       }
     };
+
     Collection.prototype.remove = function() {
       var item, _i, _len, _ref, _results;
       this.anchor.parentNode.removeChild(this.anchor);
@@ -608,20 +714,27 @@
       }
       return _results;
     };
+
     Collection.prototype.append = function(inside) {
       inside.appendChild(this.anchor);
       return this.build();
     };
+
     Collection.prototype.insertAfter = function(after) {
       after.parentNode.insertBefore(this.anchor, after.nextSibling);
       return this.build();
     };
+
     Collection.prototype.get = function() {
       return Monkey.get(this.model, this.ast.arguments[0]);
     };
+
     return Collection;
+
   })();
+
   Monkey.Nodes.CollectionItem = (function() {
+
     function CollectionItem(children, document, model, controller) {
       var child;
       this.children = children;
@@ -639,6 +752,7 @@
         return _results;
       }).call(this);
     }
+
     CollectionItem.prototype.insertAfter = function(element) {
       var last, node, _i, _len, _ref, _results;
       last = element;
@@ -651,9 +765,11 @@
       }
       return _results;
     };
+
     CollectionItem.prototype.lastElement = function() {
       return this.nodes[this.nodes.length - 1].lastElement();
     };
+
     CollectionItem.prototype.remove = function() {
       var node, _i, _len, _ref, _results;
       _ref = this.nodes;
@@ -664,8 +780,11 @@
       }
       return _results;
     };
+
     return CollectionItem;
+
   })();
+
 }).call(this);
 
 };require['./parser'] = new function() {
@@ -753,188 +872,103 @@ parseError: function parseError(str, hash) {
     throw new Error(str);
 },
 parse: function parse(input) {
-    var self = this,
-        stack = [0],
-        vstack = [null], // semantic value stack
-        lstack = [], // location stack
-        table = this.table,
-        yytext = '',
-        yylineno = 0,
-        yyleng = 0,
-        recovering = 0,
-        TERROR = 2,
-        EOF = 1;
-
-    //this.reductionCount = this.shiftCount = 0;
-
+    var self = this, stack = [0], vstack = [null], lstack = [], table = this.table, yytext = "", yylineno = 0, yyleng = 0, recovering = 0, TERROR = 2, EOF = 1;
     this.lexer.setInput(input);
     this.lexer.yy = this.yy;
     this.yy.lexer = this.lexer;
-    if (typeof this.lexer.yylloc == 'undefined')
+    if (typeof this.lexer.yylloc == "undefined")
         this.lexer.yylloc = {};
     var yyloc = this.lexer.yylloc;
     lstack.push(yyloc);
-
-    if (typeof this.yy.parseError === 'function')
+    if (typeof this.yy.parseError === "function")
         this.parseError = this.yy.parseError;
-
-    function popStack (n) {
-        stack.length = stack.length - 2*n;
+    function popStack(n) {
+        stack.length = stack.length - 2 * n;
         vstack.length = vstack.length - n;
         lstack.length = lstack.length - n;
     }
-
     function lex() {
         var token;
-        token = self.lexer.lex() || 1; // $end = 1
-        // if token isn't its numeric value, convert
-        if (typeof token !== 'number') {
+        token = self.lexer.lex() || 1;
+        if (typeof token !== "number") {
             token = self.symbols_[token] || token;
         }
         return token;
-    };
-
-    var symbol, preErrorSymbol, state, action, a, r, yyval={},p,len,newState, expected;
+    }
+    var symbol, preErrorSymbol, state, action, a, r, yyval = {}, p, len, newState, expected;
     while (true) {
-        // retreive state number from top of stack
-        state = stack[stack.length-1];
-
-        // use default actions if available
+        state = stack[stack.length - 1];
         if (this.defaultActions[state]) {
             action = this.defaultActions[state];
         } else {
             if (symbol == null)
                 symbol = lex();
-            // read action for current state and first input
             action = table[state] && table[state][symbol];
         }
-
-        // handle parse error
-        if (typeof action === 'undefined' || !action.length || !action[0]) {
-
+        if (typeof action === "undefined" || !action.length || !action[0]) {
             if (!recovering) {
-                // Report error
                 expected = [];
-                for (p in table[state]) if (this.terminals_[p] && p > 2) {
-                    expected.push("'"+this.terminals_[p]+"'");
-                }
-                var errStr = '';
+                for (p in table[state])
+                    if (this.terminals_[p] && p > 2) {
+                        expected.push("'" + this.terminals_[p] + "'");
+                    }
+                var errStr = "";
                 if (this.lexer.showPosition) {
-                    errStr = 'Parse error on line '+(yylineno+1)+":\n"+this.lexer.showPosition()+'\nExpecting '+expected.join(', ');
+                    errStr = "Parse error on line " + (yylineno + 1) + ":\n" + this.lexer.showPosition() + "\nExpecting " + expected.join(", ") + ", got '" + this.terminals_[symbol] + "'";
                 } else {
-                    errStr = 'Parse error on line '+(yylineno+1)+": Unexpected " +
-                                  (symbol == 1 /*EOF*/ ? "end of input" :
-                                              ("'"+(this.terminals_[symbol] || symbol)+"'"));
+                    errStr = "Parse error on line " + (yylineno + 1) + ": Unexpected " + (symbol == 1?"end of input":"'" + (this.terminals_[symbol] || symbol) + "'");
                 }
-                this.parseError(errStr,
-                    {text: this.lexer.match, token: this.terminals_[symbol] || symbol, line: this.lexer.yylineno, loc: yyloc, expected: expected});
+                this.parseError(errStr, {text: this.lexer.match, token: this.terminals_[symbol] || symbol, line: this.lexer.yylineno, loc: yyloc, expected: expected});
             }
-
-            // just recovered from another error
-            if (recovering == 3) {
-                if (symbol == EOF) {
-                    throw new Error(errStr || 'Parsing halted.');
-                }
-
-                // discard current lookahead and grab another
+        }
+        if (action[0] instanceof Array && action.length > 1) {
+            throw new Error("Parse Error: multiple actions possible at state: " + state + ", token: " + symbol);
+        }
+        switch (action[0]) {
+        case 1:
+            stack.push(symbol);
+            vstack.push(this.lexer.yytext);
+            lstack.push(this.lexer.yylloc);
+            stack.push(action[1]);
+            symbol = null;
+            if (!preErrorSymbol) {
                 yyleng = this.lexer.yyleng;
                 yytext = this.lexer.yytext;
                 yylineno = this.lexer.yylineno;
                 yyloc = this.lexer.yylloc;
-                symbol = lex();
+                if (recovering > 0)
+                    recovering--;
+            } else {
+                symbol = preErrorSymbol;
+                preErrorSymbol = null;
             }
-
-            // try to recover from error
-            while (1) {
-                // check for error recovery rule in this state
-                if ((TERROR.toString()) in table[state]) {
-                    break;
-                }
-                if (state == 0) {
-                    throw new Error(errStr || 'Parsing halted.');
-                }
-                popStack(1);
-                state = stack[stack.length-1];
+            break;
+        case 2:
+            len = this.productions_[action[1]][1];
+            yyval.$ = vstack[vstack.length - len];
+            yyval._$ = {first_line: lstack[lstack.length - (len || 1)].first_line, last_line: lstack[lstack.length - 1].last_line, first_column: lstack[lstack.length - (len || 1)].first_column, last_column: lstack[lstack.length - 1].last_column};
+            r = this.performAction.call(yyval, yytext, yyleng, yylineno, this.yy, action[1], vstack, lstack);
+            if (typeof r !== "undefined") {
+                return r;
             }
-
-            preErrorSymbol = symbol; // save the lookahead token
-            symbol = TERROR;         // insert generic error symbol as new lookahead
-            state = stack[stack.length-1];
-            action = table[state] && table[state][TERROR];
-            recovering = 3; // allow 3 real symbols to be shifted before reporting a new error
+            if (len) {
+                stack = stack.slice(0, -1 * len * 2);
+                vstack = vstack.slice(0, -1 * len);
+                lstack = lstack.slice(0, -1 * len);
+            }
+            stack.push(this.productions_[action[1]][0]);
+            vstack.push(yyval.$);
+            lstack.push(yyval._$);
+            newState = table[stack[stack.length - 2]][stack[stack.length - 1]];
+            stack.push(newState);
+            break;
+        case 3:
+            return true;
         }
-
-        // this shouldn't happen, unless resolve defaults are off
-        if (action[0] instanceof Array && action.length > 1) {
-            throw new Error('Parse Error: multiple actions possible at state: '+state+', token: '+symbol);
-        }
-
-        switch (action[0]) {
-
-            case 1: // shift
-                //this.shiftCount++;
-
-                stack.push(symbol);
-                vstack.push(this.lexer.yytext);
-                lstack.push(this.lexer.yylloc);
-                stack.push(action[1]); // push state
-                symbol = null;
-                if (!preErrorSymbol) { // normal execution/no error
-                    yyleng = this.lexer.yyleng;
-                    yytext = this.lexer.yytext;
-                    yylineno = this.lexer.yylineno;
-                    yyloc = this.lexer.yylloc;
-                    if (recovering > 0)
-                        recovering--;
-                } else { // error just occurred, resume old lookahead f/ before error
-                    symbol = preErrorSymbol;
-                    preErrorSymbol = null;
-                }
-                break;
-
-            case 2: // reduce
-                //this.reductionCount++;
-
-                len = this.productions_[action[1]][1];
-
-                // perform semantic action
-                yyval.$ = vstack[vstack.length-len]; // default to $$ = $1
-                // default location, uses first token for firsts, last for lasts
-                yyval._$ = {
-                    first_line: lstack[lstack.length-(len||1)].first_line,
-                    last_line: lstack[lstack.length-1].last_line,
-                    first_column: lstack[lstack.length-(len||1)].first_column,
-                    last_column: lstack[lstack.length-1].last_column
-                };
-                r = this.performAction.call(yyval, yytext, yyleng, yylineno, this.yy, action[1], vstack, lstack);
-
-                if (typeof r !== 'undefined') {
-                    return r;
-                }
-
-                // pop off stack
-                if (len) {
-                    stack = stack.slice(0,-1*len*2);
-                    vstack = vstack.slice(0, -1*len);
-                    lstack = lstack.slice(0, -1*len);
-                }
-
-                stack.push(this.productions_[action[1]][0]);    // push nonterminal (reduce)
-                vstack.push(yyval.$);
-                lstack.push(yyval._$);
-                // goto new state = table[STATE][NONTERMINAL]
-                newState = table[stack[stack.length-2]][stack[stack.length-1]];
-                stack.push(newState);
-                break;
-
-            case 3: // accept
-                return true;
-        }
-
     }
-
     return true;
-}};
+}
+};
 return parser;
 })();
 if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
@@ -958,25 +992,21 @@ if (typeof module !== 'undefined' && require.main === module) {
 };require['./properties'] = new function() {
   var exports = this;
   (function() {
-  var Monkey, pairToObject;
-  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; }, __indexOf = Array.prototype.indexOf || function(item) {
-    for (var i = 0, l = this.length; i < l; i++) {
-      if (this[i] === item) return i;
-    }
-    return -1;
-  };
+  var Monkey, pairToObject,
+    __indexOf = Array.prototype.indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
   Monkey = require('./monkey').Monkey;
+
   pairToObject = function(one, two) {
     var temp;
     temp = {};
     temp[one] = two;
     return temp;
   };
+
   Monkey.Properties = {
     property: function(name, options) {
-      if (options == null) {
-        options = {};
-      }
+      if (options == null) options = {};
       this.properties || (this.properties = {});
       this.properties[name] = options;
       return Object.defineProperty(this, name, {
@@ -991,11 +1021,12 @@ if (typeof module !== 'undefined' && require.main === module) {
     collection: function(name, options) {
       return this.property(name, {
         get: function() {
+          var _this = this;
           if (!this.attributes[name]) {
             this.attributes[name] = new Monkey.Collection([]);
-            this.attributes[name].bind('change', __bind(function() {
-              return this._triggerChangesTo(pairToObject(name, this.get(name)));
-            }, this));
+            this.attributes[name].bind('change', function() {
+              return _this._triggerChangesTo(pairToObject(name, _this.get(name)));
+            });
           }
           return this.attributes[name];
         },
@@ -1033,7 +1064,7 @@ if (typeof module !== 'undefined' && require.main === module) {
       var dependencies, name, property, propertyName, value, _ref;
       for (name in attributes) {
         value = attributes[name];
-        if (typeof this.trigger == "function") {
+        if (typeof this.trigger === "function") {
           this.trigger("change:" + name, value);
         }
         if (this.properties) {
@@ -1043,7 +1074,7 @@ if (typeof module !== 'undefined' && require.main === module) {
             if (property.dependsOn) {
               dependencies = typeof property.dependsOn === 'string' ? [property.dependsOn] : property.dependsOn;
               if (__indexOf.call(dependencies, name) >= 0) {
-                if (typeof this.trigger == "function") {
+                if (typeof this.trigger === "function") {
                   this.trigger("change:" + propertyName, this.get(propertyName));
                 }
               }
@@ -1051,90 +1082,119 @@ if (typeof module !== 'undefined' && require.main === module) {
           }
         }
       }
-      return typeof this.trigger == "function" ? this.trigger("change", attributes) : void 0;
+      return typeof this.trigger === "function" ? this.trigger("change", attributes) : void 0;
     }
   };
+
 }).call(this);
 
 };require['./model'] = new function() {
   var exports = this;
   (function() {
   var Monkey;
+
   Monkey = require('./monkey').Monkey;
+
   Monkey.Model = (function() {
+
     Monkey.extend(Model.prototype, Monkey.Events);
+
     Monkey.extend(Model.prototype, Monkey.Properties);
+
     Model.property = function() {
       var _ref;
       return (_ref = this.prototype).property.apply(_ref, arguments);
     };
+
     Model.collection = function() {
       var _ref;
       return (_ref = this.prototype).collection.apply(_ref, arguments);
     };
+
     function Model(attributes) {
       this.set(attributes);
     }
+
     return Model;
+
   })();
+
 }).call(this);
 
 };require['./collection'] = new function() {
   var exports = this;
   (function() {
   var Monkey;
-  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+
   Monkey = require('./monkey').Monkey;
+
   Monkey.Collection = (function() {
+
     Collection.prototype.collection = true;
+
     Monkey.extend(Collection.prototype, Monkey.Events);
+
     function Collection(list) {
+      var _this = this;
       this.list = list;
       this.length = this.list.length;
-      this.bind("change", __bind(function() {
-        return this.length = this.list.length;
-      }, this));
+      this.bind("change", function() {
+        return _this.length = _this.list.length;
+      });
     }
+
     Collection.prototype.get = function(index) {
       return this.list[index];
     };
+
     Collection.prototype.set = function(index, value) {
       this.list[index] = value;
       this.trigger("change:" + index, value);
       this.trigger("set", index, value);
       return this.trigger("change", this.list);
     };
+
     Collection.prototype.push = function(element) {
       this.list.push(element);
       this.trigger("add", element);
       return this.trigger("change", this.list);
     };
+
     Collection.prototype.update = function(list) {
       this.list = list;
       this.trigger("update", list);
       return this.trigger("change", this.list);
     };
+
     Collection.prototype.forEach = function(fun) {
       return Monkey.forEach(this.list, fun);
     };
+
     Collection.prototype.indexOf = function(item) {
       return this.list.indexOf(item);
     };
+
     Collection.prototype["delete"] = function(index) {
       this.list.splice(index, 1);
       this.trigger("delete", index);
       return this.trigger("change", this.list);
     };
+
     return Collection;
+
   })();
+
 }).call(this);
 
 };require['./view'] = new function() {
   var exports = this;
   (function() {
   var Monkey, parser;
+
   Monkey = require('./monkey').Monkey;
+
   parser = require('./parser').parser;
+
   parser.lexer = {
     lex: function() {
       var tag, _ref;
@@ -1149,24 +1209,32 @@ if (typeof module !== 'undefined' && require.main === module) {
       return "";
     }
   };
+
   parser.yy = {
     Monkey: Monkey
   };
+
   Monkey.View = (function() {
+
     function View(string) {
       this.string = string;
     }
+
     View.prototype.parse = function() {
       return parser.parse(new Monkey.Lexer().tokenize(this.string));
     };
+
     View.prototype.render = function(document, model, controller) {
       var node;
       node = this.parse().compile(document, model, controller);
       controller.model = model;
       return controller.view = node.element;
     };
+
     return View;
+
   })();
+
 }).call(this);
 
 };
