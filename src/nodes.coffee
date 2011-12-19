@@ -46,9 +46,6 @@ class Monkey.Nodes.Element
   lastElement: ->
     @element
 
-class Monkey.AST.Property
-  constructor: (@name, @value, @bound, @scope="attribute") ->
-
 class Monkey.Nodes.Style
   constructor: (@ast, @element, @document, @model, @controller) ->
     @update()

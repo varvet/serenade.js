@@ -53,10 +53,10 @@ grammar =
   ]
 
   Property: [
-    o 'IDENTIFIER ASSIGN IDENTIFIER', -> new Monkey.AST.Property($1, $3, true)
-    o 'IDENTIFIER ASSIGN STRING_LITERAL', -> new Monkey.AST.Property($1, $3, false)
-    o 'IDENTIFIER SCOPE IDENTIFIER ASSIGN IDENTIFIER', -> new Monkey.AST.Property($3, $5, true, $1)
-    o 'IDENTIFIER SCOPE IDENTIFIER ASSIGN STRING_LITERAL', -> new Monkey.AST.Property($3, $5, false, $1)
+    o 'IDENTIFIER ASSIGN IDENTIFIER', -> { name: $1, value: $3, bound: true, scope: 'attribute' }
+    o 'IDENTIFIER ASSIGN STRING_LITERAL', -> { name: $1, value: $3, bound: false, scope: 'attribute' }
+    o 'IDENTIFIER SCOPE IDENTIFIER ASSIGN IDENTIFIER', -> { name: $3, value: $5, bound: true, scope: $1 }
+    o 'IDENTIFIER SCOPE IDENTIFIER ASSIGN STRING_LITERAL', -> { name: $3, value: $5, bound: false, scope: $1 }
   ]
 
   Instruction: [

@@ -411,19 +411,6 @@
 
   })();
 
-  Monkey.AST.Property = (function() {
-
-    function Property(name, value, bound, scope) {
-      this.name = name;
-      this.value = value;
-      this.bound = bound;
-      this.scope = scope != null ? scope : "attribute";
-    }
-
-    return Property;
-
-  })();
-
   Monkey.Nodes.Style = (function() {
 
     function Style(ast, element, document, model, controller) {
@@ -831,13 +818,33 @@ case 19:this.$ = [$$[$0]];
 break;
 case 20:this.$ = $$[$0-2].concat($$[$0]);
 break;
-case 21:this.$ = new yy.Monkey.AST.Property($$[$0-2], $$[$0], true);
+case 21:this.$ = {
+          name: $$[$0-2],
+          value: $$[$0],
+          bound: true,
+          scope: 'attribute'
+        };
 break;
-case 22:this.$ = new yy.Monkey.AST.Property($$[$0-2], $$[$0], false);
+case 22:this.$ = {
+          name: $$[$0-2],
+          value: $$[$0],
+          bound: false,
+          scope: 'attribute'
+        };
 break;
-case 23:this.$ = new yy.Monkey.AST.Property($$[$0-2], $$[$0], true, $$[$0-4]);
+case 23:this.$ = {
+          name: $$[$0-2],
+          value: $$[$0],
+          bound: true,
+          scope: $$[$0-4]
+        };
 break;
-case 24:this.$ = new yy.Monkey.AST.Property($$[$0-2], $$[$0], false, $$[$0-4]);
+case 24:this.$ = {
+          name: $$[$0-2],
+          value: $$[$0],
+          bound: false,
+          scope: $$[$0-4]
+        };
 break;
 case 25:this.$ = new yy.Monkey.AST.Instruction($$[$0-2], $$[$0]);
 break;

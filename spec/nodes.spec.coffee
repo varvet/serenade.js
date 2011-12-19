@@ -4,7 +4,7 @@ fs = require('fs')
 jquery = fs.readFileSync("spec/jquery.js").toString()
 
 el = (name, attributes, children) -> new Monkey.AST.Element(name, attributes, children)
-prop = (name, value, bound=false, scope="attribute") -> new Monkey.AST.Property(name, value, bound, scope)
+prop = (name, value, bound=false, scope="attribute") -> {name, value, bound, scope}
 text = (value, bound=false) -> new Monkey.AST.TextNode(value, bound)
 ins = (command, args, children) -> new Monkey.AST.Instruction(command, args, children)
 
