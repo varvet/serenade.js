@@ -34,6 +34,7 @@ class Style
 class Event
   constructor: (@ast, @element, @document, @model, @controller) ->
     callback = (e) =>
+      e.preventDefault() if @ast.preventDefault
       @controller[@ast.value](e)
     @element.addEventListener(@ast.name, callback, false)
 

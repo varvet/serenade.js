@@ -406,6 +406,7 @@
       this.model = model;
       this.controller = controller;
       callback = function(e) {
+        if (_this.ast.preventDefault) e.preventDefault();
         return _this.controller[_this.ast.value](e);
       };
       this.element.addEventListener(this.ast.name, callback, false);

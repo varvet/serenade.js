@@ -6,7 +6,7 @@ Monkey.registerView 'post', '''
     ul
       - collection comments
         - view comment
-    form[event:submit=postComment]
+    form[event:submit=postComment!]
       p
         textarea[event:change=commentEdited]
       p
@@ -17,9 +17,9 @@ Monkey.registerView 'comment', '''
   li[style:backgroundColor=color]
     p body
     p
-      a[event:click=highlight href="#"] "Highlight"
+      a[event:click=highlight! href="#"] "Highlight"
       " | "
-      a[event:click=remove href="#"] "Remove"
+      a[event:click=remove! href="#"] "Remove"
 '''
 
 class Post extends Monkey.Model
@@ -32,21 +32,18 @@ class Comment extends Monkey.Model
   @property 'body'
 
 class PostController
-  postComment: (event) ->
+  postComment: ->
     @model.comments.push(@newComment)
-    event.preventDefault()
 
   commentEdited: (event) ->
     @newComment = new Comment(body: event.target.value)
 
 class CommentController
-  highlight: (event) ->
+  highlight: ->
     @model.set('color', 'yellow')
-    event.preventDefault()
-  remove: (event) ->
+  remove: ->
     comments = @parent.model.comments
     comments.delete(comments.indexOf(@model))
-    event.preventDefault()
 
 Monkey.registerController 'post', PostController
 Monkey.registerController 'comment', CommentController
