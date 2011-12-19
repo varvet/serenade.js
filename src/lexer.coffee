@@ -16,8 +16,6 @@ class Monkey.Lexer
     @code    = code           # The remainder of the source code.
     @line    = opts.line or 0 # The current line.
     @indent  = 0              # The current indentation level.
-    @indebt  = 0              # The over-indentation at the current level.
-    @outdebt = 0              # The under-outdentation at the current level.
     @indents = []             # The stack of all current indentation levels.
     @ends    = []             # The stack for pairing up tokens.
     @tokens  = []             # Stream of parsed tokens in the form `['TYPE', value, line]`.
