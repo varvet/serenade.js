@@ -317,8 +317,7 @@
 };require['./nodes'] = new function() {
   var exports = this;
   (function() {
-  var Monkey,
-    __slice = Array.prototype.slice;
+  var Monkey;
 
   Monkey = require('./monkey').Monkey;
 
@@ -341,6 +340,16 @@
           break;
         default:
           throw SyntaxError("unknown type " + ast.type);
+      }
+    },
+    property: function(ast, element, document, model, controller) {
+      switch (ast.scope) {
+        case "attribute":
+          return new Monkey.Nodes.Attribute(ast, element, document, model, controller);
+        case "style":
+          return new Monkey.Nodes.Style(ast, element, document, model, controller);
+        case "event":
+          return new Monkey.Nodes.Event(ast, element, document, model, controller);
       }
     }
   };
@@ -373,7 +382,7 @@
       _ref = this.ast.properties;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         property = _ref[_i];
-        property.attach(this.element, this.document, this.model, this.controller);
+        Monkey.Nodes.property(property, this.element, this.document, this.model, this.controller);
       }
       _ref2 = this.ast.children;
       for (_j = 0, _len2 = _ref2.length; _j < _len2; _j++) {
@@ -410,29 +419,6 @@
       this.bound = bound;
       this.scope = scope != null ? scope : "attribute";
     }
-
-    Property.prototype.attach = function() {
-      switch (this.scope) {
-        case "attribute":
-          return (function(func, args, ctor) {
-            ctor.prototype = func.prototype;
-            var child = new ctor, result = func.apply(child, args);
-            return typeof result === "object" ? result : child;
-          })(Monkey.Nodes.Attribute, [this].concat(__slice.call(arguments)), function() {});
-        case "style":
-          return (function(func, args, ctor) {
-            ctor.prototype = func.prototype;
-            var child = new ctor, result = func.apply(child, args);
-            return typeof result === "object" ? result : child;
-          })(Monkey.Nodes.Style, [this].concat(__slice.call(arguments)), function() {});
-        case "event":
-          return (function(func, args, ctor) {
-            ctor.prototype = func.prototype;
-            var child = new ctor, result = func.apply(child, args);
-            return typeof result === "object" ? result : child;
-          })(Monkey.Nodes.Event, [this].concat(__slice.call(arguments)), function() {});
-      }
-    };
 
     return Property;
 

@@ -12,6 +12,12 @@ Monkey.Nodes =
           when "collection" then new Monkey.Nodes.Collection(ast, document, model, controller)
       else throw SyntaxError "unknown type #{ast.type}"
 
+  property: (ast, element, document, model, controller) ->
+    switch ast.scope
+      when "attribute" then new Monkey.Nodes.Attribute(ast, element, document, model, controller)
+      when "style" then new Monkey.Nodes.Style(ast, element, document, model, controller)
+      when "event" then new Monkey.Nodes.Event(ast, element, document, model, controller)
+
 class Monkey.AST.Element
   constructor: (@name, @properties, @children) ->
     @properties or= []
@@ -23,7 +29,7 @@ class Monkey.Nodes.Element
     @element = @document.createElement(@ast.name)
 
     for property in @ast.properties
-      property.attach(@element, @document, @model, @controller)
+      Monkey.Nodes.property(property, @element, @document, @model, @controller)
 
     for child in @ast.children
       Monkey.Nodes.compile(child, @document, @model, @controller).append(@element)
@@ -42,11 +48,6 @@ class Monkey.Nodes.Element
 
 class Monkey.AST.Property
   constructor: (@name, @value, @bound, @scope="attribute") ->
-  attach: ->
-    switch @scope
-      when "attribute" then new Monkey.Nodes.Attribute(this, arguments...)
-      when "style" then new Monkey.Nodes.Style(this, arguments...)
-      when "event" then new Monkey.Nodes.Event(this, arguments...)
 
 class Monkey.Nodes.Style
   constructor: (@ast, @element, @document, @model, @controller) ->
