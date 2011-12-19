@@ -1,0 +1,44 @@
+{
+   "name": "monkey.js",
+   "version": "0.1.0",
+   "description": "JavaScript client side MVC framework",
+   "keywords": [ "MVC", "data bingings", "client-side" ],
+   "maintainers": [
+       {
+           "name": "Jonas Nicklas",
+           "email": "jonas.nicklas@gmail.com"
+       }
+   ],
+   "contributors": [
+       {
+           "name": "Jonas Nicklas",
+           "email": "jonas.nicklas@gmail.com"
+       }
+   ],
+   "bugs": {
+       "url": "https://github.com/elabs/monkey.js/issues"
+   },
+   "licenses": [
+       {
+           "type": "MIT",
+           "url": "https://github.com/elabs/monkey.js/blob/master/LICENSE"
+       }
+   ],
+   "repositories": [
+       {
+           "type": "git",
+           "url": "git@github.com:elabs/monkey.js.git"
+       }
+   ],
+   "dependencies": {
+       "jasmine-node": "1.0.13",
+       "jsdom": "0.2.10",
+       "jison": "0.2.13",
+       "coffee-script": "1.2.0"
+   },
+   "scripts": {
+       "build": "cake build",
+       "test": "jasmine-node spec --coffee"
+   }
+}
+
