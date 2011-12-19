@@ -6,3 +6,6 @@ class Monkey.Model
 
   @property: -> @prototype.property(arguments...)
   @collection: -> @prototype.collection(arguments...)
+
+  constructor: (attributes) ->
+    @set(attributes)

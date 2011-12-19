@@ -14,9 +14,9 @@ grammar =
     ['Element', 'return $$']
   ]
   Element: [
-    o 'IDENTIFIER AttributeArgument', -> new Monkey.Element($1, $2)
-    o 'IDENTIFIER AttributeArgument INDENT ChildList OUTDENT', -> new Monkey.Element($1, $2, $4)
-    o 'IDENTIFIER AttributeArgument WHITESPACE InlineChildList', -> new Monkey.Element($1, $2, $4)
+    o 'IDENTIFIER PropertyArgument', -> new Monkey.AST.Element($1, $2)
+    o 'IDENTIFIER PropertyArgument INDENT ChildList OUTDENT', -> new Monkey.AST.Element($1, $2, $4)
+    o 'IDENTIFIER PropertyArgument WHITESPACE InlineChildList', -> new Monkey.AST.Element($1, $2, $4)
   ]
 
   InlineChildList: [
@@ -25,8 +25,8 @@ grammar =
   ]
 
   InlineChild: [
-    o 'IDENTIFIER', -> new Monkey.TextNode($1, true)
-    o 'STRING_LITERAL', -> new Monkey.TextNode($1, false)
+    o 'IDENTIFIER', -> new Monkey.AST.TextNode($1, true)
+    o 'STRING_LITERAL', -> new Monkey.AST.TextNode($1, false)
   ]
 
   ChildList: [
@@ -38,27 +38,29 @@ grammar =
   Child: [
     o 'Element', -> $1
     o 'Instruction', -> $1
-    o 'STRING_LITERAL', -> new Monkey.TextNode($1, false)
+    o 'STRING_LITERAL', -> new Monkey.AST.TextNode($1, false)
   ]
 
-  AttributeArgument: [
+  PropertyArgument: [
     o '', -> []
     o 'LPAREN RPAREN', -> []
-    o 'LPAREN AttributeList RPAREN', -> $2
+    o 'LPAREN PropertyList RPAREN', -> $2
   ]
 
-  AttributeList: [
-    o 'Attribute', -> [$1]
-    o 'AttributeList WHITESPACE Attribute', -> $1.concat $3
+  PropertyList: [
+    o 'Property', -> [$1]
+    o 'PropertyList WHITESPACE Property', -> $1.concat $3
   ]
 
-  Attribute: [
-    o 'IDENTIFIER ASSIGN IDENTIFIER', -> new Monkey.Attribute($1, $3, true)
-    o 'IDENTIFIER ASSIGN STRING_LITERAL', -> new Monkey.Attribute($1, $3, false)
+  Property: [
+    o 'IDENTIFIER ASSIGN IDENTIFIER', -> new Monkey.AST.Property($1, $3, true)
+    o 'IDENTIFIER ASSIGN STRING_LITERAL', -> new Monkey.AST.Property($1, $3, false)
+    o 'IDENTIFIER SCOPE IDENTIFIER ASSIGN IDENTIFIER', -> new Monkey.AST.Property($3, $5, true, $1)
+    o 'IDENTIFIER SCOPE IDENTIFIER ASSIGN STRING_LITERAL', -> new Monkey.AST.Property($3, $5, false, $1)
   ]
 
   Instruction: [
-    o 'INSTRUCT WHITESPACE IDENTIFIER WHITESPACE InstructionArgumentsList', -> new Monkey.Instruction($3, $5)
+    o 'INSTRUCT WHITESPACE IDENTIFIER WHITESPACE InstructionArgumentsList', -> new Monkey.AST.Instruction($3, $5)
     o 'Instruction INDENT ChildList OUTDENT', -> $1.children = $3; $1
   ]
 
