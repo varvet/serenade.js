@@ -14,7 +14,7 @@ compile = (actual, model, controller, callback) ->
       html: '<body></body>'
       src: [jquery]
       done: (errors, window) ->
-        result = actual.compile(window.document, model, controller)
+        result = Monkey.Nodes.compile(actual, window.document, model, controller)
         window.document.body.appendChild(result.element)
         runs ->
           callback(window.$("body"), window.document)

@@ -1,15 +1,22 @@
 {Monkey} = require './monkey'
 
 Monkey.AST = {}
-Monkey.Nodes = {}
+Monkey.Nodes =
+  compile: (ast, document, model, controller) ->
+    switch ast.type
+      when 'element' then new Monkey.Nodes.Element(ast, document, model, controller)
+      when 'textNode' then new Monkey.Nodes.TextNode(ast, document, model, controller)
+      when 'instruction'
+        switch ast.command
+          when "view" then new Monkey.Nodes.View(ast, document, model, controller)
+          when "collection" then new Monkey.Nodes.Collection(ast, document, model, controller)
+      else throw SyntaxError "unknown type #{ast.type}"
 
 class Monkey.AST.Element
-  type: 'element'
   constructor: (@name, @properties, @children) ->
     @properties or= []
     @children or= []
-  compile: (document, model, controller) ->
-    new Monkey.Nodes.Element(this, document, model, controller)
+  type: 'element'
 
 class Monkey.Nodes.Element
   constructor: (@ast, @document, @model, @controller) ->
@@ -19,7 +26,7 @@ class Monkey.Nodes.Element
       property.attach(@element, @document, @model, @controller)
 
     for child in @ast.children
-      child.compile(@document, @model, @controller).append(@element)
+      Monkey.Nodes.compile(child, @document, @model, @controller).append(@element)
 
   append: (inside) ->
     inside.appendChild(@element)
@@ -75,9 +82,8 @@ class Monkey.Nodes.Attribute
 
 class Monkey.AST.TextNode
   constructor: (@value, @bound) ->
+  type: 'textNode'
   name: 'text'
-  compile: (document, model, controller) ->
-    new Monkey.Nodes.TextNode(this, document, model, controller)
 
 class Monkey.Nodes.TextNode
   constructor: (@ast, @document, @model, @controller) ->
@@ -101,12 +107,8 @@ class Monkey.Nodes.TextNode
   get: (model) -> Monkey.get(@model, @ast.value, @ast.bound)
 
 class Monkey.AST.Instruction
-  type: 'instruction'
   constructor: (@command, @arguments, @children) ->
-  compile: (document, model, controller) ->
-    switch @command
-      when "view" then new Monkey.Nodes.View(this, document, model, controller)
-      when "collection" then new Monkey.Nodes.Collection(this, document, model, controller)
+  type: 'instruction'
 
 class Monkey.Nodes.View
   constructor: (@ast, @document, @model, @parentController) ->
@@ -178,7 +180,7 @@ class Monkey.Nodes.Collection
 
 class Monkey.Nodes.CollectionItem
   constructor: (@children, @document, @model, @controller) ->
-    @nodes = (child.compile(@document, @model, @controller) for child in @children)
+    @nodes = (Monkey.Nodes.compile(child, @document, @model, @controller) for child in @children)
 
   insertAfter: (element) ->
     last = element

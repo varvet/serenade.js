@@ -324,11 +324,28 @@
 
   Monkey.AST = {};
 
-  Monkey.Nodes = {};
+  Monkey.Nodes = {
+    compile: function(ast, document, model, controller) {
+      switch (ast.type) {
+        case 'element':
+          return new Monkey.Nodes.Element(ast, document, model, controller);
+        case 'textNode':
+          return new Monkey.Nodes.TextNode(ast, document, model, controller);
+        case 'instruction':
+          switch (ast.command) {
+            case "view":
+              return new Monkey.Nodes.View(ast, document, model, controller);
+            case "collection":
+              return new Monkey.Nodes.Collection(ast, document, model, controller);
+          }
+          break;
+        default:
+          throw SyntaxError("unknown type " + ast.type);
+      }
+    }
+  };
 
   Monkey.AST.Element = (function() {
-
-    Element.prototype.type = 'element';
 
     function Element(name, properties, children) {
       this.name = name;
@@ -338,9 +355,7 @@
       this.children || (this.children = []);
     }
 
-    Element.prototype.compile = function(document, model, controller) {
-      return new Monkey.Nodes.Element(this, document, model, controller);
-    };
+    Element.prototype.type = 'element';
 
     return Element;
 
@@ -363,7 +378,7 @@
       _ref2 = this.ast.children;
       for (_j = 0, _len2 = _ref2.length; _j < _len2; _j++) {
         child = _ref2[_j];
-        child.compile(this.document, this.model, this.controller).append(this.element);
+        Monkey.Nodes.compile(child, this.document, this.model, this.controller).append(this.element);
       }
     }
 
@@ -522,11 +537,9 @@
       this.bound = bound;
     }
 
-    TextNode.prototype.name = 'text';
+    TextNode.prototype.type = 'textNode';
 
-    TextNode.prototype.compile = function(document, model, controller) {
-      return new Monkey.Nodes.TextNode(this, document, model, controller);
-    };
+    TextNode.prototype.name = 'text';
 
     return TextNode;
 
@@ -576,22 +589,13 @@
 
   Monkey.AST.Instruction = (function() {
 
-    Instruction.prototype.type = 'instruction';
-
     function Instruction(command, _arguments, children) {
       this.command = command;
       this.arguments = _arguments;
       this.children = children;
     }
 
-    Instruction.prototype.compile = function(document, model, controller) {
-      switch (this.command) {
-        case "view":
-          return new Monkey.Nodes.View(this, document, model, controller);
-        case "collection":
-          return new Monkey.Nodes.Collection(this, document, model, controller);
-      }
-    };
+    Instruction.prototype.type = 'instruction';
 
     return Instruction;
 
@@ -747,7 +751,7 @@
         _results = [];
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           child = _ref[_i];
-          _results.push(child.compile(this.document, this.model, this.controller));
+          _results.push(Monkey.Nodes.compile(child, this.document, this.model, this.controller));
         }
         return _results;
       }).call(this);
@@ -1226,7 +1230,7 @@ if (typeof module !== 'undefined' && require.main === module) {
 
     View.prototype.render = function(document, model, controller) {
       var node;
-      node = this.parse().compile(document, model, controller);
+      node = Monkey.Nodes.compile(this.parse(), document, model, controller);
       controller.model = model;
       return controller.view = node.element;
     };

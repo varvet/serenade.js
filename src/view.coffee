@@ -17,6 +17,6 @@ class Monkey.View
   parse: ->
     parser.parse(new Monkey.Lexer().tokenize(@string))
   render: (document, model, controller) ->
-    node = @parse().compile(document, model, controller)
+    node = Monkey.Nodes.compile(@parse(), document, model, controller)
     controller.model = model
     controller.view = node.element
