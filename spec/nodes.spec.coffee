@@ -3,7 +3,7 @@ jsdom = require("jsdom")
 fs = require('fs')
 jquery = fs.readFileSync("spec/jquery.js").toString()
 
-el = (name, attributes, children) -> new Monkey.AST.Element(name, attributes, children)
+el = (name, properties=[], children=[]) -> {name, properties, children, type: 'element'}
 prop = (name, value, bound=false, scope="attribute") -> {name, value, bound, scope}
 text = (value, bound=false) -> {value, bound, type: 'text'}
 ins = (command, arguments, children) -> {command, arguments, children, type: 'instruction'}

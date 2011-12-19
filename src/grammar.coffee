@@ -14,9 +14,9 @@ grammar =
     ['Element', 'return $$']
   ]
   Element: [
-    o 'IDENTIFIER PropertyArgument', -> new Monkey.AST.Element($1, $2)
-    o 'IDENTIFIER PropertyArgument INDENT ChildList OUTDENT', -> new Monkey.AST.Element($1, $2, $4)
-    o 'IDENTIFIER PropertyArgument WHITESPACE InlineChildList', -> new Monkey.AST.Element($1, $2, $4)
+    o 'IDENTIFIER PropertyArgument', -> { name: $1, properties: $2, children: [], type: 'element' }
+    o 'IDENTIFIER PropertyArgument INDENT ChildList OUTDENT', -> { name: $1, properties: $2, children: $4, type: 'element' }
+    o 'IDENTIFIER PropertyArgument WHITESPACE InlineChildList', -> { name: $1, properties: $2, children: $4, type: 'element' }
   ]
 
   InlineChildList: [

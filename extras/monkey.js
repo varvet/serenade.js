@@ -354,22 +354,6 @@
     }
   };
 
-  Monkey.AST.Element = (function() {
-
-    function Element(name, properties, children) {
-      this.name = name;
-      this.properties = properties;
-      this.children = children;
-      this.properties || (this.properties = []);
-      this.children || (this.children = []);
-    }
-
-    Element.prototype.type = 'element';
-
-    return Element;
-
-  })();
-
   Monkey.Nodes.Element = (function() {
 
     function Element(ast, document, model, controller) {
@@ -500,21 +484,6 @@
     };
 
     return Attribute;
-
-  })();
-
-  Monkey.AST.TextNode = (function() {
-
-    function TextNode(value, bound) {
-      this.value = value;
-      this.bound = bound;
-    }
-
-    TextNode.prototype.type = 'textNode';
-
-    TextNode.prototype.name = 'text';
-
-    return TextNode;
 
   })();
 
@@ -768,11 +737,26 @@ case 1:this.$ = null;
 break;
 case 2:return this.$
 break;
-case 3:this.$ = new yy.Monkey.AST.Element($$[$0-1], $$[$0]);
+case 3:this.$ = {
+          name: $$[$0-1],
+          properties: $$[$0],
+          children: [],
+          type: 'element'
+        };
 break;
-case 4:this.$ = new yy.Monkey.AST.Element($$[$0-4], $$[$0-3], $$[$0-1]);
+case 4:this.$ = {
+          name: $$[$0-4],
+          properties: $$[$0-3],
+          children: $$[$0-1],
+          type: 'element'
+        };
 break;
-case 5:this.$ = new yy.Monkey.AST.Element($$[$0-3], $$[$0-2], $$[$0]);
+case 5:this.$ = {
+          name: $$[$0-3],
+          properties: $$[$0-2],
+          children: $$[$0],
+          type: 'element'
+        };
 break;
 case 6:this.$ = [$$[$0]];
 break;

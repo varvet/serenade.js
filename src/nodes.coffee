@@ -18,12 +18,6 @@ Monkey.Nodes =
       when "style" then new Monkey.Nodes.Style(ast, element, document, model, controller)
       when "event" then new Monkey.Nodes.Event(ast, element, document, model, controller)
 
-class Monkey.AST.Element
-  constructor: (@name, @properties, @children) ->
-    @properties or= []
-    @children or= []
-  type: 'element'
-
 class Monkey.Nodes.Element
   constructor: (@ast, @document, @model, @controller) ->
     @element = @document.createElement(@ast.name)
@@ -77,11 +71,6 @@ class Monkey.Nodes.Attribute
       @element.setAttribute(@ast.name, value)
 
   get: -> Monkey.get(@model, @ast.value, @ast.bound)
-
-class Monkey.AST.TextNode
-  constructor: (@value, @bound) ->
-  type: 'textNode'
-  name: 'text'
 
 class Monkey.Nodes.TextNode
   constructor: (@ast, @document, @model, @controller) ->
