@@ -30,7 +30,7 @@ class Comment extends Monkey.Model
 
 class PostController
   postComment: ->
-    @model.comments.push(@newComment)
+    @model.comments.push(@newComment) if @newComment
 
   commentEdited: (event) ->
     @newComment = new Comment(body: event.target.value)
