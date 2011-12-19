@@ -25,8 +25,8 @@ grammar =
   ]
 
   InlineChild: [
-    o 'IDENTIFIER', -> new Monkey.AST.TextNode($1, true)
-    o 'STRING_LITERAL', -> new Monkey.AST.TextNode($1, false)
+    o 'IDENTIFIER', -> { type: 'text', value: $1, bound: true }
+    o 'STRING_LITERAL', -> { type: 'text', value: $1, bound: false }
   ]
 
   ChildList: [
@@ -38,7 +38,7 @@ grammar =
   Child: [
     o 'Element', -> $1
     o 'Instruction', -> $1
-    o 'STRING_LITERAL', -> new Monkey.AST.TextNode($1, false)
+    o 'STRING_LITERAL', -> { type: 'text', value: $1, bound: false }
   ]
 
   PropertyArgument: [

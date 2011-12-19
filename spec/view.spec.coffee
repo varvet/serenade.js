@@ -66,40 +66,38 @@ describe 'Monkey.View', ->
     it 'parses string literals as children on separate lines', ->
       result = parse("div\n\t\"Loca\"\n\tspan")
       expect(result.name).toEqual('div')
-      expect(result.children[0].name).toEqual('text')
+      expect(result.children[0].type).toEqual('text')
       expect(result.children[0].value).toEqual('Loca')
       expect(result.children[1].name).toEqual('span')
 
     it 'parses string literals as children on separate lines with arguments', ->
       result = parse("div[id=foo]\n\t\"Loca\"\n\tspan[class=bar]")
       expect(result.name).toEqual('div')
-      expect(result.children[0].name).toEqual('text')
+      expect(result.children[0].type).toEqual('text')
       expect(result.children[0].value).toEqual('Loca')
       expect(result.children[1].name).toEqual('span')
 
     it 'parses string literals as children on the same line', ->
       result = parse("div \"Loca\"")
       expect(result.name).toEqual('div')
-      expect(result.children[0].name).toEqual('text')
+      expect(result.children[0].type).toEqual('text')
       expect(result.children[0].value).toEqual('Loca')
 
     it 'parses string literals as children on the same line with arguments', ->
       result = parse("div[id=foo] \"Loca\" \"schmoo\"")
       expect(result.name).toEqual('div')
-      expect(result.children[0].name).toEqual('text')
+      expect(result.children[0].type).toEqual('text')
       expect(result.children[0].value).toEqual('Loca')
       expect(result.children[0].bound).toEqual(false)
-      expect(result.children[1].name).toEqual('text')
+      expect(result.children[1].type).toEqual('text')
       expect(result.children[1].value).toEqual('schmoo')
       expect(result.children[1].bound).toEqual(false)
 
     it 'parses bound strings on the same line with arguments', ->
       result = parse("div[id=foo] baz bar")
       expect(result.name).toEqual('div')
-      expect(result.children[0].name).toEqual('text')
       expect(result.children[0].value).toEqual('baz')
       expect(result.children[0].bound).toEqual(true)
-      expect(result.children[1].name).toEqual('text')
       expect(result.children[1].value).toEqual('bar')
       expect(result.children[1].bound).toEqual(true)
 

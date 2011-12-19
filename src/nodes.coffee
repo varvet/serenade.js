@@ -5,7 +5,7 @@ Monkey.Nodes =
   compile: (ast, document, model, controller) ->
     switch ast.type
       when 'element' then new Monkey.Nodes.Element(ast, document, model, controller)
-      when 'textNode' then new Monkey.Nodes.TextNode(ast, document, model, controller)
+      when 'text' then new Monkey.Nodes.TextNode(ast, document, model, controller)
       when 'instruction'
         switch ast.command
           when "view" then new Monkey.Nodes.View(ast, document, model, controller)

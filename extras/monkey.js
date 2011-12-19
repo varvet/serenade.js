@@ -328,7 +328,7 @@
       switch (ast.type) {
         case 'element':
           return new Monkey.Nodes.Element(ast, document, model, controller);
-        case 'textNode':
+        case 'text':
           return new Monkey.Nodes.TextNode(ast, document, model, controller);
         case 'instruction':
           switch (ast.command) {
@@ -792,9 +792,17 @@ case 6:this.$ = [$$[$0]];
 break;
 case 7:this.$ = $$[$0-2].concat($$[$0]);
 break;
-case 8:this.$ = new yy.Monkey.AST.TextNode($$[$0], true);
+case 8:this.$ = {
+          type: 'text',
+          value: $$[$0],
+          bound: true
+        };
 break;
-case 9:this.$ = new yy.Monkey.AST.TextNode($$[$0], false);
+case 9:this.$ = {
+          type: 'text',
+          value: $$[$0],
+          bound: false
+        };
 break;
 case 10:this.$ = [];
 break;
@@ -806,7 +814,11 @@ case 13:this.$ = $$[$0];
 break;
 case 14:this.$ = $$[$0];
 break;
-case 15:this.$ = new yy.Monkey.AST.TextNode($$[$0], false);
+case 15:this.$ = {
+          type: 'text',
+          value: $$[$0],
+          bound: false
+        };
 break;
 case 16:this.$ = [];
 break;
