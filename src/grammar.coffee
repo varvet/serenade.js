@@ -59,7 +59,7 @@ grammar =
   ]
 
   Instruction: [
-    o 'INSTRUCT WHITESPACE IDENTIFIER WHITESPACE InstructionArgumentsList', -> new Monkey.AST.Instruction($3, $5)
+    o 'INSTRUCT WHITESPACE IDENTIFIER WHITESPACE InstructionArgumentsList', -> { command: $3, arguments: $5, children: [], type: 'instruction' }
     o 'Instruction INDENT ChildList OUTDENT', -> $1.children = $3; $1
   ]
 

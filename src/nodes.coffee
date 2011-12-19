@@ -104,10 +104,6 @@ class Monkey.Nodes.TextNode
 
   get: (model) -> Monkey.get(@model, @ast.value, @ast.bound)
 
-class Monkey.AST.Instruction
-  constructor: (@command, @arguments, @children) ->
-  type: 'instruction'
-
 class Monkey.Nodes.View
   constructor: (@ast, @document, @model, @parentController) ->
     @controller = Monkey.controllerFor(@ast.arguments[0])

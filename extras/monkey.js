@@ -560,20 +560,6 @@
 
   })();
 
-  Monkey.AST.Instruction = (function() {
-
-    function Instruction(command, _arguments, children) {
-      this.command = command;
-      this.arguments = _arguments;
-      this.children = children;
-    }
-
-    Instruction.prototype.type = 'instruction';
-
-    return Instruction;
-
-  })();
-
   Monkey.Nodes.View = (function() {
 
     function View(ast, document, model, parentController) {
@@ -849,7 +835,12 @@ case 23:this.$ = (function () {
         return $$[$0];
       }());
 break;
-case 24:this.$ = new yy.Monkey.AST.Instruction($$[$0-2], $$[$0]);
+case 24:this.$ = {
+          command: $$[$0-2],
+          arguments: $$[$0],
+          children: [],
+          type: 'instruction'
+        };
 break;
 case 25:this.$ = (function () {
         $$[$0-3].children = $$[$0-1];

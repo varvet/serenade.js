@@ -6,7 +6,7 @@ jquery = fs.readFileSync("spec/jquery.js").toString()
 el = (name, attributes, children) -> new Monkey.AST.Element(name, attributes, children)
 prop = (name, value, bound=false, scope="attribute") -> {name, value, bound, scope}
 text = (value, bound=false) -> {value, bound, type: 'text'}
-ins = (command, args, children) -> new Monkey.AST.Instruction(command, args, children)
+ins = (command, arguments, children) -> {command, arguments, children, type: 'instruction'}
 
 compile = (actual, model, controller, callback) ->
   runs ->
