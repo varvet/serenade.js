@@ -55,8 +55,7 @@ grammar =
   Property: [
     o 'IDENTIFIER ASSIGN IDENTIFIER', -> { name: $1, value: $3, bound: true, scope: 'attribute' }
     o 'IDENTIFIER ASSIGN STRING_LITERAL', -> { name: $1, value: $3, bound: false, scope: 'attribute' }
-    o 'IDENTIFIER SCOPE IDENTIFIER ASSIGN IDENTIFIER', -> { name: $3, value: $5, bound: true, scope: $1 }
-    o 'IDENTIFIER SCOPE IDENTIFIER ASSIGN STRING_LITERAL', -> { name: $3, value: $5, bound: false, scope: $1 }
+    o 'IDENTIFIER SCOPE Property', -> $3.scope = $1; $3
   ]
 
   Instruction: [
