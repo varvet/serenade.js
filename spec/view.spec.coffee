@@ -45,6 +45,15 @@ describe 'Monkey.View', ->
       expect(result.properties[0].value).toEqual('foo')
       expect(result.properties[0].bound).toEqual(true)
 
+    it 'parses a tag with an attribute with the prevent default flag', ->
+      result = parse('div[event:click=foo!]')
+      expect(result.name).toEqual('div')
+      expect(result.properties[0].scope).toEqual('event')
+      expect(result.properties[0].name).toEqual('click')
+      expect(result.properties[0].value).toEqual('foo')
+      expect(result.properties[0].bound).toEqual(true)
+      expect(result.properties[0].preventDefault).toEqual(true)
+
     it 'parses child tags', ->
       result = parse("div\n\tp\n\tspan")
       expect(result.name).toEqual('div')
