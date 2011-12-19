@@ -168,8 +168,6 @@
       this.code = code;
       this.line = opts.line || 0;
       this.indent = 0;
-      this.indebt = 0;
-      this.outdebt = 0;
       this.indents = [];
       this.ends = [];
       this.tokens = [];
@@ -317,42 +315,11 @@
 };require['./nodes'] = new function() {
   var exports = this;
   (function() {
-  var Monkey;
+  var Attribute, Collection, CollectionItem, Element, Event, Monkey, Style, TextNode, View;
 
   Monkey = require('./monkey').Monkey;
 
-  Monkey.Nodes = {
-    compile: function(ast, document, model, controller) {
-      switch (ast.type) {
-        case 'element':
-          return new Monkey.Nodes.Element(ast, document, model, controller);
-        case 'text':
-          return new Monkey.Nodes.TextNode(ast, document, model, controller);
-        case 'instruction':
-          switch (ast.command) {
-            case "view":
-              return new Monkey.Nodes.View(ast, document, model, controller);
-            case "collection":
-              return new Monkey.Nodes.Collection(ast, document, model, controller);
-          }
-          break;
-        default:
-          throw SyntaxError("unknown type " + ast.type);
-      }
-    },
-    property: function(ast, element, document, model, controller) {
-      switch (ast.scope) {
-        case "attribute":
-          return new Monkey.Nodes.Attribute(ast, element, document, model, controller);
-        case "style":
-          return new Monkey.Nodes.Style(ast, element, document, model, controller);
-        case "event":
-          return new Monkey.Nodes.Event(ast, element, document, model, controller);
-      }
-    }
-  };
-
-  Monkey.Nodes.Element = (function() {
+  Element = (function() {
 
     function Element(ast, document, model, controller) {
       var child, property, _i, _j, _len, _len2, _ref, _ref2;
@@ -393,7 +360,7 @@
 
   })();
 
-  Monkey.Nodes.Style = (function() {
+  Style = (function() {
 
     function Style(ast, element, document, model, controller) {
       var _base,
@@ -425,7 +392,7 @@
 
   })();
 
-  Monkey.Nodes.Event = (function() {
+  Event = (function() {
 
     function Event(ast, element, document, model, controller) {
       var callback,
@@ -445,7 +412,7 @@
 
   })();
 
-  Monkey.Nodes.Attribute = (function() {
+  Attribute = (function() {
 
     function Attribute(ast, element, document, model, controller) {
       var _base,
@@ -485,7 +452,7 @@
 
   })();
 
-  Monkey.Nodes.TextNode = (function() {
+  TextNode = (function() {
 
     function TextNode(ast, document, model, controller) {
       var _this = this;
@@ -527,7 +494,7 @@
 
   })();
 
-  Monkey.Nodes.View = (function() {
+  View = (function() {
 
     function View(ast, document, model, parentController) {
       this.ast = ast;
@@ -559,7 +526,7 @@
 
   })();
 
-  Monkey.Nodes.Collection = (function() {
+  Collection = (function() {
 
     function Collection(ast, document, model, controller) {
       var _this = this;
@@ -609,7 +576,7 @@
 
     Collection.prototype.appendItem = function(item) {
       var node;
-      node = new Monkey.Nodes.CollectionItem(this.ast.children, this.document, item, this.controller);
+      node = new CollectionItem(this.ast.children, this.document, item, this.controller);
       node.insertAfter(this.lastElement());
       return this.items.push(node);
     };
@@ -663,7 +630,7 @@
 
   })();
 
-  Monkey.Nodes.CollectionItem = (function() {
+  CollectionItem = (function() {
 
     function CollectionItem(children, document, model, controller) {
       var child;
@@ -714,6 +681,37 @@
     return CollectionItem;
 
   })();
+
+  Monkey.Nodes = {
+    compile: function(ast, document, model, controller) {
+      switch (ast.type) {
+        case 'element':
+          return new Element(ast, document, model, controller);
+        case 'text':
+          return new TextNode(ast, document, model, controller);
+        case 'instruction':
+          switch (ast.command) {
+            case "view":
+              return new View(ast, document, model, controller);
+            case "collection":
+              return new Collection(ast, document, model, controller);
+          }
+          break;
+        default:
+          throw SyntaxError("unknown type " + ast.type);
+      }
+    },
+    property: function(ast, element, document, model, controller) {
+      switch (ast.scope) {
+        case "attribute":
+          return new Attribute(ast, element, document, model, controller);
+        case "style":
+          return new Style(ast, element, document, model, controller);
+        case "event":
+          return new Event(ast, element, document, model, controller);
+      }
+    }
+  };
 
 }).call(this);
 

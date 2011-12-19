@@ -1,23 +1,6 @@
 {Monkey} = require './monkey'
 
-Monkey.Nodes =
-  compile: (ast, document, model, controller) ->
-    switch ast.type
-      when 'element' then new Monkey.Nodes.Element(ast, document, model, controller)
-      when 'text' then new Monkey.Nodes.TextNode(ast, document, model, controller)
-      when 'instruction'
-        switch ast.command
-          when "view" then new Monkey.Nodes.View(ast, document, model, controller)
-          when "collection" then new Monkey.Nodes.Collection(ast, document, model, controller)
-      else throw SyntaxError "unknown type #{ast.type}"
-
-  property: (ast, element, document, model, controller) ->
-    switch ast.scope
-      when "attribute" then new Monkey.Nodes.Attribute(ast, element, document, model, controller)
-      when "style" then new Monkey.Nodes.Style(ast, element, document, model, controller)
-      when "event" then new Monkey.Nodes.Event(ast, element, document, model, controller)
-
-class Monkey.Nodes.Element
+class Element
   constructor: (@ast, @document, @model, @controller) ->
     @element = @document.createElement(@ast.name)
 
@@ -39,7 +22,7 @@ class Monkey.Nodes.Element
   lastElement: ->
     @element
 
-class Monkey.Nodes.Style
+class Style
   constructor: (@ast, @element, @document, @model, @controller) ->
     @update()
     if @ast.bound
@@ -48,13 +31,13 @@ class Monkey.Nodes.Style
     @element.style[@ast.name] = @get()
   get: -> Monkey.get(@model, @ast.value, @ast.bound)
 
-class Monkey.Nodes.Event
+class Event
   constructor: (@ast, @element, @document, @model, @controller) ->
     callback = (e) =>
       @controller[@ast.value](e)
     @element.addEventListener(@ast.name, callback, false)
 
-class Monkey.Nodes.Attribute
+class Attribute
   constructor: (@ast, @element, @document, @model, @controller) ->
     @update()
     if @ast.bound
@@ -71,7 +54,7 @@ class Monkey.Nodes.Attribute
 
   get: -> Monkey.get(@model, @ast.value, @ast.bound)
 
-class Monkey.Nodes.TextNode
+class TextNode
   constructor: (@ast, @document, @model, @controller) ->
     @textNode = document.createTextNode(@get() or '')
     if @ast.bound
@@ -92,7 +75,7 @@ class Monkey.Nodes.TextNode
 
   get: (model) -> Monkey.get(@model, @ast.value, @ast.bound)
 
-class Monkey.Nodes.View
+class View
   constructor: (@ast, @document, @model, @parentController) ->
     @controller = Monkey.controllerFor(@ast.arguments[0])
     @controller.parent = @parentController
@@ -110,7 +93,7 @@ class Monkey.Nodes.View
   lastElement: ->
     @view
 
-class Monkey.Nodes.Collection
+class Collection
   constructor: (@ast, @document, @model, @controller) ->
     @anchor = document.createTextNode('')
     @collection = @get()
@@ -131,7 +114,7 @@ class Monkey.Nodes.Collection
     Monkey.forEach @collection, (item) => @appendItem(item)
 
   appendItem: (item) ->
-    node = new Monkey.Nodes.CollectionItem(@ast.children, @document, item, @controller)
+    node = new CollectionItem(@ast.children, @document, item, @controller)
     node.insertAfter(@lastElement())
     @items.push(node)
 
@@ -160,7 +143,7 @@ class Monkey.Nodes.Collection
 
   get: -> Monkey.get(@model, @ast.arguments[0])
 
-class Monkey.Nodes.CollectionItem
+class CollectionItem
   constructor: (@children, @document, @model, @controller) ->
     @nodes = (Monkey.Nodes.compile(child, @document, @model, @controller) for child in @children)
 
@@ -175,3 +158,21 @@ class Monkey.Nodes.CollectionItem
 
   remove: ->
     node.remove() for node in @nodes
+
+Monkey.Nodes =
+  compile: (ast, document, model, controller) ->
+    switch ast.type
+      when 'element' then new Element(ast, document, model, controller)
+      when 'text' then new TextNode(ast, document, model, controller)
+      when 'instruction'
+        switch ast.command
+          when "view" then new View(ast, document, model, controller)
+          when "collection" then new Collection(ast, document, model, controller)
+      else throw SyntaxError "unknown type #{ast.type}"
+
+  property: (ast, element, document, model, controller) ->
+    switch ast.scope
+      when "attribute" then new Attribute(ast, element, document, model, controller)
+      when "style" then new Style(ast, element, document, model, controller)
+      when "event" then new Event(ast, element, document, model, controller)
+
