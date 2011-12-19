@@ -1,6 +1,5 @@
 {Monkey} = require './monkey'
 
-Monkey.AST = {}
 Monkey.Nodes =
   compile: (ast, document, model, controller) ->
     switch ast.type

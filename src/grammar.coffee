@@ -12,16 +12,13 @@ grammar =
   Root: [
     o '', -> null
     ['Element', 'return $$']
-  ]
-  Element: [
-    o 'IDENTIFIER PropertyArgument', -> { name: $1, properties: $2, children: [], type: 'element' }
-    o 'IDENTIFIER PropertyArgument INDENT ChildList OUTDENT', -> { name: $1, properties: $2, children: $4, type: 'element' }
-    o 'IDENTIFIER PropertyArgument WHITESPACE InlineChildList', -> { name: $1, properties: $2, children: $4, type: 'element' }
+    ['Element TERMINATOR', 'return $$']
   ]
 
-  InlineChildList: [
-    o 'InlineChild', -> [$1]
-    o 'InlineChildList WHITESPACE InlineChild', -> $1.concat $3
+  Element: [
+    o 'IDENTIFIER PropertyArgument', -> { name: $1, properties: $2, children: [], type: 'element' }
+    o 'Element WHITESPACE InlineChild', -> $1.children = $1.children.concat($3); $1
+    o 'Element INDENT ChildList OUTDENT', -> $1.children = $1.children.concat($3); $1
   ]
 
   InlineChild: [
