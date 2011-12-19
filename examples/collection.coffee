@@ -23,13 +23,10 @@ Monkey.registerView 'comment', '''
 '''
 
 class Post extends Monkey.Model
-  @property 'title'
-  @property 'body'
   @property 'commentCount', dependsOn: 'comments', get: -> @comments.length
   @collection 'comments'
 
 class Comment extends Monkey.Model
-  @property 'body'
 
 class PostController
   postComment: ->
