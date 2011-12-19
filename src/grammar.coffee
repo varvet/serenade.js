@@ -16,7 +16,9 @@ grammar =
   ]
 
   Element: [
-    o 'IDENTIFIER PropertyArgument', -> { name: $1, properties: $2, children: [], type: 'element' }
+    o 'IDENTIFIER', -> { name: $1, properties: [], children: [], type: 'element' }
+    o 'Element LPAREN RPAREN', -> $1
+    o 'Element LPAREN PropertyList RPAREN', -> $1.properties = $3; $1
     o 'Element WHITESPACE InlineChild', -> $1.children = $1.children.concat($3); $1
     o 'Element INDENT ChildList OUTDENT', -> $1.children = $1.children.concat($3); $1
   ]
@@ -36,12 +38,6 @@ grammar =
     o 'Element', -> $1
     o 'Instruction', -> $1
     o 'STRING_LITERAL', -> { type: 'text', value: $1, bound: false }
-  ]
-
-  PropertyArgument: [
-    o '', -> []
-    o 'LPAREN RPAREN', -> []
-    o 'LPAREN PropertyList RPAREN', -> $2
   ]
 
   PropertyList: [
