@@ -363,11 +363,12 @@ Monkey.registerController 'comment', CommentController
 Monkey.js will now infer that you want to use a `CommentController` with the
 `comment` view.
 
-## Monkey.Model
+# Monkey.Model
 
-It can be quite convenient to use any old JavaScript object as a model, but
-sometimes we require more powerful abstractions. Monkey offers a base for
-building objects which is quite powerful. You can use it like this:
+Monkey.Model allows you to map objects to resources on a server, as well as
+cache them in memory and in HTML5 local storage. Of course you can bind to
+instances of Monkey.Model in views and changes are reflected there dynamically.
+In CoffeeScript, you can use it, simply by extending the base class Monkey.Model
 
 ``` coffeescript
 class MyModel extends Monkey.Model
@@ -379,3 +380,116 @@ You can use the same property declarations in these models:
 class MyModel extends Monkey.Model
   @property 'name'
 ```
+
+For simplicity's sake we will refer to instances of constructors derived from
+`Monkey.Model` as documents.
+
+## Identity map
+
+Monkey.Model assumes you have a property named `id` and that this uniquely
+identifies each document. Provided that such a property exists, documents a
+fetched from an in-memory cache, so that multiple queries for the same document
+id return the same object. This is key to working effectively with objects
+bound to views.
+
+``` coffeescript
+class Person extends Monkey.Model
+
+person1 = new Person(id: 1, name: 'John')
+person2 = new Person(id: 1, age: 23)
+person2.get('name') # => 'John'
+person2.get('age') # => 23
+```
+
+Here `person2` and `person1` are both variables which point to the same object,
+and that object's properties are a combination of the properties assigned to
+both calls of the constructor function.
+
+## Mapping models to server resources
+
+In order to be able to retrieve and store objects from the server store, you
+will need to call the store function on the constructor function:
+
+``` coffeescript
+Person.store('/people')
+```
+
+There are two main ways of retrieving objects from the server, through `find`
+and through `all`.
+
+## Find
+
+`find` takes and id and returns a single document, if the document has been
+previously cached in memory, that in memory document is returned. If the
+document has not been cached in memory, a new record with the given id is
+returned immediately.
+
+This is important to understand, Monkey.Model does not take a callback, instead
+it returns something akin to a future or promise, an object with no data. Once
+this document is instantiated, an AJAX request is dispatched to the server
+immediately.  As soon as the AJAX request is completed, the document is updated
+with the properties retrieved from the server and a change event is triggered.
+If the model has been previously bound to a view, these new properties are now
+reflected in the view. This architecture allows you to treat `find` as though
+it were a synchronous operation, returning an object immediately, and then
+immediately binding that object to a view. As soon as the data is ready, that
+data will be shown in the view.
+
+``` coffeescript
+john = Person.find(1)
+Monkey.render('person', john)
+```
+
+You might still want to indicate to the user that the data is currently
+unavailable, this can be done through the special `loadState` property on
+documents. This property can be one of `ready` when the document is ready and
+loaded or `loading` while it is retrieving data from the server. You can
+observe changes to the `loadState` property by listening to the
+`change:loadState` event, just as you would with any other property. If a view
+binds to `loadState`, changes to it are of course reflected in the view
+automatically. A convenient use case for this might be to bind the `class`
+attribute of an element to the `loadState` property, to indicate if there is
+activity:
+
+``` slim
+div[id="person" class=loadState]
+  h1 name
+```
+
+``` css
+#person.loading {
+  opacity: 0.5;
+  background: url('spinner.gif');
+}
+```
+
+You can manually trigger a refresh of the data in the document by calling the
+`refresh` function. This will cause the `loadState` to change back to
+`loading`.
+
+The URL for retrieving the data for a single document is taken from the first
+parameter sent to the `store` declaration, joined with the document id. So if
+we have declare this:
+
+``` coffeescript
+Person.store('/people')
+```
+
+Then the URL for a document with id `1` would be `/people/1`. This follows
+conventions used by many popular server side frameworks, such as Ruby on Rails.
+The response is expected to have a status of 200 or 201 and contain a body with
+well-formatted JSON.
+
+If the response status is any value in the 1XX, 4XX or 5XX ranges, `loadStatus`
+is changed to `error`. Additionally, the `Monkey.loadError` function is called,
+which takes as arguments the document causing the error, the status code of the
+response and the parsed response body, provided it contains valid JSON. By
+default, this function will show an alert message, but you can assign a
+different function to show errors in any way way you choose.
+
+``` coffeescript
+Monkey.loadError = (document, status, response) ->
+  MyFancyModalPlugin.showModal("This didn't go so well")
+```
+
+
