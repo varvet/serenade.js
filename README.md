@@ -124,6 +124,46 @@ class MyModel
   Monkey.extend(@prototype, Monkey.Properties)
 ```
 
+## Custom getters and setters
+
+Sometimes it can be convenient to define a property with a custom getter and/or
+setter method. Monkey.js mimics the `Object.defineProperty` API in ECMAScript 5
+in this regard. Most often you will want to override the get method, for
+example you could have a `fullName` property which combines first and last
+names like so:
+
+``` coffeescript
+MyModel.property 'fullName', get: -> @get('firstName') + " " + @get('lastName')
+```
+
+You can use the `collection` shortcut to create a property which is
+automatically initialized to a `Monkey.Collection`. This is convenient for
+binding collections to views (see below).
+
+``` coffeescript
+MyModel.collection 'comments'
+```
+
+Internally this just calls `property` with a specialized getter and setter, you
+could create these kinds of macros yourself.
+
+## Dependencies
+
+When a property is changed, Monkey.js automatically triggers an event called
+`change:propertyName`, as well as a generic `change` event. These events are
+what keeps the view up to date as the model changes. In the `fullName` property
+above, changes to either `firstName` or `lastName` could require the view to be
+changed, but this is not inferred automatically. You will need to explicitly
+state the dependencies of the `fullName` property. This will cause it to update
+it if any of the dependent properties change, just like it should. You can do
+this easily like this:
+
+``` coffeescript
+MyModel.property 'fullName',
+  get: -> @get('firstName') + " " + @get('lastName')
+  dependsOn: ['firstName', 'lastName']
+```
+
 ## Template Language
 
 The Monkey.js template language is inspired by Slim, Jade and HAML, but not
@@ -336,5 +376,6 @@ class MyModel extends Monkey.Model
 You can use the same property declarations in these models:
 
 ``` javascript
-MyModel.property('name')
+class MyModel extends Monkey.Model
+  @property 'name'
 ```
