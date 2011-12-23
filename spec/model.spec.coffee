@@ -1,7 +1,5 @@
 {Monkey} = require '../src/monkey'
 
-class TestClass extends Monkey.Model
-
 describe 'Monkey.Model', ->
   describe '#constructor', ->
     it 'sets the given properties', ->
@@ -26,6 +24,11 @@ describe 'Monkey.Model', ->
       expect(john2.test).toBeFalsy()
       expect(john2.get('age')).toEqual(46)
       expect(john2.get('name')).toBeUndefined()
+  describe '.find', ->
+    it 'returns an object from the cache if it has previously been cached', ->
+      john1 = new Monkey.Model(id: 'j123', name: 'John')
+      john1.test = true
+      john2 = Monkey.Model.find('j123')
 
-
-
+      expect(john2.test).toBeTruthy()
+      expect(john2.get('name')).toEqual('John')

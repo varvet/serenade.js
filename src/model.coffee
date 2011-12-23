@@ -7,13 +7,16 @@ class Monkey.Model
   @property: -> @prototype.property(arguments...)
   @collection: -> @prototype.collection(arguments...)
 
-  @_getFromCache: (id, object) ->
+  @_getFromCache: (id) ->
     @_identityMap ||= {}
     @_identityMap[id] if @_identityMap.hasOwnProperty(id)
 
   @_storeInCache: (id, object) ->
     @_identityMap ||= {}
     @_identityMap[id] = object
+
+  @find: (id) ->
+    @_getFromCache(id)
 
   constructor: (attributes) ->
     if attributes?.id
