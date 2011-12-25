@@ -148,6 +148,27 @@ MyModel.collection 'comments'
 Internally this just calls `property` with a specialized getter and setter, you
 could create these kinds of macros yourself.
 
+## Format
+
+Sometimes you want the value of the property to appear differently in a view
+than when handling the property internally. Consider a property representing a
+monetary value. You would want to handle this as an integer in the model, but
+the view should show it properly formatted, with currency information and so
+on. You can use the `format` option for this.
+
+``` coffeescript
+MyModel.property 'price', format: (value) -> "€ #{value}"
+```
+
+To retrieve a formatted value, call `format('price')`.
+
+You can also define a global format function:
+
+``` coffeescript
+Monkey.registerFormat 'currency', (value) -> "€ #{value}"
+MyModel.property 'price', format: 'currency'
+```
+
 ## Dependencies
 
 When a property is changed, Monkey.js automatically triggers an event called
