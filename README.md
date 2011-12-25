@@ -57,7 +57,8 @@ result = Monkey.render('test', model, controller)
 
 The result we are getting back is just a regular DOM element. This element has
 all events already attached, so you can just insert it into the DOM anywhere,
-and you're good to go. Using standard DOM methods, we could do that like this:
+and you're good to go. Using standard DOM manipulation, we could do that like
+this:
 
 ``` coffeescript
 window.onload = ->
@@ -87,7 +88,7 @@ Monkey.extend(model, Monkey.Properties)
 model.property 'name'
 ```
 
-Now we can set and get the name property using the `set` and `get` methods:
+Now we can set and get the name property using the `set` and `get` functions:
 
 ``` coffeescript
 model.set('name', 'Peter')
@@ -127,8 +128,8 @@ class MyModel
 ## Custom getters and setters
 
 Sometimes it can be convenient to define a property with a custom getter and/or
-setter method. Monkey.js mimics the `Object.defineProperty` API in ECMAScript 5
-in this regard. Most often you will want to override the get method, for
+setter function. Monkey.js mimics the `Object.defineProperty` API in ECMAScript 5
+in this regard. Most often you will want to override the get function, for
 example you could have a `fullName` property which combines first and last
 names like so:
 
@@ -467,6 +468,8 @@ You can manually trigger a refresh of the data in the document by calling the
 `refresh` function. This will cause the `loadState` to change back to
 `loading`.
 
+## URL
+
 The URL for retrieving the data for a single document is taken from the first
 parameter sent to the `store` declaration, joined with the document id. So if
 we have declare this:
@@ -480,16 +483,97 @@ conventions used by many popular server side frameworks, such as Ruby on Rails.
 The response is expected to have a status of 200 or 201 and contain a body with
 well-formatted JSON.
 
+## Errors
+
 If the response status is any value in the 1XX, 4XX or 5XX ranges, `loadStatus`
-is changed to `error`. Additionally, the `Monkey.loadError` function is called,
-which takes as arguments the document causing the error, the status code of the
-response and the parsed response body, provided it contains valid JSON. By
-default, this function will show an alert message, but you can assign a
-different function to show errors in any way way you choose.
+is changed to `error`. Additionally, the global `loadError` event is triggered.
+You can bind to this event to inform the user in any way you choose is
+appropriate.
+
+The event receives the document causing the error, the status code of the
+response and the parsed response body as arguments.
 
 ``` coffeescript
-Monkey.loadError = (document, status, response) ->
+Monkey.bind 'loadError', (document, status, response) ->
   MyFancyModalPlugin.showModal("This didn't go so well")
 ```
 
+## All
 
+The `all` function allows a collection of objects to be fetched from the
+backend storage. Just like `find`, it is synchronous and returns an empty
+collection immediately. When the request finishes, the collection is filled and
+any views it is bound to will update automatically and show the retrieved
+objects.
+
+## Serialization
+
+Monkey.js can also save objects back to the backend store, it will use the same
+URL, only it will issue a POST request, with the given data. As established by
+popular convention, it will set the `_method` parameter to `PUT`, thus
+frameworks such as Ruby on Rails will see it as a `PUT` request.
+
+However in order to know how to persist a document, you will have to tell the
+model what parameters to serialize, and how. You can do this easily by setting
+the `serialize` option on your properties, like so:
+
+``` coffeescript
+Person.property('name', serialize: true)
+```
+
+Often, you will want to specify a specific name to serialize a property as,
+some server-side languages have different naming conventions than JavaScript
+does for example, so you might want to translate these properties:
+
+``` coffeescript
+Person.property('firstName', serialize: 'first_name')
+```
+
+If you declare a property serializable like so, not only will the `serialize`
+function use the underscored form, an alias for the setter function will also
+be added, so that you can do `set('first_name', 'Jonas')`. This is especially
+useful when providing JSON data from the server, as it will allow you to use
+the correct naming conventions both on the server and client.
+
+## Save and update
+
+The `save` function will persist documents to the server. This function
+is asynchronous, and while it is saving, the magic `saveState` property will
+transition from `new` or `done` depending on whether the record has previously
+been saved, to `saving`. You can listen to changes on `change:saveState` to
+trigger behaviour as the save state changes.
+
+`update` is a higher level function which will set the given properties, as
+well as call the save function.
+
+## Associations
+
+You can delare that a model has an associated model. For example, each comment
+might belong to a post, you can delare this like this:
+
+```coffeescript
+class Comment extends Monkey.Model
+  belongsTo 'post', constructor: 'Post'
+```
+
+The constructor can be either a constructor function, or a string, which can
+help you prevent load order problems. Adding a `belongsTo` association will
+automatically create an id column, which will be kept in sync with the
+associated object. In this example, assigning an id to `postId` will find that
+post and assign it to the `post` property, vice versa if you assign a document
+to the `post` property, its id will be exctracted and assigned to `postId`.
+
+In the inverse situation, where a post has many comments, you can use the
+`hasMany` declaration. This will add a collection of comments, which you can
+manipulate however you choose. Changes to this comments collection will be
+reflected in the `commentsIds` property.
+
+# License
+
+Monkey.js is licensed under the MIT license, see the LICENSE file.
+
+Substantial parts of this codebase where taken from CoffeeScript, licensed
+under the MIT license, by Jeremy Ashkenas, see the LICENSE file.
+
+A small part of this codebase was taken from Spine.js, licensed under the MIT
+license, by Alex MacCaw, see the LICENSE file.
