@@ -11,6 +11,16 @@ advantages as well:
 * Absolutely no dependencies, everything works without jQuery
 * No need to inherit from base classes anywhere (though you can if you want)
 
+## Important Note!
+
+This is an ongoing, pre-alpha project. This README was written first, and
+describes how this framework is intended to work and may not reflect how it
+actually works right now. Please do not assume that this project is ready for
+production use, it may eventually be, but it is not right now.
+
+Currently, versions of Internet Explorer below IE9 are not supported. In the
+future, IE7+ will be supported. Support for IE6 is not planned.
+
 ## Architecture
 
 In Monkey.js you define templates and render them, handing in a controller and
@@ -588,6 +598,58 @@ In the inverse situation, where a post has many comments, you can use the
 `hasMany` declaration. This will add a collection of comments, which you can
 manipulate however you choose. Changes to this comments collection will be
 reflected in the `commentsIds` property.
+
+```coffeescript
+class Post extends Monkey.Model
+  hasMany 'comments', constructor: 'Comment'
+```
+
+If the `constructor` property is omitted from either declaration, then the
+associated documents will be plain objects instead.
+
+## Serializing associations
+
+Both types of associations can be serialized by declaring `serialize: true` on
+them, just like normal properties. In that case, the entire associated
+documents will be serialized and sent to the server when the document is saved.
+This may not be the desired behaviour, you may want to only serialize the id or
+ids of the associated document(s). In that case, you can declare the
+associations like this:
+
+```coffeescript
+hasMany 'comments', constructor: 'Comment', serializeIds: true
+belongsTo 'post', constructor: 'Post', serializeId: true
+```
+
+All of these declarations can of course also take a string so that the
+association is serialized under another name:
+
+```coffeescript
+belongsTo 'post', constructor: 'Post', serializeId: 'post_id'
+```
+
+## Local storage
+
+Monkey.Model can transparently cache objects in HTML5 local storage. When an
+object is retrieved through `find`, or a collection is retrieved through `all`,
+a check is made first if that object has been previously stored in local
+storage. If it has, the cache expiry time is checked as well, to make sure that
+the object is not stale.
+
+On a stale cache hit, the collection or object will be returned with the stale
+data, and a refresh will be triggered immediately. On a fresh cache hit, the
+collection or object will simply be returned.
+
+It is up to you whether objects are cached in local storage at all and when,
+you can control this through the `cache` declaration:
+
+``` coffeescript
+Post.cache 'forever'
+Post.cache 300000 # => cache five minutes
+Post.cache 300000, on: 'save' # => only cache when save is called
+```
+
+The possible values for `on` are `set`, which is the default and `save`.
 
 # License
 
