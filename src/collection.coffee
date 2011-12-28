@@ -24,7 +24,9 @@ class Monkey.Collection
     Monkey.forEach(@list, fun)
   indexOf: (item) ->
     @list.indexOf(item)
-  delete: (index) ->
+  deleteAt: (index) ->
     @list.splice(index, 1)
     @trigger("delete", index)
     @trigger("change", @list)
+  delete: (item) ->
+    @deleteAt(@indexOf(item))

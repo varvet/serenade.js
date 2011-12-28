@@ -15,8 +15,9 @@
 
   Monkey = {
     VERSION: '0.1.0',
-    _views: [],
-    _controllers: [],
+    _views: {},
+    _controllers: {},
+    _formats: {},
     registerView: function(name, template) {
       return this._views[name] = new Monkey.View(template);
     },
@@ -33,6 +34,9 @@
       } else {
         return {};
       }
+    },
+    registerFormat: function(name, fun) {
+      return this._formats[name] = fun;
     },
     extend: function(target, source) {
       var key, value, _results;
@@ -56,6 +60,14 @@
         return model[value];
       } else {
         return value;
+      }
+    },
+    format: function(model, value, bound) {
+      if (bound == null) bound = true;
+      if (bound && model.format) {
+        return model.format(value);
+      } else {
+        return this.get(model, value, bound);
       }
     },
     forEach: function(collection, fun) {
@@ -388,7 +400,7 @@
     };
 
     Style.prototype.get = function() {
-      return Monkey.get(this.model, this.ast.value, this.ast.bound);
+      return Monkey.format(this.model, this.ast.value, this.ast.bound);
     };
 
     return Style;
@@ -449,7 +461,7 @@
     };
 
     Attribute.prototype.get = function() {
-      return Monkey.get(this.model, this.ast.value, this.ast.bound);
+      return Monkey.format(this.model, this.ast.value, this.ast.bound);
     };
 
     return Attribute;
@@ -491,7 +503,7 @@
     };
 
     TextNode.prototype.get = function(model) {
-      return Monkey.get(this.model, this.ast.value, this.ast.bound);
+      return Monkey.format(this.model, this.ast.value, this.ast.bound);
     };
 
     return TextNode;
@@ -555,10 +567,6 @@
         });
       }
     }
-
-    Collection.prototype.get = function() {
-      return Monkey.get(this.model, this.ast.arguments[0]);
-    };
 
     Collection.prototype.rebuild = function() {
       var item, _i, _len, _ref;
@@ -1040,6 +1048,17 @@ if (typeof module !== 'undefined' && require.main === module) {
         return this.attributes[name];
       }
     },
+    format: function(name) {
+      var format, _ref, _ref2;
+      format = (_ref = this.properties) != null ? (_ref2 = _ref[name]) != null ? _ref2.format : void 0 : void 0;
+      if (typeof format === 'string') {
+        return Monkey._formats[format].call(this, this.get(name));
+      } else if (typeof format === 'function') {
+        return format.call(this, this.get(name));
+      } else {
+        return this.get(name);
+      }
+    },
     _triggerChangesTo: function(attributes) {
       var dependencies, name, property, propertyName, value, _ref;
       for (name in attributes) {
@@ -1091,7 +1110,31 @@ if (typeof module !== 'undefined' && require.main === module) {
       return (_ref = this.prototype).collection.apply(_ref, arguments);
     };
 
+    Model._getFromCache = function(id) {
+      this._identityMap || (this._identityMap = {});
+      if (this._identityMap.hasOwnProperty(id)) return this._identityMap[id];
+    };
+
+    Model._storeInCache = function(id, object) {
+      this._identityMap || (this._identityMap = {});
+      return this._identityMap[id] = object;
+    };
+
+    Model.find = function(id) {
+      return this._getFromCache(id);
+    };
+
     function Model(attributes) {
+      var fromCache;
+      if (attributes != null ? attributes.id : void 0) {
+        fromCache = this.constructor._getFromCache(attributes.id);
+        if (fromCache) {
+          fromCache.set(attributes);
+          return fromCache;
+        } else {
+          this.constructor._storeInCache(attributes.id, this);
+        }
+      }
       this.set(attributes);
     }
 
@@ -1154,10 +1197,14 @@ if (typeof module !== 'undefined' && require.main === module) {
       return this.list.indexOf(item);
     };
 
-    Collection.prototype["delete"] = function(index) {
+    Collection.prototype.deleteAt = function(index) {
       this.list.splice(index, 1);
       this.trigger("delete", index);
       return this.trigger("change", this.list);
+    };
+
+    Collection.prototype["delete"] = function(item) {
+      return this.deleteAt(this.indexOf(item));
     };
 
     return Collection;
@@ -1188,10 +1235,6 @@ if (typeof module !== 'undefined' && require.main === module) {
     upcomingInput: function() {
       return "";
     }
-  };
-
-  parser.yy = {
-    Monkey: Monkey
   };
 
   Monkey.View = (function() {

@@ -42,6 +42,16 @@ Monkey.Properties =
     else
       @attributes[name]
 
+  format: (name) ->
+    format = @properties?[name]?.format
+    if typeof(format) is 'string'
+      Monkey._formats[format].call(this, @get(name))
+    else if typeof(format) is 'function'
+      format.call(this, @get(name))
+    else
+      @get(name)
+
+
   _triggerChangesTo: (attributes) ->
     for name, value of attributes
       @trigger?("change:#{name}", value)

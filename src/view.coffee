@@ -10,8 +10,6 @@ parser.lexer =
   upcomingInput: ->
     ""
 
-parser.yy = { Monkey }
-
 class Monkey.View
   constructor: (@string) ->
   parse: ->

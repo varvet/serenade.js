@@ -80,3 +80,21 @@ describe 'Monkey.Properties', ->
         dependsOn: 'name'
       @object.set('name', 'Jonas')
       expect(@object).toHaveReceivedEvent('change:reverseName', with: ['reverse!'])
+
+  describe '.format', ->
+    it 'reads an existing property normally if it is not declared', ->
+      @object.set('foo', 23)
+      expect(@object.format('foo')).toEqual(23)
+    it 'reads an existing property normally if it is declared without format', ->
+      @object.property('foo')
+      @object.set('foo', 23)
+      expect(@object.format('foo')).toEqual(23)
+    it 'converts a property through a given format function', ->
+      @object.property('foo', format: (x) -> x + 2)
+      @object.set('foo', 23)
+      expect(@object.format('foo')).toEqual(25)
+    it 'uses a globally defined format function', ->
+      Monkey.registerFormat('plusTwo', (x) -> x + 2)
+      @object.property('foo', format: 'plusTwo')
+      @object.set('foo', 23)
+      expect(@object.format('foo')).toEqual(25)

@@ -152,7 +152,7 @@ describe 'Monkey.Element', ->
       compile tree, model, {}, (body) ->
         expect(body).toHaveElement('ul > li#jonas')
         expect(body).toHaveElement('ul > li#peter')
-        model.people.delete(0)
+        model.people.deleteAt(0)
         expect(body).not.toHaveElement('ul > li#jonas')
         expect(body).toHaveElement('ul > li#peter')
 

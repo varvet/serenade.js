@@ -29,7 +29,7 @@ class Style
       @model.bind? "change:#{@ast.value}", (value) => @update()
   update: ->
     @element.style[@ast.name] = @get()
-  get: -> Monkey.get(@model, @ast.value, @ast.bound)
+  get: -> Monkey.format(@model, @ast.value, @ast.bound)
 
 class Event
   constructor: (@ast, @element, @document, @model, @controller) ->
@@ -53,7 +53,7 @@ class Attribute
     else
       @element.setAttribute(@ast.name, value)
 
-  get: -> Monkey.get(@model, @ast.value, @ast.bound)
+  get: -> Monkey.format(@model, @ast.value, @ast.bound)
 
 class TextNode
   constructor: (@ast, @document, @model, @controller) ->
@@ -74,7 +74,7 @@ class TextNode
   lastElement: ->
     @textNode
 
-  get: (model) -> Monkey.get(@model, @ast.value, @ast.bound)
+  get: (model) -> Monkey.format(@model, @ast.value, @ast.bound)
 
 class View
   constructor: (@ast, @document, @model, @parentController) ->
@@ -103,8 +103,6 @@ class Collection
       @collection.bind('set', => @rebuild())
       @collection.bind('add', (item) => @appendItem(item))
       @collection.bind('delete', (index) => @delete(index))
-
-  get: -> Monkey.get(@model, @ast.arguments[0])
 
   rebuild: ->
     item.remove() for item in @items

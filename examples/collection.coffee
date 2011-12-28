@@ -31,16 +31,16 @@ class Comment extends Monkey.Model
 class PostController
   postComment: ->
     @model.comments.push(@newComment) if @newComment
-
   commentEdited: (event) ->
     @newComment = new Comment(body: event.target.value)
+  removeComment: (comment) ->
+    @model.comments.delete(comment)
 
 class CommentController
   highlight: ->
     @model.set('color', 'yellow')
   remove: ->
-    comments = @parent.model.comments
-    comments.delete(comments.indexOf(@model))
+    @parent.removeComment(@model)
 
 Monkey.registerController 'post', PostController
 Monkey.registerController 'comment', CommentController

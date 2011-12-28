@@ -1,7 +1,8 @@
 Monkey =
   VERSION: '0.1.0'
-  _views: []
-  _controllers: []
+  _views: {}
+  _controllers: {}
+  _formats: {}
 
   registerView: (name, template) ->
     @_views[name] = new Monkey.View(template)
@@ -17,6 +18,9 @@ Monkey =
     else
       {}
 
+  registerFormat: (name, fun) ->
+    @_formats[name] = fun
+
   extend: (target, source) ->
     for key, value of source
       if Object.prototype.hasOwnProperty.call(source, key)
@@ -29,6 +33,12 @@ Monkey =
       model[value]
     else
       value
+  format: (model, value, bound=true) ->
+    if bound and model.format
+      model.format(value)
+    else
+      @get(model, value, bound)
+
   # Iteration with fallback
   forEach: (collection, fun) ->
     if typeof(collection.forEach) is 'function'

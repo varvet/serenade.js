@@ -46,15 +46,22 @@ describe 'Monkey.Collection', ->
       expect(@collection.indexOf('a')).toEqual(0)
       expect(@collection.indexOf('b')).toEqual(1)
 
-  describe '#delete', ->
+  describe '#deleteAt', ->
     it 'removes the item from the collection', ->
-      @collection.delete(1)
+      @collection.deleteAt(1)
       expect(@collection.get(0)).toEqual('a')
       expect(@collection.get(1)).toEqual('c')
       expect(@collection.get(2)).toEqual(undefined)
     it 'triggers a change event', ->
-      @collection.delete(1)
+      @collection.deleteAt(1)
       expect(@collection).toHaveReceivedEvent('change')
     it 'triggers a delete event', ->
-      @collection.delete(1)
+      @collection.deleteAt(1)
       expect(@collection).toHaveReceivedEvent('delete', with: [1])
+
+  describe '#delete', ->
+    it 'removes the item from the collection', ->
+      @collection.delete('b')
+      expect(@collection.get(0)).toEqual('a')
+      expect(@collection.get(1)).toEqual('c')
+      expect(@collection.get(2)).toEqual(undefined)
