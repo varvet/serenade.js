@@ -1,7 +1,7 @@
 Monkey.registerView 'thing', '''
   div[id="monkey"]
     p
-      a[event:click=doThing href="#"] "Do thing"
+      a[event:click=doThing! href="#"] "Do thing"
     p[event:mouseover=over event:mouseout=out]
       "Mouse over this area to change"
     p
