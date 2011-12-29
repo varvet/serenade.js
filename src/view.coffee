@@ -1,5 +1,5 @@
-{Monkey} = require './monkey'
 {parser} = require './parser'
+{Lexer} = require './lexer'
 {Nodes} = require './nodes'
 
 parser.lexer =
@@ -11,11 +11,13 @@ parser.lexer =
   upcomingInput: ->
     ""
 
-class Monkey.View
+class View
   constructor: (@string) ->
   parse: ->
-    parser.parse(new Monkey.Lexer().tokenize(@string))
+    parser.parse(new Lexer().tokenize(@string))
   render: (document, model, controller) ->
     node = Nodes.compile(@parse(), document, model, controller)
     controller.model = model
     controller.view = node.element
+
+exports.View = View

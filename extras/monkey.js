@@ -19,7 +19,9 @@
     _controllers: {},
     _formats: {},
     registerView: function(name, template) {
-      return this._views[name] = new Monkey.View(template);
+      var View;
+      View = require('./view').View;
+      return this._views[name] = new View(template);
     },
     render: function(name, model, controller) {
       controller || (controller = this.controllerFor(name));
@@ -156,9 +158,7 @@
 };require['./lexer'] = new function() {
   var exports = this;
   (function() {
-  var IDENTIFIER, LITERAL, MULTI_DENT, Monkey, STRING, WHITESPACE;
-
-  Monkey = require('./monkey').Monkey;
+  var IDENTIFIER, LITERAL, Lexer, MULTI_DENT, STRING, WHITESPACE;
 
   IDENTIFIER = /^[a-zA-Z][a-zA-Z0-9\-]*/;
 
@@ -170,7 +170,7 @@
 
   WHITESPACE = /^[^\n\S]+/;
 
-  Monkey.Lexer = (function() {
+  Lexer = (function() {
 
     function Lexer() {}
 
@@ -324,6 +324,8 @@
     return Lexer;
 
   })();
+
+  exports.Lexer = Lexer;
 
 }).call(this);
 
@@ -1216,11 +1218,11 @@ if (typeof module !== 'undefined' && require.main === module) {
 };require['./view'] = new function() {
   var exports = this;
   (function() {
-  var Monkey, Nodes, parser;
-
-  Monkey = require('./monkey').Monkey;
+  var Lexer, Nodes, View, parser;
 
   parser = require('./parser').parser;
+
+  Lexer = require('./lexer').Lexer;
 
   Nodes = require('./nodes').Nodes;
 
@@ -1239,14 +1241,14 @@ if (typeof module !== 'undefined' && require.main === module) {
     }
   };
 
-  Monkey.View = (function() {
+  View = (function() {
 
     function View(string) {
       this.string = string;
     }
 
     View.prototype.parse = function() {
-      return parser.parse(new Monkey.Lexer().tokenize(this.string));
+      return parser.parse(new Lexer().tokenize(this.string));
     };
 
     View.prototype.render = function(document, model, controller) {
@@ -1259,6 +1261,8 @@ if (typeof module !== 'undefined' && require.main === module) {
     return View;
 
   })();
+
+  exports.View = View;
 
 }).call(this);
 

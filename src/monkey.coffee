@@ -5,7 +5,8 @@ Monkey =
   _formats: {}
 
   registerView: (name, template) ->
-    @_views[name] = new Monkey.View(template)
+    {View} = require('./view')
+    @_views[name] = new View(template)
   render: (name, model, controller) ->
     controller or= @controllerFor(name)
     @_views[name].render(@document, model, controller)

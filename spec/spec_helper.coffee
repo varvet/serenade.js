@@ -7,10 +7,8 @@ Monkey.Events.trigger = (name, args...) ->
   @_triggeredEvents[name] = args
   originalTrigger.apply(this, arguments)
 
-require('../src/lexer')
 require('../src/properties')
 require('../src/model')
-require('../src/view')
 require('../src/collection')
 
 compareArrays = (one, two) ->
