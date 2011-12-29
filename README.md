@@ -236,7 +236,7 @@ div "Name: " name
 
 Events are dispatched to the controller. The controller may choose to act on
 these events in any way it chooses. The controller has a reference to both the
-model, through `this.model`, and the view, through `this.view`.  These
+model, through `this.model`, and the view, through `this.view`. These
 properties will be set automatically by Monkey.js as the view is rendered. If
 the view is a subview, the controller can also access its parent controller
 through `this.parent`.
@@ -348,8 +348,8 @@ post =
 
 ## Views
 
-It can be convenient to split parts of view into subviews. The `view` instruction
-does just that:
+It can be convenient to split parts of views into subviews. The `view`
+instruction does just that:
 
 ``` slim
 div
