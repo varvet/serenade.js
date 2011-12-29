@@ -7,7 +7,6 @@ Monkey.Events.trigger = (name, args...) ->
   @_triggeredEvents[name] = args
   originalTrigger.apply(this, arguments)
 
-require('../src/nodes')
 require('../src/lexer')
 require('../src/properties')
 require('../src/model')

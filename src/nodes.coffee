@@ -5,10 +5,10 @@ class Element
     @element = @document.createElement(@ast.name)
 
     for property in @ast.properties
-      Monkey.Nodes.property(property, @element, @document, @model, @controller)
+      Nodes.property(property, @element, @document, @model, @controller)
 
     for child in @ast.children
-      Monkey.Nodes.compile(child, @document, @model, @controller).append(@element)
+      Nodes.compile(child, @document, @model, @controller).append(@element)
 
   append: (inside) ->
     inside.appendChild(@element)
@@ -144,7 +144,7 @@ class Collection
 
 class CollectionItem
   constructor: (@children, @document, @model, @controller) ->
-    @nodes = (Monkey.Nodes.compile(child, @document, @model, @controller) for child in @children)
+    @nodes = (Nodes.compile(child, @document, @model, @controller) for child in @children)
 
   insertAfter: (element) ->
     last = element
@@ -158,7 +158,7 @@ class CollectionItem
   remove: ->
     node.remove() for node in @nodes
 
-Monkey.Nodes =
+Nodes =
   compile: (ast, document, model, controller) ->
     switch ast.type
       when 'element' then new Element(ast, document, model, controller)
@@ -175,3 +175,5 @@ Monkey.Nodes =
       when "style" then new Style(ast, element, document, model, controller)
       when "event" then new Event(ast, element, document, model, controller)
       else throw SyntaxError "#{ast.scope} is not a valid scope"
+
+exports.Nodes = Nodes

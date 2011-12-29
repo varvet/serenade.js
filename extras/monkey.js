@@ -330,7 +330,7 @@
 };require['./nodes'] = new function() {
   var exports = this;
   (function() {
-  var Attribute, Collection, CollectionItem, Element, Event, Monkey, Style, TextNode, View;
+  var Attribute, Collection, CollectionItem, Element, Event, Monkey, Nodes, Style, TextNode, View;
 
   Monkey = require('./monkey').Monkey;
 
@@ -346,12 +346,12 @@
       _ref = this.ast.properties;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         property = _ref[_i];
-        Monkey.Nodes.property(property, this.element, this.document, this.model, this.controller);
+        Nodes.property(property, this.element, this.document, this.model, this.controller);
       }
       _ref2 = this.ast.children;
       for (_j = 0, _len2 = _ref2.length; _j < _len2; _j++) {
         child = _ref2[_j];
-        Monkey.Nodes.compile(child, this.document, this.model, this.controller).append(this.element);
+        Nodes.compile(child, this.document, this.model, this.controller).append(this.element);
       }
     }
 
@@ -656,7 +656,7 @@
         _results = [];
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           child = _ref[_i];
-          _results.push(Monkey.Nodes.compile(child, this.document, this.model, this.controller));
+          _results.push(Nodes.compile(child, this.document, this.model, this.controller));
         }
         return _results;
       }).call(this);
@@ -694,7 +694,7 @@
 
   })();
 
-  Monkey.Nodes = {
+  Nodes = {
     compile: function(ast, document, model, controller) {
       switch (ast.type) {
         case 'element':
@@ -726,6 +726,8 @@
       }
     }
   };
+
+  exports.Nodes = Nodes;
 
 }).call(this);
 
@@ -1153,8 +1155,6 @@ if (typeof module !== 'undefined' && require.main === module) {
 
   Monkey.Collection = (function() {
 
-    Collection.prototype.collection = true;
-
     Monkey.extend(Collection.prototype, Monkey.Events);
 
     function Collection(list) {
@@ -1216,11 +1216,13 @@ if (typeof module !== 'undefined' && require.main === module) {
 };require['./view'] = new function() {
   var exports = this;
   (function() {
-  var Monkey, parser;
+  var Monkey, Nodes, parser;
 
   Monkey = require('./monkey').Monkey;
 
   parser = require('./parser').parser;
+
+  Nodes = require('./nodes').Nodes;
 
   parser.lexer = {
     lex: function() {
@@ -1249,7 +1251,7 @@ if (typeof module !== 'undefined' && require.main === module) {
 
     View.prototype.render = function(document, model, controller) {
       var node;
-      node = Monkey.Nodes.compile(this.parse(), document, model, controller);
+      node = Nodes.compile(this.parse(), document, model, controller);
       controller.model = model;
       return controller.view = node.element;
     };

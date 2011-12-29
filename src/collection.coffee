@@ -1,7 +1,6 @@
 {Monkey} = require './monkey'
 
 class Monkey.Collection
-  collection: true
   Monkey.extend(@prototype, Monkey.Events)
   constructor: (@list) ->
     @length = @list.length
