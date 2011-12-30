@@ -1,6 +1,6 @@
 {Build} = require './build'
 
-task 'build:files', 'build Monkey.js from source', ->
+task 'build:files', 'build Serenade.js from source', ->
   Build.files()
 
 task 'build:parser', 'rebuild the Jison parser (run build:files first)', ->

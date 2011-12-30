@@ -1,4 +1,4 @@
-{Monkey} = require '../src/monkey'
+{Serenade} = require '../src/serenade'
 require('../src/properties')
 require('../src/model')
 
@@ -7,9 +7,9 @@ compareArrays = (one, two) ->
   one.length is two.length and not fail
 
 beforeEach ->
-  Monkey._views = {}
-  Monkey._controllers = {}
-  Monkey._formats = {}
+  Serenade._views = {}
+  Serenade._controllers = {}
+  Serenade._formats = {}
 
   @addMatchers
     toHaveElement: (selector, options) ->

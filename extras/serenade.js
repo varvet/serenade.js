@@ -8,48 +8,7 @@
 (function(root) {
   var Serenade = function() {
     function require(path){ return require[path]; }
-    require['./serenade'] = new function() {
-  var exports = this;
-  (function() {
-  var Serenade;
-
-  Serenade = {
-    VERSION: '0.1.0',
-    _views: {},
-    _controllers: {},
-    _formats: {},
-    registerView: function(name, template) {
-      var View;
-      View = require('./view').View;
-      return this._views[name] = new View(template);
-    },
-    render: function(name, model, controller) {
-      controller || (controller = this.controllerFor(name));
-      return this._views[name].render(this.document, model, controller);
-    },
-    registerController: function(name, klass) {
-      return this._controllers[name] = klass;
-    },
-    controllerFor: function(name) {
-      if (this._controllers[name]) {
-        return new this._controllers[name]();
-      } else {
-        return {};
-      }
-    },
-    registerFormat: function(name, fun) {
-      return this._formats[name] = fun;
-    },
-    document: typeof window !== "undefined" && window !== null ? window.document : void 0,
-    Events: require('./events').Events,
-    Collection: require('./collection').Collection
-  };
-
-  exports.Serenade = Serenade;
-
-}).call(this);
-
-};require['./events'] = new function() {
+    require['./events'] = new function() {
   var exports = this;
   (function() {
   var __slice = Array.prototype.slice;
@@ -111,6 +70,168 @@
       return this;
     }
   };
+
+}).call(this);
+
+};require['./helpers'] = new function() {
+  var exports = this;
+  (function() {
+  var Helpers;
+
+  Helpers = {
+    extend: function(target, source) {
+      var key, value, _results;
+      _results = [];
+      for (key in source) {
+        value = source[key];
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          _results.push(target[key] = value);
+        } else {
+          _results.push(void 0);
+        }
+      }
+      return _results;
+    },
+    get: function(model, value, bound) {
+      if (bound == null) bound = true;
+      if (bound && model.get) {
+        return model.get(value);
+      } else if (bound) {
+        return model[value];
+      } else {
+        return value;
+      }
+    },
+    format: function(model, value, bound) {
+      if (bound == null) bound = true;
+      if (bound && model.format) {
+        return model.format(value);
+      } else {
+        return Helpers.get(model, value, bound);
+      }
+    },
+    forEach: function(collection, fun) {
+      var element, _i, _len, _results;
+      if (typeof collection.forEach === 'function') {
+        return collection.forEach(fun);
+      } else {
+        _results = [];
+        for (_i = 0, _len = collection.length; _i < _len; _i++) {
+          element = collection[_i];
+          _results.push(fun(element));
+        }
+        return _results;
+      }
+    }
+  };
+
+  Helpers.extend(exports, Helpers);
+
+}).call(this);
+
+};require['./collection'] = new function() {
+  var exports = this;
+  (function() {
+  var Events, extend, forEach, _ref;
+
+  Events = require('./events').Events;
+
+  _ref = require('./helpers'), extend = _ref.extend, forEach = _ref.forEach;
+
+  exports.Collection = (function() {
+
+    extend(Collection.prototype, Events);
+
+    function Collection(list) {
+      var _this = this;
+      this.list = list;
+      this.length = this.list.length;
+      this.bind("change", function() {
+        return _this.length = _this.list.length;
+      });
+    }
+
+    Collection.prototype.get = function(index) {
+      return this.list[index];
+    };
+
+    Collection.prototype.set = function(index, value) {
+      this.list[index] = value;
+      this.trigger("change:" + index, value);
+      this.trigger("set", index, value);
+      return this.trigger("change", this.list);
+    };
+
+    Collection.prototype.push = function(element) {
+      this.list.push(element);
+      this.trigger("add", element);
+      return this.trigger("change", this.list);
+    };
+
+    Collection.prototype.update = function(list) {
+      this.list = list;
+      this.trigger("update", list);
+      return this.trigger("change", this.list);
+    };
+
+    Collection.prototype.forEach = function(fun) {
+      return forEach(this.list, fun);
+    };
+
+    Collection.prototype.indexOf = function(item) {
+      return this.list.indexOf(item);
+    };
+
+    Collection.prototype.deleteAt = function(index) {
+      this.list.splice(index, 1);
+      this.trigger("delete", index);
+      return this.trigger("change", this.list);
+    };
+
+    Collection.prototype["delete"] = function(item) {
+      return this.deleteAt(this.indexOf(item));
+    };
+
+    return Collection;
+
+  })();
+
+}).call(this);
+
+};require['./serenade'] = new function() {
+  var exports = this;
+  (function() {
+  var Serenade;
+
+  Serenade = {
+    VERSION: '0.1.0',
+    _views: {},
+    _controllers: {},
+    _formats: {},
+    registerView: function(name, template) {
+      var View;
+      View = require('./view').View;
+      return this._views[name] = new View(template);
+    },
+    render: function(name, model, controller) {
+      controller || (controller = this.controllerFor(name));
+      return this._views[name].render(this.document, model, controller);
+    },
+    registerController: function(name, klass) {
+      return this._controllers[name] = klass;
+    },
+    controllerFor: function(name) {
+      if (this._controllers[name]) return new this._controllers[name]();
+    },
+    registerFormat: function(name, fun) {
+      return this._formats[name] = fun;
+    },
+    document: typeof window !== "undefined" && window !== null ? window.document : void 0,
+    Events: require('./events').Events,
+    Collection: require('./collection').Collection
+  };
+
+  exports.Serenade = Serenade;
 
 }).call(this);
 
@@ -291,7 +412,7 @@
 };require['./nodes'] = new function() {
   var exports = this;
   (function() {
-  var Attribute, Collection, CollectionItem, Element, Event, Serenade, Nodes, Style, TextNode, View, forEach, format, get, _ref;
+  var Attribute, Collection, CollectionItem, Element, Event, Nodes, Serenade, Style, TextNode, View, forEach, format, get, _ref;
 
   Serenade = require('./serenade').Serenade;
 
@@ -481,8 +602,8 @@
       this.model = model;
       this.parentController = parentController;
       this.controller = Serenade.controllerFor(this.ast.arguments[0]);
-      this.controller.parent = this.parentController;
-      this.view = Serenade._views[this.ast.arguments[0]].render(this.document, this.model, this.controller);
+      if (this.controller) this.controller.parent = this.parentController;
+      this.view = Serenade._views[this.ast.arguments[0]].render(this.document, this.model, this.controller || this.parentController);
     }
 
     View.prototype.append = function(inside) {
@@ -1092,7 +1213,27 @@ if (typeof module !== 'undefined' && require.main === module) {
     };
 
     Model.find = function(id) {
-      return this._getFromCache(id);
+      var document, _ref, _ref2, _ref3, _ref4, _ref5, _ref6;
+      if (document = this._getFromCache(id)) {
+        if ((_ref = (_ref2 = this._storeOptions) != null ? _ref2.refresh : void 0) === 'always') {
+          document.refresh();
+        }
+        if (((_ref3 = (_ref4 = this._storeOptions) != null ? _ref4.refresh : void 0) === 'stale') && document.isStale()) {
+          document.refresh();
+        }
+      } else {
+        document = new this({
+          id: id
+        });
+        if ((_ref5 = (_ref6 = this._storeOptions) != null ? _ref6.refresh : void 0) === 'always' || _ref5 === 'stale' || _ref5 === 'new') {
+          document.refresh();
+        }
+      }
+      return document;
+    };
+
+    Model.store = function(options) {
+      return this._storeOptions = options;
     };
 
     function Model(attributes) {
@@ -1109,76 +1250,15 @@ if (typeof module !== 'undefined' && require.main === module) {
       this.set(attributes);
     }
 
+    Model.prototype.refresh = function() {};
+
+    Model.prototype.save = function() {};
+
+    Model.prototype.isStale = function() {
+      return this.get('expires') < new Date();
+    };
+
     return Model;
-
-  })();
-
-}).call(this);
-
-};require['./collection'] = new function() {
-  var exports = this;
-  (function() {
-  var Events, extend, forEach, _ref;
-
-  Events = require('./events').Events;
-
-  _ref = require('./helpers'), extend = _ref.extend, forEach = _ref.forEach;
-
-  exports.Collection = (function() {
-
-    extend(Collection.prototype, Events);
-
-    function Collection(list) {
-      var _this = this;
-      this.list = list;
-      this.length = this.list.length;
-      this.bind("change", function() {
-        return _this.length = _this.list.length;
-      });
-    }
-
-    Collection.prototype.get = function(index) {
-      return this.list[index];
-    };
-
-    Collection.prototype.set = function(index, value) {
-      this.list[index] = value;
-      this.trigger("change:" + index, value);
-      this.trigger("set", index, value);
-      return this.trigger("change", this.list);
-    };
-
-    Collection.prototype.push = function(element) {
-      this.list.push(element);
-      this.trigger("add", element);
-      return this.trigger("change", this.list);
-    };
-
-    Collection.prototype.update = function(list) {
-      this.list = list;
-      this.trigger("update", list);
-      return this.trigger("change", this.list);
-    };
-
-    Collection.prototype.forEach = function(fun) {
-      return forEach(this.list, fun);
-    };
-
-    Collection.prototype.indexOf = function(item) {
-      return this.list.indexOf(item);
-    };
-
-    Collection.prototype.deleteAt = function(index) {
-      this.list.splice(index, 1);
-      this.trigger("delete", index);
-      return this.trigger("change", this.list);
-    };
-
-    Collection.prototype["delete"] = function(item) {
-      return this.deleteAt(this.indexOf(item));
-    };
-
-    return Collection;
 
   })();
 

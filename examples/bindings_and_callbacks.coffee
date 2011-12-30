@@ -1,4 +1,4 @@
-Monkey.registerView 'test', '''
+Serenade.registerView 'test', '''
   div[id="hello-world"]
     h1 name
     p
@@ -8,7 +8,7 @@ Monkey.registerView 'test', '''
 controller = { showAlert: -> alert('Alert!!!') }
 model = { name: 'Jonas' }
 
-result = Monkey.render('test', model, controller)
+result = Serenade.render('test', model, controller)
 
 window.onload = ->
   document.body.appendChild(result)

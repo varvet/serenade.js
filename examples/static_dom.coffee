@@ -1,6 +1,6 @@
-Monkey.registerView 'test', '''
+Serenade.registerView 'test', '''
   div[id="foo"]
-    h1 "This is a Monkey.js example"
+    h1 "This is a Serenade.js example"
     p
       a[href="http://google.com"] "Go to Google"
     p "Here's some text"
@@ -10,7 +10,7 @@ Monkey.registerView 'test', '''
       " text"
 '''
 
-element = Monkey.render('test', {}, {})
+element = Serenade.render('test', {}, {})
 
 # Add it to page on load
 window.onload = ->

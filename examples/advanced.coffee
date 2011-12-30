@@ -1,5 +1,5 @@
-Monkey.registerView 'thing', '''
-  div[id="monkey"]
+Serenade.registerView 'thing', '''
+  div[id="serenade"]
     p
       a[event:click=doThing! href="#"] "Do thing"
     p[event:mouseover=over event:mouseout=out]
@@ -17,7 +17,7 @@ Monkey.registerView 'thing', '''
 '''
 
 
-class Thing extends Monkey.Model
+class Thing extends Serenade.Model
   @property 'schmoo'
   @property 'barr'
 
@@ -35,5 +35,5 @@ class Controller
 window.aThing = new Thing()
 
 window.onload = ->
-  view = Monkey.render('thing', aThing, new Controller())
+  view = Serenade.render('thing', aThing, new Controller())
   sandbox = document.body.appendChild(view)

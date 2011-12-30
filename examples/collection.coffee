@@ -1,5 +1,5 @@
-Monkey.registerView 'post', '''
-  div[id="monkey"]
+Serenade.registerView 'post', '''
+  div[id="serenade"]
     h1 title
     p body
     h3 "Comments (" commentCount ")"
@@ -13,7 +13,7 @@ Monkey.registerView 'post', '''
         input[type="submit" value="Post"]
 '''
 
-Monkey.registerView 'comment', '''
+Serenade.registerView 'comment', '''
   li[style:backgroundColor=color]
     p body
     p
@@ -22,11 +22,11 @@ Monkey.registerView 'comment', '''
       a[event:click=remove! href="#"] "Remove"
 '''
 
-class Post extends Monkey.Model
+class Post extends Serenade.Model
   @property 'commentCount', dependsOn: 'comments', get: -> @comments.length
   @collection 'comments'
 
-class Comment extends Monkey.Model
+class Comment extends Serenade.Model
 
 class PostController
   postComment: ->
@@ -42,13 +42,13 @@ class CommentController
   remove: ->
     @parent.removeComment(@model)
 
-Monkey.registerController 'post', PostController
-Monkey.registerController 'comment', CommentController
+Serenade.registerController 'post', PostController
+Serenade.registerController 'comment', CommentController
 
 window.aPost = new Post
-  title: 'Monkey.js released!'
+  title: 'Serenade.js released!'
   body: 'New contender in the JS framework wars!'
   comments: [new Comment(body: 'This is cool'), new Comment(body: 'I hate it')]
 
 window.onload = ->
-  document.body.appendChild Monkey.render('post', aPost)
+  document.body.appendChild Serenade.render('post', aPost)

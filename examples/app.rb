@@ -9,12 +9,12 @@ get '/' do
   slim :index
 end
 
-get '/src/monkey.js' do
+get '/src/serenade.js' do
   # ghetto live reload
   if ENV['AUTORELOAD']
     `cake build; cake build:parser; cake build:browser`
   end
-  File.read("./extras/monkey.js")
+  File.read("./extras/serenade.js")
 end
 
 get '/src/:name.coffee' do |name|
@@ -45,6 +45,6 @@ html
 doctype html
 html
   head
-    script[src="src/monkey.js"]
+    script[src="src/serenade.js"]
     script[src="src/#{@name}"]
   body

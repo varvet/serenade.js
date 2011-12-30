@@ -1,5 +1,5 @@
-Monkey.registerView 'post', '''
-  div[id="monkey"]
+Serenade.registerView 'post', '''
+  div[id="serenade"]
     h1 title
     p body
     h3 "Comments"
@@ -9,10 +9,10 @@ Monkey.registerView 'post', '''
 '''
 
 post =
-  title: 'Monkey.js released'
+  title: 'Serenade.js released'
   body: 'New awesome MVC JavaScript framework'
   comments: [{ body: 'Cool!' }, { body: 'Good job!' }]
 
 window.onload = ->
-  view = Monkey.render('post', post, {})
+  view = Serenade.render('post', post, {})
   sandbox = document.body.appendChild(view)

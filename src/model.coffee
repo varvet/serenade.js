@@ -1,10 +1,10 @@
-{Monkey} = require './monkey'
+{Serenade} = require './serenade'
 {Events} = require './events'
 {extend} = require './helpers'
 
-class Monkey.Model
+class Serenade.Model
   extend(@prototype, Events)
-  extend(@prototype, Monkey.Properties)
+  extend(@prototype, Serenade.Properties)
 
   @property: -> @prototype.property(arguments...)
   @collection: -> @prototype.collection(arguments...)

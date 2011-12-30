@@ -1,11 +1,11 @@
-{Monkey} = require '../src/monkey'
+{Serenade} = require '../src/serenade'
 {extend} = require '../src/helpers'
 
-describe 'Monkey.Properties', ->
+describe 'Serenade.Properties', ->
   beforeEach ->
     @object = {}
-    extend(@object, Monkey.Properties)
-    extend(@object, Monkey.Events)
+    extend(@object, Serenade.Properties)
+    extend(@object, Serenade.Events)
 
   describe '.collection', ->
     it 'is initialized to a collection', ->
@@ -95,7 +95,7 @@ describe 'Monkey.Properties', ->
       @object.set('foo', 23)
       expect(@object.format('foo')).toEqual(25)
     it 'uses a globally defined format function', ->
-      Monkey.registerFormat('plusTwo', (x) -> x + 2)
+      Serenade.registerFormat('plusTwo', (x) -> x + 2)
       @object.property('foo', format: 'plusTwo')
       @object.set('foo', 23)
       expect(@object.format('foo')).toEqual(25)

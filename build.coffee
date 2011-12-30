@@ -1,4 +1,4 @@
-{Monkey} = require './src/monkey'
+{Serenade} = require './src/serenade'
 
 CoffeeScript = require 'coffee-script'
 fs = require 'fs'
@@ -6,8 +6,8 @@ path = require 'path'
 
 header = """
   /**
-   * Monkey.js JavaScript Framework v#{Monkey.VERSION}
-   * http://github.com/elabs/monkey.js
+   * Serenade.js JavaScript Framework v#{Serenade.VERSION}
+   * http://github.com/elabs/serenade.js
    *
    * Copyright 2011, Jonas Nicklas
    * Released under the MIT License
@@ -27,7 +27,7 @@ exports.Build =
     fs.writeFileSync 'lib/parser.js', Parser.generate()
   browser: ->
     requires = ''
-    for name in ['monkey', 'events', 'lexer', 'nodes', 'parser', 'properties', 'model', 'collection', 'view']
+    for name in ['events', 'helpers', 'collection', 'serenade', 'lexer', 'nodes', 'parser', 'properties', 'model', 'view']
       requires += """
         require['./#{name}'] = new function() {
           var exports = this;
@@ -36,18 +36,18 @@ exports.Build =
       """
     code = """
       (function(root) {
-        var Monkey = function() {
+        var Serenade = function() {
           function require(path){ return require[path]; }
           #{requires}
-          return require['./monkey'].Monkey
+          return require['./serenade'].Serenade
         }();
 
         if(typeof define === 'function' && define.amd) {
-          define(function() { return Monkey });
-        } else { root.Monkey = Monkey }
+          define(function() { return Serenade });
+        } else { root.Serenade = Serenade }
       }(this));
     """
     if process.env.MINIFY is 'true'
       {parser, uglify} = require 'uglify-js'
       code = uglify.gen_code uglify.ast_squeeze uglify.ast_mangle parser.parse code
-    fs.writeFileSync 'extras/monkey.js', header + '\n' + code
+    fs.writeFileSync 'extras/serenade.js', header + '\n' + code

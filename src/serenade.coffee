@@ -1,4 +1,4 @@
-Monkey =
+Serenade =
   VERSION: '0.1.0'
   _views: {}
   _controllers: {}
@@ -22,4 +22,4 @@ Monkey =
   Events: require('./events').Events
   Collection: require('./collection').Collection
 
-exports.Monkey = Monkey
+exports.Serenade = Serenade

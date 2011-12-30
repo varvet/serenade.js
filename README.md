@@ -1,7 +1,7 @@
-# Monkey.js
+# Serenade.js
 
-Monkey.js is yet another MVC client side JavaScript framework. Why do we
-indulge in recreating the wheel? We believe that Monkey.js more closely follows
+Serenade.js is yet another MVC client side JavaScript framework. Why do we
+indulge in recreating the wheel? We believe that Serenade.js more closely follows
 the ideas of classical MVC than competing frameworks and has a number of other
 advantages as well:
 
@@ -23,16 +23,16 @@ future, IE7+ will be supported. Support for IE6 is not planned.
 
 ## Architecture
 
-In Monkey.js you define templates and render them, handing in a controller and
-a model to the template. Monkey.js then handles getting values from the model
+In Serenade.js you define templates and render them, handing in a controller and
+a model to the template. Serenade.js then handles getting values from the model
 and updating them dynamically as the model changes, as well as dispatching
 events to the controller when they occur. Templates are "logic-less" in that
-they do not allow the execution of any code. Monkey.js is built around its
+they do not allow the execution of any code. Serenade.js is built around its
 template engine, so unfortunately you do not have a choice as to the template
 language.
 
-Monkey.js also bundles a powerful abstraction for talking with RESTful
-services, you can use Monkey.Model to persist and retrieve data, as well as
+Serenade.js also bundles a powerful abstraction for talking with RESTful
+services, you can use Serenade.Model to persist and retrieve data, as well as
 cache data in local storage.
 
 ## A simple example
@@ -44,13 +44,13 @@ controller = { showAlert: -> alert('Alert!!!') }
 model = { name: 'Jonas' }
 ```
 
-As you can see, these are just normal JavaScript objects. Monkey.js does not
+As you can see, these are just normal JavaScript objects. Serenade.js does not
 force you to use any kind of base object or class for models and controllers.
 
-Let us now register a view, we are using Monkey.js's own template language here:
+Let us now register a view, we are using Serenade.js's own template language here:
 
 ``` coffeescript
-Monkey.registerView 'test', '''
+Serenade.registerView 'test', '''
   div[id="hello-world"]
     h1 name
     p
@@ -58,11 +58,11 @@ Monkey.registerView 'test', '''
 '''
 ```
 
-Once we have a view registered, we can render it using `Monkey.render`, passing
+Once we have a view registered, we can render it using `Serenade.render`, passing
 in the model and controller we created before:
 
 ``` coffeescript
-result = Monkey.render('test', model, controller)
+result = Serenade.render('test', model, controller)
 ```
 
 The result we are getting back is just a regular DOM element. This element has
@@ -94,7 +94,7 @@ simple:
 
 ``` coffeescript
 model = {}
-Monkey.extend(model, Monkey.Properties)
+Serenade.extend(model, Serenade.Properties)
 model.property 'name'
 ```
 
@@ -125,20 +125,20 @@ prototype instead:
 var MyModel = function(name) {
   this.set('name', name);
 };
-Monkey.extend(MyModel.prototype, Monkey.Properties)
+Serenade.extend(MyModel.prototype, Serenade.Properties)
 ```
 
 Or in CoffeeScript:
 
 ``` coffeescript
 class MyModel
-  Monkey.extend(@prototype, Monkey.Properties)
+  Serenade.extend(@prototype, Serenade.Properties)
 ```
 
 ## Custom getters and setters
 
 Sometimes it can be convenient to define a property with a custom getter and/or
-setter function. Monkey.js mimics the `Object.defineProperty` API in ECMAScript 5
+setter function. Serenade.js mimics the `Object.defineProperty` API in ECMAScript 5
 in this regard. Most often you will want to override the get function, for
 example you could have a `fullName` property which combines first and last
 names like so:
@@ -148,7 +148,7 @@ MyModel.property 'fullName', get: -> @get('firstName') + " " + @get('lastName')
 ```
 
 You can use the `collection` shortcut to create a property which is
-automatically initialized to a `Monkey.Collection`. This is convenient for
+automatically initialized to a `Serenade.Collection`. This is convenient for
 binding collections to views (see below).
 
 ``` coffeescript
@@ -175,13 +175,13 @@ To retrieve a formatted value, call `format('price')`.
 You can also define a global format function:
 
 ``` coffeescript
-Monkey.registerFormat 'currency', (value) -> "€ #{value}"
+Serenade.registerFormat 'currency', (value) -> "€ #{value}"
 MyModel.property 'price', format: 'currency'
 ```
 
 ## Dependencies
 
-When a property is changed, Monkey.js automatically triggers an event called
+When a property is changed, Serenade.js automatically triggers an event called
 `change:propertyName`, as well as a generic `change` event. These events are
 what keeps the view up to date as the model changes. In the `fullName` property
 above, changes to either `firstName` or `lastName` could require the view to be
@@ -198,16 +198,16 @@ MyModel.property 'fullName',
 
 ## Template Language
 
-The Monkey.js template language is inspired by Slim, Jade and HAML, but not
+The Serenade.js template language is inspired by Slim, Jade and HAML, but not
 identical to any of these.
 
-Any view in Monkey.js must have an element as its root node. Elements may have
+Any view in Serenade.js must have an element as its root node. Elements may have
 any number of children. Elements can have attributes within square brackets.
 
 This is a single element with no children and an id attribute:
 
 ``` slim
-div[id="monkey"]
+div[id="serenade"]
 ```
 
 Indentation is significant and is used to nest elements:
@@ -237,7 +237,7 @@ div "Name: " name
 Events are dispatched to the controller. The controller may choose to act on
 these events in any way it chooses. The controller has a reference to both the
 model, through `this.model`, and the view, through `this.view`. These
-properties will be set automatically by Monkey.js as the view is rendered. If
+properties will be set automatically by Serenade.js as the view is rendered. If
 the view is a subview, the controller can also access its parent controller
 through `this.parent`.
 
@@ -265,13 +265,13 @@ controller =
   like: -> @model.set('liked', true)
 ```
 
-Note that we do not have to set `@model` ourselves, Monkey.js does this for
+Note that we do not have to set `@model` ourselves, Serenade.js does this for
 you.
 
 In this example, if we have scrolled down a bit, we would jump to the start of
 the page, since the link points to the `#` anchor. In many JavaScript
 frameworks such as jQuery, we could fix this by returning `false` from the
-event handler. In Monkey.js, returning false does nothing. Thankfully the event
+event handler. In Serenade.js, returning false does nothing. Thankfully the event
 object is passed into the function call on the controller, so we can use the
 `preventDefault` function to stop the link being followed:
 
@@ -288,7 +288,7 @@ through `event.target`.
 
 Preventing the default action of an event is really, really common, so having
 to call `preventDefault` everywhere gets old very fast. For this reason,
-Monkey.js has a special syntax in its templates to prevent the default action
+Serenade.js has a special syntax in its templates to prevent the default action
 without having to do any additional work in the controller. Just append an
 exclamation mark after the event binding:
 
@@ -320,7 +320,7 @@ CSS. That means you should write `style:backgroundColor=color`, not
 ## Collections
 
 Oftentimes you will want to render a collection of objects in your views.
-Monkey has special syntax for collections built into its template language.
+Serenade has special syntax for collections built into its template language.
 Assuming you have a model like this:
 
 ``` coffeescript
@@ -338,12 +338,12 @@ ul[id="comments"]
 
 This should output one li element for each comment.
 
-If `comments` is an instance of `Monkey.Collection`, Monkey.js will dynamically
+If `comments` is an instance of `Serenade.Collection`, Serenade.js will dynamically
 update this collection as comments are added, removed or changed:
 
 ``` coffeescript
 post =
-  comments: new Monkey.Collection([{ body: 'Hello'}, {body: 'Awesome!'}])
+  comments: new Serenade.Collection([{ body: 'Hello'}, {body: 'Awesome!'}])
 ```
 
 ## Views
@@ -357,7 +357,7 @@ div
   - view post
 ```
 
-Assuming that there is a post view registered with `Monkey.registerView('post',
+Assuming that there is a post view registered with `Serenade.registerView('post',
 '...')` that view will now be rendered.
 
 It will often be useful to use the `view` and `collection` instructions
@@ -376,56 +376,56 @@ This can be quite inconvenient in a lot of cases, and we would really like to
 use a specific controller for this new view.
 
 If your controller can be instantiated with JavaScript's `new` operator, you
-can use `registerController` to tell Monkey.js which controller to use for your
+can use `registerController` to tell Serenade.js which controller to use for your
 view. Any constructor function in JavaScript and any CoffeeScript class can be
 used here. For example:
 
 ``` javascript
 var CommentController = function() {};
-Monkey.registerController 'comment', CommentController
+Serenade.registerController 'comment', CommentController
 ```
 
 Or in CoffeeScript:
 
 ``` coffeescript
 class CommentController
-Monkey.registerController 'comment', CommentController
+Serenade.registerController 'comment', CommentController
 ```
 
-Monkey.js will now infer that you want to use a `CommentController` with the
+Serenade.js will now infer that you want to use a `CommentController` with the
 `comment` view.
 
-# Monkey.Model
+# Serenade.Model
 
-Monkey.Model allows you to map objects to resources on a server, as well as
+Serenade.Model allows you to map objects to resources on a server, as well as
 cache them in memory and in HTML5 local storage. Of course you can bind to
-instances of Monkey.Model in views and changes are reflected there dynamically.
-In CoffeeScript, you can use it, simply by extending the base class Monkey.Model
+instances of Serenade.Model in views and changes are reflected there dynamically.
+In CoffeeScript, you can use it, simply by extending the base class Serenade.Model
 
 ``` coffeescript
-class MyModel extends Monkey.Model
+class MyModel extends Serenade.Model
 ```
 
 You can use the same property declarations in these models:
 
 ``` javascript
-class MyModel extends Monkey.Model
+class MyModel extends Serenade.Model
   @property 'name'
 ```
 
 For simplicity's sake we will refer to instances of constructors derived from
-`Monkey.Model` as documents.
+`Serenade.Model` as documents.
 
 ## Identity map
 
-Monkey.Model assumes you have a property named `id` and that this uniquely
+Serenade.Model assumes you have a property named `id` and that this uniquely
 identifies each document. Provided that such a property exists, documents a
 fetched from an in-memory cache, so that multiple queries for the same document
 id return the same object. This is key to working effectively with objects
 bound to views.
 
 ``` coffeescript
-class Person extends Monkey.Model
+class Person extends Serenade.Model
 
 person1 = new Person(id: 1, name: 'John')
 person2 = new Person(id: 1, age: 23)
@@ -456,7 +456,7 @@ previously cached in memory, that in memory document is returned. If the
 document has not been cached in memory, a new record with the given id is
 returned immediately.
 
-This is important to understand, Monkey.Model does not take a callback, instead
+This is important to understand, Serenade.Model does not take a callback, instead
 it returns something akin to a future or promise, an object with no data. Once
 this document is instantiated, an AJAX request is dispatched to the server
 immediately. As soon as the AJAX request is completed, the document is updated
@@ -469,7 +469,7 @@ data will be shown in the view.
 
 ``` coffeescript
 john = Person.find(1)
-Monkey.render('person', john)
+Serenade.render('person', john)
 ```
 
 You might still want to indicate to the user that the data is currently
@@ -525,7 +525,7 @@ The event receives the document causing the error, the status code of the
 response and the parsed response body as arguments.
 
 ``` coffeescript
-Monkey.bind 'ajaxError', (document, status, response) ->
+Serenade.bind 'ajaxError', (document, status, response) ->
   MyFancyModalPlugin.showModal("This didn't go so well")
 ```
 
@@ -539,7 +539,7 @@ objects.
 
 ## Serialization
 
-Monkey.js can also save objects back to the backend store, it will use the same
+Serenade.js can also save objects back to the backend store, it will use the same
 URL, only it will issue a POST request, with the given data. As established by
 popular convention, it will set the `_method` parameter to `PUT`, thus
 frameworks such as Ruby on Rails will see it as a `PUT` request.
@@ -583,7 +583,7 @@ You can delare that a model has an associated model. For example, each comment
 might belong to a post, you can delare this like this:
 
 ```coffeescript
-class Comment extends Monkey.Model
+class Comment extends Serenade.Model
   belongsTo 'post', constructor: 'Post'
 ```
 
@@ -600,7 +600,7 @@ manipulate however you choose. Changes to this comments collection will be
 reflected in the `commentsIds` property.
 
 ```coffeescript
-class Post extends Monkey.Model
+class Post extends Serenade.Model
   hasMany 'comments', constructor: 'Comment'
 ```
 
@@ -660,7 +660,7 @@ specify both.
 
 ## HTML5 Local Storage
 
-Monkey.Model can transparently cache objects in HTML5 local storage. Working
+Serenade.Model can transparently cache objects in HTML5 local storage. Working
 with local storage is identical to working with the in-memory identity map, and
 document or collections cached in HTML5 local storage are affected by the
 `refresh` option in just the same was as those cached in memory. The only
@@ -682,7 +682,7 @@ in local storage.
 
 # License
 
-Monkey.js is licensed under the MIT license, see the LICENSE file.
+Serenade.js is licensed under the MIT license, see the LICENSE file.
 
 Substantial parts of this codebase where taken from CoffeeScript, licensed
 under the MIT license, by Jeremy Ashkenas, see the LICENSE file.

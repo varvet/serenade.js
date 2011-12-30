@@ -1,4 +1,4 @@
-{Monkey} = require './monkey'
+{Serenade} = require './serenade'
 {Collection} = require './collection'
 
 pairToObject = (one, two) ->
@@ -6,13 +6,13 @@ pairToObject = (one, two) ->
   temp[one] = two
   temp
 
-Monkey.Properties =
+Serenade.Properties =
   property: (name, options={}) ->
     @properties or= {}
     @properties[name] = options
     Object.defineProperty @, name,
-      get: -> Monkey.Properties.get.call(this, name)
-      set: (value) -> Monkey.Properties.set.call(this, name, value)
+      get: -> Serenade.Properties.get.call(this, name)
+      set: (value) -> Serenade.Properties.set.call(this, name, value)
 
   collection: (name, options) ->
     @property name,
@@ -46,7 +46,7 @@ Monkey.Properties =
   format: (name) ->
     format = @properties?[name]?.format
     if typeof(format) is 'string'
-      Monkey._formats[format].call(this, @get(name))
+      Serenade._formats[format].call(this, @get(name))
     else if typeof(format) is 'function'
       format.call(this, @get(name))
     else

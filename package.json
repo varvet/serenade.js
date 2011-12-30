@@ -1,5 +1,5 @@
 {
-   "name": "monkey.js",
+   "name": "serenade.js",
    "version": "0.1.0",
    "description": "JavaScript client side MVC framework",
    "keywords": [ "MVC", "data bingings", "client-side" ],
@@ -16,18 +16,18 @@
        }
    ],
    "bugs": {
-       "url": "https://github.com/elabs/monkey.js/issues"
+       "url": "https://github.com/elabs/serenade.js/issues"
    },
    "licenses": [
        {
            "type": "MIT",
-           "url": "https://github.com/elabs/monkey.js/blob/master/LICENSE"
+           "url": "https://github.com/elabs/serenade.js/blob/master/LICENSE"
        }
    ],
    "repositories": [
        {
            "type": "git",
-           "url": "git@github.com:elabs/monkey.js.git"
+           "url": "git@github.com:elabs/serenade.js.git"
        }
    ],
    "dependencies": {

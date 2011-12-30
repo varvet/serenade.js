@@ -1,4 +1,4 @@
-{Monkey} = require './monkey'
+{Serenade} = require './serenade'
 {format, get, forEach} = require './helpers'
 
 class Element
@@ -79,9 +79,9 @@ class TextNode
 
 class View
   constructor: (@ast, @document, @model, @parentController) ->
-    @controller = Monkey.controllerFor(@ast.arguments[0])
+    @controller = Serenade.controllerFor(@ast.arguments[0])
     @controller.parent = @parentController if @controller
-    @view = Monkey._views[@ast.arguments[0]].render(@document, @model, @controller or @parentController)
+    @view = Serenade._views[@ast.arguments[0]].render(@document, @model, @controller or @parentController)
 
   append: (inside) ->
     inside.appendChild(@view)

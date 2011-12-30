@@ -1,4 +1,4 @@
-{Monkey} = require '../src/monkey'
+{Serenade} = require '../src/serenade'
 {Nodes} = require '../src/nodes'
 jsdom = require("jsdom")
 fs = require('fs')
@@ -43,8 +43,8 @@ describe 'Nodes.compile', ->
       expect(body).toHaveElement('div > a[href=foo]')
 
   it 'compiles a simple element with a text node child', ->
-    compile el('div', [], [text('Monkey')]), {}, {}, (body) ->
-      expect(body).toHaveElement('div:contains(Monkey)')
+    compile el('div', [], [text('Serenade')]), {}, {}, (body) ->
+      expect(body).toHaveElement('div:contains(Serenade)')
 
   it 'does not add bound attribute if value is undefined in model', ->
     model = { name: 'jonas' }
@@ -75,7 +75,7 @@ describe 'Nodes.compile', ->
       expect(controller.clicked).toBeTruthy()
 
   it 'changes bound attributes as they are changed', ->
-    model = new Monkey.Model
+    model = new Serenade.Model
     model.set('name', 'jonas')
     compile el('div', [prop('id', 'name', true)]), model, {}, (body) ->
       expect(body).toHaveElement('div#jonas')
@@ -83,7 +83,7 @@ describe 'Nodes.compile', ->
       expect(body).toHaveElement('div#peter')
 
   it 'changes bound style as they are changed', ->
-    model = new Monkey.Model
+    model = new Serenade.Model
     model.set('name', 'red')
     compile el('div', [prop('color', 'name', true, 'style')]), model, {}, (body) ->
       expect(body.find('div').css('color')).toEqual('red')
@@ -91,7 +91,7 @@ describe 'Nodes.compile', ->
       expect(body.find('div').css('color')).toEqual('blue')
 
   it 'removes attributes and reattaches them as they are set to undefined', ->
-    model = new Monkey.Model
+    model = new Serenade.Model
     model.set('name', 'jonas')
     compile el('div', [prop('id', 'name', true)]), model, {}, (body) ->
       expect(body).toHaveElement('div#jonas')
@@ -101,7 +101,7 @@ describe 'Nodes.compile', ->
       expect(body).toHaveElement('div#peter')
 
   it 'handles value specially', ->
-    model = new Monkey.Model
+    model = new Serenade.Model
     model.set('name', 'jonas')
     compile el('input', [prop('value', 'name', true)]), model, {}, (body) ->
       body.find('input').val('changed')
@@ -109,7 +109,7 @@ describe 'Nodes.compile', ->
       expect(body.find('input').val()).toEqual('peter')
 
   it 'changes bound text nodes as they are changed', ->
-    model = new Monkey.Model
+    model = new Serenade.Model
     model.set('name', 'Jonas Nicklas')
     compile el('div', [], [text('name', true)]), model, {}, (body) ->
       expect(body.find('div')).toHaveText('Jonas Nicklas')
@@ -124,8 +124,8 @@ describe 'Nodes.compile', ->
       expect(body).toHaveElement('ul > li#jonas')
       expect(body).toHaveElement('ul > li#peter')
 
-  it 'compiles a Monkey.collection in a collection instruction', ->
-    model = { people: new Monkey.Collection([{ name: 'jonas' }, { name: 'peter' }]) }
+  it 'compiles a Serenade.collection in a collection instruction', ->
+    model = { people: new Serenade.Collection([{ name: 'jonas' }, { name: 'peter' }]) }
 
     tree =  el('ul', [], [ins('collection', ['people'], [el('li', [prop('id', 'name', true)])])])
     compile tree, model, {}, (body) ->
@@ -133,7 +133,7 @@ describe 'Nodes.compile', ->
       expect(body).toHaveElement('ul > li#peter')
 
   it 'updates a collection dynamically', ->
-    model = { people: new Monkey.Collection([{ name: 'jonas' }, { name: 'peter' }]) }
+    model = { people: new Serenade.Collection([{ name: 'jonas' }, { name: 'peter' }]) }
 
     tree =  el('ul', [], [ins('collection', ['people'], [el('li', [prop('id', 'name', true)])])])
     compile tree, model, {}, (body) ->
@@ -146,7 +146,7 @@ describe 'Nodes.compile', ->
       expect(body).toHaveElement('ul > li#jimmy')
 
   it 'removes item from collection when requested', ->
-    model = { people: new Monkey.Collection([{ name: 'jonas' }, { name: 'peter' }]) }
+    model = { people: new Serenade.Collection([{ name: 'jonas' }, { name: 'peter' }]) }
 
     tree =  el('ul', [], [ins('collection', ['people'], [el('li', [prop('id', 'name', true)])])])
     compile tree, model, {}, (body) ->
@@ -158,7 +158,7 @@ describe 'Nodes.compile', ->
 
   it 'compiles a view instruction by fetching and compiling the given view', ->
     # TODO: Figure out how to isolate this test from the parser
-    Monkey.registerView('test', 'li[id="foo"]')
+    Serenade.registerView('test', 'li[id="foo"]')
 
     tree =  el('ul', [], [ins('view', ['test'])])
     compile tree, {}, {}, (body) ->
@@ -170,8 +170,8 @@ describe 'Nodes.compile', ->
     class TestCon
       funk: -> funked = true
 
-    Monkey.registerView('test', 'li[id="foo" event:click=funk]')
-    Monkey.registerController('test', TestCon)
+    Serenade.registerView('test', 'li[id="foo" event:click=funk]')
+    Serenade.registerController('test', TestCon)
 
     tree =  el('ul', [], [ins('view', ['test'])])
     compile tree, {}, {}, (body, document) ->
@@ -187,7 +187,7 @@ describe 'Nodes.compile', ->
     class TestCon
       funk: -> funked = true
 
-    Monkey.registerView('test', 'li[id="foo" event:click=funk]')
+    Serenade.registerView('test', 'li[id="foo" event:click=funk]')
 
     tree =  el('ul', [], [ins('view', ['test'])])
     compile tree, {}, new TestCon(), (body, document) ->

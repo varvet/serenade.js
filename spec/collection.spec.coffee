@@ -1,8 +1,8 @@
-{Monkey} = require '../src/monkey'
+{Serenade} = require '../src/serenade'
 
-describe 'Monkey.Collection', ->
+describe 'Serenade.Collection', ->
   beforeEach ->
-    @collection = new Monkey.Collection(['a', 'b', 'c'])
+    @collection = new Serenade.Collection(['a', 'b', 'c'])
 
   describe '#get', ->
     it 'gets an item from the collection', ->
