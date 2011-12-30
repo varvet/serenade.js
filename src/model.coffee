@@ -18,7 +18,16 @@ class Monkey.Model
     @_identityMap[id] = object
 
   @find: (id) ->
-    @_getFromCache(id)
+    if document = @_getFromCache(id)
+      document.refresh() if @_storeOptions?.refresh in ['always']
+      document.refresh() if @_storeOptions?.refresh in ['stale'] and document.isStale()
+    else
+      document = new this(id: id)
+      document.refresh() if @_storeOptions?.refresh in ['always', 'stale', 'new']
+    document
+
+  @store: (options) ->
+    @_storeOptions = options
 
   constructor: (attributes) ->
     if attributes?.id
@@ -29,3 +38,9 @@ class Monkey.Model
       else
         @constructor._storeInCache(attributes.id, this)
     @set(attributes)
+
+  refresh: ->
+  save: ->
+
+  isStale: ->
+    @get('expires') < new Date()

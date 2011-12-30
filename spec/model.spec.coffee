@@ -1,6 +1,16 @@
 {Monkey} = require '../src/monkey'
 
+expired = ->
+  now = new Date()
+  new Date(now.getTime() - 20000)
+fresh = ->
+  now = new Date()
+  new Date(now.getTime() + 20000)
+
 describe 'Monkey.Model', ->
+  afterEach ->
+    Monkey.Model._identityMap = {}
+
   describe '#constructor', ->
     it 'sets the given properties', ->
       john = new Monkey.Model(name: 'John', age: 23)
@@ -24,8 +34,12 @@ describe 'Monkey.Model', ->
       expect(john2.test).toBeFalsy()
       expect(john2.get('age')).toEqual(46)
       expect(john2.get('name')).toBeUndefined()
+
   describe '.find', ->
+    beforeEach -> spyOn(Monkey.Model.prototype, 'refresh')
     it 'creates a new blank object with the given id', ->
+      document = Monkey.Model.find('j123')
+      expect(document.get('id')).toEqual('j123')
     it 'returns the same object if it has previously been initialized', ->
       john1 = new Monkey.Model(id: 'j123', name: 'John')
       john1.test = true
@@ -33,21 +47,57 @@ describe 'Monkey.Model', ->
       expect(john2.test).toBeTruthy()
       expect(john2.get('name')).toEqual('John')
     context 'with refresh:always', ->
+      beforeEach -> Monkey.Model.store expiration: 200000, refresh: 'always'
       it 'triggers a refresh on cache hit', ->
+        new Monkey.Model(id: 'j123', name: 'John', expires: fresh())
+        document = Monkey.Model.find('j123')
+        expect(document.refresh).toHaveBeenCalled()
       it 'triggers a refresh on stale cache hit', ->
+        new Monkey.Model(id: 'j123', name: 'John', expires: expired())
+        document = Monkey.Model.find('j123')
+        expect(document.refresh).toHaveBeenCalled()
       it 'triggers a refresh on cache miss', ->
+        document = Monkey.Model.find('j123')
+        expect(document.refresh).toHaveBeenCalled()
     context 'with refresh:stale', ->
+      beforeEach -> Monkey.Model.store expiration: 200000, refresh: 'stale'
       it 'does not trigger a refresh on cache hit', ->
+        new Monkey.Model(id: 'j123', name: 'John', expires: fresh())
+        document = Monkey.Model.find('j123')
+        expect(document.refresh).not.toHaveBeenCalled()
       it 'triggers a refresh on stale cache hit', ->
+        new Monkey.Model(id: 'j123', name: 'John', expires: expired())
+        document = Monkey.Model.find('j123')
+        expect(document.refresh).toHaveBeenCalled()
       it 'triggers a refresh on cache miss', ->
+        document = Monkey.Model.find('j123')
+        expect(document.refresh).toHaveBeenCalled()
     context 'with refresh:new', ->
+      beforeEach -> Monkey.Model.store expiration: 200000, refresh: 'new'
       it 'does not trigger a refresh on cache hit', ->
+        new Monkey.Model(id: 'j123', name: 'John', expires: fresh())
+        document = Monkey.Model.find('j123')
+        expect(document.refresh).not.toHaveBeenCalled()
       it 'does not trigger a refresh on stale cache hit', ->
+        new Monkey.Model(id: 'j123', name: 'John', expires: expired())
+        document = Monkey.Model.find('j123')
+        expect(document.refresh).not.toHaveBeenCalled()
       it 'triggers a refresh on cache miss', ->
+        document = Monkey.Model.find('j123')
+        expect(document.refresh).toHaveBeenCalled()
     context 'with refresh:never', ->
+      beforeEach -> Monkey.Model.store expiration: 200000, refresh: 'never'
       it 'does not trigger a refresh on cache hit', ->
+        new Monkey.Model(id: 'j123', name: 'John', expires: fresh())
+        document = Monkey.Model.find('j123')
+        expect(document.refresh).not.toHaveBeenCalled()
       it 'does not trigger a refresh on stale cache hit', ->
+        new Monkey.Model(id: 'j123', name: 'John', expires: expired())
+        document = Monkey.Model.find('j123')
+        expect(document.refresh).not.toHaveBeenCalled()
       it 'does not trigger a refresh on cache miss', ->
+        document = Monkey.Model.find('j123')
+        expect(document.refresh).not.toHaveBeenCalled()
 
   describe '.all', ->
     it 'create a new blank collection', ->
@@ -101,6 +151,7 @@ describe 'Monkey.Model', ->
     it 'sets the load state to "loading"', ->
     it 'does nothing when triggered while already loading', ->
     it 'does nothing when no url is specified for store', ->
+    it 'resets the expiration time', ->
     context 'with successful response', ->
       it 'sets the load state to "ready"', ->
       it 'updates the object with the given properties', ->
@@ -121,6 +172,7 @@ describe 'Monkey.Model', ->
     context 'with successful response', ->
       it 'sets the load state to "saved"', ->
       it 'updates the object with the given properties', ->
+      it 'resets the expiration time if properties given', ->
       it 'does nothing when the response body is blank', ->
     context 'with server error', ->
       it 'sets the save state to "error"', ->
