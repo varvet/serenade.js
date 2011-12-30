@@ -1,0 +1,12 @@
+html
+  head
+    title "Serenade.js examples"
+  body
+    div
+      h1 "Serenade.js examples"
+      h3 title
+
+      ul
+        - collection examples
+          li
+            a[href=url] name

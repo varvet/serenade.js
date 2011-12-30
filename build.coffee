@@ -14,7 +14,7 @@ header = """
    */
 """
 
-exports.Build =
+Build =
   files: ->
     files = fs.readdirSync 'src'
     for file in files when file.match(/\.coffee$/)
@@ -51,3 +51,9 @@ exports.Build =
       {parser, uglify} = require 'uglify-js'
       code = uglify.gen_code uglify.ast_squeeze uglify.ast_mangle parser.parse code
     fs.writeFileSync 'extras/serenade.js', header + '\n' + code
+  all: ->
+    Build.files()
+    Build.parser()
+    Build.browser()
+
+exports.Build = Build

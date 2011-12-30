@@ -10,6 +10,4 @@ task 'build:browser', 'rebuild the merged script for inclusion in the browser', 
   Build.browser()
 
 task 'build', 'build the whole thing', ->
-  Build.files()
-  Build.parser()
-  Build.browser()
+  Build.all()

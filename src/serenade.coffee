@@ -23,3 +23,17 @@ Serenade =
   Collection: require('./collection').Collection
 
 exports.Serenade = Serenade
+
+# Express.js support
+exports.compile = ->
+  Serenade.document = require("jsdom").jsdom(null, null, {})
+  fs = require("fs")
+  window = Serenade.document.createWindow()
+
+  (env) ->
+    model = env.model
+    viewName = env.filename.split('/').reverse()[0].replace(/\.serenade$/, '')
+    Serenade.registerView(viewName, fs.readFileSync(env.filename).toString())
+    element = Serenade.render(viewName, model, {})
+    Serenade.document.body.appendChild(element)
+    Serenade.document.body.innerHTML
