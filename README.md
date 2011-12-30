@@ -443,7 +443,7 @@ In order to be able to retrieve and store objects from the server store, you
 will need to call the store function on the constructor function:
 
 ``` coffeescript
-Person.store('/people')
+Person.store url: '/people'
 ```
 
 There are two main ways of retrieving objects from the server, through `find`
@@ -459,7 +459,7 @@ returned immediately.
 This is important to understand, Monkey.Model does not take a callback, instead
 it returns something akin to a future or promise, an object with no data. Once
 this document is instantiated, an AJAX request is dispatched to the server
-immediately.  As soon as the AJAX request is completed, the document is updated
+immediately. As soon as the AJAX request is completed, the document is updated
 with the properties retrieved from the server and a change event is triggered.
 If the model has been previously bound to a view, these new properties are now
 reflected in the view. This architecture allows you to treat `find` as though
@@ -506,7 +506,7 @@ parameter sent to the `store` declaration, joined with the document id. So if
 we have declare this:
 
 ``` coffeescript
-Person.store('/people')
+Person.store url: '/people'
 ```
 
 Then the URL for a document with id `1` would be `/people/1`. This follows
@@ -517,7 +517,7 @@ well-formatted JSON.
 ## Errors
 
 If the response status is any value in the 1XX, 4XX or 5XX ranges, `loadStatus`
-is changed to `error`. Additionally, the global `loadError` event is triggered.
+is changed to `error`. Additionally, the global `ajaxError` event is triggered.
 You can bind to this event to inform the user in any way you choose is
 appropriate.
 
@@ -525,7 +525,7 @@ The event receives the document causing the error, the status code of the
 response and the parsed response body as arguments.
 
 ``` coffeescript
-Monkey.bind 'loadError', (document, status, response) ->
+Monkey.bind 'ajaxError', (document, status, response) ->
   MyFancyModalPlugin.showModal("This didn't go so well")
 ```
 
@@ -549,7 +549,7 @@ model what parameters to serialize, and how. You can do this easily by setting
 the `serialize` option on your properties, like so:
 
 ``` coffeescript
-Person.property('name', serialize: true)
+Person.property 'name', serialize: true
 ```
 
 Often, you will want to specify a specific name to serialize a property as,
@@ -557,7 +557,7 @@ some server-side languages have different naming conventions than JavaScript
 does for example, so you might want to translate these properties:
 
 ``` coffeescript
-Person.property('firstName', serialize: 'first_name')
+Person.property 'firstName', serialize: 'first_name'
 ```
 
 If you declare a property serializable like so, not only will the `serialize`
@@ -570,7 +570,7 @@ the correct naming conventions both on the server and client.
 
 The `save` function will persist documents to the server. This function
 is asynchronous, and while it is saving, the magic `saveState` property will
-transition from `new` or `done` depending on whether the record has previously
+transition from `new` or `saved` depending on whether the record has previously
 been saved, to `saving`. You can listen to changes on `change:saveState` to
 trigger behaviour as the save state changes.
 
@@ -628,28 +628,57 @@ association is serialized under another name:
 belongsTo 'post', constructor: 'Post', serializeId: 'post_id'
 ```
 
-## Local storage
+## Configuring refresh
 
-Monkey.Model can transparently cache objects in HTML5 local storage. When an
-object is retrieved through `find`, or a collection is retrieved through `all`,
-a check is made first if that object has been previously stored in local
-storage. If it has, the cache expiry time is checked as well, to make sure that
-the object is not stale.
-
-On a stale cache hit, the collection or object will be returned with the stale
-data, and a refresh will be triggered immediately. On a fresh cache hit, the
-collection or object will simply be returned.
-
-It is up to you whether objects are cached in local storage at all and when,
-you can control this through the `cache` declaration:
+If you do not provide a URL to your model by calling `store`, no communication
+with the server will occur. `save` and `refresh` will do nothing. If you do
+call the `store` function, you can declare when a refresh should occur:
 
 ``` coffeescript
-Post.cache 'forever'
-Post.cache 300000 # => cache five minutes
-Post.cache 300000, on: 'save' # => only cache when save is called
+Post.store url: '/posts', refresh: 'always'
 ```
 
-The possible values for `on` are `set`, which is the default and `save`.
+The possible values for `refresh` are `always`, `never`, `stale` and `new`. The
+`never` option is simple: `refresh` is never triggered automatically. Likewise
+the `always` means that a refresh is always triggered after a call to `find` or
+`all`, no matter where the result came from previously. `new` will only trigger
+a refresh on a cache miss, that is if the document or collection has not
+previously been retrieved
+
+In order to understand the `stale` option, we need to take a look at
+configuring the cache duration for models first. You can specify a cache
+duration by specifying the `expires` option with a time interval in
+milliseonds. For example, to cache posts for five minutes, you could do this:
+
+``` coffeescript
+Post.store url: '/posts', refresh: 'stale', expires: 300000
+```
+
+The `stale` option then only triggers a refresh if more time than the cache
+duration has passed. Since these two options work together, you should always
+specify both.
+
+## HTML5 Local Storage
+
+Monkey.Model can transparently cache objects in HTML5 local storage. Working
+with local storage is identical to working with the in-memory identity map, and
+document or collections cached in HTML5 local storage are affected by the
+`refresh` option in just the same was as those cached in memory. The only
+difference is that you can control when an individual document is cached in
+local storage, collections are always cached immediately. You can do this via
+the `localStorage` option:
+
+``` coffeescript
+Post.store localStorage: true
+```
+
+The possible values for `localStorage` are `false` (the default), `true` and its
+alias `set`, which will cache the document to local storage as it is updated
+through setter functions, and finally `save` which will only cache the document
+if `save` is called explicitely.
+
+Note that you can with these options create models which are only persisted
+in local storage.
 
 # License
 
