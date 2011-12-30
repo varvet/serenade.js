@@ -14,10 +14,7 @@ Monkey =
   registerController: (name, klass) ->
     @_controllers[name] = klass
   controllerFor: (name) ->
-    if @_controllers[name]
-      new (@_controllers[name])()
-    else
-      {}
+    new (@_controllers[name])() if @_controllers[name]
   registerFormat: (name, fun) ->
     @_formats[name] = fun
   document: window?.document

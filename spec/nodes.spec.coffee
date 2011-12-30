@@ -180,3 +180,19 @@ describe 'Nodes.compile', ->
       body.find('li#foo').get(0).dispatchEvent(event)
 
       expect(funked).toBeTruthy()
+
+  it 'falls back to same controller if none is set up', ->
+    # TODO: Figure out how to isolate this test from the parser
+    funked = false
+    class TestCon
+      funk: -> funked = true
+
+    Monkey.registerView('test', 'li[id="foo" event:click=funk]')
+
+    tree =  el('ul', [], [ins('view', ['test'])])
+    compile tree, {}, new TestCon(), (body, document) ->
+      event = document.createEvent('HTMLEvents')
+      event.initEvent('click', true, true)
+      body.find('li#foo').get(0).dispatchEvent(event)
+
+      expect(funked).toBeTruthy()

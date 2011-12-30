@@ -1,13 +1,16 @@
 {Monkey} = require '../src/monkey'
 require('../src/properties')
 require('../src/model')
-require('../src/collection')
 
 compareArrays = (one, two) ->
   fail = true for item, i in one when two[i] isnt item
   one.length is two.length and not fail
 
 beforeEach ->
+  Monkey._views = {}
+  Monkey._controllers = {}
+  Monkey._formats = {}
+
   @addMatchers
     toHaveElement: (selector, options) ->
       if options and options.count

@@ -80,8 +80,8 @@ class TextNode
 class View
   constructor: (@ast, @document, @model, @parentController) ->
     @controller = Monkey.controllerFor(@ast.arguments[0])
-    @controller.parent = @parentController
-    @view = Monkey._views[@ast.arguments[0]].render(@document, @model, @controller)
+    @controller.parent = @parentController if @controller
+    @view = Monkey._views[@ast.arguments[0]].render(@document, @model, @controller or @parentController)
 
   append: (inside) ->
     inside.appendChild(@view)
