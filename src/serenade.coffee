@@ -7,9 +7,9 @@ Serenade =
   registerView: (name, template) ->
     {View} = require('./view')
     @_views[name] = new View(template)
-  render: (name, model, controller) ->
+  render: (name, model, controller, document=window?.document) ->
     controller or= @controllerFor(name)
-    @_views[name].render(@document, model, controller)
+    @_views[name].render(document, model, controller)
 
   registerController: (name, klass) ->
     @_controllers[name] = klass
@@ -17,7 +17,6 @@ Serenade =
     new (@_controllers[name])() if @_controllers[name]
   registerFormat: (name, fun) ->
     @_formats[name] = fun
-  document: window?.document
 
   Events: require('./events').Events
   Collection: require('./collection').Collection
@@ -26,14 +25,14 @@ exports.Serenade = Serenade
 
 # Express.js support
 exports.compile = ->
-  Serenade.document = require("jsdom").jsdom(null, null, {})
+  document = require("jsdom").jsdom(null, null, {})
   fs = require("fs")
-  window = Serenade.document.createWindow()
+  window = document.createWindow()
 
   (env) ->
     model = env.model
     viewName = env.filename.split('/').reverse()[0].replace(/\.serenade$/, '')
     Serenade.registerView(viewName, fs.readFileSync(env.filename).toString())
-    element = Serenade.render(viewName, model, {})
-    Serenade.document.body.appendChild(element)
-    Serenade.document.body.innerHTML
+    element = Serenade.render(viewName, model, {}, document)
+    document.body.appendChild(element)
+    document.body.innerHTML

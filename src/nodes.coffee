@@ -81,7 +81,7 @@ class View
   constructor: (@ast, @document, @model, @parentController) ->
     @controller = Serenade.controllerFor(@ast.arguments[0])
     @controller.parent = @parentController if @controller
-    @view = Serenade._views[@ast.arguments[0]].render(@document, @model, @controller or @parentController)
+    @view = Serenade.render(@ast.arguments[0], @model, @controller or @parentController, @document)
 
   append: (inside) ->
     inside.appendChild(@view)

@@ -213,9 +213,12 @@
       View = require('./view').View;
       return this._views[name] = new View(template);
     },
-    render: function(name, model, controller) {
+    render: function(name, model, controller, document) {
+      if (document == null) {
+        document = typeof window !== "undefined" && window !== null ? window.document : void 0;
+      }
       controller || (controller = this.controllerFor(name));
-      return this._views[name].render(this.document, model, controller);
+      return this._views[name].render(document, model, controller);
     },
     registerController: function(name, klass) {
       return this._controllers[name] = klass;
@@ -226,7 +229,6 @@
     registerFormat: function(name, fun) {
       return this._formats[name] = fun;
     },
-    document: typeof window !== "undefined" && window !== null ? window.document : void 0,
     Events: require('./events').Events,
     Collection: require('./collection').Collection
   };
@@ -234,18 +236,18 @@
   exports.Serenade = Serenade;
 
   exports.compile = function() {
-    var fs, window;
-    Serenade.document = require("jsdom").jsdom(null, null, {});
+    var document, fs, window;
+    document = require("jsdom").jsdom(null, null, {});
     fs = require("fs");
-    window = Serenade.document.createWindow();
+    window = document.createWindow();
     return function(env) {
       var element, model, viewName;
       model = env.model;
       viewName = env.filename.split('/').reverse()[0].replace(/\.serenade$/, '');
       Serenade.registerView(viewName, fs.readFileSync(env.filename).toString());
-      element = Serenade.render(viewName, model, {});
-      Serenade.document.body.appendChild(element);
-      return Serenade.document.body.innerHTML;
+      element = Serenade.render(viewName, model, {}, document);
+      document.body.appendChild(element);
+      return document.body.innerHTML;
     };
   };
 
@@ -619,7 +621,7 @@
       this.parentController = parentController;
       this.controller = Serenade.controllerFor(this.ast.arguments[0]);
       if (this.controller) this.controller.parent = this.parentController;
-      this.view = Serenade._views[this.ast.arguments[0]].render(this.document, this.model, this.controller || this.parentController);
+      this.view = Serenade.render(this.ast.arguments[0], this.model, this.controller || this.parentController, this.document);
     }
 
     View.prototype.append = function(inside) {
