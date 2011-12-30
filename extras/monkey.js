@@ -40,7 +40,8 @@
     registerFormat: function(name, fun) {
       return this._formats[name] = fun;
     },
-    document: typeof window !== "undefined" && window !== null ? window.document : void 0
+    document: typeof window !== "undefined" && window !== null ? window.document : void 0,
+    Events: require('./events').Events
   };
 
   exports.Monkey = Monkey;
@@ -50,12 +51,9 @@
 };require['./events'] = new function() {
   var exports = this;
   (function() {
-  var Monkey,
-    __slice = Array.prototype.slice;
+  var __slice = Array.prototype.slice;
 
-  Monkey = require('./monkey').Monkey;
-
-  Monkey.Events = {
+  exports.Events = {
     bind: function(ev, callback) {
       var calls, evs, name, _i, _len;
       evs = ev.split(' ');
@@ -77,6 +75,10 @@
       var args, callback, ev, list, _i, _len, _ref;
       args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
       ev = args.shift();
+      if (typeof recordEvents !== "undefined" && recordEvents !== null) {
+        this._triggeredEvents || (this._triggeredEvents = {});
+        this._triggeredEvents[ev] = args;
+      }
       list = this.hasOwnProperty('_callbacks') && ((_ref = this._callbacks) != null ? _ref[ev] : void 0);
       if (!list) return false;
       for (_i = 0, _len = list.length; _i < _len; _i++) {
@@ -1052,15 +1054,17 @@ if (typeof module !== 'undefined' && require.main === module) {
 };require['./model'] = new function() {
   var exports = this;
   (function() {
-  var Monkey, extend;
+  var Events, Monkey, extend;
 
   Monkey = require('./monkey').Monkey;
+
+  Events = require('./events').Events;
 
   extend = require('./helpers').extend;
 
   Monkey.Model = (function() {
 
-    extend(Model.prototype, Monkey.Events);
+    extend(Model.prototype, Events);
 
     extend(Model.prototype, Monkey.Properties);
 
@@ -1111,15 +1115,17 @@ if (typeof module !== 'undefined' && require.main === module) {
 };require['./collection'] = new function() {
   var exports = this;
   (function() {
-  var Monkey, extend, forEach, _ref;
+  var Events, Monkey, extend, forEach, _ref;
 
   Monkey = require('./monkey').Monkey;
+
+  Events = require('./events').Events;
 
   _ref = require('./helpers'), extend = _ref.extend, forEach = _ref.forEach;
 
   Monkey.Collection = (function() {
 
-    extend(Collection.prototype, Monkey.Events);
+    extend(Collection.prototype, Events);
 
     function Collection(list) {
       var _this = this;

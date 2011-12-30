@@ -1,8 +1,9 @@
 {Monkey} = require './monkey'
+{Events} = require './events'
 {extend} = require './helpers'
 
 class Monkey.Model
-  extend(@prototype, Monkey.Events)
+  extend(@prototype, Events)
   extend(@prototype, Monkey.Properties)
 
   @property: -> @prototype.property(arguments...)

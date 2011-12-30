@@ -22,4 +22,6 @@ Monkey =
     @_formats[name] = fun
   document: window?.document
 
+  Events: require('./events').Events
+
 exports.Monkey = Monkey

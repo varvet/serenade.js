@@ -1,12 +1,4 @@
 {Monkey} = require '../src/monkey'
-require('../src/events')
-
-originalTrigger = Monkey.Events.trigger
-Monkey.Events.trigger = (name, args...) ->
-  @_triggeredEvents or= {}
-  @_triggeredEvents[name] = args
-  originalTrigger.apply(this, arguments)
-
 require('../src/properties')
 require('../src/model')
 require('../src/collection')
@@ -40,3 +32,4 @@ beforeEach ->
         @actual._triggeredEvents.hasOwnProperty(name)
 
 root.context = describe
+root.recordEvents = true

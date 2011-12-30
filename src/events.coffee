@@ -1,6 +1,4 @@
-{Monkey} = require './monkey'
-
-Monkey.Events =
+exports.Events =
   bind: (ev, callback) ->
     evs   = ev.split(' ')
     calls = @hasOwnProperty('_callbacks') and @_callbacks or= {}
@@ -17,6 +15,10 @@ Monkey.Events =
 
   trigger: (args...) ->
     ev = args.shift()
+
+    if recordEvents?
+      @_triggeredEvents or= {}
+      @_triggeredEvents[ev] = args
 
     list = @hasOwnProperty('_callbacks') and @_callbacks?[ev]
     return false unless list
