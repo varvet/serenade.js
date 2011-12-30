@@ -85,6 +85,9 @@ $ -> $('body').append(result)
 This example is written in CoffeeScript for easier readability, but there is
 nothing stopping you from writing this in plain JavaScript as well.
 
+There are more advanced examples in the `examples` folder, check out a live
+demo of those examples running [here](http://serenade.herokuapp.com/).
+
 ## Dynamic properties
 
 Unfortunately JavaScript does not make it possible to track changes to
