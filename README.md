@@ -680,6 +680,31 @@ if `save` is called explicitely.
 Note that you can with these options create models which are only persisted
 in local storage.
 
+## Express.js support
+
+Serenade.js provides the expected api which allows it to be used from inside
+express.js, you could use this API for other JavaScript server side frameworks
+as well. Obviously, since the views are being rendered server side, event and
+style bindings will simply be ignored.
+
+Install it via npm:
+
+```
+npm install serenade
+```
+
+You should now be able to create views with the `.serenade` extension, you can
+render them from within express.js like this:
+
+``` coffeescript
+app.get '/:name', (req, res) ->
+  res.render('show.serenade', model: { title: 'Hello' }, layout: false)
+```
+
+Since Serenade.js has no special syntax for doctypes, an HTML5 doctype is
+automatically added. If you do not want this, pass `doctype: false` as an
+option to `render`.
+
 # License
 
 Serenade.js is licensed under the MIT license, see the LICENSE file.
