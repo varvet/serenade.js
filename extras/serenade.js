@@ -198,6 +198,31 @@
 
 }).call(this);
 
+};require['./ajax_collection'] = new function() {
+  var exports = this;
+  (function() {
+  var Collection,
+    __hasProp = Object.prototype.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
+
+  Collection = require('./collection').Collection;
+
+  exports.AjaxCollection = (function(_super) {
+
+    __extends(AjaxCollection, _super);
+
+    function AjaxCollection(constructor, url) {
+      this.constructor = constructor;
+      this.url = url;
+      AjaxCollection.__super__.constructor.call(this, []);
+    }
+
+    return AjaxCollection;
+
+  })(Collection);
+
+}).call(this);
+
 };require['./serenade'] = new function() {
   var exports = this;
   (function() {
@@ -1196,9 +1221,11 @@ if (typeof module !== 'undefined' && require.main === module) {
 };require['./model'] = new function() {
   var exports = this;
   (function() {
-  var Events, Serenade, extend;
+  var AjaxCollection, Events, Serenade, extend;
 
   Serenade = require('./serenade').Serenade;
+
+  AjaxCollection = require('./ajax_collection').AjaxCollection;
 
   Events = require('./events').Events;
 
@@ -1248,6 +1275,10 @@ if (typeof module !== 'undefined' && require.main === module) {
         }
       }
       return document;
+    };
+
+    Model.all = function() {
+      return this._all || (this._all = new AjaxCollection(this, this._storeOptions.url));
     };
 
     Model.store = function(options) {

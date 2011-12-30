@@ -101,7 +101,18 @@ describe 'Serenade.Model', ->
 
   describe '.all', ->
     it 'create a new blank collection', ->
+      Serenade.Model.store url: '/models'
+      collection = Serenade.Model.all()
+      expect(collection.url).toEqual('/models')
+      expect(collection.constructor).toEqual(Serenade.Model)
+
     it 'returns the same collection if it has been used previously', ->
+      Serenade.Model.store url: '/models'
+      collection1 = Serenade.Model.all()
+      collection1.test = true
+      collection2 = Serenade.Model.all()
+      expect(collection2.test).toBeTruthy()
+
     context 'with refresh:always', ->
       it 'triggers a refresh on cache hit', ->
       it 'triggers a refresh on stale cache hit', ->

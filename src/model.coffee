@@ -1,4 +1,5 @@
 {Serenade} = require './serenade'
+{AjaxCollection} = require './ajax_collection'
 {Events} = require './events'
 {extend} = require './helpers'
 
@@ -25,6 +26,9 @@ class Serenade.Model
       document = new this(id: id)
       document.refresh() if @_storeOptions?.refresh in ['always', 'stale', 'new']
     document
+
+  @all: ->
+    @_all or = new AjaxCollection(this, @_storeOptions.url)
 
   @store: (options) ->
     @_storeOptions = options
