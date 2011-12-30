@@ -41,7 +41,8 @@
       return this._formats[name] = fun;
     },
     document: typeof window !== "undefined" && window !== null ? window.document : void 0,
-    Events: require('./events').Events
+    Events: require('./events').Events,
+    Collection: require('./collection').Collection
   };
 
   exports.Monkey = Monkey;
@@ -944,10 +945,12 @@ if (typeof module !== 'undefined' && require.main === module) {
 };require['./properties'] = new function() {
   var exports = this;
   (function() {
-  var Monkey, pairToObject,
+  var Collection, Monkey, pairToObject,
     __indexOf = Array.prototype.indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   Monkey = require('./monkey').Monkey;
+
+  Collection = require('./collection').Collection;
 
   pairToObject = function(one, two) {
     var temp;
@@ -975,7 +978,7 @@ if (typeof module !== 'undefined' && require.main === module) {
         get: function() {
           var _this = this;
           if (!this.attributes[name]) {
-            this.attributes[name] = new Monkey.Collection([]);
+            this.attributes[name] = new Collection([]);
             this.attributes[name].bind('change', function() {
               return _this._triggerChangesTo(pairToObject(name, _this.get(name)));
             });
@@ -1115,15 +1118,13 @@ if (typeof module !== 'undefined' && require.main === module) {
 };require['./collection'] = new function() {
   var exports = this;
   (function() {
-  var Events, Monkey, extend, forEach, _ref;
-
-  Monkey = require('./monkey').Monkey;
+  var Events, extend, forEach, _ref;
 
   Events = require('./events').Events;
 
   _ref = require('./helpers'), extend = _ref.extend, forEach = _ref.forEach;
 
-  Monkey.Collection = (function() {
+  exports.Collection = (function() {
 
     extend(Collection.prototype, Events);
 

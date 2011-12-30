@@ -23,5 +23,6 @@ Monkey =
   document: window?.document
 
   Events: require('./events').Events
+  Collection: require('./collection').Collection
 
 exports.Monkey = Monkey

@@ -1,4 +1,5 @@
 {Monkey} = require './monkey'
+{Collection} = require './collection'
 
 pairToObject = (one, two) ->
   temp = {}
@@ -17,7 +18,7 @@ Monkey.Properties =
     @property name,
       get: ->
         unless @attributes[name]
-          @attributes[name] = new Monkey.Collection([])
+          @attributes[name] = new Collection([])
           @attributes[name].bind 'change', =>
             @_triggerChangesTo(pairToObject(name, @get(name)))
         @attributes[name]

@@ -1,8 +1,7 @@
-{Monkey} = require './monkey'
 {Events} = require './events'
 {extend, forEach} = require './helpers'
 
-class Monkey.Collection
+class exports.Collection
   extend(@prototype, Events)
   constructor: (@list) ->
     @length = @list.length
