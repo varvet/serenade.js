@@ -1,7 +1,8 @@
 {Monkey} = require './monkey'
+{extend, forEach} = require './helpers'
 
 class Monkey.Collection
-  Monkey.extend(@prototype, Monkey.Events)
+  extend(@prototype, Monkey.Events)
   constructor: (@list) ->
     @length = @list.length
     @bind("change", => @length = @list.length)
@@ -20,7 +21,7 @@ class Monkey.Collection
     @trigger("update", list)
     @trigger("change", @list)
   forEach: (fun) ->
-    Monkey.forEach(@list, fun)
+    forEach(@list, fun)
   indexOf: (item) ->
     @list.indexOf(item)
   deleteAt: (index) ->

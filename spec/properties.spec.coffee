@@ -1,10 +1,11 @@
 {Monkey} = require '../src/monkey'
+{extend} = require '../src/helpers'
 
 describe 'Monkey.Properties', ->
   beforeEach ->
     @object = {}
-    Monkey.extend(@object, Monkey.Properties)
-    Monkey.extend(@object, Monkey.Events)
+    extend(@object, Monkey.Properties)
+    extend(@object, Monkey.Events)
 
   describe '.collection', ->
     it 'is initialized to a collection', ->

@@ -1,4 +1,5 @@
 {Monkey} = require './monkey'
+{format, get, forEach} = require './helpers'
 
 class Element
   constructor: (@ast, @document, @model, @controller) ->
@@ -29,7 +30,7 @@ class Style
       @model.bind? "change:#{@ast.value}", (value) => @update()
   update: ->
     @element.style[@ast.name] = @get()
-  get: -> Monkey.format(@model, @ast.value, @ast.bound)
+  get: -> format(@model, @ast.value, @ast.bound)
 
 class Event
   constructor: (@ast, @element, @document, @model, @controller) ->
@@ -53,7 +54,7 @@ class Attribute
     else
       @element.setAttribute(@ast.name, value)
 
-  get: -> Monkey.format(@model, @ast.value, @ast.bound)
+  get: -> format(@model, @ast.value, @ast.bound)
 
 class TextNode
   constructor: (@ast, @document, @model, @controller) ->
@@ -74,7 +75,7 @@ class TextNode
   lastElement: ->
     @textNode
 
-  get: (model) -> Monkey.format(@model, @ast.value, @ast.bound)
+  get: (model) -> format(@model, @ast.value, @ast.bound)
 
 class View
   constructor: (@ast, @document, @model, @parentController) ->
@@ -110,7 +111,7 @@ class Collection
 
   build: ->
     @items = []
-    Monkey.forEach @collection, (item) => @appendItem(item)
+    forEach @collection, (item) => @appendItem(item)
 
   appendItem: (item) ->
     node = new CollectionItem(@ast.children, @document, item, @controller)
@@ -140,7 +141,7 @@ class Collection
     after.parentNode.insertBefore(@anchor, after.nextSibling)
     @build()
 
-  get: -> Monkey.get(@model, @ast.arguments[0])
+  get: -> get(@model, @ast.arguments[0])
 
 class CollectionItem
   constructor: (@children, @document, @model, @controller) ->

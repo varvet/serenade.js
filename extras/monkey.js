@@ -40,51 +40,7 @@
     registerFormat: function(name, fun) {
       return this._formats[name] = fun;
     },
-    extend: function(target, source) {
-      var key, value, _results;
-      _results = [];
-      for (key in source) {
-        value = source[key];
-        if (Object.prototype.hasOwnProperty.call(source, key)) {
-          _results.push(target[key] = value);
-        } else {
-          _results.push(void 0);
-        }
-      }
-      return _results;
-    },
-    document: typeof window !== "undefined" && window !== null ? window.document : void 0,
-    get: function(model, value, bound) {
-      if (bound == null) bound = true;
-      if (bound && model.get) {
-        return model.get(value);
-      } else if (bound) {
-        return model[value];
-      } else {
-        return value;
-      }
-    },
-    format: function(model, value, bound) {
-      if (bound == null) bound = true;
-      if (bound && model.format) {
-        return model.format(value);
-      } else {
-        return this.get(model, value, bound);
-      }
-    },
-    forEach: function(collection, fun) {
-      var element, _i, _len, _results;
-      if (typeof collection.forEach === 'function') {
-        return collection.forEach(fun);
-      } else {
-        _results = [];
-        for (_i = 0, _len = collection.length; _i < _len; _i++) {
-          element = collection[_i];
-          _results.push(fun(element));
-        }
-        return _results;
-      }
-    }
+    document: typeof window !== "undefined" && window !== null ? window.document : void 0
   };
 
   exports.Monkey = Monkey;
@@ -332,27 +288,29 @@
 };require['./nodes'] = new function() {
   var exports = this;
   (function() {
-  var Attribute, Collection, CollectionItem, Element, Event, Monkey, Nodes, Style, TextNode, View;
+  var Attribute, Collection, CollectionItem, Element, Event, Monkey, Nodes, Style, TextNode, View, forEach, format, get, _ref;
 
   Monkey = require('./monkey').Monkey;
+
+  _ref = require('./helpers'), format = _ref.format, get = _ref.get, forEach = _ref.forEach;
 
   Element = (function() {
 
     function Element(ast, document, model, controller) {
-      var child, property, _i, _j, _len, _len2, _ref, _ref2;
+      var child, property, _i, _j, _len, _len2, _ref2, _ref3;
       this.ast = ast;
       this.document = document;
       this.model = model;
       this.controller = controller;
       this.element = this.document.createElement(this.ast.name);
-      _ref = this.ast.properties;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        property = _ref[_i];
+      _ref2 = this.ast.properties;
+      for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+        property = _ref2[_i];
         Nodes.property(property, this.element, this.document, this.model, this.controller);
       }
-      _ref2 = this.ast.children;
-      for (_j = 0, _len2 = _ref2.length; _j < _len2; _j++) {
-        child = _ref2[_j];
+      _ref3 = this.ast.children;
+      for (_j = 0, _len2 = _ref3.length; _j < _len2; _j++) {
+        child = _ref3[_j];
         Nodes.compile(child, this.document, this.model, this.controller).append(this.element);
       }
     }
@@ -402,7 +360,7 @@
     };
 
     Style.prototype.get = function() {
-      return Monkey.format(this.model, this.ast.value, this.ast.bound);
+      return format(this.model, this.ast.value, this.ast.bound);
     };
 
     return Style;
@@ -463,7 +421,7 @@
     };
 
     Attribute.prototype.get = function() {
-      return Monkey.format(this.model, this.ast.value, this.ast.bound);
+      return format(this.model, this.ast.value, this.ast.bound);
     };
 
     return Attribute;
@@ -505,7 +463,7 @@
     };
 
     TextNode.prototype.get = function(model) {
-      return Monkey.format(this.model, this.ast.value, this.ast.bound);
+      return format(this.model, this.ast.value, this.ast.bound);
     };
 
     return TextNode;
@@ -571,10 +529,10 @@
     }
 
     Collection.prototype.rebuild = function() {
-      var item, _i, _len, _ref;
-      _ref = this.items;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        item = _ref[_i];
+      var item, _i, _len, _ref2;
+      _ref2 = this.items;
+      for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+        item = _ref2[_i];
         item.remove();
       }
       return this.build();
@@ -583,7 +541,7 @@
     Collection.prototype.build = function() {
       var _this = this;
       this.items = [];
-      return Monkey.forEach(this.collection, function(item) {
+      return forEach(this.collection, function(item) {
         return _this.appendItem(item);
       });
     };
@@ -615,12 +573,12 @@
     };
 
     Collection.prototype.remove = function() {
-      var item, _i, _len, _ref, _results;
+      var item, _i, _len, _ref2, _results;
       this.anchor.parentNode.removeChild(this.anchor);
-      _ref = this.items;
+      _ref2 = this.items;
       _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        item = _ref[_i];
+      for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+        item = _ref2[_i];
         _results.push(item.remove());
       }
       return _results;
@@ -637,7 +595,7 @@
     };
 
     Collection.prototype.get = function() {
-      return Monkey.get(this.model, this.ast.arguments[0]);
+      return get(this.model, this.ast.arguments[0]);
     };
 
     return Collection;
@@ -653,11 +611,11 @@
       this.model = model;
       this.controller = controller;
       this.nodes = (function() {
-        var _i, _len, _ref, _results;
-        _ref = this.children;
+        var _i, _len, _ref2, _results;
+        _ref2 = this.children;
         _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          child = _ref[_i];
+        for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+          child = _ref2[_i];
           _results.push(Nodes.compile(child, this.document, this.model, this.controller));
         }
         return _results;
@@ -665,12 +623,12 @@
     }
 
     CollectionItem.prototype.insertAfter = function(element) {
-      var last, node, _i, _len, _ref, _results;
+      var last, node, _i, _len, _ref2, _results;
       last = element;
-      _ref = this.nodes;
+      _ref2 = this.nodes;
       _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        node = _ref[_i];
+      for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+        node = _ref2[_i];
         node.insertAfter(last);
         _results.push(last = node.lastElement());
       }
@@ -682,11 +640,11 @@
     };
 
     CollectionItem.prototype.remove = function() {
-      var node, _i, _len, _ref, _results;
-      _ref = this.nodes;
+      var node, _i, _len, _ref2, _results;
+      _ref2 = this.nodes;
       _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        node = _ref[_i];
+      for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+        node = _ref2[_i];
         _results.push(node.remove());
       }
       return _results;
@@ -1094,15 +1052,17 @@ if (typeof module !== 'undefined' && require.main === module) {
 };require['./model'] = new function() {
   var exports = this;
   (function() {
-  var Monkey;
+  var Monkey, extend;
 
   Monkey = require('./monkey').Monkey;
 
+  extend = require('./helpers').extend;
+
   Monkey.Model = (function() {
 
-    Monkey.extend(Model.prototype, Monkey.Events);
+    extend(Model.prototype, Monkey.Events);
 
-    Monkey.extend(Model.prototype, Monkey.Properties);
+    extend(Model.prototype, Monkey.Properties);
 
     Model.property = function() {
       var _ref;
@@ -1151,13 +1111,15 @@ if (typeof module !== 'undefined' && require.main === module) {
 };require['./collection'] = new function() {
   var exports = this;
   (function() {
-  var Monkey;
+  var Monkey, extend, forEach, _ref;
 
   Monkey = require('./monkey').Monkey;
 
+  _ref = require('./helpers'), extend = _ref.extend, forEach = _ref.forEach;
+
   Monkey.Collection = (function() {
 
-    Monkey.extend(Collection.prototype, Monkey.Events);
+    extend(Collection.prototype, Monkey.Events);
 
     function Collection(list) {
       var _this = this;
@@ -1192,7 +1154,7 @@ if (typeof module !== 'undefined' && require.main === module) {
     };
 
     Collection.prototype.forEach = function(fun) {
-      return Monkey.forEach(this.list, fun);
+      return forEach(this.list, fun);
     };
 
     Collection.prototype.indexOf = function(item) {
