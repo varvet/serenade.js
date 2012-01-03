@@ -1,5 +1,5 @@
 {
-   "name": "serenade.js",
+   "name": "serenade",
    "version": "0.1.0",
    "description": "JavaScript client side MVC framework",
    "keywords": [ "MVC", "data bingings", "client-side" ],
