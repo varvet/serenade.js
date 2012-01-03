@@ -28,7 +28,13 @@ class Serenade.Model
     document
 
   @all: ->
-    @_all or = new AjaxCollection(this, @_storeOptions.url)
+    if @_all
+      @_all.refresh() if @_storeOptions?.refresh in ['always']
+      @_all.refresh() if @_storeOptions?.refresh in ['stale'] and @_all.isStale()
+    else
+      @_all = new AjaxCollection(this, @_storeOptions.url)
+      @_all.refresh() if @_storeOptions?.refresh in ['always', 'stale', 'new']
+    @_all
 
   @store: (options) ->
     @_storeOptions = options

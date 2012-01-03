@@ -1,6 +1,7 @@
 {Serenade} = require '../src/serenade'
 require('../src/properties')
 require('../src/model')
+sinon = require('sinon')
 
 compareArrays = (one, two) ->
   fail = true for item, i in one when two[i] isnt item
@@ -33,6 +34,11 @@ beforeEach ->
         compareArrays(@actual._triggeredEvents[name], options.with)
       else
         @actual._triggeredEvents.hasOwnProperty(name)
+
+  @sinon = sinon.sandbox.create()
+
+afterEach ->
+  @sinon.restore()
 
 root.context = describe
 root.recordEvents = true

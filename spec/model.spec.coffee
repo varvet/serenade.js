@@ -1,4 +1,5 @@
 {Serenade} = require '../src/serenade'
+{AjaxCollection} = require '../src/ajax_collection'
 
 expired = ->
   now = new Date()
@@ -10,6 +11,7 @@ fresh = ->
 describe 'Serenade.Model', ->
   afterEach ->
     Serenade.Model._identityMap = {}
+    Serenade.Model._all = undefined
 
   describe '#constructor', ->
     it 'sets the given properties', ->
@@ -100,6 +102,8 @@ describe 'Serenade.Model', ->
         expect(document.refresh).not.toHaveBeenCalled()
 
   describe '.all', ->
+    beforeEach -> @sinon.spy(AjaxCollection.prototype, 'refresh')
+    beforeEach -> @clock = @sinon.useFakeTimers()
     it 'create a new blank collection', ->
       Serenade.Model.store url: '/models'
       collection = Serenade.Model.all()
@@ -114,21 +118,65 @@ describe 'Serenade.Model', ->
       expect(collection2.test).toBeTruthy()
 
     context 'with refresh:always', ->
+      beforeEach -> Serenade.Model.store url: '/models', refresh: 'always', expires: 20000
       it 'triggers a refresh on cache hit', ->
+        collection = Serenade.Model.all()
+        @clock.tick(1200)
+        collection = Serenade.Model.all()
+        expect(collection.refresh.calledTwice).toBeTruthy()
       it 'triggers a refresh on stale cache hit', ->
+        collection = Serenade.Model.all()
+        @clock.tick(120000)
+        collection = Serenade.Model.all()
+        expect(collection.refresh.calledTwice).toBeTruthy()
       it 'triggers a refresh on cache miss', ->
+        collection = Serenade.Model.all()
+        expect(collection.refresh.calledOnce).toBeTruthy()
     context 'with refresh:stale', ->
+      beforeEach -> Serenade.Model.store url: '/models', refresh: 'stale', expires: 20000
       it 'does not trigger a refresh on cache hit', ->
+        collection = Serenade.Model.all()
+        @clock.tick(1200)
+        collection = Serenade.Model.all()
+        expect(collection.refresh.calledOnce).toBeTruthy()
       it 'triggers a refresh on stale cache hit', ->
+        collection = Serenade.Model.all()
+        @clock.tick(120000)
+        collection = Serenade.Model.all()
+        expect(collection.refresh.calledTwice).toBeTruthy()
       it 'triggers a refresh on cache miss', ->
+        collection = Serenade.Model.all()
+        expect(collection.refresh.calledOnce).toBeTruthy()
     context 'with refresh:new', ->
+      beforeEach -> Serenade.Model.store url: '/models', refresh: 'new', expires: 20000
       it 'does not trigger a refresh on cache hit', ->
+        collection = Serenade.Model.all()
+        @clock.tick(1200)
+        collection = Serenade.Model.all()
+        expect(collection.refresh.calledOnce).toBeTruthy()
       it 'does not trigger a refresh on stale cache hit', ->
+        collection = Serenade.Model.all()
+        @clock.tick(120000)
+        collection = Serenade.Model.all()
+        expect(collection.refresh.calledOnce).toBeTruthy()
       it 'triggers a refresh on cache miss', ->
+        collection = Serenade.Model.all()
+        expect(collection.refresh.calledOnce).toBeTruthy()
     context 'with refresh:never', ->
+      beforeEach -> Serenade.Model.store url: '/models', refresh: 'never', expires: 20000
       it 'does not trigger a refresh on cache hit', ->
+        collection = Serenade.Model.all()
+        @clock.tick(1200)
+        collection = Serenade.Model.all()
+        expect(collection.refresh.called).toBeFalsy()
       it 'does not trigger a refresh on stale cache hit', ->
+        collection = Serenade.Model.all()
+        @clock.tick(120000)
+        collection = Serenade.Model.all()
+        expect(collection.refresh.called).toBeFalsy()
       it 'does not trigger a refresh on cache miss', ->
+        collection = Serenade.Model.all()
+        expect(collection.refresh.called).toBeFalsy()
 
   describe '.belongsTo', ->
     it 'uses the given constructor', ->
