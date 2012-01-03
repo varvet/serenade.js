@@ -1,7 +1,7 @@
 {Serenade} = require './serenade'
 {AjaxCollection} = require './ajax_collection'
 {Events} = require './events'
-{extend} = require './helpers'
+{extend, get} = require './helpers'
 
 class Serenade.Model
   extend(@prototype, Events)
@@ -35,6 +35,14 @@ class Serenade.Model
       @_all = new AjaxCollection(this, @_storeOptions.url)
       @_all.refresh() if @_storeOptions?.refresh in ['always', 'stale', 'new']
     @_all
+
+  @belongsTo: (name, ctor=Object) ->
+    @property name,
+      set: (properties) -> @attributes[name] = new ctor(properties)
+    @property name + 'Id',
+      get: -> get(@get(name), 'id')
+      set: (id) -> @set(name, ctor.find(id))
+      dependsOn: name
 
   @store: (options) ->
     @_storeOptions = options

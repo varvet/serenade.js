@@ -180,10 +180,37 @@ describe 'Serenade.Model', ->
 
   describe '.belongsTo', ->
     it 'uses the given constructor', ->
-    it 'uses the constructor given as a string', ->
+      class Comment extends Serenade.Model
+        @property 'body'
+      class Post extends Serenade.Model
+        @belongsTo('comment', Comment)
+      post = new Post(comment: { body: 'Hello' })
+      expect(post.comment.constructor).toEqual(Comment)
+      expect(post.comment.body).toEqual('Hello')
     it 'creates a plain object if there is no constructor given', ->
+      class Post extends Serenade.Model
+        @belongsTo('comment')
+      post = new Post(comment: { body: 'Hello' })
+      expect(post.comment.constructor).toEqual(Object)
+      expect(post.comment.body).toEqual('Hello')
     it 'updates the id property as it changes', ->
+      class Post extends Serenade.Model
+        @belongsTo('comment')
+      post = new Post(comment: { id: 5, body: 'Hello' })
+      expect(post.commentId).toEqual(5)
+      post.comment = id: 12
+      expect(post.commentId).toEqual(12)
     it 'is updated if the id property changes', ->
+      class Comment extends Serenade.Model
+        @property 'body'
+      class Post extends Serenade.Model
+        @belongsTo('comment', Comment)
+      comment1 = new Comment(id: 5, body: 'Hello')
+      comment2 = new Comment(id: 12, body: 'World')
+      post = new Post(commentId: 5)
+      expect(post.comment.body).toEqual('Hello')
+      post.commentId = 12
+      expect(post.comment.body).toEqual('World')
 
   describe '.hasMany', ->
     it 'uses the given constructor', ->
