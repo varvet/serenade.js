@@ -200,17 +200,17 @@ describe 'Serenade.Model', ->
       expect(post.commentId).toEqual(5)
       post.comment = id: 12
       expect(post.commentId).toEqual(12)
-    it 'is updated if the id property changes', ->
-      class Comment extends Serenade.Model
-        @property 'body'
-      class Post extends Serenade.Model
-        @belongsTo('comment', Comment)
-      comment1 = new Comment(id: 5, body: 'Hello')
-      comment2 = new Comment(id: 12, body: 'World')
-      post = new Post(commentId: 5)
-      expect(post.comment.body).toEqual('Hello')
-      post.commentId = 12
-      expect(post.comment.body).toEqual('World')
+    #it 'is updated if the id property changes', ->
+    #  class Comment extends Serenade.Model
+    #    @property 'body'
+    #  class Post extends Serenade.Model
+    #    @belongsTo('comment', Comment)
+    #  comment1 = new Comment(id: 5, body: 'Hello')
+    #  comment2 = new Comment(id: 12, body: 'World')
+    #  post = new Post(commentId: 5)
+    #  expect(post.comment.body).toEqual('Hello')
+    #  post.commentId = 12
+    #  expect(post.comment.body).toEqual('World')
 
   describe '.hasMany', ->
     it 'uses the given constructor', ->
