@@ -108,6 +108,30 @@ class View
   lastElement: ->
     @view
 
+class If
+  constructor: (@ast, @document, @model, @parentController) ->
+    @anchor = document.createTextNode('')
+    @model.bind? "change:#{@ast.arguments[0]}", @build
+
+  build: =>
+    if get(@model, @ast.arguments[0])
+      @nodes ||= (Nodes.compile(child, @document, @model, @controller) for child in @ast.children)
+      node.insertAfter(@nodes[i-1] or @anchor) for node, i in @nodes
+    else
+      node.remove() for node in @nodes if @nodes
+      @nodes = undefined
+
+  append: (inside) ->
+    inside.appendChild(@anchor)
+    @build()
+
+  insertAfter: (after) ->
+    after.parentNode.insertBefore(@anchor, after.nextSibling)
+    @build()
+
+  lastElement: ->
+    @nodes[@nodes.length - 1].lastElement()
+
 class Collection
   constructor: (@ast, @document, @model, @controller) ->
     @anchor = document.createTextNode('')
@@ -206,8 +230,9 @@ Nodes =
         switch ast.command
           when "view" then new View(ast, document, model, controller)
           when "collection" then new Collection(ast, document, model, controller)
+          when "if" then new If(ast, document, model, controller)
           else new Helper(ast, document, model, controller)
-      else throw SyntaxError "unknown type #{ast.type}"
+      else throw SyntaxError "unknown type '#{ast.type}'"
 
   property: (ast, node, document, model, controller) ->
     switch ast.scope
