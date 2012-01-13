@@ -118,8 +118,7 @@ class If
       @nodes ||= (Nodes.compile(child, @document, @model, @controller) for child in @ast.children)
       node.insertAfter(@nodes[i-1] or @anchor) for node, i in @nodes
     else
-      node.remove() for node in @nodes if @nodes
-      @nodes = undefined
+      @removeNodes()
 
   append: (inside) ->
     inside.appendChild(@anchor)
@@ -128,6 +127,44 @@ class If
   insertAfter: (after) ->
     after.parentNode.insertBefore(@anchor, after.nextSibling)
     @build()
+
+  remove: ->
+    @removeNodes()
+    @anchor.parentNode.removeChild(@anchor)
+
+  removeNodes: ->
+    node.remove() for node in @nodes if @nodes
+    @nodes = undefined
+
+  lastElement: ->
+    @nodes[@nodes.length - 1].lastElement()
+
+class In
+  constructor: (@ast, @document, @model, @parentController) ->
+    @anchor = document.createTextNode('')
+    @model.bind? "change:#{@ast.arguments[0]}", @build
+
+  build: =>
+    @removeNodes()
+    subModel = get(@model, @ast.arguments[0])
+    @nodes = (Nodes.compile(child, @document, subModel, @controller) for child in @ast.children)
+    node.insertAfter(@nodes[i-1] or @anchor) for node, i in @nodes
+
+  append: (inside) ->
+    inside.appendChild(@anchor)
+    @build()
+
+  insertAfter: (after) ->
+    after.parentNode.insertBefore(@anchor, after.nextSibling)
+    @build()
+
+  remove: ->
+    @removeNodes()
+    @anchor.parentNode.removeChild(@anchor)
+
+  removeNodes: ->
+    node.remove() for node in @nodes if @nodes
+    @nodes = undefined
 
   lastElement: ->
     @nodes[@nodes.length - 1].lastElement()
@@ -231,6 +268,7 @@ Nodes =
           when "view" then new View(ast, document, model, controller)
           when "collection" then new Collection(ast, document, model, controller)
           when "if" then new If(ast, document, model, controller)
+          when "in" then new In(ast, document, model, controller)
           else new Helper(ast, document, model, controller)
       else throw SyntaxError "unknown type '#{ast.type}'"
 
