@@ -6,6 +6,7 @@ class Element
     @element = @document.createElement(@ast.name)
 
     @element.setAttribute('id', @ast.shortId) if @ast.shortId
+    @element.setAttribute('class', @ast.shortClasses.join(' ')) if @ast.shortClasses?.length
 
     for property in @ast.properties
       Nodes.property(property, @element, @document, @model, @controller)

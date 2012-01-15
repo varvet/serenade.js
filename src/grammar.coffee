@@ -16,13 +16,15 @@ grammar =
   ]
 
   ElementIdentifier: [
-    o 'IDENTIFIER', -> { name: $1 }
-    o 'IDENTIFIER # IDENTIFIER', -> { name: $1, shortId: $3 }
-    o '# IDENTIFIER', -> { name: 'div', shortId: $2 }
+    o 'IDENTIFIER', -> { name: $1, shortClasses: [] }
+    o 'IDENTIFIER # IDENTIFIER', -> { name: $1, shortId: $3, shortClasses: [] }
+    o '# IDENTIFIER', -> { name: 'div', shortId: $2, shortClasses: [] }
+    o '. IDENTIFIER', -> { name: 'div', shortClasses: [$2] }
+    o 'ElementIdentifier . IDENTIFIER', -> $1.shortClasses.push($3); $1
   ]
 
   Element: [
-    o 'ElementIdentifier', -> { name: $1.name, shortId: $1.shortId, properties: [], children: [], type: 'element' }
+    o 'ElementIdentifier', -> { name: $1.name, shortId: $1.shortId, shortClasses: $1.shortClasses, properties: [], children: [], type: 'element' }
     o 'Element [ ]', -> $1
     o 'Element [ PropertyList ]', -> $1.properties = $3; $1
     o 'Element WHITESPACE InlineChild', -> $1.children = $1.children.concat($3); $1
