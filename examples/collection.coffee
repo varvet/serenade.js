@@ -1,5 +1,5 @@
 Serenade.registerView 'post', '''
-  div[id="serenade"]
+  div#serenade
     h1 title
     p body
     h3 "Comments (" commentCount ")"
