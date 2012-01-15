@@ -211,11 +211,20 @@
 
     __extends(AjaxCollection, _super);
 
-    function AjaxCollection(constructor, url) {
+    function AjaxCollection(constructor, url, list) {
+      var _ref;
       this.constructor = constructor;
       this.url = url;
-      AjaxCollection.__super__.constructor.call(this, []);
+      this.list = list != null ? list : [];
+      this.expires = new Date(new Date().getTime() + ((_ref = this.constructor._storeOptions) != null ? _ref.expires : void 0));
+      AjaxCollection.__super__.constructor.call(this, this.list);
     }
+
+    AjaxCollection.prototype.refresh = function() {};
+
+    AjaxCollection.prototype.isStale = function() {
+      return this.expires < new Date();
+    };
 
     return AjaxCollection;
 
@@ -255,7 +264,8 @@
       return this._formats[name] = fun;
     },
     Events: require('./events').Events,
-    Collection: require('./collection').Collection
+    Collection: require('./collection').Collection,
+    Helpers: {}
   };
 
   exports.Serenade = Serenade;
@@ -455,7 +465,8 @@
 };require['./nodes'] = new function() {
   var exports = this;
   (function() {
-  var Attribute, Collection, CollectionItem, Element, Event, Nodes, Serenade, Style, TextNode, View, forEach, format, get, _ref;
+  var Attribute, Collection, CollectionItem, Element, Event, Helper, Nodes, Serenade, Style, TextNode, View, forEach, format, get, _ref,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   Serenade = require('./serenade').Serenade;
 
@@ -769,6 +780,72 @@
 
   })();
 
+  Helper = (function() {
+
+    function Helper(ast, document, model, controller) {
+      this.ast = ast;
+      this.document = document;
+      this.model = model;
+      this.controller = controller;
+      this.render = __bind(this.render, this);
+      this.helperFunction = Serenade.Helpers[this.ast.command] || (function() {
+        throw SyntaxError("no helper " + this.ast.command + " defined");
+      }).call(this);
+      this.context = {
+        document: this.document,
+        render: this.render
+      };
+      this.element = this.helperFunction.apply(this.context, this.ast.arguments);
+    }
+
+    Helper.prototype.render = function(element, model, controller) {
+      var child, node, _i, _len, _ref2, _results;
+      if (model == null) model = this.model;
+      if (controller == null) controller = this.controller;
+      _ref2 = this.ast.children;
+      _results = [];
+      for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+        child = _ref2[_i];
+        node = Nodes.compile(child, this.document, model, controller);
+        _results.push(node.append(element));
+      }
+      return _results;
+    };
+
+    Helper.prototype.lastElement = function() {
+      var item;
+      item = this.lastItem();
+      if (item) {
+        return item.lastElement();
+      } else {
+        return this.anchor;
+      }
+    };
+
+    Helper.prototype.remove = function() {
+      var item, _i, _len, _ref2, _results;
+      this.element.parentNode.removeChild(this.element);
+      _ref2 = this.items;
+      _results = [];
+      for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+        item = _ref2[_i];
+        _results.push(item.remove());
+      }
+      return _results;
+    };
+
+    Helper.prototype.append = function(inside) {
+      return inside.appendChild(this.element);
+    };
+
+    Helper.prototype.insertAfter = function(after) {
+      return after.parentNode.insertBefore(this.element, after.nextSibling);
+    };
+
+    return Helper;
+
+  })();
+
   CollectionItem = (function() {
 
     function CollectionItem(children, document, model, controller) {
@@ -834,6 +911,8 @@
               return new View(ast, document, model, controller);
             case "collection":
               return new Collection(ast, document, model, controller);
+            default:
+              return new Helper(ast, document, model, controller);
           }
           break;
         default:
@@ -865,9 +944,9 @@ var parser = (function(){
 undefined
 var parser = {trace: function trace() { },
 yy: {},
-symbols_: {"error":2,"Root":3,"Element":4,"TERMINATOR":5,"IDENTIFIER":6,"LPAREN":7,"RPAREN":8,"PropertyList":9,"WHITESPACE":10,"InlineChild":11,"INDENT":12,"ChildList":13,"OUTDENT":14,"STRING_LITERAL":15,"Child":16,"Instruction":17,"Property":18,"ASSIGN":19,"BANG":20,"SCOPE":21,"INSTRUCT":22,"InstructionArgumentsList":23,"InstructionArgument":24,"$accept":0,"$end":1},
+symbols_: {"error":2,"Root":3,"Element":4,"TERMINATOR":5,"IDENTIFIER":6,"LPAREN":7,"RPAREN":8,"PropertyList":9,"WHITESPACE":10,"InlineChild":11,"INDENT":12,"ChildList":13,"OUTDENT":14,"STRING_LITERAL":15,"Child":16,"Instruction":17,"Property":18,"ASSIGN":19,"BANG":20,"SCOPE":21,"INSTRUCT":22,"InstructionArgument":23,"$accept":0,"$end":1},
 terminals_: {2:"error",5:"TERMINATOR",6:"IDENTIFIER",7:"LPAREN",8:"RPAREN",10:"WHITESPACE",12:"INDENT",14:"OUTDENT",15:"STRING_LITERAL",19:"ASSIGN",20:"BANG",21:"SCOPE",22:"INSTRUCT"},
-productions_: [0,[3,0],[3,1],[3,2],[4,1],[4,3],[4,4],[4,3],[4,4],[11,1],[11,1],[13,0],[13,1],[13,3],[16,1],[16,1],[16,1],[9,1],[9,3],[18,3],[18,4],[18,3],[18,3],[17,5],[17,4],[23,1],[23,3],[24,1],[24,1]],
+productions_: [0,[3,0],[3,1],[3,2],[4,1],[4,3],[4,4],[4,3],[4,4],[11,1],[11,1],[13,0],[13,1],[13,3],[16,1],[16,1],[16,1],[9,1],[9,3],[18,3],[18,4],[18,3],[18,3],[17,3],[17,3],[17,4],[23,1],[23,1]],
 performAction: function anonymous(yytext,yyleng,yylineno,yy,yystate,$$,_$) {
 
 var $0 = $$.length - 1;
@@ -962,28 +1041,29 @@ case 22:this.$ = (function () {
       }());
 break;
 case 23:this.$ = {
-          command: $$[$0-2],
-          arguments: $$[$0],
+          command: $$[$0],
+          arguments: [],
           children: [],
           type: 'instruction'
         };
 break;
 case 24:this.$ = (function () {
+        $$[$0-2].arguments.push($$[$0]);
+        return $$[$0-2];
+      }());
+break;
+case 25:this.$ = (function () {
         $$[$0-3].children = $$[$0-1];
         return $$[$0-3];
       }());
 break;
-case 25:this.$ = [$$[$0]];
-break;
-case 26:this.$ = $$[$0-2].concat($$[$0]);
+case 26:this.$ = $$[$0];
 break;
 case 27:this.$ = $$[$0];
 break;
-case 28:this.$ = $$[$0];
-break;
 }
 },
-table: [{1:[2,1],3:1,4:2,6:[1,3]},{1:[3]},{1:[2,2],5:[1,4],7:[1,5],10:[1,6],12:[1,7]},{1:[2,4],5:[2,4],7:[2,4],10:[2,4],12:[2,4],14:[2,4]},{1:[2,3]},{6:[1,11],8:[1,8],9:9,18:10},{6:[1,13],11:12,15:[1,14]},{4:17,5:[2,11],6:[1,3],13:15,14:[2,11],15:[1,19],16:16,17:18,22:[1,20]},{1:[2,5],5:[2,5],7:[2,5],10:[2,5],12:[2,5],14:[2,5]},{8:[1,21],10:[1,22]},{8:[2,17],10:[2,17]},{19:[1,23],21:[1,24]},{1:[2,7],5:[2,7],7:[2,7],10:[2,7],12:[2,7],14:[2,7]},{1:[2,9],5:[2,9],7:[2,9],10:[2,9],12:[2,9],14:[2,9]},{1:[2,10],5:[2,10],7:[2,10],10:[2,10],12:[2,10],14:[2,10]},{5:[1,26],14:[1,25]},{5:[2,12],14:[2,12]},{5:[2,14],7:[1,5],10:[1,6],12:[1,7],14:[2,14]},{5:[2,15],12:[1,27],14:[2,15]},{5:[2,16],14:[2,16]},{10:[1,28]},{1:[2,6],5:[2,6],7:[2,6],10:[2,6],12:[2,6],14:[2,6]},{6:[1,11],18:29},{6:[1,30],15:[1,31]},{6:[1,11],18:32},{1:[2,8],5:[2,8],7:[2,8],10:[2,8],12:[2,8],14:[2,8]},{4:17,6:[1,3],15:[1,19],16:33,17:18,22:[1,20]},{4:17,5:[2,11],6:[1,3],13:34,14:[2,11],15:[1,19],16:16,17:18,22:[1,20]},{6:[1,35]},{8:[2,18],10:[2,18]},{8:[2,19],10:[2,19],20:[1,36]},{8:[2,21],10:[2,21]},{8:[2,22],10:[2,22]},{5:[2,13],14:[2,13]},{5:[1,26],14:[1,37]},{10:[1,38]},{8:[2,20],10:[2,20]},{5:[2,24],12:[2,24],14:[2,24]},{6:[1,41],15:[1,42],23:39,24:40},{5:[2,23],10:[1,43],12:[2,23],14:[2,23]},{5:[2,25],10:[2,25],12:[2,25],14:[2,25]},{5:[2,27],10:[2,27],12:[2,27],14:[2,27]},{5:[2,28],10:[2,28],12:[2,28],14:[2,28]},{6:[1,41],15:[1,42],24:44},{5:[2,26],10:[2,26],12:[2,26],14:[2,26]}],
+table: [{1:[2,1],3:1,4:2,6:[1,3]},{1:[3]},{1:[2,2],5:[1,4],7:[1,5],10:[1,6],12:[1,7]},{1:[2,4],5:[2,4],7:[2,4],10:[2,4],12:[2,4],14:[2,4]},{1:[2,3]},{6:[1,11],8:[1,8],9:9,18:10},{6:[1,13],11:12,15:[1,14]},{4:17,5:[2,11],6:[1,3],13:15,14:[2,11],15:[1,19],16:16,17:18,22:[1,20]},{1:[2,5],5:[2,5],7:[2,5],10:[2,5],12:[2,5],14:[2,5]},{8:[1,21],10:[1,22]},{8:[2,17],10:[2,17]},{19:[1,23],21:[1,24]},{1:[2,7],5:[2,7],7:[2,7],10:[2,7],12:[2,7],14:[2,7]},{1:[2,9],5:[2,9],7:[2,9],10:[2,9],12:[2,9],14:[2,9]},{1:[2,10],5:[2,10],7:[2,10],10:[2,10],12:[2,10],14:[2,10]},{5:[1,26],14:[1,25]},{5:[2,12],14:[2,12]},{5:[2,14],7:[1,5],10:[1,6],12:[1,7],14:[2,14]},{5:[2,15],10:[1,27],12:[1,28],14:[2,15]},{5:[2,16],14:[2,16]},{10:[1,29]},{1:[2,6],5:[2,6],7:[2,6],10:[2,6],12:[2,6],14:[2,6]},{6:[1,11],18:30},{6:[1,31],15:[1,32]},{6:[1,11],18:33},{1:[2,8],5:[2,8],7:[2,8],10:[2,8],12:[2,8],14:[2,8]},{4:17,6:[1,3],15:[1,19],16:34,17:18,22:[1,20]},{6:[1,36],15:[1,37],23:35},{4:17,5:[2,11],6:[1,3],13:38,14:[2,11],15:[1,19],16:16,17:18,22:[1,20]},{6:[1,39]},{8:[2,18],10:[2,18]},{8:[2,19],10:[2,19],20:[1,40]},{8:[2,21],10:[2,21]},{8:[2,22],10:[2,22]},{5:[2,13],14:[2,13]},{5:[2,24],10:[2,24],12:[2,24],14:[2,24]},{5:[2,26],10:[2,26],12:[2,26],14:[2,26]},{5:[2,27],10:[2,27],12:[2,27],14:[2,27]},{5:[1,26],14:[1,41]},{5:[2,23],10:[2,23],12:[2,23],14:[2,23]},{8:[2,20],10:[2,20]},{5:[2,25],10:[2,25],12:[2,25],14:[2,25]}],
 defaultActions: {4:[2,3]},
 parseError: function parseError(str, hash) {
     throw new Error(str);
@@ -1221,7 +1301,7 @@ if (typeof module !== 'undefined' && require.main === module) {
 };require['./model'] = new function() {
   var exports = this;
   (function() {
-  var AjaxCollection, Events, Serenade, extend;
+  var AjaxCollection, Events, Serenade, extend, get, _ref;
 
   Serenade = require('./serenade').Serenade;
 
@@ -1229,7 +1309,7 @@ if (typeof module !== 'undefined' && require.main === module) {
 
   Events = require('./events').Events;
 
-  extend = require('./helpers').extend;
+  _ref = require('./helpers'), extend = _ref.extend, get = _ref.get;
 
   Serenade.Model = (function() {
 
@@ -1238,13 +1318,13 @@ if (typeof module !== 'undefined' && require.main === module) {
     extend(Model.prototype, Serenade.Properties);
 
     Model.property = function() {
-      var _ref;
-      return (_ref = this.prototype).property.apply(_ref, arguments);
+      var _ref2;
+      return (_ref2 = this.prototype).property.apply(_ref2, arguments);
     };
 
     Model.collection = function() {
-      var _ref;
-      return (_ref = this.prototype).collection.apply(_ref, arguments);
+      var _ref2;
+      return (_ref2 = this.prototype).collection.apply(_ref2, arguments);
     };
 
     Model._getFromCache = function(id) {
@@ -1258,19 +1338,19 @@ if (typeof module !== 'undefined' && require.main === module) {
     };
 
     Model.find = function(id) {
-      var document, _ref, _ref2, _ref3, _ref4, _ref5, _ref6;
+      var document, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7;
       if (document = this._getFromCache(id)) {
-        if ((_ref = (_ref2 = this._storeOptions) != null ? _ref2.refresh : void 0) === 'always') {
+        if ((_ref2 = (_ref3 = this._storeOptions) != null ? _ref3.refresh : void 0) === 'always') {
           document.refresh();
         }
-        if (((_ref3 = (_ref4 = this._storeOptions) != null ? _ref4.refresh : void 0) === 'stale') && document.isStale()) {
+        if (((_ref4 = (_ref5 = this._storeOptions) != null ? _ref5.refresh : void 0) === 'stale') && document.isStale()) {
           document.refresh();
         }
       } else {
         document = new this({
           id: id
         });
-        if ((_ref5 = (_ref6 = this._storeOptions) != null ? _ref6.refresh : void 0) === 'always' || _ref5 === 'stale' || _ref5 === 'new') {
+        if ((_ref6 = (_ref7 = this._storeOptions) != null ? _ref7.refresh : void 0) === 'always' || _ref6 === 'stale' || _ref6 === 'new') {
           document.refresh();
         }
       }
@@ -1278,7 +1358,39 @@ if (typeof module !== 'undefined' && require.main === module) {
     };
 
     Model.all = function() {
-      return this._all || (this._all = new AjaxCollection(this, this._storeOptions.url));
+      var _ref2, _ref3, _ref4, _ref5, _ref6, _ref7;
+      if (this._all) {
+        if ((_ref2 = (_ref3 = this._storeOptions) != null ? _ref3.refresh : void 0) === 'always') {
+          this._all.refresh();
+        }
+        if (((_ref4 = (_ref5 = this._storeOptions) != null ? _ref5.refresh : void 0) === 'stale') && this._all.isStale()) {
+          this._all.refresh();
+        }
+      } else {
+        this._all = new AjaxCollection(this, this._storeOptions.url);
+        if ((_ref6 = (_ref7 = this._storeOptions) != null ? _ref7.refresh : void 0) === 'always' || _ref6 === 'stale' || _ref6 === 'new') {
+          this._all.refresh();
+        }
+      }
+      return this._all;
+    };
+
+    Model.belongsTo = function(name, ctor) {
+      if (ctor == null) ctor = Object;
+      this.property(name, {
+        set: function(properties) {
+          return this.attributes[name] = new ctor(properties);
+        }
+      });
+      return this.property(name + 'Id', {
+        get: function() {
+          return get(this.get(name), 'id');
+        },
+        set: function(id) {
+          return this.set(name, ctor.find(id));
+        },
+        dependsOn: name
+      });
     };
 
     Model.store = function(options) {
