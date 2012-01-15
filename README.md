@@ -7,7 +7,7 @@ advantages as well:
 
 * Super pretty, powerful yet logic-less template language
 * Data bindings keep your views up-to-date without any extra work
-* Powerful caching and synchronization features
+* Powerful caching features
 * Absolutely no dependencies, everything works without jQuery
 * No need to inherit from base classes anywhere (though you can if you want)
 
@@ -23,17 +23,24 @@ future, IE7+ will be supported. Support for IE6 is not planned.
 
 ## Architecture
 
-In Serenade.js you define templates and render them, handing in a controller and
-a model to the template. Serenade.js then handles getting values from the model
-and updating them dynamically as the model changes, as well as dispatching
-events to the controller when they occur. Templates are "logic-less" in that
-they do not allow the execution of any code. Serenade.js is built around its
-template engine, so unfortunately you do not have a choice as to the template
-language.
+In Serenade.js you define templates and render them, handing in a controller
+and a model to the template. Serenade.js then handles getting values from the
+model and updating them dynamically as the model changes, as well as
+dispatching events to the controller when they occur. Templates are
+"logic-less" in that they do not allow the execution of any code. Serenade.js
+is built around its template engine, so unfortunately you do not have a choice
+as to the template language.
 
-Serenade.js also bundles a powerful abstraction for talking with RESTful
-services, you can use Serenade.Model to persist and retrieve data, as well as
-cache data in local storage.
+Serenade does not provide any facilities for talking with a server through
+AJAX.  The separate [Serenade.Service.js][service] project is an effort to
+provide a solid starting starting point for building such services.
+
+There is also no boundled router or history management such as is found in many
+other client side JavaScript frameworks. We believe that Serenade can be used
+in many situations where a router would not be desirable to have. These
+concerns seem to be outside the scope of this project. It should be possible to
+use Serenade alongside most existing router implementations, such as the one in
+Backbone.js.
 
 ## A simple example
 
@@ -82,11 +89,15 @@ element anywhere on the page.
 $ -> $('body').append(result)
 ```
 
-This example is written in CoffeeScript for easier readability, but there is
-nothing stopping you from writing this in plain JavaScript as well.
-
 There are more advanced examples in the `examples` folder, check out a live
 demo of those examples running [here](http://serenade.herokuapp.com/).
+
+## A note on language
+
+The reason this example is written in CoffeeScript is because of JavaScript's
+poor handling of multi-line strings, which makes defining templates inline like
+this very ugly. Usually you would want templates to be defined and loaded from
+somewhere else anyway, so writing this in JavaScript should not be a problem.
 
 ## Dynamic properties
 
@@ -213,13 +224,25 @@ This is a single element with no children and an id attribute:
 div[id="serenade"]
 ```
 
+You can use a short form similar to a CSS selector:
+
+``` slim
+div#serenade.some-class
+```
+
+You can omit the element name, which will create div elements:
+
+``` slim
+#serenade.some-class
+```
+
 Indentation is significant and is used to nest elements:
 
 ``` slim
-div
-  div[id="page"]
-    div[id="child"]
-  div[id="footer"]
+#page
+  article#content
+    #child
+  footer
 ```
 
 Attributes may be bound to a model value by omitting the quotes:
@@ -400,20 +423,36 @@ Serenade.js will now infer that you want to use a `CommentController` with the
 
 # Serenade.Model
 
-Serenade.Model allows you to map objects to resources on a server, as well as
-cache them in memory and in HTML5 local storage. Of course you can bind to
-instances of Serenade.Model in views and changes are reflected there dynamically.
-In CoffeeScript, you can use it, simply by extending the base class Serenade.Model
+Serenade.Model provides a more fully featured starting point for creating
+feature rich model objects. You can of course bind to instances of
+`Serenade.Model` in views and changes are reflected there dynamically.
+
+In CoffeeScript, you can use it, simply by extending the base class
+Serenade.Model
 
 ``` coffeescript
 class MyModel extends Serenade.Model
 ```
 
+In JavaScript you can use the `extend` function on Serenade.Model, you need to
+pass the name of the class as the first parameter:
+
+``` javascript
+var MyModel = Serenade.Service.extend('MyModel');
+```
+
+Note that in following with JavaScript conventions, you need to define instance
+methods on the prototype of the new model:
+
+``` javascript
+var MyModel = Serenade.Service.extend('MyModel');
+MyModel.prototype.someInstanceMethod = function() { … };
+```
+
 You can use the same property declarations in these models:
 
 ``` javascript
-class MyModel extends Serenade.Model
-  @property 'name'
+MyModel.property('name');
 ```
 
 For simplicity's sake we will refer to instances of constructors derived from
@@ -422,7 +461,7 @@ For simplicity's sake we will refer to instances of constructors derived from
 ## Identity map
 
 Serenade.Model assumes you have a property named `id` and that this uniquely
-identifies each document. Provided that such a property exists, documents a
+identifies each document. Provided that such a property exists, documents are
 fetched from an in-memory cache, so that multiple queries for the same document
 id return the same object. This is key to working effectively with objects
 bound to views.
@@ -440,116 +479,15 @@ Here `person2` and `person1` are both variables which point to the same object,
 and that object's properties are a combination of the properties assigned to
 both calls of the constructor function.
 
-## Mapping models to server resources
-
-In order to be able to retrieve and store objects from the server store, you
-will need to call the store function on the constructor function:
-
-``` coffeescript
-Person.store url: '/people'
-```
-
-There are two main ways of retrieving objects from the server, through `find`
-and through `all`.
-
-## Find
-
-`find` takes and id and returns a single document, if the document has been
-previously cached in memory, that in memory document is returned. If the
-document has not been cached in memory, a new record with the given id is
-returned immediately.
-
-This is important to understand, Serenade.Model does not take a callback, instead
-it returns something akin to a future or promise, an object with no data. Once
-this document is instantiated, an AJAX request is dispatched to the server
-immediately. As soon as the AJAX request is completed, the document is updated
-with the properties retrieved from the server and a change event is triggered.
-If the model has been previously bound to a view, these new properties are now
-reflected in the view. This architecture allows you to treat `find` as though
-it were a synchronous operation, returning an object immediately, and then
-immediately binding that object to a view. As soon as the data is ready, that
-data will be shown in the view.
-
-``` coffeescript
-john = Person.find(1)
-Serenade.render('person', john)
-```
-
-You might still want to indicate to the user that the data is currently
-unavailable, this can be done through the special `loadState` property on
-documents. This property can be one of `ready` when the document is ready and
-loaded or `loading` while it is retrieving data from the server. You can
-observe changes to the `loadState` property by listening to the
-`change:loadState` event, just as you would with any other property. If a view
-binds to `loadState`, changes to it are of course reflected in the view
-automatically. A convenient use case for this might be to bind the `class`
-attribute of an element to the `loadState` property, to indicate if there is
-activity:
-
-``` slim
-div[id="person" class=loadState]
-  h1 name
-```
-
-``` css
-#person.loading {
-  opacity: 0.5;
-  background: url('spinner.gif');
-}
-```
-
-You can manually trigger a refresh of the data in the document by calling the
-`refresh` function. This will cause the `loadState` to change back to
-`loading`.
-
-## URL
-
-The URL for retrieving the data for a single document is taken from the first
-parameter sent to the `store` declaration, joined with the document id. So if
-we have declare this:
-
-``` coffeescript
-Person.store url: '/people'
-```
-
-Then the URL for a document with id `1` would be `/people/1`. This follows
-conventions used by many popular server side frameworks, such as Ruby on Rails.
-The response is expected to have a status of 200 or 201 and contain a body with
-well-formatted JSON.
-
-## Errors
-
-If the response status is any value in the 1XX, 4XX or 5XX ranges, `loadStatus`
-is changed to `error`. Additionally, the global `ajaxError` event is triggered.
-You can bind to this event to inform the user in any way you choose is
-appropriate.
-
-The event receives the document causing the error, the status code of the
-response and the parsed response body as arguments.
-
-``` coffeescript
-Serenade.bind 'ajaxError', (document, status, response) ->
-  MyFancyModalPlugin.showModal("This didn't go so well")
-```
-
-## All
-
-The `all` function allows a collection of objects to be fetched from the
-backend storage. Just like `find`, it is synchronous and returns an empty
-collection immediately. When the request finishes, the collection is filled and
-any views it is bound to will update automatically and show the retrieved
-objects.
-
 ## Serialization
 
-Serenade.js can also save objects back to the backend store, it will use the same
-URL, only it will issue a POST request, with the given data. As established by
-popular convention, it will set the `_method` parameter to `PUT`, thus
-frameworks such as Ruby on Rails will see it as a `PUT` request.
+It is often useful to be able to serialize objects to a simple key/value
+representation, suitable for transfer in JSON format, and to unserialize it
+from such a format.
 
-However in order to know how to persist a document, you will have to tell the
-model what parameters to serialize, and how. You can do this easily by setting
-the `serialize` option on your properties, like so:
+`Serenade.Model` includes some facilities to make this process easier. You will
+have to tell the model what parameters to serialize, and how. You can do this
+easily by setting the `serialize` option on your properties, like so:
 
 ``` coffeescript
 Person.property 'name', serialize: true
@@ -568,17 +506,6 @@ function use the underscored form, an alias for the setter function will also
 be added, so that you can do `set('first_name', 'Jonas')`. This is especially
 useful when providing JSON data from the server, as it will allow you to use
 the correct naming conventions both on the server and client.
-
-## Save and update
-
-The `save` function will persist documents to the server. This function
-is asynchronous, and while it is saving, the magic `saveState` property will
-transition from `new` or `saved` depending on whether the record has previously
-been saved, to `saving`. You can listen to changes on `change:saveState` to
-trigger behaviour as the save state changes.
-
-`update` is a higher level function which will set the given properties, as
-well as call the save function.
 
 ## Associations
 
@@ -614,10 +541,9 @@ associated documents will be plain objects instead.
 
 Both types of associations can be serialized by declaring `serialize: true` on
 them, just like normal properties. In that case, the entire associated
-documents will be serialized and sent to the server when the document is saved.
-This may not be the desired behaviour, you may want to only serialize the id or
-ids of the associated document(s). In that case, you can declare the
-associations like this:
+documents will be serialized. This may not be the desired behaviour, you may
+want to only serialize the id or ids of the associated document(s). In that
+case, you can declare the associations like this:
 
 ```coffeescript
 hasMany 'comments', constructor: 'Comment', serializeIds: true
@@ -631,57 +557,21 @@ association is serialized under another name:
 belongsTo 'post', constructor: 'Post', serializeId: 'post_id'
 ```
 
-## Configuring refresh
-
-If you do not provide a URL to your model by calling `store`, no communication
-with the server will occur. `save` and `refresh` will do nothing. If you do
-call the `store` function, you can declare when a refresh should occur:
-
-``` coffeescript
-Post.store url: '/posts', refresh: 'always'
-```
-
-The possible values for `refresh` are `always`, `never`, `stale` and `new`. The
-`never` option is simple: `refresh` is never triggered automatically. Likewise
-the `always` means that a refresh is always triggered after a call to `find` or
-`all`, no matter where the result came from previously. `new` will only trigger
-a refresh on a cache miss, that is if the document or collection has not
-previously been retrieved
-
-In order to understand the `stale` option, we need to take a look at
-configuring the cache duration for models first. You can specify a cache
-duration by specifying the `expires` option with a time interval in
-milliseonds. For example, to cache posts for five minutes, you could do this:
-
-``` coffeescript
-Post.store url: '/posts', refresh: 'stale', expires: 300000
-```
-
-The `stale` option then only triggers a refresh if more time than the cache
-duration has passed. Since these two options work together, you should always
-specify both.
-
 ## HTML5 Local Storage
 
 Serenade.Model can transparently cache objects in HTML5 local storage. Working
-with local storage is identical to working with the in-memory identity map, and
-document or collections cached in HTML5 local storage are affected by the
-`refresh` option in just the same was as those cached in memory. The only
-difference is that you can control when an individual document is cached in
-local storage, collections are always cached immediately. You can do this via
-the `localStorage` option:
+with local storage is identical to working with the in-memory identity map. The
+only difference is that you can control when an individual document is cached
+in local storage. You can do this via the `localStorage` function:
 
 ``` coffeescript
-Post.store localStorage: true
+Post.localStorage true
 ```
 
-The possible values for `localStorage` are `false` (the default), `true` and its
-alias `set`, which will cache the document to local storage as it is updated
-through setter functions, and finally `save` which will only cache the document
-if `save` is called explicitely.
-
-Note that you can with these options create models which are only persisted
-in local storage.
+The possible values for `localStorage` are `false` (the default), `true` and
+its alias `set`, which will cache the document to local storage as it is
+updated through setter functions, and finally `save` which will only cache the
+document if `save` is called explicitely.
 
 ## Express.js support
 
@@ -717,3 +607,5 @@ under the MIT license, by Jeremy Ashkenas, see the LICENSE file.
 
 A small part of this codebase was taken from Spine.js, licensed under the MIT
 license, by Alex MacCaw, see the LICENSE file.
+
+[service]: https://github.com/elabs/serenade.service.js
