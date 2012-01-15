@@ -5,6 +5,8 @@ class Element
   constructor: (@ast, @document, @model, @controller) ->
     @element = @document.createElement(@ast.name)
 
+    @element.setAttribute('id', @ast.shortId) if @ast.shortId
+
     for property in @ast.properties
       Nodes.property(property, @element, @document, @model, @controller)
 

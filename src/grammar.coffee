@@ -15,10 +15,16 @@ grammar =
     ['Element TERMINATOR', 'return $$']
   ]
 
+  ElementIdentifier: [
+    o 'IDENTIFIER', -> { name: $1 }
+    o 'IDENTIFIER # IDENTIFIER', -> { name: $1, shortId: $3 }
+    o '# IDENTIFIER', -> { name: 'div', shortId: $2 }
+  ]
+
   Element: [
-    o 'IDENTIFIER', -> { name: $1, properties: [], children: [], type: 'element' }
-    o 'Element LPAREN RPAREN', -> $1
-    o 'Element LPAREN PropertyList RPAREN', -> $1.properties = $3; $1
+    o 'ElementIdentifier', -> { name: $1.name, shortId: $1.shortId, properties: [], children: [], type: 'element' }
+    o 'Element [ ]', -> $1
+    o 'Element [ PropertyList ]', -> $1.properties = $3; $1
     o 'Element WHITESPACE InlineChild', -> $1.children = $1.children.concat($3); $1
     o 'Element INDENT ChildList OUTDENT', -> $1.children = $1.children.concat($3); $1
   ]
@@ -46,14 +52,14 @@ grammar =
   ]
 
   Property: [
-    o 'IDENTIFIER ASSIGN IDENTIFIER', -> { name: $1, value: $3, bound: true, scope: 'attribute' }
-    o 'IDENTIFIER ASSIGN IDENTIFIER BANG', -> { name: $1, value: $3, bound: true, scope: 'attribute', preventDefault: true }
-    o 'IDENTIFIER ASSIGN STRING_LITERAL', -> { name: $1, value: $3, bound: false, scope: 'attribute' }
-    o 'IDENTIFIER SCOPE Property', -> $3.scope = $1; $3
+    o 'IDENTIFIER = IDENTIFIER', -> { name: $1, value: $3, bound: true, scope: 'attribute' }
+    o 'IDENTIFIER = IDENTIFIER !', -> { name: $1, value: $3, bound: true, scope: 'attribute', preventDefault: true }
+    o 'IDENTIFIER = STRING_LITERAL', -> { name: $1, value: $3, bound: false, scope: 'attribute' }
+    o 'IDENTIFIER : Property', -> $3.scope = $1; $3
   ]
 
   Instruction: [
-    o 'INSTRUCT WHITESPACE IDENTIFIER', -> { command: $3, arguments: [], children: [], type: 'instruction' }
+    o '- WHITESPACE IDENTIFIER', -> { command: $3, arguments: [], children: [], type: 'instruction' }
     o 'Instruction WHITESPACE InstructionArgument', -> $1.arguments.push $3; $1
     o 'Instruction INDENT ChildList OUTDENT', -> $1.children = $3; $1
   ]

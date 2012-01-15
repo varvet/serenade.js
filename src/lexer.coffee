@@ -1,6 +1,6 @@
 IDENTIFIER = /^[a-zA-Z][a-zA-Z0-9\-]*/
 
-LITERAL = /^[\[\]=\:\-!]/
+LITERAL = /^[\[\]=\:\-!#]/
 
 STRING = /^"((?:\\.|[^"])*)"/
 
@@ -87,14 +87,7 @@ class Lexer
 
   literalToken: ->
     if match = LITERAL.exec @chunk
-      id = match[0]
-      switch id
-        when "[" then @token('LPAREN', id)
-        when "]" then @token('RPAREN', id)
-        when "=" then @token('ASSIGN', id)
-        when "-" then @token('INSTRUCT', id)
-        when ":" then @token('SCOPE', id)
-        when "!" then @token('BANG', id)
+      @token match[0]
       1
     else
       @error("WUT??? is '#{@chunk.charAt(0)}'")
