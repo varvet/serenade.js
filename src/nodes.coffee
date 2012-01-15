@@ -143,6 +143,31 @@ class Collection
 
   get: -> get(@model, @ast.arguments[0])
 
+class Helper
+  constructor: (@ast, @document, @model, @controller) ->
+    @helperFunction = Serenade.Helpers[@ast.command] or throw SyntaxError "no helper #{@ast.command} defined"
+    @context = { document: @document, render: @render }
+    @element = @helperFunction.apply(@context, @ast.arguments)
+
+  render: (element, model=@model, controller=@controller) =>
+    for child in @ast.children
+      node = Nodes.compile(child, @document, model, controller)
+      node.append(element)
+
+  lastElement: ->
+    item = @lastItem()
+    if item then item.lastElement() else @anchor
+
+  remove: ->
+    @element.parentNode.removeChild(@element)
+    item.remove() for item in @items
+
+  append: (inside) ->
+    inside.appendChild(@element)
+
+  insertAfter: (after) ->
+    after.parentNode.insertBefore(@element, after.nextSibling)
+
 class CollectionItem
   constructor: (@children, @document, @model, @controller) ->
     @nodes = (Nodes.compile(child, @document, @model, @controller) for child in @children)
@@ -168,6 +193,7 @@ Nodes =
         switch ast.command
           when "view" then new View(ast, document, model, controller)
           when "collection" then new Collection(ast, document, model, controller)
+          else new Helper(ast, document, model, controller)
       else throw SyntaxError "unknown type #{ast.type}"
 
   property: (ast, element, document, model, controller) ->

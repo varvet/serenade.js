@@ -53,13 +53,9 @@ grammar =
   ]
 
   Instruction: [
-    o 'INSTRUCT WHITESPACE IDENTIFIER WHITESPACE InstructionArgumentsList', -> { command: $3, arguments: $5, children: [], type: 'instruction' }
+    o 'INSTRUCT WHITESPACE IDENTIFIER', -> { command: $3, arguments: [], children: [], type: 'instruction' }
+    o 'Instruction WHITESPACE InstructionArgument', -> $1.arguments.push $3; $1
     o 'Instruction INDENT ChildList OUTDENT', -> $1.children = $3; $1
-  ]
-
-  InstructionArgumentsList: [
-    o 'InstructionArgument', -> [$1]
-    o 'InstructionArgumentsList WHITESPACE InstructionArgument', -> $1.concat $3
   ]
 
   InstructionArgument: [

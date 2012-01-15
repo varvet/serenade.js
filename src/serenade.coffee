@@ -20,6 +20,7 @@ Serenade =
 
   Events: require('./events').Events
   Collection: require('./collection').Collection
+  Helpers: {}
 
 exports.Serenade = Serenade
 
