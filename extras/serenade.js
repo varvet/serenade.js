@@ -198,40 +198,6 @@
 
 }).call(this);
 
-};require['./ajax_collection'] = new function() {
-  var exports = this;
-  (function() {
-  var Collection,
-    __hasProp = Object.prototype.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
-
-  Collection = require('./collection').Collection;
-
-  exports.AjaxCollection = (function(_super) {
-
-    __extends(AjaxCollection, _super);
-
-    function AjaxCollection(constructor, url, list) {
-      var _ref;
-      this.constructor = constructor;
-      this.url = url;
-      this.list = list != null ? list : [];
-      this.expires = new Date(new Date().getTime() + ((_ref = this.constructor._storeOptions) != null ? _ref.expires : void 0));
-      AjaxCollection.__super__.constructor.call(this, this.list);
-    }
-
-    AjaxCollection.prototype.refresh = function() {};
-
-    AjaxCollection.prototype.isStale = function() {
-      return this.expires < new Date();
-    };
-
-    return AjaxCollection;
-
-  })(Collection);
-
-}).call(this);
-
 };require['./serenade'] = new function() {
   var exports = this;
   (function() {
@@ -446,16 +412,16 @@
 };require['./nodes'] = new function() {
   var exports = this;
   (function() {
-  var Attribute, Collection, CollectionItem, Element, Event, Helper, Nodes, Serenade, Style, TextNode, View, forEach, format, get, _ref,
+  var Attribute, Collection, CollectionItem, Event, Helper, Node, Nodes, Serenade, Style, TextNode, View, forEach, format, get, _ref,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   Serenade = require('./serenade').Serenade;
 
   _ref = require('./helpers'), format = _ref.format, get = _ref.get, forEach = _ref.forEach;
 
-  Element = (function() {
+  Node = (function() {
 
-    function Element(ast, document, model, controller) {
+    function Node(ast, document, model, controller) {
       var child, property, _i, _j, _len, _len2, _ref2, _ref3, _ref4;
       this.ast = ast;
       this.document = document;
@@ -469,7 +435,7 @@
       _ref3 = this.ast.properties;
       for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
         property = _ref3[_i];
-        Nodes.property(property, this.element, this.document, this.model, this.controller);
+        Nodes.property(property, this, this.document, this.model, this.controller);
       }
       _ref4 = this.ast.children;
       for (_j = 0, _len2 = _ref4.length; _j < _len2; _j++) {
@@ -478,36 +444,37 @@
       }
     }
 
-    Element.prototype.append = function(inside) {
+    Node.prototype.append = function(inside) {
       return inside.appendChild(this.element);
     };
 
-    Element.prototype.insertAfter = function(after) {
+    Node.prototype.insertAfter = function(after) {
       return after.parentNode.insertBefore(this.element, after.nextSibling);
     };
 
-    Element.prototype.remove = function() {
+    Node.prototype.remove = function() {
       return this.element.parentNode.removeChild(this.element);
     };
 
-    Element.prototype.lastElement = function() {
+    Node.prototype.lastElement = function() {
       return this.element;
     };
 
-    return Element;
+    return Node;
 
   })();
 
   Style = (function() {
 
-    function Style(ast, element, document, model, controller) {
+    function Style(ast, node, document, model, controller) {
       var _base,
         _this = this;
       this.ast = ast;
-      this.element = element;
+      this.node = node;
       this.document = document;
       this.model = model;
       this.controller = controller;
+      this.element = this.node.element;
       this.update();
       if (this.ast.bound) {
         if (typeof (_base = this.model).bind === "function") {
@@ -532,14 +499,15 @@
 
   Event = (function() {
 
-    function Event(ast, element, document, model, controller) {
+    function Event(ast, node, document, model, controller) {
       var callback,
         _this = this;
       this.ast = ast;
-      this.element = element;
+      this.node = node;
       this.document = document;
       this.model = model;
       this.controller = controller;
+      this.element = this.node.element;
       callback = function(e) {
         if (_this.ast.preventDefault) e.preventDefault();
         return _this.controller[_this.ast.value](e);
@@ -553,14 +521,15 @@
 
   Attribute = (function() {
 
-    function Attribute(ast, element, document, model, controller) {
+    function Attribute(ast, node, document, model, controller) {
       var _base,
         _this = this;
       this.ast = ast;
-      this.element = element;
+      this.node = node;
       this.document = document;
       this.model = model;
       this.controller = controller;
+      this.element = this.node.element;
       this.update();
       if (this.ast.bound) {
         if (typeof (_base = this.model).bind === "function") {
@@ -572,10 +541,18 @@
     }
 
     Attribute.prototype.update = function() {
-      var value;
+      var classes, value;
       value = this.get();
       if (this.ast.name === 'value') {
         return this.element.value = value || '';
+      } else if (this.ast.name === 'class') {
+        classes = this.node.ast.shortClasses;
+        if (value !== void 0) classes = classes.concat(value);
+        if (classes.length) {
+          return this.element.setAttribute(this.ast.name, classes.join(' '));
+        } else {
+          return this.element.removeAttribute(this.ast.name);
+        }
       } else if (value === void 0) {
         return this.element.removeAttribute(this.ast.name);
       } else {
@@ -889,7 +866,7 @@
     compile: function(ast, document, model, controller) {
       switch (ast.type) {
         case 'element':
-          return new Element(ast, document, model, controller);
+          return new Node(ast, document, model, controller);
         case 'text':
           return new TextNode(ast, document, model, controller);
         case 'instruction':
@@ -906,14 +883,14 @@
           throw SyntaxError("unknown type " + ast.type);
       }
     },
-    property: function(ast, element, document, model, controller) {
+    property: function(ast, node, document, model, controller) {
       switch (ast.scope) {
         case "attribute":
-          return new Attribute(ast, element, document, model, controller);
+          return new Attribute(ast, node, document, model, controller);
         case "style":
-          return new Style(ast, element, document, model, controller);
+          return new Style(ast, node, document, model, controller);
         case "event":
-          return new Event(ast, element, document, model, controller);
+          return new Event(ast, node, document, model, controller);
         default:
           throw SyntaxError("" + ast.scope + " is not a valid scope");
       }
@@ -1317,11 +1294,9 @@ if (typeof module !== 'undefined' && require.main === module) {
 };require['./model'] = new function() {
   var exports = this;
   (function() {
-  var AjaxCollection, Events, Serenade, extend, get, _ref;
+  var Events, Serenade, extend, get, _ref;
 
   Serenade = require('./serenade').Serenade;
-
-  AjaxCollection = require('./ajax_collection').AjaxCollection;
 
   Events = require('./events').Events;
 
@@ -1354,41 +1329,13 @@ if (typeof module !== 'undefined' && require.main === module) {
     };
 
     Model.find = function(id) {
-      var document, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7;
-      if (document = this._getFromCache(id)) {
-        if ((_ref2 = (_ref3 = this._storeOptions) != null ? _ref3.refresh : void 0) === 'always') {
-          document.refresh();
-        }
-        if (((_ref4 = (_ref5 = this._storeOptions) != null ? _ref5.refresh : void 0) === 'stale') && document.isStale()) {
-          document.refresh();
-        }
-      } else {
+      var document;
+      if (!(document = this._getFromCache(id))) {
         document = new this({
           id: id
         });
-        if ((_ref6 = (_ref7 = this._storeOptions) != null ? _ref7.refresh : void 0) === 'always' || _ref6 === 'stale' || _ref6 === 'new') {
-          document.refresh();
-        }
       }
       return document;
-    };
-
-    Model.all = function() {
-      var _ref2, _ref3, _ref4, _ref5, _ref6, _ref7;
-      if (this._all) {
-        if ((_ref2 = (_ref3 = this._storeOptions) != null ? _ref3.refresh : void 0) === 'always') {
-          this._all.refresh();
-        }
-        if (((_ref4 = (_ref5 = this._storeOptions) != null ? _ref5.refresh : void 0) === 'stale') && this._all.isStale()) {
-          this._all.refresh();
-        }
-      } else {
-        this._all = new AjaxCollection(this, this._storeOptions.url);
-        if ((_ref6 = (_ref7 = this._storeOptions) != null ? _ref7.refresh : void 0) === 'always' || _ref6 === 'stale' || _ref6 === 'new') {
-          this._all.refresh();
-        }
-      }
-      return this._all;
     };
 
     Model.belongsTo = function(name, ctor) {
@@ -1409,10 +1356,6 @@ if (typeof module !== 'undefined' && require.main === module) {
       });
     };
 
-    Model.store = function(options) {
-      return this._storeOptions = options;
-    };
-
     function Model(attributes) {
       var fromCache;
       if (attributes != null ? attributes.id : void 0) {
@@ -1426,14 +1369,6 @@ if (typeof module !== 'undefined' && require.main === module) {
       }
       this.set(attributes);
     }
-
-    Model.prototype.refresh = function() {};
-
-    Model.prototype.save = function() {};
-
-    Model.prototype.isStale = function() {
-      return this.get('expires') < new Date();
-    };
 
     return Model;
 

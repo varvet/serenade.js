@@ -1,5 +1,4 @@
 {Serenade} = require './serenade'
-{AjaxCollection} = require './ajax_collection'
 {Events} = require './events'
 {extend, get} = require './helpers'
 
@@ -19,22 +18,9 @@ class Serenade.Model
     @_identityMap[id] = object
 
   @find: (id) ->
-    if document = @_getFromCache(id)
-      document.refresh() if @_storeOptions?.refresh in ['always']
-      document.refresh() if @_storeOptions?.refresh in ['stale'] and document.isStale()
-    else
+    unless document = @_getFromCache(id)
       document = new this(id: id)
-      document.refresh() if @_storeOptions?.refresh in ['always', 'stale', 'new']
     document
-
-  @all: ->
-    if @_all
-      @_all.refresh() if @_storeOptions?.refresh in ['always']
-      @_all.refresh() if @_storeOptions?.refresh in ['stale'] and @_all.isStale()
-    else
-      @_all = new AjaxCollection(this, @_storeOptions.url)
-      @_all.refresh() if @_storeOptions?.refresh in ['always', 'stale', 'new']
-    @_all
 
   @belongsTo: (name, ctor=Object) ->
     @property name,
@@ -43,9 +29,6 @@ class Serenade.Model
       get: -> get(@get(name), 'id')
       set: (id) -> @set(name, ctor.find(id))
       dependsOn: name
-
-  @store: (options) ->
-    @_storeOptions = options
 
   constructor: (attributes) ->
     if attributes?.id
@@ -56,9 +39,3 @@ class Serenade.Model
       else
         @constructor._storeInCache(attributes.id, this)
     @set(attributes)
-
-  refresh: ->
-  save: ->
-
-  isStale: ->
-    @get('expires') < new Date()
