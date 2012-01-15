@@ -1,7 +1,7 @@
 {Serenade} = require './serenade'
 {format, get, forEach} = require './helpers'
 
-class Element
+class Node
   constructor: (@ast, @document, @model, @controller) ->
     @element = @document.createElement(@ast.name)
 
@@ -9,7 +9,7 @@ class Element
     @element.setAttribute('class', @ast.shortClasses.join(' ')) if @ast.shortClasses?.length
 
     for property in @ast.properties
-      Nodes.property(property, @element, @document, @model, @controller)
+      Nodes.property(property, this, @document, @model, @controller)
 
     for child in @ast.children
       Nodes.compile(child, @document, @model, @controller).append(@element)
@@ -27,7 +27,8 @@ class Element
     @element
 
 class Style
-  constructor: (@ast, @element, @document, @model, @controller) ->
+  constructor: (@ast, @node, @document, @model, @controller) ->
+    @element = @node.element
     @update()
     if @ast.bound
       @model.bind? "change:#{@ast.value}", (value) => @update()
@@ -36,14 +37,16 @@ class Style
   get: -> format(@model, @ast.value, @ast.bound)
 
 class Event
-  constructor: (@ast, @element, @document, @model, @controller) ->
+  constructor: (@ast, @node, @document, @model, @controller) ->
+    @element = @node.element
     callback = (e) =>
       e.preventDefault() if @ast.preventDefault
       @controller[@ast.value](e)
     @element.addEventListener(@ast.name, callback, false)
 
 class Attribute
-  constructor: (@ast, @element, @document, @model, @controller) ->
+  constructor: (@ast, @node, @document, @model, @controller) ->
+    @element = @node.element
     @update()
     if @ast.bound
       @model.bind? "change:#{@ast.value}", (value) => @update()
@@ -52,6 +55,13 @@ class Attribute
     value = @get()
     if @ast.name is 'value'
       @element.value = value or ''
+    else if @ast.name is 'class'
+      classes = @node.ast.shortClasses
+      classes = classes.concat(value) unless value is undefined
+      if classes.length
+        @element.setAttribute(@ast.name, classes.join(' '))
+      else
+        @element.removeAttribute(@ast.name)
     else if value is undefined
       @element.removeAttribute(@ast.name)
     else
@@ -190,7 +200,7 @@ class CollectionItem
 Nodes =
   compile: (ast, document, model, controller) ->
     switch ast.type
-      when 'element' then new Element(ast, document, model, controller)
+      when 'element' then new Node(ast, document, model, controller)
       when 'text' then new TextNode(ast, document, model, controller)
       when 'instruction'
         switch ast.command
@@ -199,11 +209,11 @@ Nodes =
           else new Helper(ast, document, model, controller)
       else throw SyntaxError "unknown type #{ast.type}"
 
-  property: (ast, element, document, model, controller) ->
+  property: (ast, node, document, model, controller) ->
     switch ast.scope
-      when "attribute" then new Attribute(ast, element, document, model, controller)
-      when "style" then new Style(ast, element, document, model, controller)
-      when "event" then new Event(ast, element, document, model, controller)
+      when "attribute" then new Attribute(ast, node, document, model, controller)
+      when "style" then new Style(ast, node, document, model, controller)
+      when "event" then new Event(ast, node, document, model, controller)
       else throw SyntaxError "#{ast.scope} is not a valid scope"
 
 exports.Nodes = Nodes

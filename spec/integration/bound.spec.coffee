@@ -19,6 +19,11 @@ describe 'Bound attributes and text nodes', ->
     @render 'div name', model
     expect(@body.find('div')).toHaveText('Jonas Nicklas')
 
+  it 'sets multiple classes with an array given as the class attribute', ->
+    model = { names: ['jonas', 'peter'] }
+    @render 'div[class=names]', model
+    expect(@body).toHaveElement('div.jonas.peter')
+
   it 'changes bound attributes as they are changed', ->
     model = new Serenade.Model
     model.set('name', 'jonas')
@@ -52,3 +57,15 @@ describe 'Bound attributes and text nodes', ->
     expect(@body.find('div')).toHaveText('Jonas Nicklas')
     model.set('name', 'Peter Pan')
     expect(@body.find('div')).toHaveText('Peter Pan')
+
+  it 'updates multiple classes as the class attribute changes', ->
+    model = new Serenade.Model( names: ['jonas', 'peter'] )
+    @render 'div[class=names]', model
+    expect(@body).toHaveElement('div.jonas.peter')
+    model.set('names', undefined)
+    expect(@body.find('div')).not.toHaveAttribute('class')
+    model.set('names', 'jonas')
+    expect(@body).toHaveElement('div.jonas')
+    model.set('names', ['harry', 'jonas'])
+    expect(@body).toHaveElement('div.harry.jonas')
+
