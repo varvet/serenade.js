@@ -97,7 +97,7 @@ demo of those examples running [here](http://serenade.herokuapp.com/).
 The reason this example is written in CoffeeScript is because of JavaScript's
 poor handling of multi-line strings, which makes defining templates inline like
 this very ugly. Usually you would want templates to be defined and loaded from
-somewhere else anyway, so writing this in JavaScript should not be a problem.
+somewhere else anyway, so writing this in JavaScript is not a problem.
 
 ## Dynamic properties
 
@@ -106,15 +106,15 @@ arbitrary objects, so in order to update the view automatically as the model
 changes, we will have to add some functionality to it. Thankfully this is quite
 simple:
 
-``` coffeescript
-model = {}
+``` javascript
+var model = {}
 Serenade.extend(model, Serenade.Properties)
-model.property 'name'
+model.property('name')
 ```
 
 Now we can set and get the name property using the `set` and `get` functions:
 
-``` coffeescript
+``` javascript
 model.set('name', 'Peter')
 model.get('name')
 ```
@@ -122,7 +122,7 @@ model.get('name')
 In browsers which support `Object.defineProperty`, we can even set and get this
 property directly, like so:
 
-``` coffeescript
+``` javascript
 model.name = 'Peter'
 model.name
 ```
@@ -137,8 +137,8 @@ prototype instead:
 
 ``` javascript
 var MyModel = function(name) {
-  this.set('name', name);
-};
+  this.set('name', name)
+}
 Serenade.extend(MyModel.prototype, Serenade.Properties)
 ```
 
@@ -157,16 +157,18 @@ in this regard. Most often you will want to override the get function, for
 example you could have a `fullName` property which combines first and last
 names like so:
 
-``` coffeescript
-MyModel.property 'fullName', get: -> @get('firstName') + " " + @get('lastName')
+``` javascript
+MyModel.property('fullName', {
+  get: function() { return this.get('firstName') + " " + this.get('lastName') }
+})
 ```
 
 You can use the `collection` shortcut to create a property which is
 automatically initialized to a `Serenade.Collection`. This is convenient for
 binding collections to views (see below).
 
-``` coffeescript
-MyModel.collection 'comments'
+``` javascript
+MyModel.collection('comments')
 ```
 
 Internally this just calls `property` with a specialized getter and setter, you
@@ -180,17 +182,17 @@ monetary value. You would want to handle this as an integer in the model, but
 the view should show it properly formatted, with currency information and so
 on. You can use the `format` option for this.
 
-``` coffeescript
-MyModel.property 'price', format: (value) -> "€ #{value}"
+``` javascript
+MyModel.property('price', { format: function(value) { return "€ #{value}" } })
 ```
 
 To retrieve a formatted value, call `format('price')`.
 
 You can also define a global format function:
 
-``` coffeescript
-Serenade.registerFormat 'currency', (value) -> "€ #{value}"
-MyModel.property 'price', format: 'currency'
+``` javascript
+Serenade.registerFormat('currency', function(value) { "€ #{value}" })
+MyModel.property('price', format: 'currency')
 ```
 
 ## Dependencies
@@ -204,10 +206,11 @@ state the dependencies of the `fullName` property. This will cause it to update
 it if any of the dependent properties change, just like it should. You can do
 this easily like this:
 
-``` coffeescript
-MyModel.property 'fullName',
-  get: -> @get('firstName') + " " + @get('lastName')
+``` javascript
+MyModel.property('fullName', {
+  get: function() { return this.get('firstName') + " " + this.get('lastName') },
   dependsOn: ['firstName', 'lastName']
+})
 ```
 
 ## Template Language
@@ -286,12 +289,13 @@ You can use any DOM event, such as `submit`, `mouseover`, `blur`, `keydown`,
 etc. This will now look up the property `like` on your controller and call it
 as a function. You could implement this as follows:
 
-``` coffeescript
-controller =
-  like: -> @model.set('liked', true)
+``` javascript
+var controller = {
+  like: function() { this.model.set('liked', true) }
+}
 ```
 
-Note that we do not have to set `@model` ourselves, Serenade.js does this for
+Note that we do not have to set `this.model` ourselves, Serenade.js does this for
 you.
 
 In this example, if we have scrolled down a bit, we would jump to the start of
@@ -301,11 +305,13 @@ event handler. In Serenade.js, returning false does nothing. Thankfully the even
 object is passed into the function call on the controller, so we can use the
 `preventDefault` function to stop the link being followed:
 
-``` coffeescript
-controller =
-  like: (event) ->
-    @model.set('liked', true)
+``` javascript
+var controller = {
+  like: function(event) {
+    this.model.set('liked', true)
     event.preventDefault()
+  }
+}
 ```
 
 You can use `event` for any number of things here, such as attaching the same
@@ -349,9 +355,10 @@ Oftentimes you will want to render a collection of objects in your views.
 Serenade has special syntax for collections built into its template language.
 Assuming you have a model like this:
 
-``` coffeescript
-post =
+``` javascript
+var post = {
   comments: [{ body: 'Hello'}, {body: 'Awesome!'}]
+}
 ```
 
 You could output the list of comments like this:
@@ -367,9 +374,10 @@ This should output one li element for each comment.
 If `comments` is an instance of `Serenade.Collection`, Serenade.js will dynamically
 update this collection as comments are added, removed or changed:
 
-``` coffeescript
-post =
+``` javascript
+var post = {
   comments: new Serenade.Collection([{ body: 'Hello'}, {body: 'Awesome!'}])
+}
 ```
 
 ## Views
@@ -466,8 +474,8 @@ fetched from an in-memory cache, so that multiple queries for the same document
 id return the same object. This is key to working effectively with objects
 bound to views.
 
-``` coffeescript
-class Person extends Serenade.Model
+``` javascript
+var Person = Serenade.Service.extend('Person')
 
 person1 = new Person(id: 1, name: 'John')
 person2 = new Person(id: 1, age: 23)
@@ -489,16 +497,16 @@ from such a format.
 have to tell the model what parameters to serialize, and how. You can do this
 easily by setting the `serialize` option on your properties, like so:
 
-``` coffeescript
-Person.property 'name', serialize: true
+``` javascript
+Person.property('name', { serialize: true })
 ```
 
 Often, you will want to specify a specific name to serialize a property as,
 some server-side languages have different naming conventions than JavaScript
 does for example, so you might want to translate these properties:
 
-``` coffeescript
-Person.property 'firstName', serialize: 'first_name'
+``` javascript
+Person.property('firstName', { serialize: 'first_name' })
 ```
 
 If you declare a property serializable like so, not only will the `serialize`
@@ -512,9 +520,8 @@ the correct naming conventions both on the server and client.
 You can delare that a model has an associated model. For example, each comment
 might belong to a post, you can delare this like this:
 
-```coffeescript
-class Comment extends Serenade.Model
-  belongsTo 'post', constructor: 'Post'
+``` javascript
+Comment.belongsTo('post', { constructor: 'Post' })
 ```
 
 The constructor can be either a constructor function, or a string, which can
@@ -529,9 +536,8 @@ In the inverse situation, where a post has many comments, you can use the
 manipulate however you choose. Changes to this comments collection will be
 reflected in the `commentsIds` property.
 
-```coffeescript
-class Post extends Serenade.Model
-  hasMany 'comments', constructor: 'Comment'
+``` javascript
+Post.hasMany('comments', { constructor: 'Comment' })
 ```
 
 If the `constructor` property is omitted from either declaration, then the
@@ -545,16 +551,16 @@ documents will be serialized. This may not be the desired behaviour, you may
 want to only serialize the id or ids of the associated document(s). In that
 case, you can declare the associations like this:
 
-```coffeescript
-hasMany 'comments', constructor: 'Comment', serializeIds: true
-belongsTo 'post', constructor: 'Post', serializeId: true
+``` javascript
+Post.hasMany('comments', { constructor: 'Comment', serializeIds: true })
+Comment.belongsTo('post', { constructor: 'Post', serializeId: true })
 ```
 
 All of these declarations can of course also take a string so that the
 association is serialized under another name:
 
-```coffeescript
-belongsTo 'post', constructor: 'Post', serializeId: 'post_id'
+``` javascript
+Comment.belongsTo('post', { constructor: 'Post', serializeId: 'post_id' })
 ```
 
 ## HTML5 Local Storage
@@ -564,8 +570,8 @@ with local storage is identical to working with the in-memory identity map. The
 only difference is that you can control when an individual document is cached
 in local storage. You can do this via the `localStorage` function:
 
-``` coffeescript
-Post.localStorage true
+``` javascript
+Post.localStorage(true)
 ```
 
 The possible values for `localStorage` are `false` (the default), `true` and
@@ -589,9 +595,10 @@ npm install serenade
 You should now be able to create views with the `.serenade` extension, you can
 render them from within express.js like this:
 
-``` coffeescript
-app.get '/:name', (req, res) ->
-  res.render('show.serenade', model: { title: 'Hello' }, layout: false)
+``` javascript
+app.get('/:name', function(req, res) {
+  res.render('show.serenade', { model: { title: 'Hello' }, layout: false })
+})
 ```
 
 Since Serenade.js has no special syntax for doctypes, an HTML5 doctype is
