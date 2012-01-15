@@ -146,7 +146,7 @@ class Collection
 class Helper
   constructor: (@ast, @document, @model, @controller) ->
     @helperFunction = Serenade.Helpers[@ast.command] or throw SyntaxError "no helper #{@ast.command} defined"
-    @context = { document: @document, render: @render }
+    @context = { @document, @render, @model, @controller }
     @element = @helperFunction.apply(@context, @ast.arguments)
 
   render: (element, model=@model, controller=@controller) =>

@@ -793,7 +793,9 @@
       }).call(this);
       this.context = {
         document: this.document,
-        render: this.render
+        render: this.render,
+        model: this.model,
+        controller: this.controller
       };
       this.element = this.helperFunction.apply(this.context, this.ast.arguments);
     }

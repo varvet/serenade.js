@@ -11,6 +11,30 @@ describe 'Custom helpers', ->
     '''
     expect(@body).toHaveElement('div > form')
 
+  it 'provides access to model in helper', ->
+    Serenade.Helpers.funky = ->
+      element = @document.createElement('form')
+      element.setAttribute('id', @model.name)
+      element
+    model = name: 'jonas'
+    @render '''
+      div
+        - funky
+    ''', model
+    expect(@body).toHaveElement('div > form#jonas')
+
+  it 'provides access to controller in helper', ->
+    Serenade.Helpers.funky = ->
+      element = @document.createElement('form')
+      element.setAttribute('id', @controller.name)
+      element
+    controller = name: 'jonas'
+    @render '''
+      div
+        - funky
+    ''', {}, controller
+    expect(@body).toHaveElement('div > form#jonas')
+
   it 'uses a custom helper and sends in an argument', ->
     Serenade.Helpers.makeElement = (name) -> @document.createElement(name)
     @render '''
