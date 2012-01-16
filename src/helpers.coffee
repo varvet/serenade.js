@@ -28,9 +28,20 @@ Helpers =
     else
       fun(element) for element in collection
 
+  isArray: (object) ->
+    toString.call(object) is "[object Array]"
+
   pairToObject: (one, two) ->
     temp = {}
     temp[one] = two
     temp
+
+  serializeObject: (object) ->
+    if typeof(object.serialize) is 'function'
+      object.serialize()
+    else if Helpers.isArray(object)
+      Helpers.map(object, (item) -> Helpers.serializeObject(item))
+    else
+      object
 
 Helpers.extend(exports, Helpers)

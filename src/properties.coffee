@@ -1,6 +1,6 @@
 {Serenade} = require './serenade'
 {Collection} = require './collection'
-{pairToObject} = require './helpers'
+{pairToObject, serializeObject} = require './helpers'
 
 Serenade.Properties =
   property: (name, options={}) ->
@@ -9,6 +9,8 @@ Serenade.Properties =
     Object.defineProperty @, name,
       get: -> Serenade.Properties.get.call(this, name)
       set: (value) -> Serenade.Properties.set.call(this, name, value)
+    if typeof(options.serialize) is 'string'
+      @property(options.serialize, get: (-> @get(name)), set: ((v) -> @set(name, v)))
 
   collection: (name, options) ->
     @property name,
@@ -48,6 +50,18 @@ Serenade.Properties =
     else
       @get(name)
 
+  serialize: ->
+    serialized = {}
+    if @properties
+      for name, options of @properties
+        if typeof(options.serialize) is 'string'
+          serialized[options.serialize] = serializeObject(@get(name))
+        else if typeof(options.serialize) is 'function'
+          [key, value] = options.serialize.call(@)
+          serialized[key] = serializeObject(value)
+        else if options.serialize
+          serialized[name] = serializeObject(@get(name))
+    serialized
 
   _triggerChangesTo: (attributes) ->
     for name, value of attributes

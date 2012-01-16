@@ -1,4 +1,5 @@
 {Serenade} = require '../src/serenade'
+{Collection} = require '../src/collection'
 {extend} = require '../src/helpers'
 
 describe 'Serenade.Properties', ->
@@ -6,6 +7,16 @@ describe 'Serenade.Properties', ->
     @object = {}
     extend(@object, Serenade.Properties)
     extend(@object, Serenade.Events)
+
+  describe '.property', ->
+    context 'with serialize with a string given', ->
+      it 'will setup a setter method for that name', ->
+        @object.property 'fooBar', serialize: 'foo_bar'
+        @object.set('foo_bar', 56)
+        expect(@object.get('foo_bar')).toEqual(56)
+        expect(@object.get('fooBar')).toEqual(56)
+      it 'can handle circular dependencies', ->
+      it 'does not bleed over between objects with same prototype', ->
 
   describe '.collection', ->
     it 'is initialized to a collection', ->
@@ -99,3 +110,57 @@ describe 'Serenade.Properties', ->
       @object.property('foo', format: 'plusTwo')
       @object.set('foo', 23)
       expect(@object.format('foo')).toEqual(25)
+
+  describe '.serialize', ->
+    it 'serializes any properties marked as serializable', ->
+      @object.property('foo', serialize: true)
+      @object.property('barBaz', serialize: true)
+      @object.property('quox')
+      @object.set(foo: 23, barBaz: 'quack', quox: 'schmoo', other: 55)
+      serialized = @object.serialize()
+      expect(serialized.foo).toEqual(23)
+      expect(serialized.barBaz).toEqual('quack')
+      expect(serialized.quox).toBeUndefined()
+      expect(serialized.other).toBeUndefined()
+    it 'serializes properties with the given string as key', ->
+      @object.property('foo', serialize: true)
+      @object.property('barBaz', serialize: 'bar_baz')
+      @object.property('quox')
+      @object.set(foo: 23, barBaz: 'quack', quox: 'schmoo', other: 55)
+      serialized = @object.serialize()
+      expect(serialized.foo).toEqual(23)
+      expect(serialized.bar_baz).toEqual('quack')
+      expect(serialized.barBaz).toBeUndefined()
+      expect(serialized.quox).toBeUndefined()
+      expect(serialized.other).toBeUndefined()
+    it 'serializes a property with the given function', ->
+      @object.property('foo', serialize: true)
+      @object.property('barBaz', serialize: -> ['bork', @get('foo').toUpperCase()])
+      @object.property('quox')
+      @object.set(foo: 'fooy', barBaz: 'quack', quox: 'schmoo', other: 55)
+      serialized = @object.serialize()
+      expect(serialized.foo).toEqual('fooy')
+      expect(serialized.bork).toEqual('FOOY')
+      expect(serialized.barBaz).toBeUndefined()
+      expect(serialized.quox).toBeUndefined()
+      expect(serialized.other).toBeUndefined()
+    it 'serializes an object which has a serialize function', ->
+      @object.property('foo', serialize: true)
+      @object.set(foo: { serialize: -> 'from serialize' })
+      serialized = @object.serialize()
+      expect(serialized.foo).toEqual('from serialize')
+    it 'serializes an array of objects which have a serialize function', ->
+      @object.property('foo', serialize: true)
+      @object.set(foo: [{ serialize: -> 'from serialize' }, {serialize: -> 'another'}, "normal"])
+      serialized = @object.serialize()
+      expect(serialized.foo[0]).toEqual('from serialize')
+      expect(serialized.foo[1]).toEqual('another')
+      expect(serialized.foo[2]).toEqual('normal')
+    it 'serializes a Serenade.Collection by virtue of it having a serialize method', ->
+      @object.property('foo', serialize: true)
+      collection = new Collection([{ serialize: -> 'from serialize' }, {serialize: -> 'another'}, "normal"])
+      @object.set(foo: collection)
+      serialized = @object.serialize()
+      expect(serialized.foo[0]).toEqual('from serialize')
+      expect(serialized.foo[1]).toEqual('another')
+      expect(serialized.foo[2]).toEqual('normal')

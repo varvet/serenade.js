@@ -73,6 +73,8 @@ describe 'Serenade.Model', ->
       expect(comment.post.body).toEqual('Hello')
       comment.postId = 12
       expect(comment.post.body).toEqual('World')
+    it 'serializes the entire associated document', ->
+    it 'serializes the id', ->
 
   describe '.hasMany', ->
     it 'uses the given constructor', ->
@@ -120,17 +122,6 @@ describe 'Serenade.Model', ->
       post.commentsIds = [8,9]
       expect(post.comments.get(0).body).toEqual('World')
       expect(post.comments.get(1).body).toEqual('Cat')
+    it 'serializes the entire associated documents', ->
+    it 'serializes the ids', ->
 
-  describe '.property', ->
-    context 'with serialize with a string given', ->
-      it 'will setup a setter method for that name', ->
-
-  describe '#serialize()', ->
-    it 'serializes only the id by default', ->
-    it 'serializes any properties marked as serializable', ->
-    it 'serializes properties with the given string as key', ->
-    it 'serializes a property with the given function', ->
-    it 'serializes a belongs to association', ->
-    it 'serializes a has many association', ->
-    it 'serializes the id of a belongs to association', ->
-    it 'serializes the ids of a has many association', ->

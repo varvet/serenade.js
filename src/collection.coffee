@@ -1,5 +1,5 @@
 {Events} = require './events'
-{extend, forEach} = require './helpers'
+{extend, forEach, serializeObject} = require './helpers'
 
 class exports.Collection
   extend(@prototype, Events)
@@ -32,3 +32,5 @@ class exports.Collection
     @trigger("change", @list)
   delete: (item) ->
     @deleteAt(@indexOf(item))
+  serialize: ->
+    serializeObject(@list)
