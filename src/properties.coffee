@@ -1,10 +1,6 @@
 {Serenade} = require './serenade'
 {Collection} = require './collection'
-
-pairToObject = (one, two) ->
-  temp = {}
-  temp[one] = two
-  temp
+{pairToObject} = require './helpers'
 
 Serenade.Properties =
   property: (name, options={}) ->

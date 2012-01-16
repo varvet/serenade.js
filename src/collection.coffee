@@ -22,6 +22,8 @@ class exports.Collection
     @trigger("change", @list)
   forEach: (fun) ->
     forEach(@list, fun)
+  map: (fun) ->
+    fun(item) for item in @list
   indexOf: (item) ->
     @list.indexOf(item)
   deleteAt: (index) ->

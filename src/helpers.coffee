@@ -22,4 +22,15 @@ Helpers =
     else
       fun(element) for element in collection
 
+  map: (collection, fun) ->
+    if typeof(collection.map) is 'function'
+      collection.map(fun)
+    else
+      fun(element) for element in collection
+
+  pairToObject: (one, two) ->
+    temp = {}
+    temp[one] = two
+    temp
+
 Helpers.extend(exports, Helpers)
