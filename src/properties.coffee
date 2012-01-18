@@ -75,8 +75,9 @@ Serenade.Properties =
             checkDependenciesFor(name)
       checkDependenciesFor(prop) for prop in changedProperties
 
+    changes = {}
     for name in changedProperties
-      @trigger?("change:#{name}", @get(name))
-    obj = {}
-    extend(obj, pairToObject(name, @get(name))) for name in changedProperties
-    @trigger?("change", obj)
+      value = @get(name)
+      @trigger?("change:#{name}", value)
+      changes[name] = value
+    @trigger?("change", changes)
