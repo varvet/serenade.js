@@ -68,7 +68,7 @@ describe 'Custom helpers', ->
     expect(@body).toHaveElement('div > form#product')
     expect(@body).toHaveElement('div > article#banana')
 
-  context 'with block argument', ->
+  describe 'with block argument', ->
     it 'renders the block contents into an element', ->
       Serenade.Helpers.form = ->
         element = @document.createElement('form')

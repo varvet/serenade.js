@@ -9,7 +9,7 @@ describe 'Serenade.Properties', ->
     extend(@object, Serenade.Events)
 
   describe '.property', ->
-    context 'with serialize with a string given', ->
+    describe 'with serialize with a string given', ->
       it 'will setup a setter method for that name', ->
         @object.property 'fooBar', serialize: 'foo_bar'
         @object.set('foo_bar', 56)
@@ -34,7 +34,7 @@ describe 'Serenade.Properties', ->
       expect(@object).toHaveReceivedEvent('change:numbers', with: [@object.get('numbers')])
 
   describe '.set', ->
-    context 'with a single property', ->
+    describe 'with a single property', ->
       it 'sets that property', ->
         @object.set('foo', 23)
         expect(@object.get('foo')).toEqual(23)
@@ -49,7 +49,7 @@ describe 'Serenade.Properties', ->
         @object.property 'foo', set: (value) -> setValue = value
         @object.set('foo', 42)
         expect(setValue).toEqual(42)
-    context 'with multiple properties', ->
+    describe 'with multiple properties', ->
       it 'sets those property', ->
         @object.set(foo: 23, bar: 56)
         expect(@object.get('foo')).toEqual(23)
