@@ -29,6 +29,14 @@ describe 'Serenade.Properties', ->
         expect(@object).toHaveReceivedEvent('change:bar')
         expect(@object).toHaveReceivedEvent('change:quox')
       it 'does not bleed over between objects with same prototype', ->
+        @ctor = ->
+        @inst1 = new @ctor()
+        @inst2 = new @ctor()
+        extend(@ctor.prototype, Serenade.Properties)
+        @ctor.prototype.property 'name', serialize: true
+        @inst1.property 'age', serialize: true
+        @inst2.property 'height', serialize: true
+        expect(Object.keys(@inst2.serialize())).not.toContain('age')
 
   describe '.collection', ->
     it 'is initialized to a collection', ->

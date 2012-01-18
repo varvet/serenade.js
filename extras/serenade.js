@@ -146,7 +146,7 @@
       return temp;
     },
     serializeObject: function(object) {
-      if (typeof object.serialize === 'function') {
+      if (object && typeof object.serialize === 'function') {
         return object.serialize();
       } else if (Helpers.isArray(object)) {
         return Helpers.map(object, function(item) {
@@ -243,6 +243,64 @@
     return Collection;
 
   })();
+
+}).call(this);
+
+};require['./association_collection'] = new function() {
+  var exports = this;
+  (function() {
+  var AssociationCollection, Collection,
+    __hasProp = Object.prototype.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
+
+  Collection = require('./collection').Collection;
+
+  AssociationCollection = (function(_super) {
+
+    __extends(AssociationCollection, _super);
+
+    function AssociationCollection(ctor, list) {
+      this.ctor = ctor;
+      this.list = list;
+      AssociationCollection.__super__.constructor.call(this, this.list);
+    }
+
+    AssociationCollection.prototype.set = function(index, item) {
+      return AssociationCollection.__super__.set.call(this, index, this._convert(item));
+    };
+
+    AssociationCollection.prototype.push = function(item) {
+      return AssociationCollection.__super__.push.call(this, this._convert(item));
+    };
+
+    AssociationCollection.prototype.update = function(list) {
+      var item;
+      return AssociationCollection.__super__.update.call(this, (function() {
+        var _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = list.length; _i < _len; _i++) {
+          item = list[_i];
+          _results.push(this._convert(item));
+        }
+        return _results;
+      }).call(this));
+    };
+
+    AssociationCollection.prototype._convert = function(item) {
+      var ctor;
+      ctor = this.ctor();
+      if (item.constructor === ctor) {
+        return item;
+      } else {
+        return new ctor(item);
+      }
+    };
+
+    return AssociationCollection;
+
+  })(Collection);
+
+  exports.AssociationCollection = AssociationCollection;
 
 }).call(this);
 
@@ -1382,20 +1440,26 @@ if (typeof module !== 'undefined' && require.main === module) {
 };require['./properties'] = new function() {
   var exports = this;
   (function() {
-  var Collection, Serenade, pairToObject, serializeObject, _ref,
+  var Collection, Events, Serenade, exp, extend, pairToObject, prexix, serializeObject, _ref,
     __indexOf = Array.prototype.indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   Serenade = require('./serenade').Serenade;
 
   Collection = require('./collection').Collection;
 
-  _ref = require('./helpers'), pairToObject = _ref.pairToObject, serializeObject = _ref.serializeObject;
+  Events = require('./events').Events;
+
+  _ref = require('./helpers'), pairToObject = _ref.pairToObject, serializeObject = _ref.serializeObject, extend = _ref.extend;
+
+  prexix = "_prop_";
+
+  exp = /^_prop_/;
 
   Serenade.Properties = {
     property: function(name, options) {
       if (options == null) options = {};
-      this.properties || (this.properties = {});
-      this.properties[name] = options;
+      this[prexix + name] = options;
+      this[prexix + name].name = name;
       Object.defineProperty(this, name, {
         get: function() {
           return Serenade.Properties.get.call(this, name);
@@ -1422,7 +1486,7 @@ if (typeof module !== 'undefined' && require.main === module) {
           if (!this.attributes[name]) {
             this.attributes[name] = new Collection([]);
             this.attributes[name].bind('change', function() {
-              return _this._triggerChangesTo(pairToObject(name, _this.get(name)));
+              return _this._triggerChangesTo([name]);
             });
           }
           return this.attributes[name];
@@ -1433,33 +1497,35 @@ if (typeof module !== 'undefined' && require.main === module) {
       });
     },
     set: function(attributes, value) {
-      var name, _ref2, _ref3;
+      var keys, name, _ref2;
       if (typeof attributes === 'string') {
         attributes = pairToObject(attributes, value);
       }
+      keys = [];
       for (name in attributes) {
         value = attributes[name];
+        keys.push(name);
         this.attributes || (this.attributes = {});
-        if ((_ref2 = this.properties) != null ? (_ref3 = _ref2[name]) != null ? _ref3.set : void 0 : void 0) {
-          this.properties[name].set.call(this, value);
+        if ((_ref2 = this[prexix + name]) != null ? _ref2.set : void 0) {
+          this[prexix + name].set.call(this, value);
         } else {
           this.attributes[name] = value;
         }
       }
-      return this._triggerChangesTo(attributes);
+      return this._triggerChangesTo(keys);
     },
     get: function(name) {
-      var _ref2, _ref3;
+      var _ref2;
       this.attributes || (this.attributes = {});
-      if ((_ref2 = this.properties) != null ? (_ref3 = _ref2[name]) != null ? _ref3.get : void 0 : void 0) {
-        return this.properties[name].get.call(this);
+      if ((_ref2 = this[prexix + name]) != null ? _ref2.get : void 0) {
+        return this[prexix + name].get.call(this);
       } else {
         return this.attributes[name];
       }
     },
     format: function(name) {
-      var format, _ref2, _ref3;
-      format = (_ref2 = this.properties) != null ? (_ref3 = _ref2[name]) != null ? _ref3.format : void 0 : void 0;
+      var format, _ref2;
+      format = (_ref2 = this[prexix + name]) != null ? _ref2.format : void 0;
       if (typeof format === 'string') {
         return Serenade._formats[format].call(this, this.get(name));
       } else if (typeof format === 'function') {
@@ -1469,49 +1535,61 @@ if (typeof module !== 'undefined' && require.main === module) {
       }
     },
     serialize: function() {
-      var key, name, options, serialized, value, _ref2, _ref3;
+      var key, name, options, serialized, value, _ref2;
       serialized = {};
-      if (this.properties) {
-        _ref2 = this.properties;
-        for (name in _ref2) {
-          options = _ref2[name];
+      for (name in this) {
+        options = this[name];
+        if (name.match(exp)) {
           if (typeof options.serialize === 'string') {
-            serialized[options.serialize] = serializeObject(this.get(name));
+            serialized[options.serialize] = serializeObject(this.get(options.name));
           } else if (typeof options.serialize === 'function') {
-            _ref3 = options.serialize.call(this), key = _ref3[0], value = _ref3[1];
+            _ref2 = options.serialize.call(this), key = _ref2[0], value = _ref2[1];
             serialized[key] = serializeObject(value);
           } else if (options.serialize) {
-            serialized[name] = serializeObject(this.get(name));
+            serialized[options.name] = serializeObject(this.get(options.name));
           }
         }
       }
       return serialized;
     },
-    _triggerChangesTo: function(attributes) {
-      var dependencies, name, property, propertyName, value, _ref2;
-      for (name in attributes) {
-        value = attributes[name];
-        if (typeof this.trigger === "function") {
-          this.trigger("change:" + name, value);
-        }
-        if (this.properties) {
-          _ref2 = this.properties;
-          for (propertyName in _ref2) {
-            property = _ref2[propertyName];
-            if (property.dependsOn) {
-              dependencies = typeof property.dependsOn === 'string' ? [property.dependsOn] : property.dependsOn;
-              if (__indexOf.call(dependencies, name) >= 0) {
-                if (typeof this.trigger === "function") {
-                  this.trigger("change:" + propertyName, this.get(propertyName));
-                }
-              }
+    _triggerChangesTo: function(changedProperties) {
+      var changes, checkDependenciesFor, name, normalizeDeps, prop, value, _i, _j, _len, _len2,
+        _this = this;
+      normalizeDeps = function(deps) {
+        return [].concat(deps);
+      };
+      checkDependenciesFor = function(toCheck) {
+        var name, property, _ref2, _results;
+        _results = [];
+        for (name in _this) {
+          property = _this[name];
+          if (name.match(exp) && property.dependsOn) {
+            if (__indexOf.call(normalizeDeps(property.dependsOn), toCheck) >= 0 && (_ref2 = property.name, __indexOf.call(changedProperties, _ref2) < 0)) {
+              changedProperties.push(property.name);
+              _results.push(checkDependenciesFor(property.name));
+            } else {
+              _results.push(void 0);
             }
           }
         }
+        return _results;
+      };
+      for (_i = 0, _len = changedProperties.length; _i < _len; _i++) {
+        prop = changedProperties[_i];
+        checkDependenciesFor(prop);
       }
-      return typeof this.trigger === "function" ? this.trigger("change", attributes) : void 0;
+      changes = {};
+      for (_j = 0, _len2 = changedProperties.length; _j < _len2; _j++) {
+        name = changedProperties[_j];
+        value = this.get(name);
+        this.trigger("change:" + name, value);
+        changes[name] = value;
+      }
+      return this.trigger("change", changes);
     }
   };
+
+  extend(Serenade.Properties, Events);
 
 }).call(this);
 
@@ -1600,7 +1678,7 @@ if (typeof module !== 'undefined' && require.main === module) {
           if (!this.attributes[name]) {
             this.attributes[name] = new AssociationCollection(ctor, []);
             this.attributes[name].bind('change', function() {
-              return _this._triggerChangesTo(pairToObject(name, _this.get(name)));
+              return _this._triggerChangesTo([name]);
             });
           }
           return this.attributes[name];

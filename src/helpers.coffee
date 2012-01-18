@@ -37,7 +37,7 @@ Helpers =
     temp
 
   serializeObject: (object) ->
-    if typeof(object.serialize) is 'function'
+    if object and typeof(object.serialize) is 'function'
       object.serialize()
     else if Helpers.isArray(object)
       Helpers.map(object, (item) -> Helpers.serializeObject(item))

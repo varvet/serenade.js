@@ -3,10 +3,13 @@
 {Events} = require './events'
 {pairToObject, serializeObject, extend} = require './helpers'
 
+prexix = "_prop_"
+exp = /^_prop_/
+
 Serenade.Properties =
   property: (name, options={}) ->
-    @properties or= {}
-    @properties[name] = options
+    @[prexix + name] = options
+    @[prexix + name].name = name
     Object.defineProperty @, name,
       get: -> Serenade.Properties.get.call(this, name)
       set: (value) -> Serenade.Properties.set.call(this, name, value)
@@ -31,21 +34,21 @@ Serenade.Properties =
     for name, value of attributes
       keys.push(name)
       @attributes or= {}
-      if @properties?[name]?.set
-        @properties[name].set.call(this, value)
+      if @[prexix + name]?.set
+        @[prexix + name].set.call(this, value)
       else
         @attributes[name] = value
     @_triggerChangesTo(keys)
 
   get: (name) ->
     @attributes or= {}
-    if @properties?[name]?.get
-      @properties[name].get.call(this)
+    if @[prexix + name]?.get
+      @[prexix + name].get.call(this)
     else
       @attributes[name]
 
   format: (name) ->
-    format = @properties?[name]?.format
+    format = @[prexix + name]?.format
     if typeof(format) is 'string'
       Serenade._formats[format].call(this, @get(name))
     else if typeof(format) is 'function'
@@ -55,26 +58,24 @@ Serenade.Properties =
 
   serialize: ->
     serialized = {}
-    if @properties
-      for name, options of @properties
-        if typeof(options.serialize) is 'string'
-          serialized[options.serialize] = serializeObject(@get(name))
-        else if typeof(options.serialize) is 'function'
-          [key, value] = options.serialize.call(@)
-          serialized[key] = serializeObject(value)
-        else if options.serialize
-          serialized[name] = serializeObject(@get(name))
+    for name, options of this when name.match(exp)
+      if typeof(options.serialize) is 'string'
+        serialized[options.serialize] = serializeObject(@get(options.name))
+      else if typeof(options.serialize) is 'function'
+        [key, value] = options.serialize.call(@)
+        serialized[key] = serializeObject(value)
+      else if options.serialize
+        serialized[options.name] = serializeObject(@get(options.name))
     serialized
 
   _triggerChangesTo: (changedProperties) ->
-    if @properties
-      normalizeDeps = (deps) -> [].concat(deps)
-      checkDependenciesFor = (toCheck) =>
-        for name, property of @properties when property.dependsOn
-          if toCheck in normalizeDeps(property.dependsOn) and name not in changedProperties
-            changedProperties.push(name)
-            checkDependenciesFor(name)
-      checkDependenciesFor(prop) for prop in changedProperties
+    normalizeDeps = (deps) -> [].concat(deps)
+    checkDependenciesFor = (toCheck) =>
+      for name, property of this when name.match(exp) and property.dependsOn
+        if toCheck in normalizeDeps(property.dependsOn) and property.name not in changedProperties
+          changedProperties.push(property.name)
+          checkDependenciesFor(property.name)
+    checkDependenciesFor(prop) for prop in changedProperties
 
     changes = {}
     for name in changedProperties
