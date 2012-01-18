@@ -6,7 +6,6 @@ describe 'Serenade.Properties', ->
   beforeEach ->
     @object = {}
     extend(@object, Serenade.Properties)
-    extend(@object, Serenade.Events)
 
   describe '.property', ->
     describe 'with serialize with a string given', ->

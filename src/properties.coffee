@@ -1,5 +1,6 @@
 {Serenade} = require './serenade'
 {Collection} = require './collection'
+{Events} = require './events'
 {pairToObject, serializeObject, extend} = require './helpers'
 
 Serenade.Properties =
@@ -78,6 +79,8 @@ Serenade.Properties =
     changes = {}
     for name in changedProperties
       value = @get(name)
-      @trigger?("change:#{name}", value)
+      @trigger("change:#{name}", value)
       changes[name] = value
-    @trigger?("change", changes)
+    @trigger("change", changes)
+
+extend(Serenade.Properties, Events)
