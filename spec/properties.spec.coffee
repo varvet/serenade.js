@@ -16,6 +16,19 @@ describe 'Serenade.Properties', ->
         expect(@object.get('foo_bar')).toEqual(56)
         expect(@object.get('fooBar')).toEqual(56)
       it 'can handle circular dependencies', ->
+        @object.property 'foo', dependsOn: 'bar'
+        @object.property 'bar', dependsOn: 'foo'
+        @object.set('foo', 23)
+        expect(@object).toHaveReceivedEvent('change:foo')
+        expect(@object).toHaveReceivedEvent('change:bar')
+      it 'can handle secondary dependencies', ->
+        @object.property 'foo', dependsOn: 'quox'
+        @object.property 'bar', dependsOn: ['quox']
+        @object.property 'quox', dependsOn: ['bar', 'foo']
+        @object.set('foo', 23)
+        expect(@object).toHaveReceivedEvent('change:foo')
+        expect(@object).toHaveReceivedEvent('change:bar')
+        expect(@object).toHaveReceivedEvent('change:quox')
       it 'does not bleed over between objects with same prototype', ->
 
   describe '.collection', ->

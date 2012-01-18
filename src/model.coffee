@@ -38,7 +38,7 @@ class Serenade.Model
         unless @attributes[name]
           @attributes[name] = new AssociationCollection(ctor, [])
           @attributes[name].bind 'change', =>
-            @_triggerChangesTo(pairToObject(name, @get(name)))
+            @_triggerChangesTo([name])
         @attributes[name]
       set: (value) ->
         @get(name).update(value)

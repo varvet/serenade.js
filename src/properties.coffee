@@ -1,6 +1,6 @@
 {Serenade} = require './serenade'
 {Collection} = require './collection'
-{pairToObject, serializeObject} = require './helpers'
+{pairToObject, serializeObject, extend} = require './helpers'
 
 Serenade.Properties =
   property: (name, options={}) ->
@@ -18,7 +18,7 @@ Serenade.Properties =
         unless @attributes[name]
           @attributes[name] = new Collection([])
           @attributes[name].bind 'change', =>
-            @_triggerChangesTo(pairToObject(name, @get(name)))
+            @_triggerChangesTo([name])
         @attributes[name]
       set: (value) ->
         @get(name).update(value)
@@ -26,13 +26,15 @@ Serenade.Properties =
   set: (attributes, value) ->
     attributes = pairToObject(attributes, value) if typeof(attributes) is 'string'
 
+    keys = []
     for name, value of attributes
+      keys.push(name)
       @attributes or= {}
       if @properties?[name]?.set
         @properties[name].set.call(this, value)
       else
         @attributes[name] = value
-    @_triggerChangesTo(attributes)
+    @_triggerChangesTo(keys)
 
   get: (name) ->
     @attributes or= {}
@@ -63,13 +65,18 @@ Serenade.Properties =
           serialized[name] = serializeObject(@get(name))
     serialized
 
-  _triggerChangesTo: (attributes) ->
-    for name, value of attributes
-      @trigger?("change:#{name}", value)
-      if @properties
-        for propertyName, property of @properties
-          if property.dependsOn
-            dependencies = if typeof(property.dependsOn) is 'string' then [property.dependsOn] else property.dependsOn
-            if name in dependencies
-              @trigger?("change:#{propertyName}", @get(propertyName))
-    @trigger?("change", attributes)
+  _triggerChangesTo: (changedProperties) ->
+    if @properties
+      normalizeDeps = (deps) -> [].concat(deps)
+      checkDependenciesFor = (toCheck) =>
+        for name, property of @properties when property.dependsOn
+          if toCheck in normalizeDeps(property.dependsOn) and name not in changedProperties
+            changedProperties.push(name)
+            checkDependenciesFor(name)
+      checkDependenciesFor(prop) for prop in changedProperties
+
+    for name in changedProperties
+      @trigger?("change:#{name}", @get(name))
+    obj = {}
+    extend(obj, pairToObject(name, @get(name))) for name in changedProperties
+    @trigger?("change", obj)
