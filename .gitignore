@@ -2,4 +2,3 @@
 node_modules
 .node_modules
 lib/*
-extras/*
