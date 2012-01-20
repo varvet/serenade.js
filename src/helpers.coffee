@@ -4,10 +4,10 @@ Helpers =
       if Object.prototype.hasOwnProperty.call(source, key)
         target[key] = value
   get: (model, value, bound=true) ->
-    if bound and model.get
+    if bound and model?.get
       model.get(value)
     else if bound
-      model[value]
+      model?[value]
     else
       value
   format: (model, value, bound=true) ->

@@ -1,7 +1,7 @@
 {Serenade} = require './serenade'
 {Collection} = require './collection'
 {Events} = require './events'
-{pairToObject, serializeObject, extend} = require './helpers'
+{pairToObject, serializeObject, extend, map} = require './helpers'
 
 prexix = "_prop_"
 exp = /^_prop_/
@@ -30,15 +30,17 @@ Serenade.Properties =
   set: (attributes, value) ->
     attributes = pairToObject(attributes, value) if typeof(attributes) is 'string'
 
-    keys = []
+    names = []
     for name, value of attributes
-      keys.push(name)
+      @_undefer(name)
+      names.push(name)
       @attributes or= {}
       if @[prexix + name]?.set
         @[prexix + name].set.call(this, value)
       else
         @attributes[name] = value
-    @_triggerChangesTo(keys)
+      @_defer(name)
+    @_triggerChangesTo(names)
 
   get: (name) ->
     @attributes or= {}
@@ -68,6 +70,16 @@ Serenade.Properties =
         serialized[options.name] = serializeObject(@get(options.name))
     serialized
 
+  _defer: (name) ->
+    deferred = @get(name)
+    if deferred
+      deferred._deferTo or= {}
+      deferred._deferTo?[name] = this
+
+  _undefer: (name) ->
+    deferred = @get(name)
+    delete deferred._deferTo[name] if deferred?._deferTo
+
   _triggerChangesTo: (changedProperties) ->
     normalizeDeps = (deps) -> [].concat(deps)
     checkDependenciesFor = (toCheck) =>
@@ -83,5 +95,9 @@ Serenade.Properties =
       @trigger("change:#{name}", value)
       changes[name] = value
     @trigger("change", changes)
+
+    for deferName, deferObject of @_deferTo when @_deferTo.hasOwnProperty(deferName)
+      keys = map(changedProperties, (prop) -> "#{deferName}.#{prop}")
+      deferObject._triggerChangesTo(keys)
 
 extend(Serenade.Properties, Events)

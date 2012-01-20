@@ -94,10 +94,10 @@
     },
     get: function(model, value, bound) {
       if (bound == null) bound = true;
-      if (bound && model.get) {
+      if (bound && (model != null ? model.get : void 0)) {
         return model.get(value);
       } else if (bound) {
-        return model[value];
+        return model != null ? model[value] : void 0;
       } else {
         return value;
       }
@@ -1442,7 +1442,7 @@ if (typeof module !== 'undefined' && require.main === module) {
 };require['./properties'] = new function() {
   var exports = this;
   (function() {
-  var Collection, Events, Serenade, exp, extend, pairToObject, prexix, serializeObject, _ref,
+  var Collection, Events, Serenade, exp, extend, map, pairToObject, prexix, serializeObject, _ref,
     __indexOf = Array.prototype.indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   Serenade = require('./serenade').Serenade;
@@ -1451,7 +1451,7 @@ if (typeof module !== 'undefined' && require.main === module) {
 
   Events = require('./events').Events;
 
-  _ref = require('./helpers'), pairToObject = _ref.pairToObject, serializeObject = _ref.serializeObject, extend = _ref.extend;
+  _ref = require('./helpers'), pairToObject = _ref.pairToObject, serializeObject = _ref.serializeObject, extend = _ref.extend, map = _ref.map;
 
   prexix = "_prop_";
 
@@ -1499,22 +1499,24 @@ if (typeof module !== 'undefined' && require.main === module) {
       });
     },
     set: function(attributes, value) {
-      var keys, name, _ref2;
+      var name, names, _ref2;
       if (typeof attributes === 'string') {
         attributes = pairToObject(attributes, value);
       }
-      keys = [];
+      names = [];
       for (name in attributes) {
         value = attributes[name];
-        keys.push(name);
+        this._undefer(name);
+        names.push(name);
         this.attributes || (this.attributes = {});
         if ((_ref2 = this[prexix + name]) != null ? _ref2.set : void 0) {
           this[prexix + name].set.call(this, value);
         } else {
           this.attributes[name] = value;
         }
+        this._defer(name);
       }
-      return this._triggerChangesTo(keys);
+      return this._triggerChangesTo(names);
     },
     get: function(name) {
       var _ref2;
@@ -1554,8 +1556,23 @@ if (typeof module !== 'undefined' && require.main === module) {
       }
       return serialized;
     },
+    _defer: function(name) {
+      var deferred, _ref2;
+      deferred = this.get(name);
+      if (deferred) {
+        deferred._deferTo || (deferred._deferTo = {});
+        return (_ref2 = deferred._deferTo) != null ? _ref2[name] = this : void 0;
+      }
+    },
+    _undefer: function(name) {
+      var deferred;
+      deferred = this.get(name);
+      if (deferred != null ? deferred._deferTo : void 0) {
+        return delete deferred._deferTo[name];
+      }
+    },
     _triggerChangesTo: function(changedProperties) {
-      var changes, checkDependenciesFor, name, normalizeDeps, prop, value, _i, _j, _len, _len2,
+      var changes, checkDependenciesFor, deferName, deferObject, keys, name, normalizeDeps, prop, value, _i, _j, _len, _len2, _ref2, _results,
         _this = this;
       normalizeDeps = function(deps) {
         return [].concat(deps);
@@ -1587,7 +1604,18 @@ if (typeof module !== 'undefined' && require.main === module) {
         this.trigger("change:" + name, value);
         changes[name] = value;
       }
-      return this.trigger("change", changes);
+      this.trigger("change", changes);
+      _ref2 = this._deferTo;
+      _results = [];
+      for (deferName in _ref2) {
+        deferObject = _ref2[deferName];
+        if (!(this._deferTo.hasOwnProperty(deferName))) continue;
+        keys = map(changedProperties, function(prop) {
+          return "" + deferName + "." + prop;
+        });
+        _results.push(deferObject._triggerChangesTo(keys));
+      }
+      return _results;
     }
   };
 

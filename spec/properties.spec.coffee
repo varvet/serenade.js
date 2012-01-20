@@ -3,9 +3,12 @@
 {extend} = require '../src/helpers'
 
 describe 'Serenade.Properties', ->
+  extended = (obj={}) ->
+    extend(obj, Serenade.Properties)
+    obj
+
   beforeEach ->
-    @object = {}
-    extend(@object, Serenade.Properties)
+    @object = extended()
 
   describe '.property', ->
     describe 'with serialize with a string given', ->
@@ -28,6 +31,22 @@ describe 'Serenade.Properties', ->
         expect(@object).toHaveReceivedEvent('change:foo')
         expect(@object).toHaveReceivedEvent('change:bar')
         expect(@object).toHaveReceivedEvent('change:quox')
+      it 'can reach into properties and observe changes to them', ->
+        @object.property 'name', dependsOn: 'author.name'
+        @object.property 'author'
+        @object.set(author: extended())
+        @object.get('author').set(name: 'test')
+
+        expect(@object).toHaveReceivedEvent('change:name')
+      it 'does not observe changes on objects which are no longer associated', ->
+        @object.property 'name', dependsOn: 'author.name'
+        @object.property 'author'
+        @object.set(author: extended())
+        oldAuthor = @object.get('author')
+        @object.set(author: extended())
+        oldAuthor.set(name: 'test')
+        expect(@object).not.toHaveReceivedEvent('change:name')
+
       it 'does not bleed over between objects with same prototype', ->
         @ctor = ->
         @inst1 = new @ctor()
