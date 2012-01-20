@@ -55,6 +55,8 @@ class Attribute
     value = @get()
     if @ast.name is 'value'
       @element.value = value or ''
+    else if @node.ast.name is 'input' and @ast.name is 'checked'
+      @element.checked = !!value
     else if @ast.name is 'class'
       classes = @node.ast.shortClasses
       classes = classes.concat(value) unless value is undefined
@@ -92,7 +94,7 @@ class TextNode
 
 class View
   constructor: (@ast, @document, @model, @parentController) ->
-    @controller = Serenade.controllerFor(@ast.arguments[0])
+    @controller = Serenade.controllerFor(@ast.arguments[0], @model)
     @controller.parent = @parentController if @controller
     @view = Serenade.render(@ast.arguments[0], @model, @controller or @parentController, @document)
 

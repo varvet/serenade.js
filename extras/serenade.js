@@ -323,14 +323,14 @@
       if (document == null) {
         document = typeof window !== "undefined" && window !== null ? window.document : void 0;
       }
-      controller || (controller = this.controllerFor(name));
+      controller || (controller = this.controllerFor(name, model));
       return this._views[name].render(document, model, controller);
     },
     registerController: function(name, klass) {
       return this._controllers[name] = klass;
     },
-    controllerFor: function(name) {
-      if (this._controllers[name]) return new this._controllers[name]();
+    controllerFor: function(name, model) {
+      if (this._controllers[name]) return new this._controllers[name](model);
     },
     registerFormat: function(name, fun) {
       return this._formats[name] = fun;
@@ -651,6 +651,8 @@
       value = this.get();
       if (this.ast.name === 'value') {
         return this.element.value = value || '';
+      } else if (this.node.ast.name === 'input' && this.ast.name === 'checked') {
+        return this.element.checked = !!value;
       } else if (this.ast.name === 'class') {
         classes = this.node.ast.shortClasses;
         if (value !== void 0) classes = classes.concat(value);
@@ -723,7 +725,7 @@
       this.document = document;
       this.model = model;
       this.parentController = parentController;
-      this.controller = Serenade.controllerFor(this.ast.arguments[0]);
+      this.controller = Serenade.controllerFor(this.ast.arguments[0], this.model);
       if (this.controller) this.controller.parent = this.parentController;
       this.view = Serenade.render(this.ast.arguments[0], this.model, this.controller || this.parentController, this.document);
     }

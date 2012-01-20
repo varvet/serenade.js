@@ -28,6 +28,22 @@ describe 'View', ->
 
     expect(funked).toBeTruthy()
 
+  it 'inits controller with model', ->
+    funked = null
+    model = { quox: { test: 'foo' } }
+    class TestCon
+      constructor: (model) -> funked = model.test
+
+    Serenade.registerView('test', 'li[id="foo" event:click=funk]')
+    Serenade.registerController('test', TestCon)
+
+    @render '''
+      ul
+        - in "quox"
+          - view "test"
+    ''', model
+    expect(funked).toEqual('foo')
+
   it 'falls back to same controller if none is set up', ->
     funked = false
     class TestCon

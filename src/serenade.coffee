@@ -8,13 +8,13 @@ Serenade =
     {View} = require('./view')
     @_views[name] = new View(template)
   render: (name, model, controller, document=window?.document) ->
-    controller or= @controllerFor(name)
+    controller or= @controllerFor(name, model)
     @_views[name].render(document, model, controller)
 
   registerController: (name, klass) ->
     @_controllers[name] = klass
-  controllerFor: (name) ->
-    new (@_controllers[name])() if @_controllers[name]
+  controllerFor: (name, model) ->
+    new (@_controllers[name])(model) if @_controllers[name]
   registerFormat: (name, fun) ->
     @_formats[name] = fun
 

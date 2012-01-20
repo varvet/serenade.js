@@ -50,6 +50,17 @@ describe 'Bound attributes and text nodes', ->
     model.set('name', 'peter')
     expect(@body.find('input').val()).toEqual('peter')
 
+  it 'handles checked specially', ->
+    model = new Serenade.Model
+    model.set('checked', true)
+    @render 'input[checked=checked]', model
+
+    expect(@body.find('input').is(':checked')).toBeTruthy()
+    model.set('checked', false)
+    expect(@body.find('input').is(':checked')).toBeFalsy()
+    model.set('checked', 'schmock')
+    expect(@body.find('input').is(':checked')).toBeTruthy()
+
   it 'changes bound text nodes as they are changed', ->
     model = new Serenade.Model
     model.set('name', 'Jonas Nicklas')
