@@ -23,6 +23,7 @@ Serenade.Properties =
           @attributes[name] = new Collection([])
           @attributes[name].bind 'change', =>
             @_triggerChangesTo([name])
+          @attributes[name]._deferTo = pairToObject(name, this)
         @attributes[name]
       set: (value) ->
         @get(name).update(value)
@@ -72,7 +73,7 @@ Serenade.Properties =
 
   _defer: (name) ->
     deferred = @get(name)
-    if deferred
+    if typeof deferred is 'object'
       deferred._deferTo or= {}
       deferred._deferTo?[name] = this
 
@@ -96,7 +97,12 @@ Serenade.Properties =
       changes[name] = value
     @trigger("change", changes)
 
-    for deferName, deferObject of @_deferTo when @_deferTo.hasOwnProperty(deferName)
+    allDefers = (@_deferTo or [])
+    if @_inCollections
+      for collection in @_inCollections
+        extend(allDefers, collection._deferTo)
+
+    for deferName, deferObject of allDefers when allDefers.hasOwnProperty(deferName)
       keys = map(changedProperties, (prop) -> "#{deferName}.#{prop}")
       deferObject._triggerChangesTo(keys)
 

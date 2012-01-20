@@ -1,5 +1,5 @@
 {Events} = require './events'
-{extend, forEach, serializeObject} = require './helpers'
+{extend, forEach, serializeObject, deleteItem} = require './helpers'
 
 class exports.Collection
   extend(@prototype, Events)
@@ -8,16 +8,21 @@ class exports.Collection
     @bind("change", => @length = @list.length)
   get: (index) -> @list[index]
   set: (index, value) ->
+    @_notIn(@list[index])
     @list[index] = value
+    @_in(value)
     @trigger("change:#{index}", value)
     @trigger("set", index, value)
     @trigger("change", @list)
   push: (element) ->
     @list.push(element)
+    @_in(element)
     @trigger("add", element)
     @trigger("change", @list)
   update: (list) ->
+    @_notIn(element) for element in @list
     @list = list
+    @_in(element) for element in list
     @trigger("update", list)
     @trigger("change", @list)
   forEach: (fun) ->
@@ -27,6 +32,7 @@ class exports.Collection
   indexOf: (item) ->
     @list.indexOf(item)
   deleteAt: (index) ->
+    @_notIn(@list[index])
     @list.splice(index, 1)
     @trigger("delete", index)
     @trigger("change", @list)
@@ -34,3 +40,11 @@ class exports.Collection
     @deleteAt(@indexOf(item))
   serialize: ->
     serializeObject(@list)
+
+  _in: (item) ->
+    if typeof item is 'object'
+      item._inCollections or= []
+      item._inCollections?.push(this)
+
+  _notIn: (item) ->
+    deleteItem(item._inCollections, this) if item?._inCollections

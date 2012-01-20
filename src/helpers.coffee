@@ -44,4 +44,7 @@ Helpers =
     else
       object
 
+  deleteItem: (arr, item) ->
+    arr.splice(arr.indexOf(item), 1)
+
 Helpers.extend(exports, Helpers)

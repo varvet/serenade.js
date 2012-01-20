@@ -36,7 +36,6 @@ describe 'Serenade.Properties', ->
         @object.property 'author'
         @object.set(author: extended())
         @object.get('author').set(name: 'test')
-
         expect(@object).toHaveReceivedEvent('change:name')
       it 'does not observe changes on objects which are no longer associated', ->
         @object.property 'name', dependsOn: 'author.name'
@@ -46,7 +45,21 @@ describe 'Serenade.Properties', ->
         @object.set(author: extended())
         oldAuthor.set(name: 'test')
         expect(@object).not.toHaveReceivedEvent('change:name')
-
+      it 'can reach into collections and observe changes to them', ->
+        @object.property 'authorNames', dependsOn: 'authors.name'
+        @object.collection 'authors'
+        @object.authors.push(extended())
+        @object.authors.get(0).set(name: 'test')
+        expect(@object).toHaveReceivedEvent('change:authorNames')
+      it 'does not observe changes to elements no longer in the collcection', ->
+        @object.property 'authorNames', dependsOn: 'authors.name'
+        @object.collection 'authors'
+        @object.authors.push(extended())
+        oldAuthor = @object.authors.get(0)
+        oldAuthor.schmoo = true
+        @object.authors.deleteAt(0)
+        oldAuthor.set(name: 'test')
+        expect(@object).not.toHaveReceivedEvent('change:authorNames')
       it 'does not bleed over between objects with same prototype', ->
         @ctor = ->
         @inst1 = new @ctor()
