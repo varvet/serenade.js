@@ -39,9 +39,10 @@ class Style
 class Event
   constructor: (@ast, @node, @document, @model, @controller) ->
     @element = @node.element
-    callback = (e) =>
-      e.preventDefault() if @ast.preventDefault
-      @controller[@ast.value](e)
+    self = this # work around a bug in coffeescript
+    callback = (e) ->
+      e.preventDefault() if self.ast.preventDefault
+      self.controller[self.ast.value](e)
     @element.addEventListener(@ast.name, callback, false)
 
 class Attribute
@@ -111,7 +112,7 @@ class View
     @view
 
 class If
-  constructor: (@ast, @document, @model, @parentController) ->
+  constructor: (@ast, @document, @model, @controller) ->
     @anchor = document.createTextNode('')
     @model.bind? "change:#{@ast.arguments[0]}", @build
 
@@ -142,7 +143,7 @@ class If
     @nodes[@nodes.length - 1].lastElement()
 
 class In
-  constructor: (@ast, @document, @model, @parentController) ->
+  constructor: (@ast, @document, @model, @controller) ->
     @anchor = document.createTextNode('')
     @model.bind? "change:#{@ast.arguments[0]}", @build
 
