@@ -73,10 +73,10 @@ class Attribute
 
 class TextNode
   constructor: (@ast, @document, @model, @controller) ->
-    @textNode = document.createTextNode(@get() or '')
+    @textNode = document.createTextNode(@get())
     if @ast.bound
-      model.bind? "change:#{@ast.value}", (value) =>
-        @textNode.nodeValue = value or ''
+      model.bind? "change:#{@ast.value}", =>
+        @textNode.nodeValue = @get()
 
   append: (inside) ->
     inside.appendChild(@textNode)
@@ -90,7 +90,7 @@ class TextNode
   lastElement: ->
     @textNode
 
-  get: (model) -> format(@model, @ast.value, @ast.bound)
+  get: -> format(@model, @ast.value, @ast.bound) or ''
 
 class View
   constructor: (@ast, @document, @model, @parentController) ->
