@@ -155,6 +155,9 @@
       } else {
         return object;
       }
+    },
+    deleteItem: function(arr, item) {
+      return arr.splice(arr.indexOf(item), 1);
     }
   };
 
@@ -165,11 +168,11 @@
 };require['./collection'] = new function() {
   var exports = this;
   (function() {
-  var Events, extend, forEach, serializeObject, _ref;
+  var Events, deleteItem, extend, forEach, serializeObject, _ref;
 
   Events = require('./events').Events;
 
-  _ref = require('./helpers'), extend = _ref.extend, forEach = _ref.forEach, serializeObject = _ref.serializeObject;
+  _ref = require('./helpers'), extend = _ref.extend, forEach = _ref.forEach, serializeObject = _ref.serializeObject, deleteItem = _ref.deleteItem;
 
   exports.Collection = (function() {
 
@@ -189,7 +192,9 @@
     };
 
     Collection.prototype.set = function(index, value) {
+      this._notIn(this.list[index]);
       this.list[index] = value;
+      this._in(value);
       this.trigger("change:" + index, value);
       this.trigger("set", index, value);
       return this.trigger("change", this.list);
@@ -197,12 +202,23 @@
 
     Collection.prototype.push = function(element) {
       this.list.push(element);
+      this._in(element);
       this.trigger("add", element);
       return this.trigger("change", this.list);
     };
 
     Collection.prototype.update = function(list) {
+      var element, _i, _j, _len, _len2, _ref2;
+      _ref2 = this.list;
+      for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+        element = _ref2[_i];
+        this._notIn(element);
+      }
       this.list = list;
+      for (_j = 0, _len2 = list.length; _j < _len2; _j++) {
+        element = list[_j];
+        this._in(element);
+      }
       this.trigger("update", list);
       return this.trigger("change", this.list);
     };
@@ -227,6 +243,7 @@
     };
 
     Collection.prototype.deleteAt = function(index) {
+      this._notIn(this.list[index]);
       this.list.splice(index, 1);
       this.trigger("delete", index);
       return this.trigger("change", this.list);
@@ -238,6 +255,31 @@
 
     Collection.prototype.serialize = function() {
       return serializeObject(this.list);
+    };
+
+    Collection.prototype.select = function(fun) {
+      var item, _i, _len, _ref2, _results;
+      _ref2 = this.list;
+      _results = [];
+      for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+        item = _ref2[_i];
+        if (fun(item)) _results.push(item);
+      }
+      return _results;
+    };
+
+    Collection.prototype._in = function(item) {
+      var _ref2;
+      if (typeof item === 'object') {
+        item._inCollections || (item._inCollections = []);
+        return (_ref2 = item._inCollections) != null ? _ref2.push(this) : void 0;
+      }
+    };
+
+    Collection.prototype._notIn = function(item) {
+      if (item != null ? item._inCollections : void 0) {
+        return deleteItem(item._inCollections, this);
+      }
     };
 
     return Collection;
@@ -606,17 +648,17 @@
   Event = (function() {
 
     function Event(ast, node, document, model, controller) {
-      var callback,
-        _this = this;
+      var callback, self;
       this.ast = ast;
       this.node = node;
       this.document = document;
       this.model = model;
       this.controller = controller;
       this.element = this.node.element;
+      self = this;
       callback = function(e) {
-        if (_this.ast.preventDefault) e.preventDefault();
-        return _this.controller[_this.ast.value](e);
+        if (self.ast.preventDefault) e.preventDefault();
+        return self.controller[self.ast.value](e);
       };
       this.element.addEventListener(this.ast.name, callback, false);
     }
@@ -684,11 +726,11 @@
       this.document = document;
       this.model = model;
       this.controller = controller;
-      this.textNode = document.createTextNode(this.get() || '');
+      this.textNode = document.createTextNode(this.get());
       if (this.ast.bound) {
         if (typeof model.bind === "function") {
-          model.bind("change:" + this.ast.value, function(value) {
-            return _this.textNode.nodeValue = value || '';
+          model.bind("change:" + this.ast.value, function() {
+            return _this.textNode.nodeValue = _this.get();
           });
         }
       }
@@ -710,8 +752,8 @@
       return this.textNode;
     };
 
-    TextNode.prototype.get = function(model) {
-      return format(this.model, this.ast.value, this.ast.bound);
+    TextNode.prototype.get = function() {
+      return format(this.model, this.ast.value, this.ast.bound) || '';
     };
 
     return TextNode;
@@ -752,12 +794,12 @@
 
   If = (function() {
 
-    function If(ast, document, model, parentController) {
+    function If(ast, document, model, controller) {
       var _base;
       this.ast = ast;
       this.document = document;
       this.model = model;
-      this.parentController = parentController;
+      this.controller = controller;
       this.build = __bind(this.build, this);
       this.anchor = document.createTextNode('');
       if (typeof (_base = this.model).bind === "function") {
@@ -827,12 +869,12 @@
 
   In = (function() {
 
-    function In(ast, document, model, parentController) {
+    function In(ast, document, model, controller) {
       var _base;
       this.ast = ast;
       this.document = document;
       this.model = model;
-      this.parentController = parentController;
+      this.controller = controller;
       this.build = __bind(this.build, this);
       this.anchor = document.createTextNode('');
       if (typeof (_base = this.model).bind === "function") {
@@ -1490,6 +1532,7 @@ if (typeof module !== 'undefined' && require.main === module) {
             this.attributes[name].bind('change', function() {
               return _this._triggerChangesTo([name]);
             });
+            this.attributes[name]._deferTo = pairToObject(name, this);
           }
           return this.attributes[name];
         },
@@ -1559,7 +1602,7 @@ if (typeof module !== 'undefined' && require.main === module) {
     _defer: function(name) {
       var deferred, _ref2;
       deferred = this.get(name);
-      if (deferred) {
+      if (typeof deferred === 'object') {
         deferred._deferTo || (deferred._deferTo = {});
         return (_ref2 = deferred._deferTo) != null ? _ref2[name] = this : void 0;
       }
@@ -1572,7 +1615,7 @@ if (typeof module !== 'undefined' && require.main === module) {
       }
     },
     _triggerChangesTo: function(changedProperties) {
-      var changes, checkDependenciesFor, deferName, deferObject, keys, name, normalizeDeps, prop, value, _i, _j, _len, _len2, _ref2, _results,
+      var allDefers, changes, checkDependenciesFor, collection, deferName, deferObject, keys, name, normalizeDeps, prop, value, _i, _j, _k, _len, _len2, _len3, _ref2, _results,
         _this = this;
       normalizeDeps = function(deps) {
         return [].concat(deps);
@@ -1605,11 +1648,18 @@ if (typeof module !== 'undefined' && require.main === module) {
         changes[name] = value;
       }
       this.trigger("change", changes);
-      _ref2 = this._deferTo;
+      allDefers = this._deferTo || [];
+      if (this._inCollections) {
+        _ref2 = this._inCollections;
+        for (_k = 0, _len3 = _ref2.length; _k < _len3; _k++) {
+          collection = _ref2[_k];
+          extend(allDefers, collection._deferTo);
+        }
+      }
       _results = [];
-      for (deferName in _ref2) {
-        deferObject = _ref2[deferName];
-        if (!(this._deferTo.hasOwnProperty(deferName))) continue;
+      for (deferName in allDefers) {
+        deferObject = allDefers[deferName];
+        if (!(allDefers.hasOwnProperty(deferName))) continue;
         keys = map(changedProperties, function(prop) {
           return "" + deferName + "." + prop;
         });
