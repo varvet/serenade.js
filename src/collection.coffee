@@ -40,6 +40,8 @@ class exports.Collection
     @deleteAt(@indexOf(item))
   serialize: ->
     serializeObject(@list)
+  select: (fun) ->
+    item for item in @list when fun(item)
 
   _in: (item) ->
     if typeof item is 'object'
