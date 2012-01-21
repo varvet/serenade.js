@@ -22,4 +22,11 @@ class Serenade.Model
         return fromCache
       else
         Cache.set(@constructor, attributes.id, this)
+    if @constructor.localStorage is 'save'
+      @bind('saved', -> Cache.store(@constructor, attributes.id, this))
+    else if @constructor.localStorage
+      @bind('change', -> Cache.store(@constructor, attributes.id, this))
     @set(attributes)
+
+  save: ->
+    @trigger('saved')

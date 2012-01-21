@@ -1,9 +1,9 @@
 {Serenade} = require '../src/serenade'
+{Cache} = require '../src/cache'
 
 describe 'Serenade.Model', ->
   afterEach ->
-    Serenade.Model._identityMap = undefined
-    Serenade.Model._all = undefined
+    Serenade.resetIdentityMap()
 
   describe '#constructor', ->
     it 'sets the given properties', ->
@@ -28,6 +28,35 @@ describe 'Serenade.Model', ->
       expect(john2.test).toBeFalsy()
       expect(john2.get('age')).toEqual(46)
       expect(john2.get('name')).toBeUndefined()
+
+    it 'does not store in local storage if local storage is false', ->
+      class Test extends Serenade.Model
+        @property 'test', serialize: 'testing'
+
+      test = new Test(id: 5, test: 'foo')
+      expect(Cache.retrieve(Test, 5)).toBeUndefined()
+
+    it 'binds sets the cache on any changes if localStorage is true', ->
+      class Test extends Serenade.Model
+        @property 'test', serialize: 'testing'
+        @localStorage = true
+
+      test = new Test(id: 5, test: 'foo')
+      expect(Cache.retrieve(Test, 5).test).toEqual('foo')
+      test.set('test', 'monkey')
+      expect(Cache.retrieve(Test, 5).test).toEqual('monkey')
+
+    it 'binds a sets the cache only when saved if localStorage is "save"', ->
+      class Test extends Serenade.Model
+        @property 'test', serialize: 'testing'
+        @localStorage = 'save'
+
+      test = new Test(id: 5, test: 'foo')
+      expect(Cache.retrieve(Test, 5)).toBeUndefined()
+      test.set('test', 'monkey')
+      expect(Cache.retrieve(Test, 5)).toBeUndefined()
+      test.save()
+      expect(Cache.retrieve(Test, 5).test).toEqual('monkey')
 
   describe '.find', ->
     it 'creates a new blank object with the given id', ->

@@ -168,23 +168,41 @@
 };require['./cache'] = new function() {
   var exports = this;
   (function() {
-  var Cache;
+  var Cache, serializeObject;
+
+  serializeObject = require('../src/helpers.coffee').serializeObject;
 
   Cache = {
+    _storage: typeof window !== "undefined" && window !== null ? window.localStorage : void 0,
     _identityMap: {},
     get: function(ctor, id) {
       var name, _ref;
       name = ctor.toString();
-      if (name) {
-        return (_ref = this._identityMap[name]) != null ? _ref[id] : void 0;
+      if (name && id) {
+        return ((_ref = this._identityMap[name]) != null ? _ref[id] : void 0) || this.retrieve(ctor, id);
       }
     },
     set: function(ctor, id, obj) {
       var name, _base;
       name = ctor.toString();
-      if (name) {
+      if (name && id) {
         (_base = this._identityMap)[name] || (_base[name] = {});
         return this._identityMap[name][id] = obj;
+      }
+    },
+    store: function(ctor, id, obj) {
+      var name;
+      name = ctor.toString();
+      if (name && id) {
+        return this._storage.setItem("" + name + "_" + id, JSON.stringify(serializeObject(obj)));
+      }
+    },
+    retrieve: function(ctor, id) {
+      var data, name;
+      name = ctor.toString();
+      if (name && id && ctor.localStorage) {
+        data = this._storage.getItem("" + name + "_" + id);
+        if (data) return new ctor(JSON.parse(data));
       }
     }
   };
@@ -460,7 +478,9 @@
 };require['./serenade'] = new function() {
   var exports = this;
   (function() {
-  var Serenade;
+  var Cache, Serenade;
+
+  Cache = require('./cache').Cache;
 
   Serenade = {
     VERSION: '0.1.0',
@@ -487,6 +507,9 @@
     },
     registerFormat: function(name, fun) {
       return this._formats[name] = fun;
+    },
+    resetIdentityMap: function() {
+      return Cache._identityMap = {};
     },
     Events: require('./events').Events,
     Collection: require('./collection').Collection,
@@ -1840,8 +1863,21 @@ if (typeof module !== 'undefined' && require.main === module) {
           Cache.set(this.constructor, attributes.id, this);
         }
       }
+      if (this.constructor.localStorage === 'save') {
+        this.bind('saved', function() {
+          return Cache.store(this.constructor, attributes.id, this);
+        });
+      } else if (this.constructor.localStorage) {
+        this.bind('change', function() {
+          return Cache.store(this.constructor, attributes.id, this);
+        });
+      }
       this.set(attributes);
     }
+
+    Model.prototype.save = function() {
+      return this.trigger('saved');
+    };
 
     return Model;
 

@@ -1,3 +1,5 @@
+{Cache} = require './cache'
+
 Serenade =
   VERSION: '0.1.0'
   _views: {}
@@ -17,6 +19,8 @@ Serenade =
     new (@_controllers[name])(model) if @_controllers[name]
   registerFormat: (name, fun) ->
     @_formats[name] = fun
+  resetIdentityMap: ->
+    Cache._identityMap = {}
 
   Events: require('./events').Events
   Collection: require('./collection').Collection

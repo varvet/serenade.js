@@ -1,5 +1,6 @@
 {Serenade} = require '../src/serenade'
 {View} = require '../src/view'
+{Cache} = require '../src/cache'
 require('../src/properties')
 require('../src/model')
 sinon = require('sinon')
@@ -66,6 +67,10 @@ beforeEach ->
         @actual._triggeredEvents.hasOwnProperty(name)
 
   @sinon = sinon.sandbox.create()
+  Cache._storage =
+    _items: {}
+    getItem: (id) -> @_items[id]
+    setItem: (id, item) -> @_items[id] = item.toString()
 
 afterEach ->
   @sinon.restore()
