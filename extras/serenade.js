@@ -165,6 +165,34 @@
 
 }).call(this);
 
+};require['./cache'] = new function() {
+  var exports = this;
+  (function() {
+  var Cache;
+
+  Cache = {
+    _identityMap: {},
+    get: function(ctor, id) {
+      var name, _ref;
+      name = ctor.toString();
+      if (name) {
+        return (_ref = this._identityMap[name]) != null ? _ref[id] : void 0;
+      }
+    },
+    set: function(ctor, id, obj) {
+      var name, _base;
+      name = ctor.toString();
+      if (name) {
+        (_base = this._identityMap)[name] || (_base[name] = {});
+        return this._identityMap[name][id] = obj;
+      }
+    }
+  };
+
+  exports.Cache = Cache;
+
+}).call(this);
+
 };require['./collection'] = new function() {
   var exports = this;
   (function() {
@@ -288,6 +316,64 @@
 
 }).call(this);
 
+};require['./association_collection'] = new function() {
+  var exports = this;
+  (function() {
+  var AssociationCollection, Collection,
+    __hasProp = Object.prototype.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
+
+  Collection = require('./collection').Collection;
+
+  AssociationCollection = (function(_super) {
+
+    __extends(AssociationCollection, _super);
+
+    function AssociationCollection(ctor, list) {
+      this.ctor = ctor;
+      this.list = list;
+      AssociationCollection.__super__.constructor.call(this, this.list);
+    }
+
+    AssociationCollection.prototype.set = function(index, item) {
+      return AssociationCollection.__super__.set.call(this, index, this._convert(item));
+    };
+
+    AssociationCollection.prototype.push = function(item) {
+      return AssociationCollection.__super__.push.call(this, this._convert(item));
+    };
+
+    AssociationCollection.prototype.update = function(list) {
+      var item;
+      return AssociationCollection.__super__.update.call(this, (function() {
+        var _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = list.length; _i < _len; _i++) {
+          item = list[_i];
+          _results.push(this._convert(item));
+        }
+        return _results;
+      }).call(this));
+    };
+
+    AssociationCollection.prototype._convert = function(item) {
+      var ctor;
+      ctor = this.ctor();
+      if (item.constructor === ctor) {
+        return item;
+      } else {
+        return new ctor(item);
+      }
+    };
+
+    return AssociationCollection;
+
+  })(Collection);
+
+  exports.AssociationCollection = AssociationCollection;
+
+}).call(this);
+
 };require['./associations'] = new function() {
   var exports = this;
   (function() {
@@ -368,64 +454,6 @@
   })();
 
   exports.Associations = Associations;
-
-}).call(this);
-
-};require['./association_collection'] = new function() {
-  var exports = this;
-  (function() {
-  var AssociationCollection, Collection,
-    __hasProp = Object.prototype.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
-
-  Collection = require('./collection').Collection;
-
-  AssociationCollection = (function(_super) {
-
-    __extends(AssociationCollection, _super);
-
-    function AssociationCollection(ctor, list) {
-      this.ctor = ctor;
-      this.list = list;
-      AssociationCollection.__super__.constructor.call(this, this.list);
-    }
-
-    AssociationCollection.prototype.set = function(index, item) {
-      return AssociationCollection.__super__.set.call(this, index, this._convert(item));
-    };
-
-    AssociationCollection.prototype.push = function(item) {
-      return AssociationCollection.__super__.push.call(this, this._convert(item));
-    };
-
-    AssociationCollection.prototype.update = function(list) {
-      var item;
-      return AssociationCollection.__super__.update.call(this, (function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = list.length; _i < _len; _i++) {
-          item = list[_i];
-          _results.push(this._convert(item));
-        }
-        return _results;
-      }).call(this));
-    };
-
-    AssociationCollection.prototype._convert = function(item) {
-      var ctor;
-      ctor = this.ctor();
-      if (item.constructor === ctor) {
-        return item;
-      } else {
-        return new ctor(item);
-      }
-    };
-
-    return AssociationCollection;
-
-  })(Collection);
-
-  exports.AssociationCollection = AssociationCollection;
 
 }).call(this);
 
@@ -1759,9 +1787,11 @@ if (typeof module !== 'undefined' && require.main === module) {
 };require['./model'] = new function() {
   var exports = this;
   (function() {
-  var Associations, Serenade, extend;
+  var Associations, Cache, Serenade, extend;
 
   Serenade = require('./serenade').Serenade;
+
+  Cache = require('./cache').Cache;
 
   Associations = require('./associations').Associations;
 
@@ -1793,35 +1823,21 @@ if (typeof module !== 'undefined' && require.main === module) {
       return (_ref = this.prototype).hasMany.apply(_ref, arguments);
     };
 
-    Model._getFromCache = function(id) {
-      this._identityMap || (this._identityMap = {});
-      if (this._identityMap.hasOwnProperty(id)) return this._identityMap[id];
-    };
-
-    Model._storeInCache = function(id, object) {
-      this._identityMap || (this._identityMap = {});
-      return this._identityMap[id] = object;
-    };
-
     Model.find = function(id) {
-      var document;
-      if (!(document = this._getFromCache(id))) {
-        document = new this({
-          id: id
-        });
-      }
-      return document;
+      return Cache.get(this, id) || new this({
+        id: id
+      });
     };
 
     function Model(attributes) {
       var fromCache;
       if (attributes != null ? attributes.id : void 0) {
-        fromCache = this.constructor._getFromCache(attributes.id);
+        fromCache = Cache.get(this.constructor, attributes.id);
         if (fromCache) {
           fromCache.set(attributes);
           return fromCache;
         } else {
-          this.constructor._storeInCache(attributes.id, this);
+          Cache.set(this.constructor, attributes.id, this);
         }
       }
       this.set(attributes);

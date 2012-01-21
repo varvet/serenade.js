@@ -27,7 +27,7 @@ Build =
     fs.writeFileSync 'lib/parser.js', Parser.generate()
   browser: ->
     requires = ''
-    for name in ['events', 'helpers', 'collection', 'associations', 'association_collection', 'serenade', 'lexer', 'nodes', 'parser', 'properties', 'model', 'view']
+    for name in ['events', 'helpers', 'cache', 'collection', 'association_collection', 'associations', 'serenade', 'lexer', 'nodes', 'parser', 'properties', 'model', 'view']
       requires += """
         require['./#{name}'] = new function() {
           var exports = this;

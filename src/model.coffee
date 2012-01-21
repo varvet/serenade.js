@@ -1,4 +1,5 @@
 {Serenade} = require './serenade'
+{Cache} = require './cache'
 {Associations} = require './associations'
 {extend} = require './helpers'
 
@@ -11,26 +12,14 @@ class Serenade.Model
   @belongsTo: -> @prototype.belongsTo(arguments...)
   @hasMany: -> @prototype.hasMany(arguments...)
 
-  @_getFromCache: (id) ->
-    @_identityMap ||= {}
-    @_identityMap[id] if @_identityMap.hasOwnProperty(id)
-
-  @_storeInCache: (id, object) ->
-    @_identityMap ||= {}
-    @_identityMap[id] = object
-
-  @find: (id) ->
-    unless document = @_getFromCache(id)
-      document = new this(id: id)
-    document
-
+  @find: (id) -> Cache.get(this, id) or new this(id: id)
 
   constructor: (attributes) ->
     if attributes?.id
-      fromCache = @constructor._getFromCache(attributes.id)
+      fromCache = Cache.get(@constructor, attributes.id)
       if fromCache
         fromCache.set(attributes)
         return fromCache
       else
-        @constructor._storeInCache(attributes.id, this)
+        Cache.set(@constructor, attributes.id, this)
     @set(attributes)
