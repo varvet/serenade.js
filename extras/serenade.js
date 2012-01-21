@@ -288,6 +288,89 @@
 
 }).call(this);
 
+};require['./associations'] = new function() {
+  var exports = this;
+  (function() {
+  var AssociationCollection, Associations, Collection, get, map, _ref;
+
+  AssociationCollection = require('./association_collection').AssociationCollection;
+
+  Collection = require('./collection').Collection;
+
+  _ref = require('./helpers'), map = _ref.map, get = _ref.get;
+
+  Associations = (function() {
+
+    function Associations() {}
+
+    Associations.belongsTo = function(name, ctor) {
+      if (ctor == null) {
+        ctor = function() {
+          return Object;
+        };
+      }
+      this.property(name, {
+        set: function(properties) {
+          return this.attributes[name] = new (ctor())(properties);
+        }
+      });
+      return this.property(name + 'Id', {
+        get: function() {
+          return get(this.get(name), 'id');
+        },
+        set: function(id) {
+          return this.attributes[name] = ctor().find(id);
+        },
+        dependsOn: name
+      });
+    };
+
+    Associations.hasMany = function(name, ctor) {
+      if (ctor == null) {
+        ctor = function() {
+          return Object;
+        };
+      }
+      this.property(name, {
+        get: function() {
+          var _this = this;
+          if (!this.attributes[name]) {
+            this.attributes[name] = new AssociationCollection(ctor, []);
+            this.attributes[name].bind('change', function() {
+              return _this._triggerChangesTo([name]);
+            });
+          }
+          return this.attributes[name];
+        },
+        set: function(value) {
+          return this.get(name).update(value);
+        }
+      });
+      return this.property(name + 'Ids', {
+        get: function() {
+          return new Collection(this.get(name).map(function(item) {
+            return get(item, 'id');
+          }));
+        },
+        set: function(ids) {
+          var objects;
+          objects = map(ids, function(id) {
+            return ctor().find(id);
+          });
+          return this.attributes[name] = new AssociationCollection(ctor, objects);
+        },
+        dependsOn: name
+      });
+    };
+
+    return Associations;
+
+  })();
+
+  exports.Associations = Associations;
+
+}).call(this);
+
 };require['./association_collection'] = new function() {
   var exports = this;
   (function() {
@@ -1676,32 +1759,38 @@ if (typeof module !== 'undefined' && require.main === module) {
 };require['./model'] = new function() {
   var exports = this;
   (function() {
-  var AssociationCollection, Collection, Events, Serenade, extend, get, map, pairToObject, _ref;
+  var Associations, Serenade, extend;
 
   Serenade = require('./serenade').Serenade;
 
-  Events = require('./events').Events;
+  Associations = require('./associations').Associations;
 
-  AssociationCollection = require('./association_collection').AssociationCollection;
-
-  Collection = require('./collection').Collection;
-
-  _ref = require('./helpers'), extend = _ref.extend, map = _ref.map, get = _ref.get, pairToObject = _ref.pairToObject;
+  extend = require('./helpers').extend;
 
   Serenade.Model = (function() {
 
-    extend(Model.prototype, Events);
-
     extend(Model.prototype, Serenade.Properties);
 
+    extend(Model.prototype, Associations);
+
     Model.property = function() {
-      var _ref2;
-      return (_ref2 = this.prototype).property.apply(_ref2, arguments);
+      var _ref;
+      return (_ref = this.prototype).property.apply(_ref, arguments);
     };
 
     Model.collection = function() {
-      var _ref2;
-      return (_ref2 = this.prototype).collection.apply(_ref2, arguments);
+      var _ref;
+      return (_ref = this.prototype).collection.apply(_ref, arguments);
+    };
+
+    Model.belongsTo = function() {
+      var _ref;
+      return (_ref = this.prototype).belongsTo.apply(_ref, arguments);
+    };
+
+    Model.hasMany = function() {
+      var _ref;
+      return (_ref = this.prototype).hasMany.apply(_ref, arguments);
     };
 
     Model._getFromCache = function(id) {
@@ -1722,66 +1811,6 @@ if (typeof module !== 'undefined' && require.main === module) {
         });
       }
       return document;
-    };
-
-    Model.belongsTo = function(name, ctor) {
-      if (ctor == null) {
-        ctor = function() {
-          return Object;
-        };
-      }
-      this.property(name, {
-        set: function(properties) {
-          return this.attributes[name] = new (ctor())(properties);
-        }
-      });
-      return this.property(name + 'Id', {
-        get: function() {
-          return get(this.get(name), 'id');
-        },
-        set: function(id) {
-          return this.attributes[name] = ctor().find(id);
-        },
-        dependsOn: name
-      });
-    };
-
-    Model.hasMany = function(name, ctor) {
-      if (ctor == null) {
-        ctor = function() {
-          return Object;
-        };
-      }
-      this.property(name, {
-        get: function() {
-          var _this = this;
-          if (!this.attributes[name]) {
-            this.attributes[name] = new AssociationCollection(ctor, []);
-            this.attributes[name].bind('change', function() {
-              return _this._triggerChangesTo([name]);
-            });
-          }
-          return this.attributes[name];
-        },
-        set: function(value) {
-          return this.get(name).update(value);
-        }
-      });
-      return this.property(name + 'Ids', {
-        get: function() {
-          return new Collection(this.get(name).map(function(item) {
-            return get(item, 'id');
-          }));
-        },
-        set: function(ids) {
-          var objects;
-          objects = map(ids, function(id) {
-            return ctor().find(id);
-          });
-          return this.attributes[name] = new AssociationCollection(ctor, objects);
-        },
-        dependsOn: name
-      });
     };
 
     function Model(attributes) {
