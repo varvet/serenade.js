@@ -158,6 +158,9 @@
     },
     deleteItem: function(arr, item) {
       return arr.splice(arr.indexOf(item), 1);
+    },
+    getFunctionName: function(fun) {
+      return fun.name;
     }
   };
 
@@ -168,23 +171,23 @@
 };require['./cache'] = new function() {
   var exports = this;
   (function() {
-  var Cache, serializeObject;
+  var Cache, getFunctionName, serializeObject, _ref;
 
-  serializeObject = require('../src/helpers.coffee').serializeObject;
+  _ref = require('./helpers'), serializeObject = _ref.serializeObject, getFunctionName = _ref.getFunctionName;
 
   Cache = {
     _storage: typeof window !== "undefined" && window !== null ? window.localStorage : void 0,
     _identityMap: {},
     get: function(ctor, id) {
-      var name, _ref;
-      name = ctor.toString();
+      var name, _ref2;
+      name = getFunctionName(ctor);
       if (name && id) {
-        return ((_ref = this._identityMap[name]) != null ? _ref[id] : void 0) || this.retrieve(ctor, id);
+        return ((_ref2 = this._identityMap[name]) != null ? _ref2[id] : void 0) || this.retrieve(ctor, id);
       }
     },
     set: function(ctor, id, obj) {
       var name, _base;
-      name = ctor.toString();
+      name = getFunctionName(ctor);
       if (name && id) {
         (_base = this._identityMap)[name] || (_base[name] = {});
         return this._identityMap[name][id] = obj;
@@ -192,17 +195,17 @@
     },
     store: function(ctor, id, obj) {
       var name;
-      name = ctor.toString();
+      name = getFunctionName(ctor);
       if (name && id) {
         return this._storage.setItem("" + name + "_" + id, JSON.stringify(serializeObject(obj)));
       }
     },
     retrieve: function(ctor, id) {
       var data, name;
-      name = ctor.toString();
+      name = getFunctionName(ctor);
       if (name && id && ctor.localStorage) {
         data = this._storage.getItem("" + name + "_" + id);
-        if (data) return new ctor(JSON.parse(data));
+        if (data) return new ctor(JSON.parse(data), true);
       }
     }
   };
@@ -395,29 +398,30 @@
 };require['./associations'] = new function() {
   var exports = this;
   (function() {
-  var AssociationCollection, Associations, Collection, get, map, _ref;
+  var AssociationCollection, Associations, Collection, extend, get, map, _ref;
 
   AssociationCollection = require('./association_collection').AssociationCollection;
 
   Collection = require('./collection').Collection;
 
-  _ref = require('./helpers'), map = _ref.map, get = _ref.get;
+  _ref = require('./helpers'), extend = _ref.extend, map = _ref.map, get = _ref.get;
 
   Associations = (function() {
 
     function Associations() {}
 
-    Associations.belongsTo = function(name, ctor) {
-      if (ctor == null) {
-        ctor = function() {
-          return Object;
-        };
-      }
-      this.property(name, {
+    Associations.belongsTo = function(name, attributes) {
+      var ctor;
+      if (attributes == null) attributes = {};
+      ctor = attributes.constructor || (function() {
+        return Object;
+      });
+      extend(attributes, {
         set: function(properties) {
           return this.attributes[name] = new (ctor())(properties);
         }
       });
+      this.property(name, attributes);
       return this.property(name + 'Id', {
         get: function() {
           return get(this.get(name), 'id');
@@ -429,13 +433,13 @@
       });
     };
 
-    Associations.hasMany = function(name, ctor) {
-      if (ctor == null) {
-        ctor = function() {
-          return Object;
-        };
-      }
-      this.property(name, {
+    Associations.hasMany = function(name, attributes) {
+      var ctor;
+      if (attributes == null) attributes = {};
+      ctor = attributes.constructor || (function() {
+        return Object;
+      });
+      extend(attributes, {
         get: function() {
           var _this = this;
           if (!this.attributes[name]) {
@@ -450,6 +454,7 @@
           return this.get(name).update(value);
         }
       });
+      this.property(name, attributes);
       return this.property(name + 'Ids', {
         get: function() {
           return new Collection(this.get(name).map(function(item) {
@@ -508,8 +513,20 @@
     registerFormat: function(name, fun) {
       return this._formats[name] = fun;
     },
-    resetIdentityMap: function() {
+    clearIdentityMap: function() {
       return Cache._identityMap = {};
+    },
+    clearLocalStorage: function() {
+      return Cache._storage.clear();
+    },
+    clearCache: function() {
+      Serenade.clearIdentityMap();
+      return Serenade.clearLocalStorage();
+    },
+    unregisterAll: function() {
+      Serenade._views = {};
+      Serenade._controllers = {};
+      return Serenade._formats = {};
     },
     Events: require('./events').Events,
     Collection: require('./collection').Collection,
@@ -1852,24 +1869,32 @@ if (typeof module !== 'undefined' && require.main === module) {
       });
     };
 
-    function Model(attributes) {
-      var fromCache;
-      if (attributes != null ? attributes.id : void 0) {
-        fromCache = Cache.get(this.constructor, attributes.id);
-        if (fromCache) {
-          fromCache.set(attributes);
-          return fromCache;
-        } else {
-          Cache.set(this.constructor, attributes.id, this);
+    Model.property('id', {
+      serialize: true
+    });
+
+    function Model(attributes, bypassCache) {
+      var fromCache,
+        _this = this;
+      if (bypassCache == null) bypassCache = false;
+      if (!bypassCache) {
+        if (attributes != null ? attributes.id : void 0) {
+          fromCache = Cache.get(this.constructor, attributes.id);
+          if (fromCache) {
+            fromCache.set(attributes);
+            return fromCache;
+          } else {
+            Cache.set(this.constructor, attributes.id, this);
+          }
         }
       }
       if (this.constructor.localStorage === 'save') {
         this.bind('saved', function() {
-          return Cache.store(this.constructor, attributes.id, this);
+          return Cache.store(_this.constructor, _this.get('id'), _this);
         });
       } else if (this.constructor.localStorage) {
         this.bind('change', function() {
-          return Cache.store(this.constructor, attributes.id, this);
+          return Cache.store(_this.constructor, _this.get('id'), _this);
         });
       }
       this.set(attributes);

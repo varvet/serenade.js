@@ -13,10 +13,15 @@ jsdom = require("jsdom")
 fs = require('fs')
 jquery = fs.readFileSync("spec/jquery.js").toString()
 
+Cache._storage =
+  _items: {}
+  getItem: (id) -> @_items[id]
+  setItem: (id, item) -> @_items[id] = item.toString()
+  clear: -> @_items = {}
+
 beforeEach ->
-  Serenade._views = {}
-  Serenade._controllers = {}
-  Serenade._formats = {}
+  Serenade.unregisterAll()
+  Serenade.clearCache()
 
   @setupDom = ->
     html = """
@@ -67,10 +72,6 @@ beforeEach ->
         @actual._triggeredEvents.hasOwnProperty(name)
 
   @sinon = sinon.sandbox.create()
-  Cache._storage =
-    _items: {}
-    getItem: (id) -> @_items[id]
-    setItem: (id, item) -> @_items[id] = item.toString()
 
 afterEach ->
   @sinon.restore()

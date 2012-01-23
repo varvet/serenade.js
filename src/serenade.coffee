@@ -19,8 +19,15 @@ Serenade =
     new (@_controllers[name])(model) if @_controllers[name]
   registerFormat: (name, fun) ->
     @_formats[name] = fun
-  resetIdentityMap: ->
-    Cache._identityMap = {}
+  clearIdentityMap: -> Cache._identityMap = {}
+  clearLocalStorage: -> Cache._storage.clear()
+  clearCache: ->
+    Serenade.clearIdentityMap()
+    Serenade.clearLocalStorage()
+  unregisterAll: ->
+    Serenade._views = {}
+    Serenade._controllers = {}
+    Serenade._formats = {}
 
   Events: require('./events').Events
   Collection: require('./collection').Collection

@@ -3,11 +3,10 @@
 
 describe 'Cache', ->
   beforeEach ->
-    @ctor = (@attributes) ->
-    @ctor.toString = -> 'CTOR'
-    # Fake the local storage API
-  afterEach ->
-    Serenade.resetIdentityMap()
+    class CTOR
+      constructor: (@attributes) ->
+    @ctor = CTOR
+
   describe '.get', ->
     it 'returns undefined when nothing has been cached', ->
       @ctor.localStorage = true
@@ -44,7 +43,7 @@ describe 'Cache', ->
       Cache.store(@ctor, 5, { serialize: -> { test: 'foo' }})
       expect(JSON.parse(Cache._storage.getItem('CTOR_5')).test).toEqual('foo')
 
-  describe '.store', ->
+  describe '.retrieve', ->
     it 'retrieves an object from the local storage engine and inits it with constructor', ->
       @ctor.localStorage = true
       Cache._storage.setItem('CTOR_5', '12345')

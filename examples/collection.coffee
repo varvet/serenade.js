@@ -24,15 +24,17 @@ Serenade.registerView 'comment', '''
 
 class Post extends Serenade.Model
   @property 'commentCount', dependsOn: 'comments', get: -> @comments.length
-  @collection 'comments'
+  @hasMany 'comments', constructor: (-> Comment), serialize: true
+  @localStorage: true
 
 class Comment extends Serenade.Model
+  @property 'body', serialize: true
 
 class PostController
   postComment: ->
-    @model.comments.push(@newComment) if @newComment
+    @model.comments.push(body: @body) if @body
   commentEdited: (event) ->
-    @newComment = new Comment(body: event.target.value)
+    @body = event.target.value
   removeComment: (comment) ->
     @model.comments.delete(comment)
 
@@ -45,10 +47,10 @@ class CommentController
 Serenade.registerController 'post', PostController
 Serenade.registerController 'comment', CommentController
 
-window.aPost = new Post
+window.aPost = Post.find(5)
+aPost.set
   title: 'Serenade.js released!'
   body: 'New contender in the JS framework wars!'
-  comments: [new Comment(body: 'This is cool'), new Comment(body: 'I hate it')]
 
 window.onload = ->
   document.body.appendChild Serenade.render('post', aPost)

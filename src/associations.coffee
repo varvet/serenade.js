@@ -1,18 +1,21 @@
 {AssociationCollection} = require './association_collection'
 {Collection} = require './collection'
-{map, get} = require './helpers'
+{extend, map, get} = require './helpers'
 
 class Associations
-  @belongsTo: (name, ctor=-> Object) ->
-    @property name,
-      set: (properties) -> @attributes[name] = new (ctor())(properties)
+  @belongsTo: (name, attributes={}) ->
+    ctor = attributes.constructor or (-> Object)
+    extend(attributes, set: (properties) ->
+      @attributes[name] = new (ctor())(properties))
+    @property name, attributes
     @property name + 'Id',
       get: -> get(@get(name), 'id')
       set: (id) -> @attributes[name] = ctor().find(id)
       dependsOn: name
 
-  @hasMany: (name, ctor=-> Object) ->
-    @property name,
+  @hasMany: (name, attributes={}) ->
+    ctor = attributes.constructor or (-> Object)
+    extend attributes,
       get: ->
         unless @attributes[name]
           @attributes[name] = new AssociationCollection(ctor, [])
@@ -21,7 +24,7 @@ class Associations
         @attributes[name]
       set: (value) ->
         @get(name).update(value)
-
+    @property name, attributes
     @property name + 'Ids',
       get: -> new Collection(@get(name).map((item) -> get(item, 'id')))
       set: (ids) ->

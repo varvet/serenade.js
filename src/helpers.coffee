@@ -47,4 +47,7 @@ Helpers =
   deleteItem: (arr, item) ->
     arr.splice(arr.indexOf(item), 1)
 
+  getFunctionName: (fun) ->
+    fun.name
+
 Helpers.extend(exports, Helpers)

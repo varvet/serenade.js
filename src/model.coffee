@@ -14,18 +14,21 @@ class Serenade.Model
 
   @find: (id) -> Cache.get(this, id) or new this(id: id)
 
-  constructor: (attributes) ->
-    if attributes?.id
-      fromCache = Cache.get(@constructor, attributes.id)
-      if fromCache
-        fromCache.set(attributes)
-        return fromCache
-      else
-        Cache.set(@constructor, attributes.id, this)
+  @property 'id', serialize: true
+
+  constructor: (attributes, bypassCache=false) ->
+    unless bypassCache
+      if attributes?.id
+        fromCache = Cache.get(@constructor, attributes.id)
+        if fromCache
+          fromCache.set(attributes)
+          return fromCache
+        else
+          Cache.set(@constructor, attributes.id, this)
     if @constructor.localStorage is 'save'
-      @bind('saved', -> Cache.store(@constructor, attributes.id, this))
+      @bind('saved', => Cache.store(@constructor, @get('id'), this))
     else if @constructor.localStorage
-      @bind('change', -> Cache.store(@constructor, attributes.id, this))
+      @bind('change', => Cache.store(@constructor, @get('id'), this))
     @set(attributes)
 
   save: ->
