@@ -4,7 +4,7 @@
 
 class Associations
   @belongsTo: (name, attributes={}) ->
-    ctor = attributes.constructor or (-> Object)
+    ctor = attributes.as or (-> Object)
     extend(attributes, set: (properties) ->
       @attributes[name] = new (ctor())(properties))
     @property name, attributes
@@ -14,7 +14,7 @@ class Associations
       dependsOn: name
 
   @hasMany: (name, attributes={}) ->
-    ctor = attributes.constructor or (-> Object)
+    ctor = attributes.as or (-> Object)
     extend attributes,
       get: ->
         unless @attributes[name]

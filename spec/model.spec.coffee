@@ -71,7 +71,7 @@ describe 'Serenade.Model', ->
       class Comment extends Serenade.Model
         @property 'body'
       class Post extends Serenade.Model
-        @belongsTo('comment', constructor: -> Comment)
+        @belongsTo('comment', as: -> Comment)
       post = new Post(comment: { body: 'Hello' })
       expect(post.comment.constructor).toEqual(Comment)
       expect(post.comment.body).toEqual('Hello')
@@ -92,7 +92,7 @@ describe 'Serenade.Model', ->
       class Post extends Serenade.Model
         @property 'body'
       class Comment extends Serenade.Model
-        @belongsTo('post', constructor: -> Post)
+        @belongsTo('post', as: -> Post)
       post1 = new Post(id: 5, body: 'Hello')
       post2 = new Post(id: 12, body: 'World')
       comment = new Comment(postId: 5)
@@ -107,7 +107,7 @@ describe 'Serenade.Model', ->
       class Comment extends Serenade.Model
         @property 'body'
       class Post extends Serenade.Model
-        @hasMany 'comments', constructor: -> Comment
+        @hasMany 'comments', as: -> Comment
       post = new Post(comments: [{ body: 'Hello' }, { body: 'Monkey' }])
       expect(post.comments.get(0).constructor).toEqual(Comment)
       expect(post.comments.get(1).constructor).toEqual(Comment)
@@ -127,7 +127,7 @@ describe 'Serenade.Model', ->
       class Comment extends Serenade.Model
         @property 'body'
       class Post extends Serenade.Model
-        @hasMany 'comments', constructor: -> Comment
+        @hasMany 'comments', as: -> Comment
       post = new Post(comments: [{ id: 4 }, { id: 3 }])
       expect(post.commentsIds.get(0)).toEqual(4)
       expect(post.commentsIds.get(1)).toEqual(3)
@@ -138,7 +138,7 @@ describe 'Serenade.Model', ->
       class Comment extends Serenade.Model
         @property 'body'
       class Post extends Serenade.Model
-        @hasMany 'comments', constructor: -> Comment
+        @hasMany 'comments', as: -> Comment
       comment = new Comment(id: 5, body: 'Hello')
       comment = new Comment(id: 8, body: 'World')
       comment = new Comment(id: 9, body: 'Cat')

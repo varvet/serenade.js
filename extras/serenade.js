@@ -413,7 +413,7 @@
     Associations.belongsTo = function(name, attributes) {
       var ctor;
       if (attributes == null) attributes = {};
-      ctor = attributes.constructor || (function() {
+      ctor = attributes.as || (function() {
         return Object;
       });
       extend(attributes, {
@@ -436,7 +436,7 @@
     Associations.hasMany = function(name, attributes) {
       var ctor;
       if (attributes == null) attributes = {};
-      ctor = attributes.constructor || (function() {
+      ctor = attributes.as || (function() {
         return Object;
       });
       extend(attributes, {
