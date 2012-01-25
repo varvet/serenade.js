@@ -45,6 +45,10 @@ describe 'Serenade.Collection', ->
     it 'returns where in the collection the given item is', ->
       expect(@collection.indexOf('a')).toEqual(0)
       expect(@collection.indexOf('b')).toEqual(1)
+    it 'works without native indexOf function', ->
+      @collection.list.indexOf = undefined
+      expect(@collection.indexOf('a')).toEqual(0)
+      expect(@collection.indexOf('b')).toEqual(1)
 
   describe '#deleteAt', ->
     it 'removes the item from the collection', ->

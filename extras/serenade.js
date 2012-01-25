@@ -156,8 +156,20 @@
         return object;
       }
     },
+    indexOf: function(arr, search) {
+      var index, item, _len;
+      if (arr.indexOf) {
+        return arr.indexOf(search);
+      } else {
+        for (index = 0, _len = arr.length; index < _len; index++) {
+          item = arr[index];
+          if (item === search) return index;
+        }
+        return -1;
+      }
+    },
     deleteItem: function(arr, item) {
-      return arr.splice(arr.indexOf(item), 1);
+      return arr.splice(Helpers.indexOf(item), 1);
     },
     getFunctionName: function(fun) {
       var name, _ref, _ref2;
@@ -228,11 +240,11 @@
 };require['./collection'] = new function() {
   var exports = this;
   (function() {
-  var Events, deleteItem, extend, forEach, serializeObject, _ref;
+  var Events, deleteItem, extend, forEach, indexOf, serializeObject, _ref;
 
   Events = require('./events').Events;
 
-  _ref = require('./helpers'), extend = _ref.extend, forEach = _ref.forEach, serializeObject = _ref.serializeObject, deleteItem = _ref.deleteItem;
+  _ref = require('./helpers'), extend = _ref.extend, forEach = _ref.forEach, serializeObject = _ref.serializeObject, deleteItem = _ref.deleteItem, indexOf = _ref.indexOf;
 
   exports.Collection = (function() {
 
@@ -298,8 +310,8 @@
       return _results;
     };
 
-    Collection.prototype.indexOf = function(item) {
-      return this.list.indexOf(item);
+    Collection.prototype.indexOf = function(search) {
+      return indexOf(this.list, search);
     };
 
     Collection.prototype.deleteAt = function(index) {
@@ -1705,8 +1717,7 @@ if (typeof module !== 'undefined' && require.main === module) {
             return this.get(name);
           },
           set: function(v) {
-            this.set(name, v);
-            if (!define) return this[name] = this.get(name);
+            return this.set(name, v);
           }
         });
       }
@@ -1834,6 +1845,7 @@ if (typeof module !== 'undefined' && require.main === module) {
         value = this.get(name);
         this.trigger("change:" + name, value);
         changes[name] = value;
+        if (!define) this[name] = this.get(name);
       }
       this.trigger("change", changes);
       allDefers = this._deferTo || [];

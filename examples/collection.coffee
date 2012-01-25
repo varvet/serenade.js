@@ -34,7 +34,7 @@ class PostController
   postComment: ->
     @model.comments.push(body: @body) if @body
   commentEdited: (event) ->
-    @body = event.target.value
+    @body = (event.target or event.srcElement).value
   removeComment: (comment) ->
     @model.comments.delete(comment)
 

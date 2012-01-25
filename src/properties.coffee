@@ -18,9 +18,7 @@ Serenade.Properties =
     if typeof(options.serialize) is 'string'
       @property options.serialize,
         get: -> @get(name)
-        set: (v) ->
-          @set(name, v)
-          @[name] = @get(name) unless define
+        set: (v) -> @set(name, v)
 
   collection: (name, options) ->
     @property name,
@@ -101,6 +99,9 @@ Serenade.Properties =
       value = @get(name)
       @trigger("change:#{name}", value)
       changes[name] = value
+      unless define
+        @[name] = @get(name)
+
     @trigger("change", changes)
 
     allDefers = (@_deferTo or [])

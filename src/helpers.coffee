@@ -44,8 +44,15 @@ Helpers =
     else
       object
 
+  indexOf: (arr, search) ->
+    if arr.indexOf
+      arr.indexOf(search)
+    else
+      return index for item, index in arr when item is search
+      return -1
+
   deleteItem: (arr, item) ->
-    arr.splice(arr.indexOf(item), 1)
+    arr.splice(Helpers.indexOf(item), 1)
 
   getFunctionName: (fun) ->
     name = fun.name

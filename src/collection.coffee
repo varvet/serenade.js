@@ -1,5 +1,5 @@
 {Events} = require './events'
-{extend, forEach, serializeObject, deleteItem} = require './helpers'
+{extend, forEach, serializeObject, deleteItem, indexOf} = require './helpers'
 
 class exports.Collection
   extend(@prototype, Events)
@@ -29,8 +29,7 @@ class exports.Collection
     forEach(@list, fun)
   map: (fun) ->
     fun(item) for item in @list
-  indexOf: (item) ->
-    @list.indexOf(item)
+  indexOf: (search) -> indexOf(@list, search)
   deleteAt: (index) ->
     @_notIn(@list[index])
     @list.splice(index, 1)
