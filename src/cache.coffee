@@ -14,11 +14,11 @@ Cache =
       @_identityMap[name][id] = obj
   store: (ctor, id, obj) ->
     name = getFunctionName(ctor)
-    if name and id
+    if name and id and JSON?
       @_storage.setItem("#{name}_#{id}", JSON.stringify(serializeObject(obj)))
   retrieve: (ctor, id) ->
     name = getFunctionName(ctor)
-    if name and id and ctor.localStorage
+    if name and id and ctor.localStorage and JSON?
       data = @_storage.getItem("#{name}_#{id}")
       new ctor(JSON.parse(data), true) if data
 

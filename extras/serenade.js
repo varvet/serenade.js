@@ -219,14 +219,14 @@
     store: function(ctor, id, obj) {
       var name;
       name = getFunctionName(ctor);
-      if (name && id) {
+      if (name && id && (typeof JSON !== "undefined" && JSON !== null)) {
         return this._storage.setItem("" + name + "_" + id, JSON.stringify(serializeObject(obj)));
       }
     },
     retrieve: function(ctor, id) {
       var data, name;
       name = getFunctionName(ctor);
-      if (name && id && ctor.localStorage) {
+      if (name && id && ctor.localStorage && (typeof JSON !== "undefined" && JSON !== null)) {
         data = this._storage.getItem("" + name + "_" + id);
         if (data) return new ctor(JSON.parse(data), true);
       }
