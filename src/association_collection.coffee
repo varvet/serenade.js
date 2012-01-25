@@ -2,7 +2,8 @@
 
 class AssociationCollection extends Collection
   constructor: (@ctor, @list) ->
-    super(@list)
+    super(@_convert(item) for item in list)
+
   set: (index, item) ->
     super(index, @_convert(item))
 

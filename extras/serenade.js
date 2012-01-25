@@ -351,9 +351,18 @@
     __extends(AssociationCollection, _super);
 
     function AssociationCollection(ctor, list) {
+      var item;
       this.ctor = ctor;
       this.list = list;
-      AssociationCollection.__super__.constructor.call(this, this.list);
+      AssociationCollection.__super__.constructor.call(this, (function() {
+        var _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = list.length; _i < _len; _i++) {
+          item = list[_i];
+          _results.push(this._convert(item));
+        }
+        return _results;
+      }).call(this));
     }
 
     AssociationCollection.prototype.set = function(index, item) {
