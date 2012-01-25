@@ -24,7 +24,7 @@ Serenade.registerView 'comment', '''
 
 class Post extends Serenade.Model
   @property 'commentCount', dependsOn: 'comments', get: -> @comments.length
-  @hasMany 'comments', constructor: (-> Comment), serialize: true
+  @hasMany 'comments', as: (-> Comment), serialize: true
   @localStorage: true
 
 class Comment extends Serenade.Model
