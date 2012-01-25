@@ -43,7 +43,7 @@ class Event
     callback = (e) ->
       e.preventDefault() if self.ast.preventDefault
       self.controller[self.ast.value](e)
-    @element.addEventListener(@ast.name, callback, false)
+    Serenade.bindEvent(@element, @ast.name, callback)
 
 class Attribute
   constructor: (@ast, @node, @document, @model, @controller) ->

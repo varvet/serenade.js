@@ -528,6 +528,9 @@
       Serenade._controllers = {};
       return Serenade._formats = {};
     },
+    bindEvent: function(element, event, callback) {
+      return element.addEventListener(event, callback, false);
+    },
     Events: require('./events').Events,
     Collection: require('./collection').Collection,
     Helpers: {}
@@ -811,7 +814,7 @@
         if (self.ast.preventDefault) e.preventDefault();
         return self.controller[self.ast.value](e);
       };
-      this.element.addEventListener(this.ast.name, callback, false);
+      Serenade.bindEvent(this.element, this.ast.name, callback);
     }
 
     return Event;

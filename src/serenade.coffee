@@ -28,6 +28,8 @@ Serenade =
     Serenade._views = {}
     Serenade._controllers = {}
     Serenade._formats = {}
+  bindEvent: (element, event, callback) ->
+    element.addEventListener(event, callback, false)
 
   Events: require('./events').Events
   Collection: require('./collection').Collection
