@@ -137,7 +137,7 @@
       }
     },
     isArray: function(object) {
-      return toString.call(object) === "[object Array]";
+      return Object.prototype.toString.call(object) === "[object Array]";
     },
     pairToObject: function(one, two) {
       var temp;
@@ -160,7 +160,11 @@
       return arr.splice(arr.indexOf(item), 1);
     },
     getFunctionName: function(fun) {
-      return fun.name;
+      var name, _ref, _ref2;
+      name = fun.name;
+      name || (name = (_ref = fun.toString().match(/\[object (.+?)\]/)) != null ? _ref[1] : void 0);
+      name || (name = (_ref2 = fun.toString().match(/function (.+?)\(\)/)) != null ? _ref2[1] : void 0);
+      return name;
     }
   };
 

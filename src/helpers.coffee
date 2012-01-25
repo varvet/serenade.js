@@ -29,7 +29,7 @@ Helpers =
       fun(element) for element in collection
 
   isArray: (object) ->
-    toString.call(object) is "[object Array]"
+    Object::toString.call(object) is "[object Array]"
 
   pairToObject: (one, two) ->
     temp = {}
@@ -48,6 +48,9 @@ Helpers =
     arr.splice(arr.indexOf(item), 1)
 
   getFunctionName: (fun) ->
-    fun.name
+    name = fun.name
+    name or= fun.toString().match(/\[object (.+?)\]/)?[1]
+    name or= fun.toString().match(/function (.+?)\(\)/)?[1]
+    name
 
 Helpers.extend(exports, Helpers)
