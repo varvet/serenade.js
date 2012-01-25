@@ -53,4 +53,11 @@ Helpers =
     name or= fun.toString().match(/function (.+?)\(\)/)?[1]
     name
 
+  preventDefault: (event) ->
+    if event.preventDefault
+      event.preventDefault()
+    else
+      event.returnValue = false
+
+
 Helpers.extend(exports, Helpers)

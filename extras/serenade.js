@@ -165,6 +165,13 @@
       name || (name = (_ref = fun.toString().match(/\[object (.+?)\]/)) != null ? _ref[1] : void 0);
       name || (name = (_ref2 = fun.toString().match(/function (.+?)\(\)/)) != null ? _ref2[1] : void 0);
       return name;
+    },
+    preventDefault: function(event) {
+      if (event.preventDefault) {
+        return event.preventDefault();
+      } else {
+        return event.returnValue = false;
+      }
     }
   };
 
@@ -542,7 +549,16 @@
       return Serenade._formats = {};
     },
     bindEvent: function(element, event, callback) {
-      return element.addEventListener(event, callback, false);
+      if (typeof element.addEventListener === 'function') {
+        return element.addEventListener(event, callback, false);
+      } else {
+        return element.attachEvent('on' + event, callback);
+      }
+    },
+    useJQuery: function() {
+      return this.bindEvent = function(element, event, callback) {
+        return jQuery(element).bind(event, callback);
+      };
     },
     Events: require('./events').Events,
     Collection: require('./collection').Collection,
@@ -727,12 +743,12 @@
 };require['./nodes'] = new function() {
   var exports = this;
   (function() {
-  var Attribute, Collection, CollectionItem, Event, Helper, If, In, Node, Nodes, Serenade, Style, TextNode, View, forEach, format, get, _ref,
+  var Attribute, Collection, CollectionItem, Event, Helper, If, In, Node, Nodes, Serenade, Style, TextNode, View, forEach, format, get, preventDefault, _ref,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   Serenade = require('./serenade').Serenade;
 
-  _ref = require('./helpers'), format = _ref.format, get = _ref.get, forEach = _ref.forEach;
+  _ref = require('./helpers'), format = _ref.format, get = _ref.get, forEach = _ref.forEach, preventDefault = _ref.preventDefault;
 
   Node = (function() {
 
@@ -824,7 +840,7 @@
       this.element = this.node.element;
       self = this;
       callback = function(e) {
-        if (self.ast.preventDefault) e.preventDefault();
+        if (self.ast.preventDefault) preventDefault(e);
         return self.controller[self.ast.value](e);
       };
       Serenade.bindEvent(this.element, this.ast.name, callback);
@@ -1651,7 +1667,7 @@ if (typeof module !== 'undefined' && require.main === module) {
 };require['./properties'] = new function() {
   var exports = this;
   (function() {
-  var Collection, Events, Serenade, exp, extend, map, pairToObject, prexix, serializeObject, _ref,
+  var Collection, Events, Serenade, define, exp, extend, map, pairToObject, prexix, serializeObject, _ref,
     __indexOf = Array.prototype.indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   Serenade = require('./serenade').Serenade;
@@ -1666,27 +1682,32 @@ if (typeof module !== 'undefined' && require.main === module) {
 
   exp = /^_prop_/;
 
+  define = Object.defineProperties;
+
   Serenade.Properties = {
     property: function(name, options) {
       if (options == null) options = {};
       this[prexix + name] = options;
       this[prexix + name].name = name;
-      Object.defineProperty(this, name, {
-        get: function() {
-          return Serenade.Properties.get.call(this, name);
-        },
-        set: function(value) {
-          return Serenade.Properties.set.call(this, name, value);
-        }
-      });
+      if (define) {
+        Object.defineProperty(this, name, {
+          get: function() {
+            return Serenade.Properties.get.call(this, name);
+          },
+          set: function(value) {
+            return Serenade.Properties.set.call(this, name, value);
+          }
+        });
+      }
       if (typeof options.serialize === 'string') {
         return this.property(options.serialize, {
-          get: (function() {
+          get: function() {
             return this.get(name);
-          }),
-          set: (function(v) {
-            return this.set(name, v);
-          })
+          },
+          set: function(v) {
+            this.set(name, v);
+            if (!define) return this[name] = this.get(name);
+          }
         });
       }
     },

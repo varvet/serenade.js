@@ -1,5 +1,5 @@
 {Serenade} = require './serenade'
-{format, get, forEach} = require './helpers'
+{format, get, forEach, preventDefault} = require './helpers'
 
 class Node
   constructor: (@ast, @document, @model, @controller) ->
@@ -41,7 +41,7 @@ class Event
     @element = @node.element
     self = this # work around a bug in coffeescript
     callback = (e) ->
-      e.preventDefault() if self.ast.preventDefault
+      preventDefault(e) if self.ast.preventDefault
       self.controller[self.ast.value](e)
     Serenade.bindEvent(@element, @ast.name, callback)
 

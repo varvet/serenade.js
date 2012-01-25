@@ -5,16 +5,22 @@
 
 prexix = "_prop_"
 exp = /^_prop_/
+define = Object.defineProperties # we check for the plural because it is unsupported in buggy IE8
 
 Serenade.Properties =
   property: (name, options={}) ->
     @[prexix + name] = options
     @[prexix + name].name = name
-    Object.defineProperty @, name,
-      get: -> Serenade.Properties.get.call(this, name)
-      set: (value) -> Serenade.Properties.set.call(this, name, value)
+    if define
+      Object.defineProperty @, name,
+        get: -> Serenade.Properties.get.call(this, name)
+        set: (value) -> Serenade.Properties.set.call(this, name, value)
     if typeof(options.serialize) is 'string'
-      @property(options.serialize, get: (-> @get(name)), set: ((v) -> @set(name, v)))
+      @property options.serialize,
+        get: -> @get(name)
+        set: (v) ->
+          @set(name, v)
+          @[name] = @get(name) unless define
 
   collection: (name, options) ->
     @property name,

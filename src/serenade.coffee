@@ -29,7 +29,13 @@ Serenade =
     Serenade._controllers = {}
     Serenade._formats = {}
   bindEvent: (element, event, callback) ->
-    element.addEventListener(event, callback, false)
+    if typeof element.addEventListener is 'function'
+      element.addEventListener(event, callback, false)
+    else
+      element.attachEvent('on' + event, callback)
+  useJQuery: ->
+    @bindEvent = (element, event, callback) ->
+      jQuery(element).bind(event, callback)
 
   Events: require('./events').Events
   Collection: require('./collection').Collection
