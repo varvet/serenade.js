@@ -13,10 +13,8 @@ advantages as well:
 
 ## Important Note!
 
-This is an ongoing, pre-alpha project. This README was written first, and
-describes how this framework is intended to work and may not reflect how it
-actually works right now. Please do not assume that this project is ready for
-production use, it may eventually be, but it is not right now.
+This is an ongoing, pre-alpha project. Please do not assume that this project
+is ready for production use, it may eventually be, but it is not right now.
 
 Currently, versions of Internet Explorer below IE9 are not supported. In the
 future, IE7+ will be supported. Support for IE6 is not planned.
@@ -27,20 +25,8 @@ In Serenade.js you define templates and render them, handing in a controller
 and a model to the template. Serenade.js then handles getting values from the
 model and updating them dynamically as the model changes, as well as
 dispatching events to the controller when they occur. Templates are
-"logic-less" in that they do not allow the execution of any code. Serenade.js
-is built around its template engine, so unfortunately you do not have a choice
-as to the template language.
-
-Serenade does not provide any facilities for talking with a server through
-AJAX.  The separate [Serenade.Service.js][service] project is an effort to
-provide a solid starting starting point for building such services.
-
-There is also no boundled router or history management such as is found in many
-other client side JavaScript frameworks. We believe that Serenade can be used
-in many situations where a router would not be desirable to have. These
-concerns seem to be outside the scope of this project. It should be possible to
-use Serenade alongside most existing router implementations, such as the one in
-Backbone.js.
+"logic-less" in that they do not allow the execution of any code, instead they
+declaratively define what data to bind to and which events to react to and how.
 
 ## A simple example
 
@@ -54,7 +40,7 @@ model = { name: 'Jonas' }
 As you can see, these are just normal JavaScript objects. Serenade.js does not
 force you to use any kind of base object or class for models and controllers.
 
-Let us now register a view, we are using Serenade.js's own template language here:
+Let us now register a view, we are using Serenade.js's own template language:
 
 ``` coffeescript
 Serenade.registerView 'test', '''
@@ -65,8 +51,8 @@ Serenade.registerView 'test', '''
 '''
 ```
 
-Once we have a view registered, we can render it using `Serenade.render`, passing
-in the model and controller we created before:
+Once we have a view registered, we can render it using `Serenade.render`,
+passing in the model and controller we created before:
 
 ``` coffeescript
 result = Serenade.render('test', model, controller)
@@ -74,16 +60,14 @@ result = Serenade.render('test', model, controller)
 
 The result we are getting back is just a regular DOM element. This element has
 all events already attached, so you can just insert it into the DOM anywhere,
-and you're good to go. Using standard DOM manipulation, we could do that like
-this:
+and you're good to go. Using the DOM Api, we could do that like this:
 
 ``` coffeescript
 window.onload = ->
   document.body.appendChild(result)
 ```
 
-If you're using jQuery, you can use jQuery's `append` function to append the
-element anywhere on the page.
+If you're using jQuery, you can use jQuery's `append` function:
 
 ``` coffeescript
 $ -> $('body').append(result)
@@ -152,10 +136,10 @@ class MyModel
 ## Custom getters and setters
 
 Sometimes it can be convenient to define a property with a custom getter and/or
-setter function. Serenade.js mimics the `Object.defineProperty` API in ECMAScript 5
-in this regard. Most often you will want to override the get function, for
-example you could have a `fullName` property which combines first and last
-names like so:
+setter function. Serenade.js mimics the `Object.defineProperty` API in
+ECMAScript 5 in this regard. Most often you will want to override the get
+function, for example you could have a `fullName` property which combines first
+and last names like so:
 
 ``` javascript
 MyModel.property('fullName', {
@@ -171,8 +155,7 @@ binding collections to views (see below).
 MyModel.collection('comments')
 ```
 
-Internally this just calls `property` with a specialized getter and setter, you
-could create these kinds of macros yourself.
+Internally this just calls `property` with a specialized getter and setter.
 
 ## Format
 
@@ -187,13 +170,6 @@ MyModel.property('price', { format: function(value) { return "€ #{value}" } })
 ```
 
 To retrieve a formatted value, call `format('price')`.
-
-You can also define a global format function:
-
-``` javascript
-Serenade.registerFormat('currency', function(value) { "€ #{value}" })
-MyModel.property('price', format: 'currency')
-```
 
 ## Dependencies
 
@@ -218,8 +194,9 @@ MyModel.property('fullName', {
 The Serenade.js template language is inspired by Slim, Jade and HAML, but not
 identical to any of these.
 
-Any view in Serenade.js must have an element as its root node. Elements may have
-any number of children. Elements can have attributes within square brackets.
+Any view in Serenade.js must have an element as its root node. Elements may
+have any number of children. Elements can have attributes within square
+brackets.
 
 This is a single element with no children and an id attribute:
 
@@ -254,8 +231,8 @@ Attributes may be bound to a model value by omitting the quotes:
 div[id=modelId]
 ```
 
-Similarly text can be added to any element, this may be either
-bound or unbound text or any mix thereof:
+Similarly text can be added to any element, this may be either bound or unbound
+text or any mix thereof:
 
 ``` slim
 div "Name: " name
@@ -467,6 +444,9 @@ For simplicity's sake we will refer to instances of constructors derived from
 `Serenade.Model` as documents.
 
 ## Identity map
+
+NOTE: Due to a bug in CoffeeScript, this is currently broken. The bug is fixed
+on CoffeeScript master and the next release should work as expected.
 
 Serenade.Model assumes you have a property named `id` and that this uniquely
 identifies each document. Provided that such a property exists, documents are
