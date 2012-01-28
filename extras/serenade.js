@@ -586,13 +586,15 @@
     fs = require("fs");
     window = document.createWindow();
     return function(env) {
-      var element, model, viewName;
+      var element, html, model, viewName;
       model = env.model;
       viewName = env.filename.split('/').reverse()[0].replace(/\.serenade$/, '');
       Serenade.registerView(viewName, fs.readFileSync(env.filename).toString());
       element = Serenade.render(viewName, model, {}, document);
       document.body.appendChild(element);
-      return document.body.innerHTML;
+      html = document.body.innerHTML;
+      if (env.doctype !== false) html = "<!DOCTYPE html>\n" + html;
+      return html;
     };
   };
 

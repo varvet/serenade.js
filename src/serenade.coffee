@@ -55,4 +55,6 @@ exports.compile = ->
     Serenade.registerView(viewName, fs.readFileSync(env.filename).toString())
     element = Serenade.render(viewName, model, {}, document)
     document.body.appendChild(element)
-    document.body.innerHTML
+    html = document.body.innerHTML
+    html = "<!DOCTYPE html>\n" + html unless env.doctype is false
+    html
