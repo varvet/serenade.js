@@ -2,6 +2,10 @@ Helpers = require '../src/helpers'
 
 describe 'Helpers', ->
   describe '.getFunctionName', ->
+    it 'prefers model name when given', ->
+      obj = { modelName: 'Thingy', name: 'Comment' }
+      expect(Helpers.getFunctionName(obj)).toEqual('Thingy')
+
     it 'returns a name when set', ->
       obj = { name: 'Comment' }
       expect(Helpers.getFunctionName(obj)).toEqual('Comment')

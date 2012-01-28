@@ -55,7 +55,8 @@ Helpers =
     arr.splice(Helpers.indexOf(item), 1)
 
   getFunctionName: (fun) ->
-    name = fun.name
+    name = fun.modelName
+    name or= fun.name
     name or= fun.toString().match(/\[object (.+?)\]/)?[1]
     name or= fun.toString().match(/function (.+?)\(\)/)?[1]
     name

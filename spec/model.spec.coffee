@@ -55,6 +55,22 @@ describe 'Serenade.Model', ->
       test.save()
       expect(Cache.retrieve(Test, 5).test).toEqual('monkey')
 
+  describe '.extend', ->
+    it 'sets the name of the class', ->
+      Test = Serenade.Model.extend('Testing')
+      expect(Test.modelName).toEqual('Testing')
+    it 'sets up prototypes correctly', ->
+      Test = Serenade.Model.extend('Testing')
+      test = new Test(foo: 'bar')
+      expect(test.get('foo')).toEqual('bar')
+    it 'copies over class variables', ->
+      Test = Serenade.Model.extend('Testing')
+      expect(typeof Test.hasMany).toEqual('function')
+    it 'runs the provided constructor function', ->
+      Test = Serenade.Model.extend('Testing', -> @foo = true)
+      test = new Test()
+      expect(test.foo).toBeTruthy()
+
   describe '.find', ->
     it 'creates a new blank object with the given id', ->
       document = Serenade.Model.find('j123')

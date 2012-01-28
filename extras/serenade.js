@@ -173,7 +173,8 @@
     },
     getFunctionName: function(fun) {
       var name, _ref, _ref2;
-      name = fun.name;
+      name = fun.modelName;
+      name || (name = fun.name);
       name || (name = (_ref = fun.toString().match(/\[object (.+?)\]/)) != null ? _ref[1] : void 0);
       name || (name = (_ref2 = fun.toString().match(/function (.+?)\(\)/)) != null ? _ref2[1] : void 0);
       return name;
@@ -1876,7 +1877,9 @@ if (typeof module !== 'undefined' && require.main === module) {
 };require['./model'] = new function() {
   var exports = this;
   (function() {
-  var Associations, Cache, Serenade, extend;
+  var Associations, Cache, Serenade, extend,
+    __hasProp = Object.prototype.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
   Serenade = require('./serenade').Serenade;
 
@@ -1921,6 +1924,24 @@ if (typeof module !== 'undefined' && require.main === module) {
     Model.property('id', {
       serialize: true
     });
+
+    Model.extend = function(name, ctor) {
+      var New;
+      return New = (function(_super) {
+
+        __extends(New, _super);
+
+        New.modelName = name;
+
+        function New() {
+          New.__super__.constructor.apply(this, arguments);
+          if (ctor) ctor.apply(this, arguments);
+        }
+
+        return New;
+
+      })(this);
+    };
 
     function Model(attributes, bypassCache) {
       var fromCache,

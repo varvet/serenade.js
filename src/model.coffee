@@ -16,6 +16,13 @@ class Serenade.Model
 
   @property 'id', serialize: true
 
+  @extend: (name, ctor) ->
+    class New extends this
+      @modelName: name
+      constructor: ->
+        super
+        ctor.apply(this, arguments) if ctor
+
   constructor: (attributes, bypassCache=false) ->
     unless bypassCache
       if attributes?.id
