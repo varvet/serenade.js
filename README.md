@@ -16,8 +16,8 @@ advantages as well:
 This is an ongoing, pre-alpha project. Please do not assume that this project
 is ready for production use, it may eventually be, but it is not right now.
 
-Currently, versions of Internet Explorer below IE9 are not supported. In the
-future, IE7+ will be supported. Support for IE6 is not planned.
+Currently, versions of Internet Explorer below IE8 are not supported. In the
+future, IE7 will be supported. Support for IE6 is not planned.
 
 ## Architecture
 
@@ -166,7 +166,7 @@ the view should show it properly formatted, with currency information and so
 on. You can use the `format` option for this.
 
 ``` javascript
-MyModel.property('price', { format: function(value) { return "€ #{value}" } })
+MyModel.property('price', { format: function(value) { return "€ " + value } })
 ```
 
 To retrieve a formatted value, call `format('price')`.
@@ -501,15 +501,23 @@ You can delare that a model has an associated model. For example, each comment
 might belong to a post, you can delare this like this:
 
 ``` javascript
-Comment.belongsTo('post', { constructor: 'Post' })
+Comment.belongsTo('post', { as: function() { return window.Post } })
 ```
 
-The constructor can be either a constructor function, or a string, which can
-help you prevent load order problems. Adding a `belongsTo` association will
-automatically create an id column, which will be kept in sync with the
-associated object. In this example, assigning an id to `postId` will find that
-post and assign it to the `post` property, vice versa if you assign a document
-to the `post` property, its id will be exctracted and assigned to `postId`.
+Adding a `belongsTo` association will automatically create an id column, which
+will be kept in sync with the associated object. In this example, assigning an
+id to `postId` will find that post and assign it to the `post` property, vice
+versa if you assign a document to the `post` property, its id will be
+exctracted and assigned to `postId`.
+
+The optional property `as` defines a constructor to be used for this property.
+When specified, you can assign any JavaScript object to the property and it
+will automatically be run through the constructor function. Note that the
+constructor is wrapped in a function call, so that we can defer resolution
+until later. This is so circular dependencies can work as expected.
+
+(I don't particularly like this syntax, if you have a better idea, please tell
+me!)
 
 In the inverse situation, where a post has many comments, you can use the
 `hasMany` declaration. This will add a collection of comments, which you can
@@ -517,7 +525,7 @@ manipulate however you choose. Changes to this comments collection will be
 reflected in the `commentsIds` property.
 
 ``` javascript
-Post.hasMany('comments', { constructor: 'Comment' })
+Post.hasMany('comments', { as: function() { return window.Comment } })
 ```
 
 If the `constructor` property is omitted from either declaration, then the
