@@ -2010,12 +2010,16 @@ if (typeof module !== 'undefined' && require.main === module) {
 
   View = (function() {
 
-    function View(string) {
-      this.string = string;
+    function View(view) {
+      this.view = view;
     }
 
     View.prototype.parse = function() {
-      return parser.parse(new Lexer().tokenize(this.string));
+      if (typeof this.view === 'string') {
+        return parser.parse(new Lexer().tokenize(this.view));
+      } else {
+        return this.view;
+      }
     };
 
     View.prototype.render = function(document, model, controller) {

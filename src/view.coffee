@@ -12,9 +12,12 @@ parser.lexer =
     ""
 
 class View
-  constructor: (@string) ->
+  constructor: (@view) ->
   parse: ->
-    parser.parse(new Lexer().tokenize(@string))
+    if typeof(@view) is 'string'
+      parser.parse(new Lexer().tokenize(@view))
+    else
+      @view
   render: (document, model, controller) ->
     node = Nodes.compile(@parse(), document, model, controller)
     controller.model = model

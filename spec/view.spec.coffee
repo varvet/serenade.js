@@ -8,6 +8,9 @@ describe 'View', ->
     it 'parses a single tag', ->
       expect(parse('div').name).toEqual('div')
 
+    it 'echoes back out a view which is passed as JSON', ->
+      expect(parse({ name: 'div' }).name).toEqual('div')
+
     it 'parses a single tag with extra linebreaks', ->
       expect(parse('div\n\n').name).toEqual('div')
 
