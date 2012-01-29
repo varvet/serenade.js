@@ -4,9 +4,8 @@ html
   body
     div
       h1 "Serenade.js examples"
-      h3 title
 
       ul
-        - collection examples
+        - collection @examples
           li
-            a[href=url] name
+            a[href=@url] @name
