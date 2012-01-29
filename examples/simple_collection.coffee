@@ -1,11 +1,11 @@
 Serenade.registerView 'post', '''
   div[id="serenade"]
-    h1 title
-    p body
+    h1 @title
+    p @body
     h3 "Comments"
     ul
-      - collection comments
-        li body
+      - collection @comments
+        li @body
 '''
 
 post =

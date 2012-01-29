@@ -1,11 +1,11 @@
 Serenade.registerView 'post', '''
   div#serenade
-    h1 title
-    p body
-    h3 "Comments (" commentCount ")"
+    h1 @title
+    p @body
+    h3 "Comments (" @commentCount ")"
     ul
-      - collection comments
-        - view comment
+      - collection @comments
+        - view @comment
     form[event:submit=postComment!]
       p
         textarea[event:change=commentEdited]
@@ -14,8 +14,8 @@ Serenade.registerView 'post', '''
 '''
 
 Serenade.registerView 'comment', '''
-  li[style:backgroundColor=color]
-    p body
+  li[style:backgroundColor=@color]
+    p @body
     p
       a[event:click=highlight! href="#"] "Highlight"
       " | "

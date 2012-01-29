@@ -1,6 +1,6 @@
 Serenade.registerView 'test', '''
   div[id="hello-world"]
-    h1 name
+    h1 @name
     p
       a[event:click=showAlert href="#"] "Show the alert"
 '''

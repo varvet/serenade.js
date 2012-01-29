@@ -6,14 +6,14 @@ Serenade.registerView 'thing', '''
       "Mouse over this area to change"
     p
       strong "Thing: "
-      span schmoo
+      span @schmoo
     p
       strong "Barr: "
-      span barr
+      span @barr
     p
-      input[type="text" value=schmoo event:change=didChange name="schmoo"]
+      input[type="text" value=@schmoo event:change=didChange name="schmoo"]
     p
-      input[type="text" value=barr event:change=didChange name="barr"]
+      input[type="text" value=@barr event:change=didChange name="barr"]
 '''
 
 
