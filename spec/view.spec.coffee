@@ -131,7 +131,7 @@ describe 'View', ->
 
     it 'parses bound strings on the same line with arguments', ->
       result = parse """
-        div[id=foo] baz bar
+        div[id=foo] @baz @bar
       """
       expect(result.name).toEqual('div')
       expect(result.children[0].value).toEqual('baz')

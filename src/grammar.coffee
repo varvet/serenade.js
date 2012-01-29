@@ -32,7 +32,7 @@ grammar =
   ]
 
   InlineChild: [
-    o 'IDENTIFIER', -> { type: 'text', value: $1, bound: true }
+    o 'Bound', -> { type: 'text', value: $1, bound: true }
     o 'STRING_LITERAL', -> { type: 'text', value: $1, bound: false }
   ]
 

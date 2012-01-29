@@ -16,7 +16,7 @@ describe 'Bound attributes and text nodes', ->
 
   it 'get bound text from the model', ->
     model = { name: 'Jonas Nicklas' }
-    @render 'div name', model
+    @render 'div @name', model
     expect(@body.find('div')).toHaveText('Jonas Nicklas')
 
   it 'sets multiple classes with an array given as the class attribute', ->
@@ -64,7 +64,7 @@ describe 'Bound attributes and text nodes', ->
   it 'changes bound text nodes as they are changed', ->
     model = new Serenade.Model
     model.set('name', 'Jonas Nicklas')
-    @render 'div name', model
+    @render 'div @name', model
     expect(@body.find('div')).toHaveText('Jonas Nicklas')
     model.set('name', 'Peter Pan')
     expect(@body.find('div')).toHaveText('Peter Pan')
