@@ -46,6 +46,7 @@ grammar =
     o 'Element', -> $1
     o 'Instruction', -> $1
     o 'STRING_LITERAL', -> { type: 'text', value: $1, bound: false }
+    o 'Bound', -> { type: 'text', value: $1, bound: true }
   ]
 
   PropertyList: [

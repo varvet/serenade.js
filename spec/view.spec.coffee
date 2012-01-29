@@ -139,6 +139,23 @@ describe 'View', ->
       expect(result.children[1].value).toEqual('bar')
       expect(result.children[1].bound).toEqual(true)
 
+    it 'parses bound strings on new line', ->
+      result = parse """
+        div
+          @baz
+          "schmoo"
+          span
+          @bar
+      """
+      expect(result.name).toEqual('div')
+      expect(result.children[0].value).toEqual('baz')
+      expect(result.children[0].bound).toEqual(true)
+      expect(result.children[1].value).toEqual('schmoo')
+      expect(result.children[1].bound).toEqual(false)
+      expect(result.children[2].name).toEqual('span')
+      expect(result.children[3].value).toEqual('bar')
+      expect(result.children[3].bound).toEqual(true)
+
     it 'parses instructions', ->
       result = parse """
         div[id=foo]
@@ -149,6 +166,7 @@ describe 'View', ->
       expect(result.children[0].command).toEqual('view')
       expect(result.children[0].arguments).toEqual(['example'])
       expect(result.children[0].children[0].name).toEqual('span')
+
     it 'does indentation for collections correctly', ->
       result = parse """
         div
