@@ -9,9 +9,9 @@ describe 'If', ->
 
     @render '''
       ul
-        - if valid
+        - if @valid
           li[id="valid"]
-        - if visible
+        - if @visible
           li[id="visible"]
     ''', model
     expect(@body).toHaveElement('ul > li#valid')
@@ -22,9 +22,9 @@ describe 'If', ->
 
     @render '''
       ul
-        - if valid
+        - if @valid
           li[id="valid"]
-        - if visible
+        - if @visible
           li[id="visible"]
     ''', model
     expect(@body).not.toHaveElement('ul > li#valid')
@@ -35,9 +35,9 @@ describe 'If', ->
 
     @render '''
       ul
-        - if valid
+        - if @valid
           li[id="valid"]
-        - if visible
+        - if @visible
           li[id="visible"]
     ''', model
     expect(@body).not.toHaveElement('ul > li#valid')

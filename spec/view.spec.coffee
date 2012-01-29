@@ -174,7 +174,7 @@ describe 'View', ->
     it 'parses instructions', ->
       result = parse """
         div[id=foo]
-          - view example
+          - view @example
             span
       """
       expect(result.name).toEqual('div')
@@ -186,8 +186,8 @@ describe 'View', ->
       result = parse """
         div
           ul
-            - collection foo
-              - view comment
+            - collection @foo
+              - view @comment
           form
       """
       expect(result.name).toEqual('div')

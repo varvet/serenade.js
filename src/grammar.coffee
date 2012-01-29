@@ -68,13 +68,8 @@ grammar =
 
   Instruction: [
     o '- WHITESPACE IDENTIFIER', -> { command: $3, arguments: [], children: [], type: 'instruction' }
-    o 'Instruction WHITESPACE InstructionArgument', -> $1.arguments.push $3; $1
+    o 'Instruction WHITESPACE Text', -> $1.arguments.push $3.value; $1
     o 'Instruction INDENT ChildList OUTDENT', -> $1.children = $3; $1
-  ]
-
-  InstructionArgument: [
-    o 'IDENTIFIER', -> $1
-    o 'STRING_LITERAL', -> $1
   ]
 
   Bound: [

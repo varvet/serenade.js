@@ -1,6 +1,6 @@
 {Serenade} = require '../../src/serenade'
 
-describe 'Collection', ->
+describe 'In', ->
   beforeEach ->
     @setupDom()
 
@@ -9,7 +9,7 @@ describe 'Collection', ->
 
     @render '''
       article
-        - in author
+        - in @author
           p[id=name]
     ''', model
     expect(@body).toHaveElement('article > p#jonas')
@@ -19,7 +19,7 @@ describe 'Collection', ->
 
     @render '''
       article
-        - in author
+        - in @author
           p[id=name]
     ''', model
     expect(@body).toHaveElement('article > p#jonas')
@@ -32,7 +32,7 @@ describe 'Collection', ->
 
     @render '''
       article
-        - in author
+        - in @author
           p[id=name]
     ''', model
     expect(@body).toHaveElement('article > p#jonas')
