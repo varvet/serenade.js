@@ -36,17 +36,21 @@ grammar =
     o 'STRING_LITERAL', -> { type: 'text', value: $1, bound: false }
   ]
 
+  InlineChildList: [
+    o 'InlineChild', -> [$1]
+    o 'InlineChildList WHITESPACE InlineChild', -> $1.concat $3
+  ]
+
   ChildList: [
     o '', -> []
-    o 'Child', -> [$1]
+    o 'Child', -> [].concat($1)
     o 'ChildList TERMINATOR Child', -> $1.concat $3
   ]
 
   Child: [
     o 'Element', -> $1
     o 'Instruction', -> $1
-    o 'STRING_LITERAL', -> { type: 'text', value: $1, bound: false }
-    o 'Bound', -> { type: 'text', value: $1, bound: true }
+    o 'InlineChildList', -> $1
   ]
 
   PropertyList: [

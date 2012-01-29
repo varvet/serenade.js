@@ -156,6 +156,21 @@ describe 'View', ->
       expect(result.children[3].value).toEqual('bar')
       expect(result.children[3].bound).toEqual(true)
 
+    it 'parses multiple things as children', ->
+      result = parse """
+        div
+          @baz "schmoo" @bar
+          span
+      """
+      expect(result.name).toEqual('div')
+      expect(result.children[0].value).toEqual('baz')
+      expect(result.children[0].bound).toEqual(true)
+      expect(result.children[1].value).toEqual('schmoo')
+      expect(result.children[1].bound).toEqual(false)
+      expect(result.children[2].value).toEqual('bar')
+      expect(result.children[2].bound).toEqual(true)
+      expect(result.children[3].name).toEqual('span')
+
     it 'parses instructions', ->
       result = parse """
         div[id=foo]
