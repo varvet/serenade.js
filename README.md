@@ -13,11 +13,10 @@ advantages as well:
 
 ## Important Note!
 
-This is an ongoing, pre-alpha project. Please do not assume that this project
-is ready for production use, it may eventually be, but it is not right now.
-
-Currently, versions of Internet Explorer below IE8 are not supported. In the
-future, IE7 will be supported. Support for IE6 is not planned.
+This is an ongoing, alpha level project. Be prepared that the API might change
+and bugs might occur. Currently, versions of Internet Explorer below IE8 are
+not supported. In the future, IE7 will be supported. Support for IE6 is not
+planned.
 
 ## Architecture
 
