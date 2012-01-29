@@ -3,13 +3,14 @@
 CoffeeScript = require 'coffee-script'
 fs = require 'fs'
 path = require 'path'
+gzip = require 'gzip'
 
 header = """
   /**
    * Serenade.js JavaScript Framework v#{Serenade.VERSION}
    * http://github.com/elabs/serenade.js
    *
-   * Copyright 2011, Jonas Nicklas
+   * Copyright 2011, Jonas Nicklas, Elabs AB
    * Released under the MIT License
    */
 """
@@ -47,10 +48,13 @@ Build =
         } else { root.Serenade = Serenade }
       }(this));
     """
-    if process.env.MINIFY is 'true'
-      {parser, uglify} = require 'uglify-js'
-      code = uglify.gen_code uglify.ast_squeeze uglify.ast_mangle parser.parse code
+    {parser, uglify} = require 'uglify-js'
+    minified = uglify.gen_code uglify.ast_squeeze uglify.ast_mangle parser.parse code
     fs.writeFileSync 'extras/serenade.js', header + '\n' + code
+    fs.writeFileSync 'extras/serenade.min.js', header + '\n' + minified
+    gzip (header + '\n' + minified), (err, data) ->
+      fs.writeFileSync 'extras/serenade.min.js.gz', data
+
   all: ->
     Build.files()
     Build.parser()

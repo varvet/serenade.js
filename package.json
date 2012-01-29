@@ -37,7 +37,8 @@
        "coffee-script": "1.2.0",
        "sinon": "1.2.0",
        "uglify-js": "1.2.3",
-       "express": "2.5.2"
+       "express": "2.5.2",
+       "gzip": "0.1.0"
    },
    "scripts": {
        "build": "cake build",
