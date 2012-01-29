@@ -27,22 +27,21 @@ grammar =
     o 'ElementIdentifier', -> { name: $1.name, shortId: $1.shortId, shortClasses: $1.shortClasses, properties: [], children: [], type: 'element' }
     o 'Element [ ]', -> $1
     o 'Element [ PropertyList ]', -> $1.properties = $3; $1
-    o 'Element WHITESPACE InlineChild', -> $1.children = $1.children.concat($3); $1
+    o 'Element WHITESPACE Text', -> $1.children = $1.children.concat($3); $1
     o 'Element INDENT ChildList OUTDENT', -> $1.children = $1.children.concat($3); $1
   ]
 
-  InlineChild: [
+  TextList: [
+    o 'Text', -> [$1]
+    o 'TextList WHITESPACE Text', -> $1.concat $3
+  ]
+
+  Text: [
     o 'Bound', -> { type: 'text', value: $1, bound: true }
     o 'STRING_LITERAL', -> { type: 'text', value: $1, bound: false }
   ]
 
-  InlineChildList: [
-    o 'InlineChild', -> [$1]
-    o 'InlineChildList WHITESPACE InlineChild', -> $1.concat $3
-  ]
-
   ChildList: [
-    o '', -> []
     o 'Child', -> [].concat($1)
     o 'ChildList TERMINATOR Child', -> $1.concat $3
   ]
@@ -50,7 +49,7 @@ grammar =
   Child: [
     o 'Element', -> $1
     o 'Instruction', -> $1
-    o 'InlineChildList', -> $1
+    o 'TextList', -> $1
   ]
 
   PropertyList: [
