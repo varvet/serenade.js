@@ -45,7 +45,7 @@ Let us now register a view, we are using Serenade.js's own template language:
 ``` coffeescript
 Serenade.registerView 'test', '''
   div[id="hello-world"]
-    h1 name
+    h1 @name
     p
       a[event:click=showAlert href="#"] "Show the alert"
 '''
@@ -225,17 +225,17 @@ Indentation is significant and is used to nest elements:
   footer
 ```
 
-Attributes may be bound to a model value by omitting the quotes:
+Attributes may be bound to a model value by prefix the name with `@`:
 
 ``` slim
-div[id=modelId]
+div[id=@modelId]
 ```
 
 Similarly text can be added to any element, this may be either bound or unbound
 text or any mix thereof:
 
 ``` slim
-div "Name: " name
+div "Name: " @name
 ```
 
 ## Events
@@ -319,7 +319,7 @@ You can use the special `style:name=value` syntax to dynamically bind styles to
 elements like so:
 
 ``` slim
-div[class="progress" style:width=progress]
+div[class="progress" style:width=@progress]
 ```
 
 Style names should be camelCased, like in JavaScript, not dash-cased, like in
@@ -342,8 +342,8 @@ You could output the list of comments like this:
 
 ``` slim
 ul[id="comments"]
-  - collection comments
-    li body
+  - collection @comments
+    li @body
 ```
 
 This should output one li element for each comment.
@@ -365,7 +365,7 @@ instruction does just that:
 ``` slim
 div
   h3 "Most recent comment"
-  - view post
+  - view "post"
 ```
 
 Assuming that there is a post view registered with `Serenade.registerView('post',
@@ -378,8 +378,8 @@ together:
 div
   h3 "Comments"
   ul
-    - collection comments
-      - view comment
+    - collection @comments
+      - view "comment"
 ```
 
 By default, the subviews will use the same controller as their parent view.
