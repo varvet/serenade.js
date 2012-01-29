@@ -1,4 +1,5 @@
 {Cache} = require './cache'
+{extend} = require './helpers'
 
 Serenade =
   VERSION: '0.1.0'
@@ -36,6 +37,7 @@ Serenade =
   useJQuery: ->
     @bindEvent = (element, event, callback) ->
       jQuery(element).bind(event, callback)
+  extend: extend
 
   Events: require('./events').Events
   Collection: require('./collection').Collection

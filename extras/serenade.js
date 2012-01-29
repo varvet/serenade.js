@@ -516,9 +516,11 @@
 };require['./serenade'] = new function() {
   var exports = this;
   (function() {
-  var Cache, Serenade;
+  var Cache, Serenade, extend;
 
   Cache = require('./cache').Cache;
+
+  extend = require('./helpers').extend;
 
   Serenade = {
     VERSION: '0.1.0',
@@ -573,6 +575,7 @@
         return jQuery(element).bind(event, callback);
       };
     },
+    extend: extend,
     Events: require('./events').Events,
     Collection: require('./collection').Collection,
     Helpers: {}
