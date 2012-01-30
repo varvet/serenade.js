@@ -18,6 +18,10 @@ and bugs might occur. Currently, versions of Internet Explorer below IE8 are
 not supported. In the future, IE7 will be supported. Support for IE6 is not
 planned.
 
+## Download
+
+Download here: https://github.com/elabs/serenade.js/downloads
+
 ## Architecture
 
 In Serenade.js you define templates and render them, handing in a controller
