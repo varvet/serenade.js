@@ -73,7 +73,9 @@ $ -> $('body').append(result)
 ```
 
 There are more advanced examples in the `examples` folder, check out a live
-demo of those examples running [here](http://serenade.herokuapp.com/).
+demo of those examples running [here](http://serenade.herokuapp.com/). There is
+also an implementation of the [todomvc app using
+Serenade.js](https://github.com/elabs/serenade_todomvc).
 
 ## A note on language
 
