@@ -561,10 +561,10 @@ Comment.belongsTo('post', { constructor: 'Post', serializeId: 'post_id' })
 Serenade.Model can transparently cache objects in HTML5 local storage. Working
 with local storage is identical to working with the in-memory identity map. The
 only difference is that you can control when an individual document is cached
-in local storage. You can do this via the `localStorage` function:
+in local storage. You can do this by setting `localStorage` on the model:
 
 ``` javascript
-Post.localStorage(true)
+Post.localStorage = true
 ```
 
 The possible values for `localStorage` are `false` (the default), `true` and
