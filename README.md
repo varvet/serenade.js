@@ -252,7 +252,7 @@ this as much as possible. Ideally your controller should only change properties
 on models, and those changes should then be dynamically reflected in the view.
 This is the essence of the classical MVC pattern.
 
-Events are bound by using the `event:name=bidning` syntax for an element's
+Events are bound by using the `event:name=binding` syntax for an element's
 attributes like so:
 
 ``` slim
@@ -496,8 +496,8 @@ the correct naming conventions both on the server and client.
 
 ## Associations
 
-You can delare that a model has an associated model. For example, each comment
-might belong to a post, you can delare this like this:
+You can declare that a model has an associated model. For example, each comment
+might belong to a post, you can declare this like this:
 
 ``` javascript
 Comment.belongsTo('post', { as: function() { return window.Post } })
