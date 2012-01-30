@@ -592,6 +592,28 @@ Since Serenade.js has no special syntax for doctypes, an HTML5 doctype is
 automatically added. If you do not want this, pass `doctype: false` as an
 option to `render`.
 
+# Development
+
+In order to run Serenade.js locally and work on the code base, you will first
+need to grab the codebase via git:
+
+    git clone git://github.com/elabs/serenade.js.git
+    cd serenade.js
+
+Install dependencies via npm:
+
+    npm install
+
+Run tests with jasmine:
+
+    jasmine-node spec --coffee
+
+Build Serenade.js into a single file:
+
+    cake build
+
+You should now have the built project in `./extras`.
+
 # License
 
 Serenade.js is licensed under the MIT license, see the LICENSE file.
