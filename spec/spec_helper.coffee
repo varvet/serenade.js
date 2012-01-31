@@ -38,6 +38,7 @@ beforeEach ->
     @document = require("jsdom").jsdom(html, null, src: jquery)
     @window = @document.createWindow()
     @body = @window.$(@document.body)
+    Serenade.document = @document
 
   @fireEvent = (element, name) ->
     event = @document.createEvent('HTMLEvents')
@@ -45,7 +46,7 @@ beforeEach ->
     element.dispatchEvent(event)
 
   @render = (template, model={}, controller={}) =>
-    @body.append(new View(template).render(@document, model, controller))
+    @body.append(new View(template).render(model, controller))
 
   @addMatchers
     toHaveElement: (selector, options) ->

@@ -7,12 +7,16 @@ Serenade =
   _controllers: {}
   _formats: {}
 
+  document: window?.document
+
   view: (name, template) ->
     {View} = require('./view')
     @_views[name] = new View(template)
-  render: (name, model, controller, document=window?.document) ->
+  render: (name, model, controller) ->
+    model or= {}
     controller or= @controllerFor(name, model)
-    @_views[name].render(document, model, controller)
+    controller or= {}
+    @_views[name].render(model, controller)
 
   controller: (name, klass) ->
     @_controllers[name] = klass
@@ -50,12 +54,13 @@ exports.compile = ->
   document = require("jsdom").jsdom(null, null, {})
   fs = require("fs")
   window = document.createWindow()
+  Serenade.document = document
 
   (env) ->
     model = env.model
     viewName = env.filename.split('/').reverse()[0].replace(/\.serenade$/, '')
     Serenade.view(viewName, fs.readFileSync(env.filename).toString())
-    element = Serenade.render(viewName, model, {}, document)
+    element = Serenade.render(viewName, model, {})
     document.body.appendChild(element)
     html = document.body.innerHTML
     html = "<!DOCTYPE html>\n" + html unless env.doctype is false
