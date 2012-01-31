@@ -17,3 +17,20 @@ describe "Serenade", ->
     it "can be rendered directly", ->
       @body.append Serenade.view("test", "h1#test").render()
       expect(@body).toHaveElement("h1#test")
+
+    it "works fine without a name", ->
+      @body.append Serenade.view("h1#test").render()
+      expect(@body).toHaveElement("h1#test")
+
+    it "can be take models as parameters", ->
+      model = { id: 'test' }
+      @body.append Serenade.view("test", "h1[id=@id]").render(model)
+      expect(@body).toHaveElement("h1#test")
+
+    it "can be take controllers as parameters", ->
+      tested = false
+      controller = { test: -> tested = true }
+      model = {}
+      @body.append Serenade.view("test", "a[event:click=test]").render(model, controller)
+      @fireEvent @body.find('a').get(0), 'click'
+      expect(tested).toBeTruthy()
