@@ -31,62 +31,61 @@ dispatching events to the controller when they occur. Templates are
 "logic-less" in that they do not allow the execution of any code, instead they
 declaratively define what data to bind to and which events to react to and how.
 
-## A simple example
+## Introduction
 
-Let us start off by creating a model and controller:
+The hello world example:
 
-``` coffeescript
-controller = { showAlert: -> alert('Alert!!!') }
-model = { name: 'Jonas' }
+``` javascript
+var element = Serenade.view('h1 "Hello World"').render();
+document.body.appendChild(element);
 ```
 
-As you can see, these are just normal JavaScript objects. Serenade.js does not
-force you to use any kind of base object or class for models and controllers.
+As you can see we are rendering a view, which returns a DOM element. We then
+insert this element into the body. Let's throw in some data:
 
-Let us now register a view, we are using Serenade.js's own template language:
+``` javascript
+var model = { name: "Jonas" };
 
-``` coffeescript
-Serenade.view 'test', '''
-  div[id="hello-world"]
-    h1 @name
-    p
-      a[event:click=showAlert href="#"] "Show the alert"
-'''
+var element = Serenade.view('h1 "Hello " @name').render(model);
+document.body.appendChild(element);
 ```
 
-Once we have a view registered, we can render it using `Serenade.render`,
-passing in the model and controller we created before:
+The data from the model object is interpolated into the template. The model is
+always the first argument to `render`. We'll add a controller to receive
+events:
 
-``` coffeescript
-result = Serenade.render('test', model, controller)
+``` javascript
+var controller = { say: function() { alert("Hello " + this.model.name) } };
+var model = { name: "Jonas" };
+
+var element = Serenade.view('button[event:click=say] "Say hello"').render(model, controller)
+document.body.appendChild(element)
 ```
 
-The result we are getting back is just a regular DOM element. This element has
-all events already attached, so you can just insert it into the DOM anywhere,
-and you're good to go. Using the DOM Api, we could do that like this:
+The controller is the second argument to `render`. You can bind events in the
+view, which will call the function on the controller as needed.
 
-``` coffeescript
-window.onload = ->
-  document.body.appendChild(result)
+As you can see, model and controller are just regular JavaScript objects, with
+no special logic.
+
+We will probably want to save the view so that we can render it multiple times,
+just give it a name:
+
+``` javascript
+Serenade.view('hello_world', 'h1 "Hello World"');
 ```
 
-If you're using jQuery, you can use jQuery's `append` function:
+And you can render it later, through the global `Serenade.render` function:
 
-``` coffeescript
-$ -> $('body').append(result)
+``` javascript
+var element = Serenade.render('hello_world', model, controller);
+document.body.appendChild(element);
 ```
 
 There are more advanced examples in the `examples` folder, check out a live
 demo of those examples running [here](http://serenade.herokuapp.com/). There is
 also an implementation of the [todomvc app using
 Serenade.js](https://github.com/elabs/serenade_todomvc).
-
-## A note on language
-
-The reason this example is written in CoffeeScript is because of JavaScript's
-poor handling of multi-line strings, which makes defining templates inline like
-this very ugly. Usually you would want templates to be defined and loaded from
-somewhere else anyway, so writing this in JavaScript is not a problem.
 
 ## Dynamic properties
 
@@ -96,23 +95,23 @@ changes, we will have to add some functionality to it. Thankfully this is quite
 simple:
 
 ``` javascript
-var model = {}
-Serenade.extend(model, Serenade.Properties)
-model.property('name')
+var model = {};
+Serenade.extend(model, Serenade.Properties);
+model.property('name');
 ```
 
 Now we can set and get the name property using the `set` and `get` functions:
 
 ``` javascript
-model.set('name', 'Peter')
-model.get('name')
+model.set('name', 'Peter');
+model.get('name');
 ```
 
 In browsers which support `Object.defineProperty`, we can even set and get this
 property directly, like so:
 
 ``` javascript
-model.name = 'Peter'
+model.name = 'Peter';
 model.name
 ```
 
@@ -126,8 +125,8 @@ prototype instead:
 
 ``` javascript
 var MyModel = function(name) {
-  this.set('name', name)
-}
+  this.set('name', name);
+};
 Serenade.extend(MyModel.prototype, Serenade.Properties)
 ```
 
@@ -149,7 +148,7 @@ and last names like so:
 ``` javascript
 MyModel.property('fullName', {
   get: function() { return this.get('firstName') + " " + this.get('lastName') }
-})
+});
 ```
 
 You can use the `collection` shortcut to create a property which is
@@ -157,7 +156,7 @@ automatically initialized to a `Serenade.Collection`. This is convenient for
 binding collections to views (see below).
 
 ``` javascript
-MyModel.collection('comments')
+MyModel.collection('comments');
 ```
 
 Internally this just calls `property` with a specialized getter and setter.
@@ -171,7 +170,7 @@ the view should show it properly formatted, with currency information and so
 on. You can use the `format` option for this.
 
 ``` javascript
-MyModel.property('price', { format: function(value) { return "€ " + value } })
+MyModel.property('price', { format: function(value) { return "€ " + value } });
 ```
 
 To retrieve a formatted value, call `format('price')`.
@@ -191,7 +190,7 @@ this easily like this:
 MyModel.property('fullName', {
   get: function() { return this.get('firstName') + " " + this.get('lastName') },
   dependsOn: ['firstName', 'lastName']
-})
+});
 ```
 
 ## Template Language
@@ -274,7 +273,7 @@ as a function. You could implement this as follows:
 ``` javascript
 var controller = {
   like: function() { this.model.set('liked', true) }
-}
+};
 ```
 
 Note that we do not have to set `this.model` ourselves, Serenade.js does this for
@@ -293,7 +292,7 @@ var controller = {
     this.model.set('liked', true)
     event.preventDefault()
   }
-}
+};
 ```
 
 You can use `event` for any number of things here, such as attaching the same
@@ -340,7 +339,7 @@ Assuming you have a model like this:
 ``` javascript
 var post = {
   comments: [{ body: 'Hello'}, {body: 'Awesome!'}]
-}
+};
 ```
 
 You could output the list of comments like this:
@@ -359,7 +358,7 @@ update this collection as comments are added, removed or changed:
 ``` javascript
 var post = {
   comments: new Serenade.Collection([{ body: 'Hello'}, {body: 'Awesome!'}])
-}
+};
 ```
 
 ## Views
@@ -398,7 +397,7 @@ used here. For example:
 
 ``` javascript
 var CommentController = function() {};
-Serenade.controller 'comment', CommentController
+Serenade.controller('comment', CommentController);
 ```
 
 Or in CoffeeScript:
@@ -460,12 +459,12 @@ id return the same object. This is key to working effectively with objects
 bound to views.
 
 ``` javascript
-var Person = Serenade.Service.extend('Person')
+var Person = Serenade.Service.extend('Person');
 
-person1 = new Person(id: 1, name: 'John')
-person2 = new Person(id: 1, age: 23)
-person2.get('name') # => 'John'
-person2.get('age') # => 23
+person1 = new Person(id: 1, name: 'John');
+person2 = new Person(id: 1, age: 23);
+person2.get('name'); # => 'John'
+person2.get('age'); # => 23
 ```
 
 Here `person2` and `person1` are both variables which point to the same object,
@@ -483,7 +482,7 @@ have to tell the model what parameters to serialize, and how. You can do this
 easily by setting the `serialize` option on your properties, like so:
 
 ``` javascript
-Person.property('name', { serialize: true })
+Person.property('name', { serialize: true });
 ```
 
 Often, you will want to specify a specific name to serialize a property as,
@@ -491,7 +490,7 @@ some server-side languages have different naming conventions than JavaScript
 does for example, so you might want to translate these properties:
 
 ``` javascript
-Person.property('firstName', { serialize: 'first_name' })
+Person.property('firstName', { serialize: 'first_name' });
 ```
 
 If you declare a property serializable like so, not only will the `serialize`
@@ -506,7 +505,7 @@ You can declare that a model has an associated model. For example, each comment
 might belong to a post, you can declare this like this:
 
 ``` javascript
-Comment.belongsTo('post', { as: function() { return window.Post } })
+Comment.belongsTo('post', { as: function() { return window.Post } });
 ```
 
 Adding a `belongsTo` association will automatically create an id column, which
@@ -530,7 +529,7 @@ manipulate however you choose. Changes to this comments collection will be
 reflected in the `commentsIds` property.
 
 ``` javascript
-Post.hasMany('comments', { as: function() { return window.Comment } })
+Post.hasMany('comments', { as: function() { return window.Comment } });
 ```
 
 If the `constructor` property is omitted from either declaration, then the
@@ -545,15 +544,15 @@ want to only serialize the id or ids of the associated document(s). In that
 case, you can declare the associations like this:
 
 ``` javascript
-Post.hasMany('comments', { constructor: 'Comment', serializeIds: true })
-Comment.belongsTo('post', { constructor: 'Post', serializeId: true })
+Post.hasMany('comments', { constructor: 'Comment', serializeIds: true });
+Comment.belongsTo('post', { constructor: 'Post', serializeId: true });
 ```
 
 All of these declarations can of course also take a string so that the
 association is serialized under another name:
 
 ``` javascript
-Comment.belongsTo('post', { constructor: 'Post', serializeId: 'post_id' })
+Comment.belongsTo('post', { constructor: 'Post', serializeId: 'post_id' });
 ```
 
 ## HTML5 Local Storage
@@ -564,7 +563,7 @@ only difference is that you can control when an individual document is cached
 in local storage. You can do this by setting `localStorage` on the model:
 
 ``` javascript
-Post.localStorage = true
+Post.localStorage = true;
 ```
 
 The possible values for `localStorage` are `false` (the default), `true` and
@@ -590,8 +589,8 @@ render them from within express.js like this:
 
 ``` javascript
 app.get('/:name', function(req, res) {
-  res.render('show.serenade', { model: { title: 'Hello' }, layout: false })
-})
+  res.render('show.serenade', { model: { title: 'Hello' }, layout: false });
+});
 ```
 
 Since Serenade.js has no special syntax for doctypes, an HTML5 doctype is
