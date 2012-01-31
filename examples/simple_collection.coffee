@@ -1,4 +1,4 @@
-Serenade.registerView 'post', '''
+Serenade.view 'post', '''
   div[id="serenade"]
     h1 @title
     p @body

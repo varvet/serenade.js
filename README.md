@@ -46,7 +46,7 @@ force you to use any kind of base object or class for models and controllers.
 Let us now register a view, we are using Serenade.js's own template language:
 
 ``` coffeescript
-Serenade.registerView 'test', '''
+Serenade.view 'test', '''
   div[id="hello-world"]
     h1 @name
     p
@@ -373,7 +373,7 @@ div
   - view "post"
 ```
 
-Assuming that there is a post view registered with `Serenade.registerView('post',
+Assuming that there is a post view registered with `Serenade.view('post',
 '...')` that view will now be rendered.
 
 It will often be useful to use the `view` and `collection` instructions
@@ -392,20 +392,20 @@ This can be quite inconvenient in a lot of cases, and we would really like to
 use a specific controller for this new view.
 
 If your controller can be instantiated with JavaScript's `new` operator, you
-can use `registerController` to tell Serenade.js which controller to use for your
+can use `controller` to tell Serenade.js which controller to use for your
 view. Any constructor function in JavaScript and any CoffeeScript class can be
 used here. For example:
 
 ``` javascript
 var CommentController = function() {};
-Serenade.registerController 'comment', CommentController
+Serenade.controller 'comment', CommentController
 ```
 
 Or in CoffeeScript:
 
 ``` coffeescript
 class CommentController
-Serenade.registerController 'comment', CommentController
+Serenade.controller 'comment', CommentController
 ```
 
 Serenade.js will now infer that you want to use a `CommentController` with the

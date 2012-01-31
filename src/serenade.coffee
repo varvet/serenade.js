@@ -7,14 +7,14 @@ Serenade =
   _controllers: {}
   _formats: {}
 
-  registerView: (name, template) ->
+  view: (name, template) ->
     {View} = require('./view')
     @_views[name] = new View(template)
   render: (name, model, controller, document=window?.document) ->
     controller or= @controllerFor(name, model)
     @_views[name].render(document, model, controller)
 
-  registerController: (name, klass) ->
+  controller: (name, klass) ->
     @_controllers[name] = klass
   controllerFor: (name, model) ->
     new (@_controllers[name])(model) if @_controllers[name]
@@ -54,7 +54,7 @@ exports.compile = ->
   (env) ->
     model = env.model
     viewName = env.filename.split('/').reverse()[0].replace(/\.serenade$/, '')
-    Serenade.registerView(viewName, fs.readFileSync(env.filename).toString())
+    Serenade.view(viewName, fs.readFileSync(env.filename).toString())
     element = Serenade.render(viewName, model, {}, document)
     document.body.appendChild(element)
     html = document.body.innerHTML

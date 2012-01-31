@@ -5,7 +5,7 @@ describe 'View', ->
     @setupDom()
 
   it 'compiles a view instruction by fetching and compiling the given view', ->
-    Serenade.registerView('test', 'li[id="foo"]')
+    Serenade.view('test', 'li[id="foo"]')
     @render '''
       ul
         - view "test"
@@ -17,8 +17,8 @@ describe 'View', ->
     class TestCon
       funk: -> funked = true
 
-    Serenade.registerView('test', 'li[id="foo" event:click=funk]')
-    Serenade.registerController('test', TestCon)
+    Serenade.view('test', 'li[id="foo" event:click=funk]')
+    Serenade.controller('test', TestCon)
 
     @render '''
       ul
@@ -34,8 +34,8 @@ describe 'View', ->
     class TestCon
       constructor: (model) -> funked = model.test
 
-    Serenade.registerView('test', 'li[id="foo" event:click=funk]')
-    Serenade.registerController('test', TestCon)
+    Serenade.view('test', 'li[id="foo" event:click=funk]')
+    Serenade.controller('test', TestCon)
 
     @render '''
       ul
@@ -49,7 +49,7 @@ describe 'View', ->
     class TestCon
       funk: -> funked = true
 
-    Serenade.registerView('test', 'li[id="foo" event:click=funk]')
+    Serenade.view('test', 'li[id="foo" event:click=funk]')
 
     @render '''
       ul

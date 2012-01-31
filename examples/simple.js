@@ -1,4 +1,4 @@
-Serenade.registerView('test', 'div[id="foo"] "Hello World!"');
+Serenade.view('test', 'div[id="foo"] "Hello World!"');
 
 element = Serenade.render('test', {}, {});
 

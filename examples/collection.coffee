@@ -1,4 +1,4 @@
-Serenade.registerView 'post', '''
+Serenade.view 'post', '''
   div#serenade
     h1 @title
     p @body
@@ -13,7 +13,7 @@ Serenade.registerView 'post', '''
         input[type="submit" value="Post"]
 '''
 
-Serenade.registerView 'comment', '''
+Serenade.view 'comment', '''
   li[style:backgroundColor=@color]
     p @body
     p
@@ -44,8 +44,8 @@ class CommentController
   remove: ->
     @parent.removeComment(@model)
 
-Serenade.registerController 'post', PostController
-Serenade.registerController 'comment', CommentController
+Serenade.controller 'post', PostController
+Serenade.controller 'comment', CommentController
 
 window.aPost = Post.find(5)
 aPost.set
