@@ -410,6 +410,108 @@ Serenade.controller 'comment', CommentController
 Serenade.js will now infer that you want to use a `CommentController` with the
 `comment` view.
 
+## Custom helpers
+
+Sometimes you need to break out of the mould that Serenade has provided for
+you.  In order to expose arbitrary functionality in views, Serenade has custom
+helpers.  Using them is quite simple, just add a function which returns a DOM
+element to `Serenade.Helpers`:
+
+``` javascript
+Serenade.Helpers.link = function(name, url) {
+  var a = document.createElement('a');
+  a.setAttribute('href', url);
+  a.appendChild(document.createTextNode(name));
+  return a;
+};
+```
+
+You can now use this in your views like this:
+
+```
+div
+  - link "Google" "http://www.google.com"
+```
+
+There is no comma separating the arguments.
+
+You can use any library you want to generate the DOM element, but it must be an
+actual element, returning a string is not possible, neither is returning
+multiple elements or undefined.
+
+Beware if you're using jQuery that you need to use the `get` function to
+extract the actual DOM element, for example:
+
+``` javascript
+Serenade.Helpers.link = function(name, url) {
+  var a = $('<a></a>').attr('href', url).text(name);
+  return a.get(0);
+};
+```
+
+Inside the helper, you have access to a couple of things through `this`. You can
+use `this.model` or `this.controller` to access the current model and controller.
+
+For example if you had a model like this:
+
+``` javascript
+var model = {
+  web: 'http://www.google.com',
+  images: 'http://images.google.com/'
+};
+```
+
+You might want to create a function to link to these easily like so:
+
+``` javascript
+Serenade.Helpers.link = function(link) {
+  var a = document.createElement('a');
+  a.setAttribute('href', this.model[link]);
+  a.appendChild(document.createTextNode(link));
+  return a;
+};
+```
+
+And then use it in your view:
+
+```
+div
+  - link @web
+  - link @images
+```
+
+Both the `@web` and `"Google"` syntaxes produce strings as argument. It is
+convention to use the syntax with an `@` when the argument is meant to
+reference a model attribute.
+
+Finally you have access to `this.render()` which is a function that renders
+any children of this instruction into the given element. For example if we
+wanted to create a block helper for links like this:
+
+```
+div
+  - link "http://www.google.com"
+    span "Link: " @name
+    @caption
+```
+
+You could implement the helper like this:
+
+``` javascript
+Serenade.Helpers.link = function(url) {
+  var a = document.createElement('a');
+  a.setAttribute('href', url);
+  this.render(a);
+  return a;
+};
+```
+
+The `render` function must always receive the element as its first argument but
+it may optionally also take a model as its second and a controller as its third
+argument. You can call `render` multiple times, possibly sending in different
+models and/or controllers for each invocation. If you call it multiple times,
+it's no problem to send in the same element each time.
+
 # Serenade.Model
 
 Serenade.Model provides a more fully featured starting point for creating
