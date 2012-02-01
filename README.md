@@ -529,14 +529,14 @@ In JavaScript you can use the `extend` function on Serenade.Model, you need to
 pass the name of the class as the first parameter:
 
 ``` javascript
-var MyModel = Serenade.Service.extend('MyModel');
+var MyModel = Serenade.Model.extend('MyModel');
 ```
 
 Note that in following with JavaScript conventions, you need to define instance
 methods on the prototype of the new model:
 
 ``` javascript
-var MyModel = Serenade.Service.extend('MyModel');
+var MyModel = Serenade.Model.extend('MyModel');
 MyModel.prototype.someInstanceMethod = function() { … };
 ```
 
@@ -561,7 +561,7 @@ id return the same object. This is key to working effectively with objects
 bound to views.
 
 ``` javascript
-var Person = Serenade.Service.extend('Person');
+var Person = Serenade.Model.extend('Person');
 
 person1 = new Person(id: 1, name: 'John');
 person2 = new Person(id: 1, age: 23);
