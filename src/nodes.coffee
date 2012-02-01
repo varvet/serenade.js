@@ -5,8 +5,8 @@ class Node
   constructor: (@ast, @document, @model, @controller) ->
     @element = @document.createElement(@ast.name)
 
-    @element.setAttribute('id', @ast.shortId) if @ast.shortId
-    @element.setAttribute('class', @ast.shortClasses.join(' ')) if @ast.shortClasses?.length
+    @element.setAttribute('id', @ast.id) if @ast.id
+    @element.setAttribute('class', @ast.classes.join(' ')) if @ast.classes?.length
 
     for property in @ast.properties
       Nodes.property(property, this, @document, @model, @controller)
@@ -59,7 +59,7 @@ class Attribute
     else if @node.ast.name is 'input' and @ast.name is 'checked'
       @element.checked = !!value
     else if @ast.name is 'class'
-      classes = @node.ast.shortClasses
+      classes = @node.ast.classes
       classes = classes.concat(value) unless value is undefined
       if classes.length
         @element.setAttribute(@ast.name, classes.join(' '))
