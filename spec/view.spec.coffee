@@ -14,6 +14,9 @@ describe 'View', ->
     it 'parses a single tag with extra linebreaks', ->
       expect(parse('div\n\n').name).toEqual('div')
 
+    it 'parses a single tag with extra whitespace before it', ->
+      expect(parse('\n\tdiv').name).toEqual('div')
+
     it 'parses a tag with an attribute', ->
       result = parse('div[id="foo"]')
       expect(result.name).toEqual('div')

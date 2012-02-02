@@ -11,7 +11,7 @@ WHITESPACE = /^[^\n\S]+/
 class Lexer
 
   tokenize: (code, opts = {}) ->
-    @code    = code           # The remainder of the source code.
+    @code    = code.replace(/^\s*/, '') # The remainder of the source code.
     @line    = opts.line or 0 # The current line.
     @indent  = 0              # The current indentation level.
     @indents = []             # The stack of all current indentation levels.
@@ -19,7 +19,7 @@ class Lexer
     @tokens  = []             # Stream of parsed tokens in the form `['TYPE', value, line]`.
 
     i = 0
-    while @chunk = code.slice i
+    while @chunk = @code.slice i
       i += @identifierToken() or
            #@commentToken()    or
            @whitespaceToken() or
