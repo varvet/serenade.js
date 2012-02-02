@@ -196,3 +196,6 @@ describe 'View', ->
       expect(result.name).toEqual('div')
       expect(result.children[0].name).toEqual('ul')
       expect(result.children[1].name).toEqual('form')
+
+    it 'parses a tag containing an underscore in the short form id', ->
+      expect(parse('div#foo_bar').id).toEqual('foo_bar')
