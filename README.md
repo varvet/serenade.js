@@ -563,8 +563,8 @@ bound to views.
 ``` javascript
 var Person = Serenade.Model.extend('Person');
 
-person1 = new Person(id: 1, name: 'John');
-person2 = new Person(id: 1, age: 23);
+person1 = new Person({ id: 1, name: 'John'} );
+person2 = new Person({ id: 1, age: 23 });
 person2.get('name'); # => 'John'
 person2.get('age'); # => 23
 ```
