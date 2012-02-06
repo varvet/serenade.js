@@ -607,7 +607,7 @@ You can declare that a model has an associated model. For example, each comment
 might belong to a post, you can declare this like this:
 
 ``` javascript
-Comment.belongsTo('post', { as: function() { return window.Post } });
+Comment.belongsTo('post', { as: function() { return Post } });
 ```
 
 Adding a `belongsTo` association will automatically create an id column, which
@@ -631,7 +631,7 @@ manipulate however you choose. Changes to this comments collection will be
 reflected in the `commentsIds` property.
 
 ``` javascript
-Post.hasMany('comments', { as: function() { return window.Comment } });
+Post.hasMany('comments', { as: function() { return Comment } });
 ```
 
 If the `constructor` property is omitted from either declaration, then the
