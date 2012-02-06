@@ -14,10 +14,9 @@ class AssociationCollection extends Collection
     super(@_convert(item) for item in list)
 
   _convert: (item) ->
-    ctor = @ctor()
-    if item.constructor is ctor
-      item
+    if item.constructor is Object and @ctor
+      new (@ctor())(item)
     else
-      new ctor(item)
+      item
 
 exports.AssociationCollection = AssociationCollection

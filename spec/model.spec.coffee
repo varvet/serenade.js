@@ -83,7 +83,15 @@ describe 'Serenade.Model', ->
       expect(john2.get('name')).toEqual('John')
 
   describe '.belongsTo', ->
-    it 'uses the given constructor', ->
+    it 'allows model to be assigned and retrieved', ->
+      class Post extends Serenade.Model
+        @property 'body'
+      class Comment extends Serenade.Model
+        @belongsTo('post', as: -> Post)
+      post = new Post(body: 'Hello')
+      comment = new Comment(post: post)
+      expect(comment.post).toEqual(post)
+    it 'uses the given constructor when assigning to attributes', ->
       class Post extends Serenade.Model
         @property 'body'
       class Comment extends Serenade.Model
@@ -119,6 +127,16 @@ describe 'Serenade.Model', ->
     it 'serializes the id', ->
 
   describe '.hasMany', ->
+    it 'allows objects to be added and retrieved', ->
+      class Comment extends Serenade.Model
+        @property 'body'
+      class Post extends Serenade.Model
+        @hasMany 'comments', as: -> Comment
+      comment1 = new Comment(body: 'Hello')
+      comment2 = new Comment(body: 'Monkey')
+      post = new Post(comments: [comment1, comment2])
+      expect(post.comments.get(0)).toEqual(comment1)
+      expect(post.comments.get(1)).toEqual(comment2)
     it 'uses the given constructor', ->
       class Comment extends Serenade.Model
         @property 'body'
