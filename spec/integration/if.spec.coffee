@@ -17,6 +17,20 @@ describe 'If', ->
     expect(@body).toHaveElement('ul > li#valid')
     expect(@body).toHaveElement('ul > li#visible')
 
+  it 'can have multiple children', ->
+    model = { valid: true, visible: "true" }
+
+    @render '''
+      ul
+        - if @valid
+          li[id="valid"]
+          li[id="visible"]
+          li[id="monkey"]
+    ''', model
+    expect(@body).toHaveElement('ul > li#valid')
+    expect(@body).toHaveElement('ul > li#visible')
+    expect(@body).toHaveElement('ul > li#monkey')
+
   it 'does not show the content if the model value is falsy', ->
     model = { valid: false, visible: 0 }
 

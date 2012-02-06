@@ -14,6 +14,18 @@ describe 'In', ->
     ''', model
     expect(@body).toHaveElement('article > p#jonas')
 
+  it 'can have multiple children', ->
+    model = { author: { name: 'jonas' } }
+
+    @render '''
+      article
+        - in @author
+          p[id=name]
+          div
+    ''', model
+    expect(@body).toHaveElement('article > p#jonas')
+    expect(@body).toHaveElement('article > div')
+
   it 'updates when the subobject is changed', ->
     model = new Serenade.Model( author: { name: 'jonas' } )
 

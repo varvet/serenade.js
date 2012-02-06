@@ -123,7 +123,7 @@ class If
   build: =>
     if get(@model, @ast.arguments[0])
       @nodes ||= (Nodes.compile(child, @document, @model, @controller) for child in @ast.children)
-      node.insertAfter(@nodes[i-1] or @anchor) for node, i in @nodes
+      node.insertAfter(@nodes[i-1]?.lastElement() or @anchor) for node, i in @nodes
     else
       @removeNodes()
 
@@ -155,7 +155,7 @@ class In
     @removeNodes()
     subModel = get(@model, @ast.arguments[0])
     @nodes = (Nodes.compile(child, @document, subModel, @controller) for child in @ast.children)
-    node.insertAfter(@nodes[i-1] or @anchor) for node, i in @nodes
+    node.insertAfter(@nodes[i-1]?.lastElement() or @anchor) for node, i in @nodes
 
   append: (inside) ->
     inside.appendChild(@anchor)
