@@ -84,26 +84,26 @@ describe 'Serenade.Model', ->
 
   describe '.belongsTo', ->
     it 'uses the given constructor', ->
-      class Comment extends Serenade.Model
+      class Post extends Serenade.Model
         @property 'body'
-      class Post extends Serenade.Model
-        @belongsTo('comment', as: -> Comment)
-      post = new Post(comment: { body: 'Hello' })
-      expect(post.comment.constructor).toEqual(Comment)
-      expect(post.comment.body).toEqual('Hello')
+      class Comment extends Serenade.Model
+        @belongsTo('post', as: -> Post)
+      comment = new Comment(post: { body: 'Hello' })
+      expect(comment.post.constructor).toEqual(Post)
+      expect(comment.post.body).toEqual('Hello')
     it 'creates a plain object if there is no constructor given', ->
-      class Post extends Serenade.Model
-        @belongsTo('comment')
-      post = new Post(comment: { body: 'Hello' })
-      expect(post.comment.constructor).toEqual(Object)
-      expect(post.comment.body).toEqual('Hello')
+      class Comment extends Serenade.Model
+        @belongsTo('post')
+      comment = new Comment(post: { body: 'Hello' })
+      expect(comment.post.constructor).toEqual(Object)
+      expect(comment.post.body).toEqual('Hello')
     it 'updates the id property as it changes', ->
-      class Post extends Serenade.Model
-        @belongsTo('comment')
-      post = new Post(comment: { id: 5, body: 'Hello' })
-      expect(post.commentId).toEqual(5)
-      post.comment = id: 12
-      expect(post.commentId).toEqual(12)
+      class Comment extends Serenade.Model
+        @belongsTo('post')
+      comment = new Comment(post: { id: 5, body: 'Hello' })
+      expect(comment.postId).toEqual(5)
+      comment.post = id: 12
+      expect(comment.postId).toEqual(12)
     it 'is updated if the id property changes', ->
       class Post extends Serenade.Model
         @property 'body'
