@@ -43,7 +43,7 @@ class exports.Collection
     item for item in @list when fun(item)
 
   _in: (item) ->
-    if typeof item is 'object'
+    if typeof item is 'object' and item._triggerChangesTo
       item._inCollections or= []
       item._inCollections?.push(this)
 
