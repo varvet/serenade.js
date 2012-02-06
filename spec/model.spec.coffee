@@ -124,7 +124,19 @@ describe 'Serenade.Model', ->
       comment.postId = 12
       expect(comment.post.body).toEqual('World')
     it 'serializes the entire associated document', ->
+      class Post extends Serenade.Model
+        @property 'body', serialize: true
+      class Comment extends Serenade.Model
+        @belongsTo('post', serialize: true, as: -> Post)
+      comment = new Comment(post: { body: "foo" })
+      expect(comment.serialize().post.body).toEqual("foo")
     it 'serializes the id', ->
+      class Post extends Serenade.Model
+        @property 'body', serialize: true
+      class Comment extends Serenade.Model
+        @belongsTo('post', serializeId: true, as: -> Post)
+      comment = new Comment(post: { id: 5, body: "foo" })
+      expect(comment.serialize().postId).toEqual(5)
 
   describe '.hasMany', ->
     it 'allows objects to be added and retrieved', ->
@@ -183,5 +195,20 @@ describe 'Serenade.Model', ->
       expect(post.comments.get(0).body).toEqual('World')
       expect(post.comments.get(1).body).toEqual('Cat')
     it 'serializes the entire associated documents', ->
+      class Comment extends Serenade.Model
+        @property 'body', serialize: true
+      class Post extends Serenade.Model
+        @hasMany 'comments', serialize: true, as: -> Comment
+      post = new Post(comments: [{ body: 'Hello' }, { body: 'Monkey' }])
+      serialized = post.serialize()
+      expect(serialized.comments[0].body).toEqual('Hello')
+      expect(serialized.comments[1].body).toEqual('Monkey')
     it 'serializes the ids', ->
-
+      class Comment extends Serenade.Model
+        @property 'body', serialize: true
+      class Post extends Serenade.Model
+        @hasMany 'comments', serializeIds: true, as: -> Comment
+      post = new Post(comments: [{ id: 5, body: 'Hello' }, { id: 8, body: 'Monkey' }])
+      serialized = post.serialize()
+      expect(serialized.commentsIds[0]).toEqual(5)
+      expect(serialized.commentsIds[1]).toEqual(8)

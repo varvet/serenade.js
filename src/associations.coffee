@@ -14,6 +14,7 @@ class Associations
       get: -> get(@get(name), 'id')
       set: (id) -> @attributes[name] = attributes.as().find(id)
       dependsOn: name
+      serialize: attributes.serializeId
 
   @hasMany: (name, attributes={}) ->
     extend attributes,
@@ -32,5 +33,6 @@ class Associations
         objects = map(ids, (id) -> attributes.as().find(id))
         @attributes[name] = new AssociationCollection(attributes.as, objects)
       dependsOn: name
+      serialize: attributes.serializeIds
 
 exports.Associations = Associations
