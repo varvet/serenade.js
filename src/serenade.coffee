@@ -2,7 +2,7 @@
 {extend} = require './helpers'
 
 Serenade =
-  VERSION: '0.1.2'
+  VERSION: '0.1.3'
   _views: {}
   _controllers: {}
   _formats: {}
