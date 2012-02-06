@@ -3,7 +3,7 @@
 describe 'View', ->
   describe '#parse', ->
     parse = (view) ->
-      new View(view).parse()
+      new View(undefined, view).parse()
 
     it 'parses a single tag', ->
       expect(parse('div').name).toEqual('div')

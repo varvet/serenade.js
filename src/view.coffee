@@ -13,15 +13,18 @@ parser.lexer =
     ""
 
 class View
-  constructor: (@view) ->
+  constructor: (@name, @view) ->
   parse: ->
     if typeof(@view) is 'string'
       parser.parse(new Lexer().tokenize(@view))
     else
       @view
-  render: (model={}, controller={}) ->
+  render: (model, controller) ->
+    controller or= Serenade.controllerFor(@name, model) if @name
+    controller or= {}
     node = Nodes.compile(@parse(), Serenade.document, model, controller)
-    controller.model = model
-    controller.view = node.element
+    controller.model or= model
+    controller.view or= node.element
+    node.element
 
 exports.View = View

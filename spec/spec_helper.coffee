@@ -45,8 +45,8 @@ beforeEach ->
     event.initEvent(name, true, true)
     element.dispatchEvent(event)
 
-  @render = (template, model={}, controller={}) =>
-    @body.append(new View(template).render(model, controller))
+  @render = (template, model, controller) =>
+    @body.append(Serenade.view(template).render(model, controller))
 
   @addMatchers
     toHaveElement: (selector, options) ->

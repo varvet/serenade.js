@@ -9,17 +9,14 @@ Serenade =
 
   document: window?.document
 
-  view: (name_or_template, template) ->
+  view: (nameOrTemplate, template) ->
     {View} = require('./view')
     if template
-      @_views[name_or_template] = new View(template)
+      @_views[nameOrTemplate] = new View(nameOrTemplate, template)
     else
-      new View(name_or_template)
+      new View(undefined, nameOrTemplate)
 
   render: (name, model, controller) ->
-    model or= {}
-    controller or= @controllerFor(name, model)
-    controller or= {}
     @_views[name].render(model, controller)
 
   controller: (name, klass) ->
