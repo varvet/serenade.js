@@ -80,3 +80,8 @@ describe 'Bound attributes and text nodes', ->
     model.set('names', ['harry', 'jonas'])
     expect(@body).toHaveElement('div.harry.jonas')
 
+  it 'handles the number zero correctly', ->
+    model = { number: 0 }
+    @render 'div[data-foo=number] @number', model
+    expect(@body.find('div').attr('data-foo')).toEqual("0")
+    expect(@body.find('div').text()).toEqual("0")

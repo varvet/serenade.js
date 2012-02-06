@@ -68,6 +68,7 @@ class Attribute
     else if value is undefined
       @element.removeAttribute(@ast.name)
     else
+      value = "0" if value is 0
       @element.setAttribute(@ast.name, value)
 
   get: -> format(@model, @ast.value, @ast.bound)
@@ -91,7 +92,10 @@ class TextNode
   lastElement: ->
     @textNode
 
-  get: -> format(@model, @ast.value, @ast.bound) or ''
+  get: ->
+    value = format(@model, @ast.value, @ast.bound)
+    value = "0" if value is 0
+    value or ""
 
 class View
   constructor: (@ast, @document, @model, @parentController) ->
