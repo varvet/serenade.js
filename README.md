@@ -1,5 +1,7 @@
 # Serenade.js
 
+[![Build Status](https://secure.travis-ci.org/elabs/serenade.js.png)](http://travis-ci.org/elabs/serenade.js)
+
 Serenade.js is yet another MVC client side JavaScript framework. Why do we
 indulge in recreating the wheel? We believe that Serenade.js more closely follows
 the ideas of classical MVC than competing frameworks and has a number of other
