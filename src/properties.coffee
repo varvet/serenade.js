@@ -3,14 +3,14 @@
 {Events} = require './events'
 {pairToObject, serializeObject, extend, map} = require './helpers'
 
-prexix = "_prop_"
+prefix = "_prop_"
 exp = /^_prop_/
 define = Object.defineProperties # we check for the plural because it is unsupported in buggy IE8
 
 Serenade.Properties =
   property: (name, options={}) ->
-    @[prexix + name] = options
-    @[prexix + name].name = name
+    @[prefix + name] = options
+    @[prefix + name].name = name
     if define
       Object.defineProperty @, name,
         get: -> Serenade.Properties.get.call(this, name)
@@ -40,8 +40,8 @@ Serenade.Properties =
       @_undefer(name)
       names.push(name)
       @attributes or= {}
-      if @[prexix + name]?.set
-        @[prexix + name].set.call(this, value)
+      if @[prefix + name]?.set
+        @[prefix + name].set.call(this, value)
       else
         @attributes[name] = value
       @_defer(name)
@@ -49,13 +49,13 @@ Serenade.Properties =
 
   get: (name) ->
     @attributes or= {}
-    if @[prexix + name]?.get
-      @[prexix + name].get.call(this)
+    if @[prefix + name]?.get
+      @[prefix + name].get.call(this)
     else
       @attributes[name]
 
   format: (name) ->
-    format = @[prexix + name]?.format
+    format = @[prefix + name]?.format
     if typeof(format) is 'string'
       Serenade._formats[format].call(this, @get(name))
     else if typeof(format) is 'function'
