@@ -145,6 +145,23 @@ class MyModel
   Serenade.extend(@prototype, Serenade.Properties)
 ```
 
+## Two way data binding
+
+The dynamic properties are one way only; a change in the model triggers a change
+in the DOM, but not the other way around. Two way data binding exists so that a
+change in the DOM automatically updates the model, and vice versa.
+
+``` javascript
+var model = { name: "Jonas" };
+var element = Serenade.view('input[type=text binding:change=name]').render(model, {});
+```
+
+This sets up an event listener for the `change` event, setting the `name` property
+on the model to the value of the input element every time the `change` event
+triggers. You can use any event you want, such as `keyup`, `keydown`, etc.
+
+Note: It only works for textarea and input elements.
+
 ## Custom getters and setters
 
 Sometimes it can be convenient to define a property with a custom getter and/or
