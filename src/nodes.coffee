@@ -51,6 +51,11 @@ class TwoWayBinding
       callback = (e) =>
         set(@model, @ast.value, @element.value)
       Serenade.bindEvent(@element, @ast.name, callback)
+      @update()
+      @model.bind? "change:#{@ast.value}", (value) => @update()
+
+    update: ->
+      @element.value = get(@model, @ast.value)
 
 
 class Attribute
