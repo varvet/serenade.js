@@ -713,9 +713,9 @@ Install dependencies via npm:
 
     npm install
 
-Run tests with jasmine:
+Run the tests:
 
-    jasmine-node spec --coffee
+    npm test
 
 Build Serenade.js into a single file:
 
