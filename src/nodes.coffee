@@ -1,5 +1,5 @@
 {Serenade} = require './serenade'
-{format, get, preventDefault} = require './helpers'
+{format, get, set, preventDefault} = require './helpers'
 
 class Node
   constructor: (@ast, @document, @model, @controller) ->
@@ -44,6 +44,14 @@ class Event
       preventDefault(e) if self.ast.preventDefault
       self.controller[self.ast.value](e)
     Serenade.bindEvent(@element, @ast.name, callback)
+
+class TwoWayBinding
+    constructor: (@ast, @node, @document, @model, @controller) ->
+      @element = @node.element
+      callback = (e) =>
+        set(@model, @ast.value, @element.value)
+      Serenade.bindEvent(@element, @ast.name, callback)
+
 
 class Attribute
   constructor: (@ast, @node, @document, @model, @controller) ->
@@ -293,6 +301,7 @@ Nodes =
       when "attribute" then new Attribute(ast, node, document, model, controller)
       when "style" then new Style(ast, node, document, model, controller)
       when "event" then new Event(ast, node, document, model, controller)
+      when "binding" then new TwoWayBinding(ast, node, document, model, controller)
       else throw SyntaxError "#{ast.scope} is not a valid scope"
 
 exports.Nodes = Nodes
