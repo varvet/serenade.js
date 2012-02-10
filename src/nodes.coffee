@@ -144,7 +144,10 @@ class If
     @nodes = undefined
 
   lastElement: ->
-    @nodes[@nodes.length - 1].lastElement()
+    if @nodes?.length
+      @nodes[@nodes.length - 1].lastElement()
+    else
+      @anchor
 
 class In
   constructor: (@ast, @document, @model, @controller) ->

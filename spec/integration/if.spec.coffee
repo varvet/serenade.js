@@ -65,3 +65,15 @@ describe 'If', ->
     model.set(valid: "Blah", visible: {})
     expect(@body).toHaveElement('ul > li#valid')
     expect(@body).toHaveElement('ul > li#visible')
+
+  it 'peacefully coexists with collections', ->
+    model = new Serenade.Model(items: [{ valid: true, name: 'foo' }, { name: 'bar' }])
+    @render '''
+      ul
+        - collection @items
+          - if @valid
+            li[id=@name]
+    ''', model
+    expect(@body).toHaveElement('ul > li#foo')
+    expect(@body).not.toHaveElement('ul > li#bar')
+
