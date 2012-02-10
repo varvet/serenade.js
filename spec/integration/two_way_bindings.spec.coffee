@@ -42,3 +42,6 @@ describe 'Two-way bindings', ->
     model.set("name", "Changed name")
     input = @body.find('input').get(0)
     expect(input.value).toEqual("Changed name")
+
+  it 'rejects none-input elements', ->
+    expect(=> @render 'div[binding:keyup=name]', {}, {}).toThrow()

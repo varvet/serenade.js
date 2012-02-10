@@ -47,6 +47,7 @@ class Event
 
 class TwoWayBinding
     constructor: (@ast, @node, @document, @model, @controller) ->
+      @node.ast.name in ["input", "textarea"] or throw SyntaxError "invalid node type #{@node.ast.name} for two way binding"
       @element = @node.element
       callback = (e) =>
         set(@model, @ast.value, @element.value)
