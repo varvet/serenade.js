@@ -13,6 +13,9 @@ advantages as well:
 * Absolutely no dependencies, everything works without jQuery
 * No need to inherit from base classes anywhere (though you can if you want)
 
+**Need help?** Ask your question on our
+[mailing list](http://groups.google.com/group/serenadejs).
+
 ## Important Note!
 
 This is an ongoing, alpha level project. Be prepared that the API might change
@@ -23,6 +26,9 @@ planned.
 ## Download
 
 Download here: https://github.com/elabs/serenade.js/downloads
+
+You can integrate Serenade into Ruby on Rails through the 
+[serenade_rails](https://github.com/elabs/serenade_rails) gem.
 
 ## Architecture
 
