@@ -1,8 +1,7 @@
 Helpers =
   extend: (target, source) ->
-    for key, value of source
-      if Object.prototype.hasOwnProperty.call(source, key)
-        target[key] = value
+    for own key, value of source
+      target[key] = value
   get: (model, value, bound=true) ->
     if bound and model?.get
       model.get(value)
