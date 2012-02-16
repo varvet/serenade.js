@@ -109,7 +109,7 @@ Serenade.Properties =
       for collection in @_inCollections
         extend(allDefers, collection._deferTo)
 
-    for deferName, deferObject of allDefers when allDefers.hasOwnProperty(deferName)
+    for own deferName, deferObject of allDefers
       keys = map(changedProperties, (prop) -> "#{deferName}.#{prop}")
       deferObject._triggerChangesTo(keys)
 
