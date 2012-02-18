@@ -77,7 +77,7 @@ Serenade.Properties =
 
   _defer: (name) ->
     deferred = @get(name)
-    if deferred?._triggerChangesTo
+    if deferred? and deferred?._triggerChangesTo
       deferred._deferTo or= {}
       deferred._deferTo?[name] = this
 
