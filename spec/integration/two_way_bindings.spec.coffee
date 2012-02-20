@@ -45,3 +45,11 @@ describe 'Two-way bindings', ->
 
   it 'rejects none-input elements', ->
     expect(=> @render 'div[binding:keyup=name]', {}, {}).toThrow()
+
+  # Note: Jasmine seems to set input.value to "" when we set it to undefined.
+  # Actual browsers will set it to "undefined".
+  it 'sets value to empty string when model property is undefined', ->
+    model = {name: undefined}
+    @render 'input[type="text" binding:change=name]', model
+    input = @body.find("input").get(0)
+    expect(input.value).toEqual("")

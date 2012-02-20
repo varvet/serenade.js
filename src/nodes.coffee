@@ -56,7 +56,9 @@ class TwoWayBinding
       @model.bind? "change:#{@ast.value}", (value) => @update()
 
     update: ->
-      @element.value = get(@model, @ast.value)
+      val = get(@model, @ast.value)
+      val = "" if val == undefined
+      @element.value = val
 
 
 class Attribute
