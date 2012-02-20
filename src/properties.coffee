@@ -15,8 +15,6 @@ Serenade.Properties =
       Object.defineProperty @, name,
         get: -> Serenade.Properties.get.call(this, name)
         set: (value) -> Serenade.Properties.set.call(this, name, value)
-    if options.default?
-      Serenade.Properties.set.call(this, name, options.default)
     if typeof(options.serialize) is 'string'
       @property options.serialize,
         get: -> @get(name)
@@ -53,8 +51,10 @@ Serenade.Properties =
     @attributes or= {}
     if @[prefix + name]?.get
       @[prefix + name].get.call(this)
-    else
+    else if @attributes[name]?
       @attributes[name]
+    else if @[prefix + name]?.default?
+      @[prefix + name].default
 
   format: (name) ->
     format = @[prefix + name]?.format
