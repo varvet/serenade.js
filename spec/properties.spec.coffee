@@ -69,6 +69,10 @@ describe 'Serenade.Properties', ->
         @inst1.property 'age', serialize: true
         @inst2.property 'height', serialize: true
         expect(Object.keys(@inst2.serialize())).not.toContain('age')
+      it 'accepts default values', ->
+        @object.property 'age', default: 25
+        expect(@object.get('age')).toEqual(25)
+
 
   describe '.collection', ->
     it 'is initialized to a collection', ->
