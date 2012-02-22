@@ -20,8 +20,8 @@ Serenade.Properties =
         get: -> @get(name)
         set: (v) -> @set(name, v)
 
-  collection: (name, options) ->
-    @property name,
+  collection: (name, options={}) ->
+    extend options,
       get: ->
         unless @attributes[name]
           @attributes[name] = new Collection([])
@@ -31,6 +31,7 @@ Serenade.Properties =
         @attributes[name]
       set: (value) ->
         @get(name).update(value)
+    @property name, options
 
   set: (attributes, value) ->
     attributes = pairToObject(attributes, value) if typeof(attributes) is 'string'

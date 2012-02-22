@@ -84,6 +84,10 @@ describe 'Serenade.Properties', ->
       @object.collection 'numbers'
       @object.get('numbers').push(4)
       expect(@object).toHaveReceivedEvent('change:numbers', with: [@object.get('numbers')])
+    it 'passes on the serialize option', ->
+      @object.collection 'numbers', serialize: true
+      @object.set('numbers', [1,2,3])
+      expect(@object.serialize()).toEqual(numbers: [1,2,3])
 
   describe '.set', ->
     describe 'with a single property', ->
