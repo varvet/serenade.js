@@ -239,12 +239,11 @@ class Helper
       node.append(element)
 
   lastElement: ->
-    item = @lastItem()
-    if item then item.lastElement() else @anchor
+    @element
 
   remove: ->
-    @element.parentNode.removeChild(@element)
-    item.remove() for item in @items
+    unless @element.parentNode is null
+      @element.parentNode.removeChild(@element)
 
   append: (inside) ->
     inside.appendChild(@element)
