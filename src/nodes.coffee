@@ -21,7 +21,7 @@ class Node
     after.parentNode.insertBefore(@element, after.nextSibling)
 
   remove: ->
-    @element.parentNode.removeChild(@element) if @element.parentNode
+    @element.parentNode?.removeChild(@element)
 
   lastElement: ->
     @element
