@@ -4,9 +4,9 @@ LITERAL = /^[\[\]=\:\-!#\.@]/
 
 STRING = /^"((?:\\.|[^"])*)"/
 
-MULTI_DENT = /^(?:\n[^\n\S]*)+/
+MULTI_DENT = /^(?:\r?\n[^\r\n\S]*)+/
 
-WHITESPACE = /^[^\n\S]+/
+WHITESPACE = /^[^\r\n\S]+/
 
 class Lexer
 

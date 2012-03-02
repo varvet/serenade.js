@@ -20,8 +20,8 @@ Serenade.Properties =
         get: -> @get(name)
         set: (v) -> @set(name, v)
 
-  collection: (name, options) ->
-    @property name,
+  collection: (name, options={}) ->
+    extend options,
       get: ->
         unless @attributes[name]
           @attributes[name] = new Collection([])
@@ -31,6 +31,7 @@ Serenade.Properties =
         @attributes[name]
       set: (value) ->
         @get(name).update(value)
+    @property name, options
 
   set: (attributes, value) ->
     attributes = pairToObject(attributes, value) if typeof(attributes) is 'string'
@@ -77,7 +78,7 @@ Serenade.Properties =
 
   _defer: (name) ->
     deferred = @get(name)
-    if deferred?._triggerChangesTo
+    if deferred? and deferred?._triggerChangesTo
       deferred._deferTo or= {}
       deferred._deferTo?[name] = this
 
@@ -109,7 +110,7 @@ Serenade.Properties =
       for collection in @_inCollections
         extend(allDefers, collection._deferTo)
 
-    for deferName, deferObject of allDefers when allDefers.hasOwnProperty(deferName)
+    for own deferName, deferObject of allDefers
       keys = map(changedProperties, (prop) -> "#{deferName}.#{prop}")
       deferObject._triggerChangesTo(keys)
 
