@@ -237,6 +237,7 @@ class Helper
     for child in @ast.children
       node = Nodes.compile(child, @document, model, controller)
       node.append(element)
+    element
 
   lastElement: ->
     @element

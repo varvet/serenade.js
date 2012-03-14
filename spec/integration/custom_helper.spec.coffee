@@ -73,7 +73,6 @@ describe 'Custom helpers', ->
       Serenade.Helpers.form = ->
         element = @document.createElement('form')
         @render(element)
-        element
       @render '''
         div
           - form
@@ -95,7 +94,6 @@ describe 'Custom helpers', ->
       Serenade.Helpers.form = ->
         element = @document.createElement('form')
         @render(element, name: 'peter')
-        element
       @render '''
         div
           - form
@@ -108,7 +106,6 @@ describe 'Custom helpers', ->
       Serenade.Helpers.form = ->
         element = @document.createElement('form')
         @render(element, null, funky: -> funked = true)
-        element
       @render '''
         div
           - form
@@ -123,7 +120,6 @@ describe 'Custom helpers', ->
         element = @document.createElement('form')
         @render(element, name: 'jonas')
         @render(element, name: 'peter')
-        element
       @render '''
         div
           - form
