@@ -50,6 +50,14 @@ describe 'Serenade.Collection', ->
       expect(@collection.indexOf('a')).toEqual(0)
       expect(@collection.indexOf('b')).toEqual(1)
 
+  describe '#find', ->
+    it 'returns the first object that matches the predicate function', ->
+      predicate = (item) -> item.toUpperCase() == 'B'
+      expect(@collection.find(predicate)).toEqual('b')
+    it 'returns undefined when no object matches the predicate function', ->
+      predicate = (item) -> item.length > 1
+      expect(@collection.find(predicate)).toBeUndefined()
+
   describe '#deleteAt', ->
     it 'removes the item from the collection', ->
       @collection.deleteAt(1)

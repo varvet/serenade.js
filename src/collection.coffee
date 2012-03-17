@@ -30,6 +30,8 @@ class exports.Collection
   map: (fun) ->
     fun(item) for item in @list
   indexOf: (search) -> indexOf(@list, search)
+  find: (fun) ->
+    @select(fun)[0]
   deleteAt: (index) ->
     @_notIn(@list[index])
     @list.splice(index, 1)
