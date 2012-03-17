@@ -52,8 +52,10 @@ Serenade.Properties =
     @attributes or= {}
     if @[prefix + name]?.get
       @[prefix + name].get.call(this)
-    else
+    else if @attributes[name]?
       @attributes[name]
+    else if @[prefix + name]?.default?
+      @[prefix + name].default
 
   format: (name) ->
     format = @[prefix + name]?.format
