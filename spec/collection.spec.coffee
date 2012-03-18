@@ -42,6 +42,18 @@ describe 'Serenade.Collection', ->
       @collection.sort()
       expect(@collection).toHaveReceivedEvent('update')
 
+  describe '#sortBy', ->
+    it 'updates the order of the items in the collection', ->
+      item1 = {name: 'CJ', age: 30}
+      item2 = {name: 'Anders', age: 37}
+      @collection.update([item1, item2])
+
+      @collection.sortBy('age')
+      expect(@collection.list).toEqual([item1, item2])
+
+      @collection.sortBy('name')
+      expect(@collection.list).toEqual([item2, item1])
+
   describe '#push', ->
     it 'adds an item to the collection', ->
       @collection.push('g')

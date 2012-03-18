@@ -28,6 +28,8 @@ class exports.Collection
   sort: (fun) ->
     @list.sort(fun)
     @trigger("update", @list)
+  sortBy: (attribute) ->
+    @sort((a, b) -> if a[attribute] < b[attribute] then -1 else 1)
   forEach: (fun) ->
     forEach(@list, fun)
   map: (fun) ->
