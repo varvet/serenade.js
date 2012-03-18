@@ -25,6 +25,9 @@ class exports.Collection
     @_in(element) for element in list
     @trigger("update", list)
     @trigger("change", @list)
+  sort: (fun) ->
+    @list.sort(fun)
+    @trigger("update", @list)
   forEach: (fun) ->
     forEach(@list, fun)
   map: (fun) ->

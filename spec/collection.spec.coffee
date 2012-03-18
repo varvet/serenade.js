@@ -30,6 +30,18 @@ describe 'Serenade.Collection', ->
       @collection.update([1,2])
       expect(@collection.length).toEqual(2)
 
+  describe '#sort', ->
+    it 'updates the order of the items in the collection', ->
+      @collection.push('a')
+      @collection.sort()
+      expect(@collection.list).toEqual(['a', 'a', 'b', 'c'])
+    it 'updates the order of the items in the collection', ->
+      @collection.sort((a, b) -> if a > b then -1 else 1)
+      expect(@collection.list).toEqual(['c', 'b', 'a'])
+    it 'triggers an update event', ->
+      @collection.sort()
+      expect(@collection).toHaveReceivedEvent('update')
+
   describe '#push', ->
     it 'adds an item to the collection', ->
       @collection.push('g')
