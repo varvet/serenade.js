@@ -39,9 +39,12 @@ describe 'View', ->
 
     @render '''
       ul
-        - in "quox"
+        - in @quox
           - view "test"
     ''', model
+
+    #console.log @window.document.innerHTML
+
     expect(funked).toEqual('foo')
 
   it 'falls back to same controller if none is set up', ->

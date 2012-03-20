@@ -58,9 +58,9 @@ grammar =
   ]
 
   Property: [
-    o 'IDENTIFIER = IDENTIFIER', -> { name: $1, value: $3, bound: true, scope: 'attribute' }
+    o 'IDENTIFIER = BoundByDefault', -> { name: $1, value: $3, bound: true, scope: 'attribute' }
     o 'IDENTIFIER = Bound', -> { name: $1, value: $3, bound: true, scope: 'attribute' }
-    o 'IDENTIFIER = IDENTIFIER !', -> { name: $1, value: $3, bound: true, scope: 'attribute', preventDefault: true }
+    o 'IDENTIFIER = BoundByDefault !', -> { name: $1, value: $3, bound: true, scope: 'attribute', preventDefault: true }
     o 'IDENTIFIER = Bound !', -> { name: $1, value: $3, bound: true, scope: 'attribute', preventDefault: true }
     o 'IDENTIFIER = STRING_LITERAL', -> { name: $1, value: $3, bound: false, scope: 'attribute' }
     o 'IDENTIFIER : Property', -> $3.scope = $1; $3
@@ -73,7 +73,12 @@ grammar =
   ]
 
   Bound: [
-    o '@ IDENTIFIER', -> $2
+    o '@ BoundByDefault', -> $2
+  ]
+
+  BoundByDefault: [
+    o 'IDENTIFIER', -> [$1]
+    o 'BoundByDefault . IDENTIFIER', -> $1.concat $3
   ]
 
 Jison = require("jison").Parser
