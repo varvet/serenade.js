@@ -101,3 +101,8 @@ describe 'Serenade.Collection', ->
       expect(@collection.get(0)).toEqual('a')
       expect(@collection.get(1)).toEqual('c')
       expect(@collection.get(2)).toEqual(undefined)
+
+  describe '#select', ->
+    it 'returns items that match user specified criteria', ->
+      selected = @collection.select (item) -> item < 'c'
+      expect(selected).toEqual(['a', 'b'])
