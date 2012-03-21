@@ -48,6 +48,8 @@ class exports.Collection
     serializeObject(@list)
   select: (fun) ->
     item for item in @list when fun(item)
+  detect: (fun) ->
+    return item for item in @list when fun(item)
 
   _in: (item) ->
     if item?._triggerChangesTo
