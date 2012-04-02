@@ -38,9 +38,10 @@ class exports.Collection
   find: (fun) ->
     return item for item in @list when fun(item)
   deleteAt: (index) ->
-    @_notIn(@list[index])
+    value = @list[index]
+    @_notIn(value)
     @list.splice(index, 1)
-    @trigger("delete", index)
+    @trigger("delete", index, value)
     @trigger("change", @list)
   delete: (item) ->
     @deleteAt(@indexOf(item))

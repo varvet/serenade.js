@@ -93,7 +93,7 @@ describe 'Serenade.Collection', ->
       expect(@collection).toHaveReceivedEvent('change')
     it 'triggers a delete event', ->
       @collection.deleteAt(1)
-      expect(@collection).toHaveReceivedEvent('delete', with: [1])
+      expect(@collection).toHaveReceivedEvent('delete', with: [1, 'b'])
 
   describe '#delete', ->
     it 'removes the item from the collection', ->
