@@ -21,7 +21,7 @@ class Node
     after.parentNode.insertBefore(@element, after.nextSibling)
 
   remove: ->
-    @element.parentNode.removeChild(@element)
+    @element.parentNode?.removeChild(@element)
 
   lastElement: ->
     @element
@@ -237,6 +237,7 @@ class Helper
     for child in @ast.children
       node = Nodes.compile(child, @document, model, controller)
       node.append(element)
+    element
 
   lastElement: ->
     item = @lastItem()
