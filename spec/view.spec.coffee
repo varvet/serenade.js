@@ -30,7 +30,7 @@ describe 'View', ->
       expect(result.name).toEqual('div')
       expect(result.properties[0].scope).toEqual('attribute')
       expect(result.properties[0].name).toEqual('id')
-      expect(result.properties[0].value).toEqual('foo')
+      expect(result.properties[0].value).toEqual(['foo'])
       expect(result.properties[0].bound).toEqual(true)
 
     it 'parses a tag with a bound attribute with optional @', ->
@@ -38,7 +38,7 @@ describe 'View', ->
       expect(result.name).toEqual('div')
       expect(result.properties[0].scope).toEqual('attribute')
       expect(result.properties[0].name).toEqual('id')
-      expect(result.properties[0].value).toEqual('foo')
+      expect(result.properties[0].value).toEqual(['foo'])
       expect(result.properties[0].bound).toEqual(true)
 
     it 'parses a tag with a scoped attribute', ->
@@ -56,7 +56,7 @@ describe 'View', ->
       expect(result.properties[0].value).toEqual('foo')
       expect(result.properties[0].bound).toEqual(false)
       expect(result.properties[1].name).toEqual('class')
-      expect(result.properties[1].value).toEqual('schmoo')
+      expect(result.properties[1].value).toEqual(['schmoo'])
       expect(result.properties[1].bound).toEqual(true)
 
     it 'parses a tag with a bound scoped attribute', ->
@@ -64,7 +64,7 @@ describe 'View', ->
       expect(result.name).toEqual('div')
       expect(result.properties[0].scope).toEqual('style')
       expect(result.properties[0].name).toEqual('color')
-      expect(result.properties[0].value).toEqual('foo')
+      expect(result.properties[0].value).toEqual(['foo'])
       expect(result.properties[0].bound).toEqual(true)
 
     it 'parses a tag with an attribute with the prevent default flag', ->
@@ -72,7 +72,7 @@ describe 'View', ->
       expect(result.name).toEqual('div')
       expect(result.properties[0].scope).toEqual('event')
       expect(result.properties[0].name).toEqual('click')
-      expect(result.properties[0].value).toEqual('foo')
+      expect(result.properties[0].value).toEqual(['foo'])
       expect(result.properties[0].bound).toEqual(true)
       expect(result.properties[0].preventDefault).toEqual(true)
 
@@ -137,9 +137,9 @@ describe 'View', ->
         div[id=foo] @baz @bar
       """
       expect(result.name).toEqual('div')
-      expect(result.children[0].value).toEqual('baz')
+      expect(result.children[0].value).toEqual(['baz'])
       expect(result.children[0].bound).toEqual(true)
-      expect(result.children[1].value).toEqual('bar')
+      expect(result.children[1].value).toEqual(['bar'])
       expect(result.children[1].bound).toEqual(true)
 
     it 'parses bound strings on new line', ->
@@ -151,12 +151,12 @@ describe 'View', ->
           @bar
       """
       expect(result.name).toEqual('div')
-      expect(result.children[0].value).toEqual('baz')
+      expect(result.children[0].value).toEqual(['baz'])
       expect(result.children[0].bound).toEqual(true)
       expect(result.children[1].value).toEqual('schmoo')
       expect(result.children[1].bound).toEqual(false)
       expect(result.children[2].name).toEqual('span')
-      expect(result.children[3].value).toEqual('bar')
+      expect(result.children[3].value).toEqual(['bar'])
       expect(result.children[3].bound).toEqual(true)
 
     it 'parses multiple things as children', ->
@@ -166,11 +166,11 @@ describe 'View', ->
           span
       """
       expect(result.name).toEqual('div')
-      expect(result.children[0].value).toEqual('baz')
+      expect(result.children[0].value).toEqual(['baz'])
       expect(result.children[0].bound).toEqual(true)
       expect(result.children[1].value).toEqual('schmoo')
       expect(result.children[1].bound).toEqual(false)
-      expect(result.children[2].value).toEqual('bar')
+      expect(result.children[2].value).toEqual(['bar'])
       expect(result.children[2].bound).toEqual(true)
       expect(result.children[3].name).toEqual('span')
 
@@ -182,7 +182,7 @@ describe 'View', ->
       """
       expect(result.name).toEqual('div')
       expect(result.children[0].command).toEqual('view')
-      expect(result.children[0].arguments).toEqual(['example'])
+      expect(result.children[0].arguments).toEqual([['example']])
       expect(result.children[0].children[0].name).toEqual('span')
 
     it 'does indentation for collections correctly', ->

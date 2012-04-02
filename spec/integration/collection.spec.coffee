@@ -9,7 +9,7 @@ describe 'Collection', ->
 
     @render '''
       ul
-        - collection "people"
+        - collection @people
           li[id=name]
     ''', model
     expect(@body).toHaveElement('ul > li#jonas')
@@ -20,7 +20,7 @@ describe 'Collection', ->
 
     @render '''
       ul
-        - collection "people"
+        - collection @people
           li[id=name]
     ''', model
     expect(@body).toHaveElement('ul > li#jonas')
@@ -31,7 +31,7 @@ describe 'Collection', ->
 
     @render '''
       ul
-        - collection "people"
+        - collection @people
           li[id=name]
     ''', model
     expect(@body).toHaveElement('ul > li#jonas')
@@ -47,7 +47,7 @@ describe 'Collection', ->
 
     @render '''
       ul
-        - collection "people"
+        - collection @people
           li[id=name]
     ''', model
     expect(@body).toHaveElement('ul > li#jonas')

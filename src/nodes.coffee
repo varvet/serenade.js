@@ -1,5 +1,5 @@
 {Serenade} = require './serenade'
-{format, get, forEach, preventDefault} = require './helpers'
+{format, getPath, forEach, preventDefault, bind} = require './helpers'
 
 class Node
   constructor: (@ast, @document, @model, @controller) ->
@@ -31,7 +31,7 @@ class Style
     @element = @node.element
     @update()
     if @ast.bound
-      @model.bind? "change:#{@ast.value}", (value) => @update()
+      bind @model, @ast.value, (value) => @update()
   update: ->
     @element.style[@ast.name] = @get()
   get: -> format(@model, @ast.value, @ast.bound)
@@ -50,7 +50,7 @@ class Attribute
     @element = @node.element
     @update()
     if @ast.bound
-      @model.bind? "change:#{@ast.value}", (value) => @update()
+      bind @model, @ast.value, (value) => @update()
 
   update: ->
     value = @get()
@@ -77,7 +77,7 @@ class TextNode
   constructor: (@ast, @document, @model, @controller) ->
     @textNode = document.createTextNode(@get())
     if @ast.bound
-      model.bind? "change:#{@ast.value}", =>
+      bind @model, @ast.value, =>
         @textNode.nodeValue = @get()
 
   append: (inside) ->
@@ -118,10 +118,10 @@ class View
 class If
   constructor: (@ast, @document, @model, @controller) ->
     @anchor = document.createTextNode('')
-    @model.bind? "change:#{@ast.arguments[0]}", @build
+    bind @model, @ast.arguments[0], @build
 
   build: =>
-    if get(@model, @ast.arguments[0])
+    if getPath(@model, @ast.arguments[0])
       @nodes ||= (Nodes.compile(child, @document, @model, @controller) for child in @ast.children)
       node.insertAfter(@nodes[i-1]?.lastElement() or @anchor) for node, i in @nodes
     else
@@ -152,11 +152,11 @@ class If
 class In
   constructor: (@ast, @document, @model, @controller) ->
     @anchor = document.createTextNode('')
-    @model.bind? "change:#{@ast.arguments[0]}", @build
+    bind @model, @ast.arguments, @build
 
   build: =>
     @removeNodes()
-    subModel = get(@model, @ast.arguments[0])
+    subModel = getPath(@model, @ast.arguments[0])
     @nodes = (Nodes.compile(child, @document, subModel, @controller) for child in @ast.children)
     node.insertAfter(@nodes[i-1]?.lastElement() or @anchor) for node, i in @nodes
 
@@ -182,12 +182,12 @@ class In
 class Collection
   constructor: (@ast, @document, @model, @controller) ->
     @anchor = document.createTextNode('')
-    @collection = @get()
-    if @collection.bind
-      @collection.bind('update', => @rebuild())
-      @collection.bind('set', => @rebuild())
-      @collection.bind('add', (item) => @appendItem(item))
-      @collection.bind('delete', (index) => @delete(index))
+    bind @model, @ast.arguments[0], ( => @rebuild()), (collection) =>
+      if collection.bind
+        collection.bind('update', => @rebuild())
+        collection.bind('set', => @rebuild())
+        collection.bind('add', (item) => @appendItem(item))
+        collection.bind('delete', (index) => @delete(index))
 
   rebuild: ->
     item.remove() for item in @items
@@ -195,7 +195,7 @@ class Collection
 
   build: ->
     @items = []
-    forEach @collection, (item) => @appendItem(item)
+    forEach @get(), (item) => @appendItem(item)
 
   appendItem: (item) ->
     node = new CollectionItem(@ast.children, @document, item, @controller)
@@ -225,7 +225,7 @@ class Collection
     after.parentNode.insertBefore(@anchor, after.nextSibling)
     @build()
 
-  get: -> get(@model, @ast.arguments[0])
+  get: -> getPath(@model, @ast.arguments[0])
 
 class Helper
   constructor: (@ast, @document, @model, @controller) ->
