@@ -50,9 +50,11 @@ class exports.Collection
     item for item in @list when fun(item)
 
   _in: (item) ->
-    if item?._triggerChangesTo
+    if item?._useDefer
       item._inCollections or= []
       item._inCollections?.push(this)
 
   _notIn: (item) ->
     deleteItem(item._inCollections, this) if item?._inCollections
+
+  _useDefer: true

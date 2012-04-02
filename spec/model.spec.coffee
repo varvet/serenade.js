@@ -212,3 +212,13 @@ describe 'Serenade.Model', ->
       serialized = post.serialize()
       expect(serialized.commentsIds[0]).toEqual(5)
       expect(serialized.commentsIds[1]).toEqual(8)
+    it 'can observe changes to items in the collection', ->
+      class Comment extends Serenade.Model
+        @property 'confirmed'
+      class Post extends Serenade.Model
+        @hasMany 'comments', as: -> Comment
+        @property 'confirmedComments', dependsOn: 'comments.confirmed'
+      post = new Post(name: "test")
+      post.comments = [{ id: 5, body: 'Hello', confirmed: true }, { id: 8, body: 'Monkey', confirmed: false }]
+      post.comments.get(1).confirmed = true
+      expect(post).toHaveReceivedEvent('change:confirmedComments')

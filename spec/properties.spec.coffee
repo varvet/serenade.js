@@ -45,10 +45,15 @@ describe 'Serenade.Properties', ->
         @object.set(author: extended())
         oldAuthor.set(name: 'test')
         expect(@object).not.toHaveReceivedEvent('change:name')
-      it 'can reach into collections and observe changes to them', ->
-        @object.property 'authorNames', dependsOn: 'authors.name'
+      it 'can reach into collections and observe changes to the entire collection', ->
+        @object.property 'authorNames', dependsOn: ['authors', 'authors.name']
+        @object.collection 'authors'
+        @object.authors.push(extended(name: "Anders"))
+        expect(@object).toHaveReceivedEvent('change:authorNames')
+      it 'can reach into collections and observe changes to each individual object', ->
         @object.collection 'authors'
         @object.authors.push(extended())
+        @object.property 'authorNames', dependsOn: ['authors', 'authors.name']
         @object.authors.get(0).set(name: 'test')
         expect(@object).toHaveReceivedEvent('change:authorNames')
       it 'does not observe changes to elements no longer in the collcection', ->
