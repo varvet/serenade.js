@@ -1,3 +1,5 @@
+require './../spec_helper'
+{expect} = require('chai')
 {Serenade} = require '../../src/serenade'
 
 describe 'Events', ->
@@ -8,4 +10,4 @@ describe 'Events', ->
     controller = { iWasClicked: -> @clicked = true }
     @render 'div[event:click=iWasClicked]', {}, controller
     @fireEvent @body.find('div').get(0), 'click'
-    expect(controller.clicked).toBeTruthy()
+    expect(controller.clicked).to.be.ok

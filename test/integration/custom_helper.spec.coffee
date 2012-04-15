@@ -1,3 +1,5 @@
+require './../spec_helper'
+{expect} = require('chai')
 {Serenade} = require '../../src/serenade'
 
 describe 'Custom helpers', ->
@@ -9,7 +11,7 @@ describe 'Custom helpers', ->
       div
         - funky
     '''
-    expect(@body).toHaveElement('div > form')
+    expect(@body).to.have.element('div > form')
 
   it 'provides access to model in helper', ->
     Serenade.Helpers.funky = ->
@@ -21,7 +23,7 @@ describe 'Custom helpers', ->
       div
         - funky
     ''', model
-    expect(@body).toHaveElement('div > form#jonas')
+    expect(@body).to.have.element('div > form#jonas')
 
   it 'provides access to controller in helper', ->
     Serenade.Helpers.funky = ->
@@ -33,7 +35,7 @@ describe 'Custom helpers', ->
       div
         - funky
     ''', {}, controller
-    expect(@body).toHaveElement('div > form#jonas')
+    expect(@body).to.have.element('div > form#jonas')
 
   it 'uses a custom helper and sends in an argument', ->
     Serenade.Helpers.makeElement = (name) -> @document.createElement(name)
@@ -42,8 +44,8 @@ describe 'Custom helpers', ->
         - makeElement "form"
         - makeElement "article"
     '''
-    expect(@body).toHaveElement('div > form')
-    expect(@body).toHaveElement('div > article')
+    expect(@body).to.have.element('div > form')
+    expect(@body).to.have.element('div > article')
 
   it 'uses a custom helper and sends in an argument', ->
     Serenade.Helpers.makeElement = (name) -> @document.createElement(name)
@@ -52,8 +54,8 @@ describe 'Custom helpers', ->
         - makeElement "form"
         - makeElement "article"
     '''
-    expect(@body).toHaveElement('div > form')
-    expect(@body).toHaveElement('div > article')
+    expect(@body).to.have.element('div > form')
+    expect(@body).to.have.element('div > article')
 
   it 'uses a custom helper and sends in mupltiple arguments', ->
     Serenade.Helpers.makeElement = (name, id) ->
@@ -65,8 +67,8 @@ describe 'Custom helpers', ->
         - makeElement "form" "product"
         - makeElement "article" "banana"
     '''
-    expect(@body).toHaveElement('div > form#product')
-    expect(@body).toHaveElement('div > article#banana')
+    expect(@body).to.have.element('div > form#product')
+    expect(@body).to.have.element('div > article#banana')
 
   describe 'with block argument', ->
     it 'renders the block contents into an element', ->
@@ -78,7 +80,7 @@ describe 'Custom helpers', ->
           - form
             div[id="jonas"]
       '''
-      expect(@body).toHaveElement('div > form > div#jonas')
+      expect(@body).to.have.element('div > form > div#jonas')
 
     it 'does not use block contents if render is not called', ->
       Serenade.Helpers.form = ->
@@ -88,7 +90,7 @@ describe 'Custom helpers', ->
           - form
             div[id="jonas"]
       '''
-      expect(@body).not.toHaveElement('div > form > div#jonas')
+      expect(@body).not.to.have.element('div > form > div#jonas')
 
     it 'allows model to be changed by passing it as an argument to render', ->
       Serenade.Helpers.form = ->
@@ -99,7 +101,7 @@ describe 'Custom helpers', ->
           - form
             div[id=name]
       '''
-      expect(@body).toHaveElement('div > form > div#peter')
+      expect(@body).to.have.element('div > form > div#peter')
 
     it 'allows controller to be changed by passing it as an argument to render', ->
       funked = false
@@ -112,7 +114,7 @@ describe 'Custom helpers', ->
             div[id="jonas" event:click=funky]
       '''
       @fireEvent(@body.find('div#jonas').get(0), 'click')
-      expect(funked).toBeTruthy()
+      expect(funked).to.be.ok
 
     it 'allows block content to be reused', ->
       funked = false
@@ -125,5 +127,5 @@ describe 'Custom helpers', ->
           - form
             div[id=name]
       '''
-      expect(@body).toHaveElement('div > form > div#jonas')
-      expect(@body).toHaveElement('div > form > div#peter')
+      expect(@body).to.have.element('div > form > div#jonas')
+      expect(@body).to.have.element('div > form > div#peter')

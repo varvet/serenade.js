@@ -1,3 +1,5 @@
+require './../spec_helper'
+{expect} = require('chai')
 {Serenade} = require '../../src/serenade'
 
 describe 'View', ->
@@ -10,7 +12,7 @@ describe 'View', ->
       ul
         - view "test"
     '''
-    expect(@body).toHaveElement('ul > li#foo')
+    expect(@body).to.have.element('ul > li#foo')
 
   it 'changes controller in view', ->
     funked = false
@@ -26,7 +28,7 @@ describe 'View', ->
     '''
     @fireEvent @body.find('li#foo').get(0), 'click'
 
-    expect(funked).toBeTruthy()
+    expect(funked).to.be.ok
 
   it 'inits controller with model', ->
     funked = null
@@ -42,7 +44,7 @@ describe 'View', ->
         - in "quox"
           - view "test"
     ''', model
-    expect(funked).toEqual('foo')
+    expect(funked).to.eql('foo')
 
   it 'falls back to same controller if none is set up', ->
     funked = false
@@ -57,4 +59,4 @@ describe 'View', ->
     ''', {}, new TestCon()
     @fireEvent @body.find('li#foo').get(0), 'click'
 
-    expect(funked).toBeTruthy()
+    expect(funked).to.be.ok

@@ -1,3 +1,5 @@
+require './../spec_helper'
+{expect} = require('chai')
 {Serenade} = require '../../src/serenade'
 
 describe 'In', ->
@@ -12,7 +14,7 @@ describe 'In', ->
         - in @author
           p[id=name]
     ''', model
-    expect(@body).toHaveElement('article > p#jonas')
+    expect(@body).to.have.element('article > p#jonas')
 
   it 'can have multiple children', ->
     model = { author: { name: 'jonas' } }
@@ -23,8 +25,8 @@ describe 'In', ->
           p[id=name]
           div
     ''', model
-    expect(@body).toHaveElement('article > p#jonas')
-    expect(@body).toHaveElement('article > div')
+    expect(@body).to.have.element('article > p#jonas')
+    expect(@body).to.have.element('article > div')
 
   it 'updates when the subobject is changed', ->
     model = new Serenade.Model( author: { name: 'jonas' } )
@@ -34,10 +36,10 @@ describe 'In', ->
         - in @author
           p[id=name]
     ''', model
-    expect(@body).toHaveElement('article > p#jonas')
+    expect(@body).to.have.element('article > p#jonas')
     model.set(author: { name: 'peter' })
-    expect(@body).toHaveElement('article > p#peter')
-    expect(@body).not.toHaveElement('article > p#jonas')
+    expect(@body).to.have.element('article > p#peter')
+    expect(@body).not.to.have.element('article > p#jonas')
 
   it 'updates when a property on the subobject is changed', ->
     model = { author: new Serenade.Model( name: 'jonas' ) }
@@ -47,7 +49,7 @@ describe 'In', ->
         - in @author
           p[id=name]
     ''', model
-    expect(@body).toHaveElement('article > p#jonas')
+    expect(@body).to.have.element('article > p#jonas')
     model.author.set(name: 'peter')
-    expect(@body).toHaveElement('article > p#peter')
-    expect(@body).not.toHaveElement('article > p#jonas')
+    expect(@body).to.have.element('article > p#peter')
+    expect(@body).not.to.have.element('article > p#jonas')

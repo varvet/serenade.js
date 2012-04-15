@@ -1,6 +1,8 @@
 {Serenade} = require '../src/serenade'
 {View} = require '../src/view'
 {Cache} = require '../src/cache'
+chai = require 'chai'
+chai.should()
 require('../src/properties')
 require('../src/model')
 sinon = require('sinon')
@@ -11,7 +13,7 @@ compareArrays = (one, two) ->
 
 jsdom = require("jsdom")
 fs = require('fs')
-jquery = fs.readFileSync("spec/jquery.js").toString()
+jquery = fs.readFileSync("test/jquery.js").toString()
 
 Cache._storage =
   _items: {}
@@ -48,29 +50,21 @@ beforeEach ->
   @render = (template, model, controller) =>
     @body.append(Serenade.view(template).render(model, controller))
 
-  @addMatchers
-    toHaveElement: (selector, options) ->
-      if options and options.count
-        @actual.find(selector).length == options.count
-      else
-        @actual.find(selector).length > 0
-    toBe: (selector) -> @actual.is(selector)
-    toHaveChild: (selector) -> @actual.children(selector).length > 0
-    toHaveClass: (className) -> @actual.hasClass(className)
-    toHaveText: (text) -> @actual.text().trim().replace(/\s/g, ' ') is text
-    toHaveNoMarkup: (html) -> @actual.html().trim().replace(/\s/g, ' ') is ""
-    toContainText: (text) -> @actual.text().trim().replace(/\s/g, ' ').match(text)
-    toBeVisible: -> @actual.css('display') isnt "none"
-    toBeHidden: -> @actual.css('display') is "none"
-    toBeEmpty: -> @actual.val() is ""
-    toHaveValue: (value) -> @actual.val() is value
-    toHaveNumberOfChildren: (number) -> @actual.children().length is parseInt(number)
-    toHaveAttribute: (name) -> @actual.get(0).hasAttribute(name)
-    toHaveReceivedEvent: (name, options={}) ->
-      if options.with
-        compareArrays(@actual._triggeredEvents[name], options.with)
-      else
-        @actual._triggeredEvents.hasOwnProperty(name)
+  chai.Assertion::element = (selector, options) ->
+    if options and options.count
+      @assert @obj.find(selector).length == options.count
+    else
+      @assert @obj.find(selector).length > 0
+
+  chai.Assertion::text = (text) ->
+    @assert @obj.text().trim().replace(/\s/g, ' ') is text
+  chai.Assertion::attribute = (name) ->
+    @assert @obj.get(0).hasAttribute(name)
+  chai.Assertion::receivedEvent = (name, options={}) ->
+    if options.with
+      @assert compareArrays(@obj._triggeredEvents[name], options.with)
+    else
+      @assert @obj._triggeredEvents.hasOwnProperty(name)
 
   @sinon = sinon.sandbox.create()
 

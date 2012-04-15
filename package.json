@@ -31,10 +31,11 @@
        }
    ],
    "dependencies": {
-       "jasmine-node": "1.0.13",
+       "mocha": "1.0.1",
+       "chai": "0.5.2",
        "jsdom": "0.2.10",
        "jison": "0.2.13",
-       "coffee-script": "1.2.0",
+       "coffee-script": "1.3.0",
        "sinon": "1.2.0",
        "uglify-js": "1.2.3",
        "express": "2.5.2",
@@ -42,7 +43,7 @@
    },
    "scripts": {
        "build": "cake build",
-       "test": "jasmine-node spec --coffee"
+       "test": "mocha {test/*.spec.coffee,test/**/*.spec.coffee}"
    }
 }
 

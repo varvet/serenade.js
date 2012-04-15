@@ -1,4 +1,6 @@
+require './spec_helper'
 {Serenade} = require '../src/serenade'
+{expect} = require('chai')
 
 describe 'Serenade.Collection', ->
   beforeEach ->
@@ -6,41 +8,41 @@ describe 'Serenade.Collection', ->
 
   describe '#get', ->
     it 'gets an item from the collection', ->
-      expect(@collection.get(0)).toEqual('a')
-      expect(@collection.get(1)).toEqual('b')
-      expect(@collection.get(2)).toEqual('c')
+      expect(@collection.get(0)).to.eql('a')
+      expect(@collection.get(1)).to.eql('b')
+      expect(@collection.get(2)).to.eql('c')
 
   describe '#set', ->
     it 'gets an item in the collection', ->
-      expect(@collection.get(0)).toEqual('a')
+      expect(@collection.get(0)).to.eql('a')
       @collection.set(0, 'foo')
-      expect(@collection.get(0)).toEqual('foo')
+      expect(@collection.get(0)).to.eql('foo')
     it 'triggers a change event', ->
       @collection.set(0, 'foo')
-      expect(@collection).toHaveReceivedEvent('change')
+      expect(@collection).to.have.receivedEvent('change')
     it 'triggers a specific change event', ->
       @collection.set(1, 'foo')
-      expect(@collection).toHaveReceivedEvent('change:1', with: ['foo'])
+      expect(@collection).to.have.receivedEvent('change:1', with: ['foo'])
     it 'triggers a set event', ->
       @collection.set(1, 'foo')
-      expect(@collection).toHaveReceivedEvent('set', with: [1, 'foo'])
+      expect(@collection).to.have.receivedEvent('set', with: [1, 'foo'])
 
   describe '#update', ->
     it 'updates length', ->
       @collection.update([1,2])
-      expect(@collection.length).toEqual(2)
+      expect(@collection.length).to.eql(2)
 
   describe '#sort', ->
     it 'updates the order of the items in the collection', ->
       @collection.push('a')
       @collection.sort()
-      expect(@collection.list).toEqual(['a', 'a', 'b', 'c'])
+      expect(@collection.list).to.eql(['a', 'a', 'b', 'c'])
     it 'updates the order of the items in the collection', ->
       @collection.sort((a, b) -> if a > b then -1 else 1)
-      expect(@collection.list).toEqual(['c', 'b', 'a'])
+      expect(@collection.list).to.eql(['c', 'b', 'a'])
     it 'triggers an update event', ->
       @collection.sort()
-      expect(@collection).toHaveReceivedEvent('update')
+      expect(@collection).to.have.receivedEvent('update')
 
   describe '#sortBy', ->
     it 'updates the order of the items in the collection', ->
@@ -49,55 +51,55 @@ describe 'Serenade.Collection', ->
       @collection.update([item1, item2])
 
       @collection.sortBy('age')
-      expect(@collection.list).toEqual([item1, item2])
+      expect(@collection.list).to.eql([item1, item2])
 
       @collection.sortBy('name')
-      expect(@collection.list).toEqual([item2, item1])
+      expect(@collection.list).to.eql([item2, item1])
 
   describe '#push', ->
     it 'adds an item to the collection', ->
       @collection.push('g')
-      expect(@collection.get(3)).toEqual('g')
+      expect(@collection.get(3)).to.eql('g')
     it 'triggers a change event', ->
       @collection.push('g')
-      expect(@collection).toHaveReceivedEvent('change')
+      expect(@collection).to.have.receivedEvent('change')
     it 'triggers an add event', ->
       @collection.push('g')
-      expect(@collection).toHaveReceivedEvent('add', with: ['g'])
+      expect(@collection).to.have.receivedEvent('add', with: ['g'])
 
   describe '#indexOf', ->
     it 'returns where in the collection the given item is', ->
-      expect(@collection.indexOf('a')).toEqual(0)
-      expect(@collection.indexOf('b')).toEqual(1)
+      expect(@collection.indexOf('a')).to.eql(0)
+      expect(@collection.indexOf('b')).to.eql(1)
     it 'works without native indexOf function', ->
       @collection.list.indexOf = undefined
-      expect(@collection.indexOf('a')).toEqual(0)
-      expect(@collection.indexOf('b')).toEqual(1)
+      expect(@collection.indexOf('a')).to.eql(0)
+      expect(@collection.indexOf('b')).to.eql(1)
 
   describe '#find', ->
     it 'returns the first object that matches the predicate function', ->
       predicate = (item) -> item.toUpperCase() == 'B'
-      expect(@collection.find(predicate)).toEqual('b')
+      expect(@collection.find(predicate)).to.eql('b')
     it 'returns undefined when no object matches the predicate function', ->
       predicate = (item) -> item.length > 1
-      expect(@collection.find(predicate)).toBeUndefined()
+      expect(@collection.find(predicate)).to.equal(undefined)
 
   describe '#deleteAt', ->
     it 'removes the item from the collection', ->
       @collection.deleteAt(1)
-      expect(@collection.get(0)).toEqual('a')
-      expect(@collection.get(1)).toEqual('c')
-      expect(@collection.get(2)).toEqual(undefined)
+      expect(@collection.get(0)).to.eql('a')
+      expect(@collection.get(1)).to.eql('c')
+      expect(@collection.get(2)).to.eql(undefined)
     it 'triggers a change event', ->
       @collection.deleteAt(1)
-      expect(@collection).toHaveReceivedEvent('change')
+      expect(@collection).to.have.receivedEvent('change')
     it 'triggers a delete event', ->
       @collection.deleteAt(1)
-      expect(@collection).toHaveReceivedEvent('delete', with: [1, 'b'])
+      expect(@collection).to.have.receivedEvent('delete', with: [1, 'b'])
 
   describe '#delete', ->
     it 'removes the item from the collection', ->
       @collection.delete('b')
-      expect(@collection.get(0)).toEqual('a')
-      expect(@collection.get(1)).toEqual('c')
-      expect(@collection.get(2)).toEqual(undefined)
+      expect(@collection.get(0)).to.eql('a')
+      expect(@collection.get(1)).to.eql('c')
+      expect(@collection.get(2)).to.eql(undefined)

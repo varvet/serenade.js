@@ -1,3 +1,5 @@
+require './../spec_helper'
+{expect} = require('chai')
 {Serenade} = require '../../src/serenade'
 
 describe 'If', ->
@@ -14,8 +16,8 @@ describe 'If', ->
         - if @visible
           li[id="visible"]
     ''', model
-    expect(@body).toHaveElement('ul > li#valid')
-    expect(@body).toHaveElement('ul > li#visible')
+    expect(@body).to.have.element('ul > li#valid')
+    expect(@body).to.have.element('ul > li#visible')
 
   it 'can have multiple children', ->
     model = { valid: true, visible: "true" }
@@ -27,9 +29,9 @@ describe 'If', ->
           li[id="visible"]
           li[id="monkey"]
     ''', model
-    expect(@body).toHaveElement('ul > li#valid')
-    expect(@body).toHaveElement('ul > li#visible')
-    expect(@body).toHaveElement('ul > li#monkey')
+    expect(@body).to.have.element('ul > li#valid')
+    expect(@body).to.have.element('ul > li#visible')
+    expect(@body).to.have.element('ul > li#monkey')
 
   it 'does not show the content if the model value is falsy', ->
     model = { valid: false, visible: 0 }
@@ -41,8 +43,8 @@ describe 'If', ->
         - if @visible
           li[id="visible"]
     ''', model
-    expect(@body).not.toHaveElement('ul > li#valid')
-    expect(@body).not.toHaveElement('ul > li#visible')
+    expect(@body).not.to.have.element('ul > li#valid')
+    expect(@body).not.to.have.element('ul > li#visible')
 
   it 'updates the existence of content based on model value truthiness', ->
     model = new Serenade.Model(valid: false, visible: 0)
@@ -54,17 +56,17 @@ describe 'If', ->
         - if @visible
           li[id="visible"]
     ''', model
-    expect(@body).not.toHaveElement('ul > li#valid')
-    expect(@body).not.toHaveElement('ul > li#visible')
+    expect(@body).not.to.have.element('ul > li#valid')
+    expect(@body).not.to.have.element('ul > li#visible')
     model.set(valid: "yes")
-    expect(@body).toHaveElement('ul > li#valid')
-    expect(@body).not.toHaveElement('ul > li#visible')
+    expect(@body).to.have.element('ul > li#valid')
+    expect(@body).not.to.have.element('ul > li#visible')
     model.set(valid: "", visible: "Cool")
-    expect(@body).not.toHaveElement('ul > li#valid')
-    expect(@body).toHaveElement('ul > li#visible')
+    expect(@body).not.to.have.element('ul > li#valid')
+    expect(@body).to.have.element('ul > li#visible')
     model.set(valid: "Blah", visible: {})
-    expect(@body).toHaveElement('ul > li#valid')
-    expect(@body).toHaveElement('ul > li#visible')
+    expect(@body).to.have.element('ul > li#valid')
+    expect(@body).to.have.element('ul > li#visible')
 
   it 'peacefully coexists with collections', ->
     model = new Serenade.Model(items: [{ valid: true, name: 'foo' }, { name: 'bar' }])
@@ -74,6 +76,6 @@ describe 'If', ->
           - if @valid
             li[id=@name]
     ''', model
-    expect(@body).toHaveElement('ul > li#foo')
-    expect(@body).not.toHaveElement('ul > li#bar')
+    expect(@body).to.have.element('ul > li#foo')
+    expect(@body).not.to.have.element('ul > li#bar')
 
