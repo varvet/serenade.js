@@ -183,6 +183,13 @@ MyModel.property('price', { format: function(value) { return "€ " + value } })
 
 To retrieve a formatted value, call `format('price')`.
 
+Format functions also works for collections. The entire collection object will 
+be passed as an argument.
+
+``` javascript
+MyModel.collection('sizes', { format: function(collection) { return collection.list.join(", ") } });
+```
+
 ## Dependencies
 
 When a property is changed, Serenade.js automatically triggers an event called
