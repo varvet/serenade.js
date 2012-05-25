@@ -1,3 +1,5 @@
+{Rewriter} = require './rewriter'
+
 IDENTIFIER = /^[a-zA-Z][a-zA-Z0-9\-_]*/
 
 LITERAL = /^[\[\]=\:\-!#\.@]/
@@ -7,6 +9,8 @@ STRING = /^"((?:\\.|[^"])*)"/
 MULTI_DENT = /^(?:\r?\n[^\r\n\S]*)+/
 
 WHITESPACE = /^[^\r\n\S]+/
+
+KEYWORD = /^(?:if|else)/
 
 class Lexer
 
@@ -20,7 +24,8 @@ class Lexer
 
     i = 0
     while @chunk = @code.slice i
-      i += @identifierToken() or
+      i += @keywordToken() or
+           @identifierToken() or
            #@commentToken()    or
            @whitespaceToken() or
            @lineToken()       or
@@ -33,6 +38,15 @@ class Lexer
       else
         @error "missing #{tag}"
     @tokens
+    return @tokens if opts.rewrite is off
+    (new Rewriter).rewrite @tokens
+
+  keywordToken: ->
+    if match = KEYWORD.exec @chunk
+      @token match[0].toUpperCase(), match[0]
+      match[0].length
+    else
+      0
 
   whitespaceToken: ->
     if match = WHITESPACE.exec @chunk

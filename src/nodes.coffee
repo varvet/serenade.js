@@ -98,10 +98,15 @@ class Dynamic
     update = ->
       value = get(model, ast.arguments[0])
       if value
+        ast.children = ast.branches[0]
+        collection.update([model])
+      else if ast.branches.length > ast.arguments.length
+        ast.children = ast.branches[1]
         collection.update([model])
       else
         collection.update([])
     update()
+
     model.bind? "change:#{ast.arguments[0]}", update
     new Dynamic(ast, collection, model, controller)
 
@@ -239,11 +244,11 @@ Nodes =
     switch ast.type
       when 'element' then Node.element(ast, model, controller)
       when 'text' then new Node.text(ast, model, controller)
+      when 'if' then new Dynamic.if(ast, model, controller)
       when 'instruction'
         switch ast.command
           when "view" then new Node.view(ast, model, controller)
           when "collection" then new Dynamic.collection(ast, model, controller)
-          when "if" then new Dynamic.if(ast, model, controller)
           when "in" then new Dynamic.in(ast, model, controller)
           else new Node.helper(ast, model, controller)
       else throw SyntaxError "unknown type '#{ast.type}'"

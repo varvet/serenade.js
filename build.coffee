@@ -30,7 +30,7 @@ Build =
   compile: (callback) ->
     files = Build.files()
     requires = ''
-    for name in ['events', 'helpers', 'cache', 'collection', 'association_collection', 'associations', 'serenade', 'lexer', 'nodes', 'parser', 'properties', 'model', 'view']
+    for name in ['rewriter', 'events', 'helpers', 'cache', 'collection', 'association_collection', 'associations', 'serenade', 'lexer', 'nodes', 'parser', 'properties', 'model', 'view']
       requires += """
         require['./#{name}'] = new function() {
           var exports = this;
