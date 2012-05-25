@@ -47,6 +47,7 @@ grammar =
 
   Child: [
     o 'Element', -> $1
+    o 'If', -> $1
     o 'Instruction', -> $1
     o 'TextList', -> $1
   ]
@@ -63,6 +64,11 @@ grammar =
     o 'IDENTIFIER = Bound !', -> { name: $1, value: $3, bound: true, scope: 'attribute', preventDefault: true }
     o 'IDENTIFIER = STRING_LITERAL', -> { name: $1, value: $3, bound: false, scope: 'attribute' }
     o 'IDENTIFIER : Property', -> $3.scope = $1; $3
+  ]
+
+  If: [
+    o '- WHITESPACE IF WHITESPACE Text INDENT ChildList OUTDENT', -> { command: $3, arguments: [$5.value], children: [], branches: [$7], type: $3.toLowerCase() }
+    o 'If - WHITESPACE ELSE INDENT ChildList OUTDENT', -> $1.branches.push $6; $1
   ]
 
   Instruction: [

@@ -21,6 +21,9 @@ describe 'View', ->
     it 'raises a syntax error when multiple root nodes are given', ->
       expect(-> parse('div\ndiv')).to.throw(Error)
 
+    it 'raises a syntax error when an else is given without an if', ->
+      expect(-> parse('div\n  - else\n    div')).to.throw(Error)
+
     it 'parses a tag with an attribute', ->
       result = parse('div[id="foo"]')
       expect(result.name).to.eql('div')
@@ -188,6 +191,34 @@ describe 'View', ->
       expect(result.children[0].command).to.eql('view')
       expect(result.children[0].arguments).to.eql(['example'])
       expect(result.children[0].children[0].name).to.eql('span')
+
+    it 'parses if-then-else instructions', ->
+      result = parse """
+        div[id=foo]
+          - if @example
+            "affirmative"
+          - else
+            "negative"
+      """
+      expect(result.name).to.eql('div')
+      expect(result.children[0].command).to.eql('if')
+      expect(result.children[0].arguments).to.eql(['example'])
+      expect(result.children[0].branches[0][0].type).to.eql('text')
+      expect(result.children[0].branches[0][0].value).to.eql('affirmative')
+      expect(result.children[0].branches[1][0].type).to.eql('text')
+      expect(result.children[0].branches[1][0].value).to.eql('negative')
+
+    it 'parses if-then instructions', ->
+      result = parse """
+        div[id=foo]
+          - if @example
+            "affirmative"
+      """
+      expect(result.name).to.eql('div')
+      expect(result.children[0].command).to.eql('if')
+      expect(result.children[0].arguments).to.eql(['example'])
+      expect(result.children[0].branches[0][0].type).to.eql('text')
+      expect(result.children[0].branches[0][0].value).to.eql('affirmative')
 
     it 'does indentation for collections correctly', ->
       result = parse """
