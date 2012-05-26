@@ -82,6 +82,12 @@ describe 'Serenade.Collection', ->
       expect(@collection.indexOf('a')).to.eql(0)
       expect(@collection.indexOf('b')).to.eql(1)
 
+  describe '#includes', ->
+    it 'returns true if the item exists in the collection', ->
+      expect(@collection.includes('b')).to.be.true
+    it "returns false if the item doesn't exist in the collection", ->
+      expect(@collection.includes('z')).to.be.false
+
   describe '#find', ->
     it 'returns the first object that matches the predicate function', ->
       predicate = (item) -> item.toUpperCase() == 'B'

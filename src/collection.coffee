@@ -38,6 +38,7 @@ class exports.Collection
   map: (fun) ->
     fun(item) for item in @list
   indexOf: (search) -> indexOf(@list, search)
+  includes: (item) -> @indexOf(item) >= 0
   find: (fun) ->
     return item for item in @list when fun(item)
   deleteAt: (index) ->
