@@ -14,17 +14,20 @@ class exports.Collection
     @trigger("change:#{index}", value)
     @trigger("set", index, value)
     @trigger("change", @list)
+    value
   push: (element) ->
     @list.push(element)
     @_in(element)
     @trigger("add", element)
     @trigger("change", @list)
+    element
   update: (list) ->
     @_notIn(element) for element in @list
     @list = list
     @_in(element) for element in list
     @trigger("update", list)
     @trigger("change", @list)
+    list
   sort: (fun) ->
     @list.sort(fun)
     @trigger("update", @list)
@@ -43,6 +46,7 @@ class exports.Collection
     @list.splice(index, 1)
     @trigger("delete", index, value)
     @trigger("change", @list)
+    value
   delete: (item) ->
     @deleteAt(@indexOf(item))
   serialize: ->

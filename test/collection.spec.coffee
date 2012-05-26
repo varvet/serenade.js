@@ -13,7 +13,7 @@ describe 'Serenade.Collection', ->
       expect(@collection.get(2)).to.eql('c')
 
   describe '#set', ->
-    it 'gets an item in the collection', ->
+    it 'sets an item in the collection', ->
       expect(@collection.get(0)).to.eql('a')
       @collection.set(0, 'foo')
       expect(@collection.get(0)).to.eql('foo')
@@ -26,11 +26,15 @@ describe 'Serenade.Collection', ->
     it 'triggers a set event', ->
       @collection.set(1, 'foo')
       expect(@collection).to.have.receivedEvent('set', with: [1, 'foo'])
+    it 'returns the item', ->
+      expect(@collection.set(0, 'foo')).to.eql('foo')
 
   describe '#update', ->
     it 'updates length', ->
       @collection.update([1,2])
       expect(@collection.length).to.eql(2)
+    it 'returns the new list', ->
+      expect(@collection.update([1,2])).to.eql([1,2])
 
   describe '#sort', ->
     it 'updates the order of the items in the collection', ->
@@ -66,6 +70,8 @@ describe 'Serenade.Collection', ->
     it 'triggers an add event', ->
       @collection.push('g')
       expect(@collection).to.have.receivedEvent('add', with: ['g'])
+    it 'returns the item', ->
+      expect(@collection.push('g')).to.eql('g')
 
   describe '#indexOf', ->
     it 'returns where in the collection the given item is', ->
@@ -96,10 +102,16 @@ describe 'Serenade.Collection', ->
     it 'triggers a delete event', ->
       @collection.deleteAt(1)
       expect(@collection).to.have.receivedEvent('delete', with: [1, 'b'])
+    it 'returns the item', ->
+      expect(@collection.deleteAt(1)).to.eql('b')
 
   describe '#delete', ->
     it 'removes the item from the collection', ->
       @collection.delete('b')
       expect(@collection.get(0)).to.eql('a')
       expect(@collection.get(1)).to.eql('c')
-      expect(@collection.get(2)).to.eql(undefined)
+      expect(@collection.get(2)).to.be.undefined
+    it 'returns the item', ->
+      expect(@collection.delete('b')).to.eql('b')
+    it "returns undefined if the item doesn't exist", ->
+      expect(@collection.delete('z')).to.be.undefined
