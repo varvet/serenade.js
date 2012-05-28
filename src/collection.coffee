@@ -39,9 +39,17 @@ class exports.Collection
     @trigger("update", list)
     @trigger("change", @)
     list
+  splice: (start, deleteCount, list...) ->
+    @_in(element) for item in list
+    deleted = Array.prototype.splice.apply(@, [start, deleteCount, list...])
+    @_notIn(element) for element in deleted
+    @trigger("update", list)
+    @trigger("change", @)
+    new Collection(deleted)
   sort: (fun) ->
     Array.prototype.sort.call(@, fun)
     @trigger("update", @)
+    @trigger("change", @)
     @
   sortBy: (attribute) ->
     @sort((a, b) -> if get(a, attribute) < get(b, attribute) then -1 else 1)

@@ -379,6 +379,24 @@ describe 'Serenade.Collection', ->
       expect(array[2]).to.eql(undefined)
       expect(array).to.be.an.instanceof(Serenade.Collection)
 
+  describe '#splice', ->
+    it 'splices the given values into the collection', ->
+      @collection.splice(1, 1, "q", "x")
+      expect(@collection[0]).to.eql("a")
+      expect(@collection[1]).to.eql("q")
+      expect(@collection[2]).to.eql("x")
+      expect(@collection[3]).to.eql("c")
+    it 'splices the removed elements as a collection', ->
+      deleted = @collection.splice(1, 1, "q", "x")
+      expect(deleted.length).to.eql(1)
+      expect(deleted.get(0)).to.eql("b")
+    it 'triggers an update event', ->
+      @collection.sort()
+      expect(@collection).to.have.receivedEvent('update')
+    it 'triggers a change event', ->
+      @collection.sort()
+      expect(@collection).to.have.receivedEvent('change')
+
   describe "#every", ->
     it "returns whether every item matches the given function", ->
       expect(@collection.every((item) -> item.match(/[abc]/))).to.be.true
