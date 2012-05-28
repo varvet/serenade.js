@@ -50,9 +50,9 @@ class exports.Collection
       undefined
   map: (fun) ->
     if typeof(Array.prototype.map) is 'function'
-      new @constructor(Array.prototype.map.call(@, fun))
+      new Collection(Array.prototype.map.call(@, fun))
     else
-      new @constructor(fun(element, index) for element, index in @)
+      new Collection(fun(element, index) for element, index in @)
   indexOf: (search) ->
     if typeof(Array.prototype.indexOf) is "function"
       Array.prototype.indexOf.call(@, search)

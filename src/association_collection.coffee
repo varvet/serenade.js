@@ -1,7 +1,7 @@
 {Collection} = require './collection'
 
 class AssociationCollection extends Collection
-  constructor: (@ctor, @list) ->
+  constructor: (@ctor, list) ->
     super(@_convert(item) for item in list)
 
   set: (index, item) ->
