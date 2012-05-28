@@ -43,11 +43,18 @@ class exports.Collection
   sortBy: (attribute) ->
     @sort((a, b) -> if get(a, attribute) < get(b, attribute) then -1 else 1)
   forEach: (fun) ->
-    forEach(@, fun)
+    if typeof(Array.prototype.forEach) is 'function'
+      Array.prototype.forEach.call(@, fun)
+    else
+      @map(fun)
+      undefined
   map: (fun) ->
-    fun(item) for item in @
+    if typeof(Array.prototype.map) is 'function'
+      new @constructor(Array.prototype.map.call(@, fun))
+    else
+      new @constructor(fun(element, index) for element, index in @)
   indexOf: (search) ->
-    if Array.prototype.indexOf
+    if typeof(Array.prototype.indexOf) is "function"
       Array.prototype.indexOf.call(@, search)
     else
       return index for item, index in @ when item is search

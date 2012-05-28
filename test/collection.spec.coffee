@@ -192,3 +192,40 @@ describe 'Serenade.Collection', ->
     it "serializes the array", ->
       collection = new Serenade.Collection([{serialize: -> "foo"}, "bar"])
       expect(collection.serialize()).to.eql(["foo", "bar"])
+
+  describe "#forEach", ->
+    it "iterates over the collection", ->
+      array = []
+      @collection.forEach (val, index) -> array[index] = val
+      expect(array).to.eql(["a", "b", "c"])
+    it "returns undefined", ->
+      expect(@collection.forEach(->)).to.be.undefined
+    it "works without native forEach implementation", ->
+      array = []
+      original = Array.prototype.forEach
+
+      Array.prototype.forEach = undefined
+      @collection.forEach (val, index) -> array[index] = val
+      Array.prototype.forEach = original
+
+      expect(array).to.eql(["a", "b", "c"])
+      expect(@collection.forEach(->)).to.be.undefined
+
+  describe "#map", ->
+    it "maps over the collection", ->
+      array = @collection.map (val, index) -> [index, val]
+      expect(array[0]).to.eql([0, "a"])
+      expect(array[1]).to.eql([1, "b"])
+      expect(array[2]).to.eql([2, "c"])
+      expect(array).to.be.an.instanceof(Serenade.Collection)
+    it "works without native map implementation", ->
+      original = Array.prototype.map
+
+      Array.prototype.map = undefined
+      array = @collection.map (val, index) -> [index, val]
+      Array.prototype.map = original
+
+      expect(array[0]).to.eql([0, "a"])
+      expect(array[1]).to.eql([1, "b"])
+      expect(array[2]).to.eql([2, "c"])
+      expect(array).to.be.an.instanceof(Serenade.Collection)
