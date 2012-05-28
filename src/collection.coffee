@@ -80,6 +80,9 @@ class exports.Collection
     else
       new Collection(item for item in @ when fun(item))
 
+  join: (args...) -> Array.prototype.join.apply(@, args)
+
+
   toArray: ->
     array = []
     array[index] = val for index, val of @ when isArrayIndex(index)

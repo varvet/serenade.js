@@ -118,6 +118,7 @@ describe 'Serenade.Collection', ->
     it 'updates the length', ->
       @collection.push('g')
       expect(@collection.length).to.eql(4)
+
   describe '#pop', ->
     it 'removes an item from the collection', ->
       @collection.pop()
@@ -261,3 +262,9 @@ describe 'Serenade.Collection', ->
       expect(array[0]).to.eql("a")
       expect(array[1]).to.eql("c")
       expect(array).to.be.an.instanceof(Serenade.Collection)
+
+  describe "#join", ->
+    it "joins the array with commas", ->
+      expect(@collection.join()).to.eql("a,b,c")
+    it "joins the array with the given separator", ->
+      expect(@collection.join(":")).to.eql("a:b:c")
