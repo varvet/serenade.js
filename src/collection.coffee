@@ -100,6 +100,20 @@ class exports.Collection
   toLocaleString: -> @toArray().toLocaleString()
   concat: (args...) -> new Collection(@toArray().concat(args...))
   slice: (args...) -> new Collection(@toArray().slice(args...))
+  every: (fun) ->
+    if typeof Array.prototype.every is "function"
+      Array.prototype.every.call(@, fun)
+    else
+      for item in @
+        return false unless fun(item)
+      return true
+  some: (fun) ->
+    if typeof Array.prototype.some is "function"
+      Array.prototype.some.call(@, fun)
+    else
+      for item in @
+        return true if fun(item)
+      return false
 
   toArray: ->
     array = []

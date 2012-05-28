@@ -374,3 +374,29 @@ describe 'Serenade.Collection', ->
       expect(array[1]).to.eql("c")
       expect(array[2]).to.eql(undefined)
       expect(array).to.be.an.instanceof(Serenade.Collection)
+
+  describe "#every", ->
+    it "returns whether every item matches the given function", ->
+      expect(@collection.every((item) -> item.match(/[abc]/))).to.be.true
+      expect(@collection.every((item) -> item.match(/[ab]/))).to.be.false
+    it "works without native implementation", ->
+      original = Array.prototype.every
+
+      Array.prototype.every = undefined
+      expect(@collection.every((item) -> item.match(/[abc]/))).to.be.true
+      expect(@collection.every((item) -> item.match(/[ab]/))).to.be.false
+      Array.prototype.every = original
+
+  describe "#some", ->
+    it "returns whether some item matches the given function", ->
+      expect(@collection.some((item) -> item.match(/[abc]/))).to.be.true
+      expect(@collection.some((item) -> item.match(/[ab]/))).to.be.true
+      expect(@collection.some((item) -> item.match(/[d]/))).to.be.false
+    it "works without native implementation", ->
+      original = Array.prototype.some
+
+      Array.prototype.some = undefined
+      expect(@collection.some((item) -> item.match(/[abc]/))).to.be.true
+      expect(@collection.some((item) -> item.match(/[ab]/))).to.be.true
+      expect(@collection.some((item) -> item.match(/[d]/))).to.be.false
+      Array.prototype.some = original
