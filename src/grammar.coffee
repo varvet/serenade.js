@@ -12,7 +12,6 @@ grammar =
   Root: [
     o '', -> null
     ['Element', 'return $$']
-    ['Element TERMINATOR', 'return $$']
   ]
 
   ElementIdentifier: [

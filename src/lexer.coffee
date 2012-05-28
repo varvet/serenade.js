@@ -11,7 +11,7 @@ WHITESPACE = /^[^\r\n\S]+/
 class Lexer
 
   tokenize: (code, opts = {}) ->
-    @code    = code.replace(/^\s*/, '') # The remainder of the source code.
+    @code    = code.replace(/^\s*/, '').replace(/\s*$/, '') # The remainder of the source code.
     @line    = opts.line or 0 # The current line.
     @indent  = 0              # The current indentation level.
     @indents = []             # The stack of all current indentation levels.

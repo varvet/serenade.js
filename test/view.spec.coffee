@@ -18,6 +18,9 @@ describe 'View', ->
     it 'parses a single tag with extra whitespace before it', ->
       expect(parse('\n\tdiv').name).to.eql('div')
 
+    it 'raises a syntax error when multiple root nodes are given', ->
+      expect(-> parse('div\ndiv')).to.throw(Error)
+
     it 'parses a tag with an attribute', ->
       result = parse('div[id="foo"]')
       expect(result.name).to.eql('div')
