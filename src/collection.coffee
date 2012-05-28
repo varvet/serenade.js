@@ -71,6 +71,11 @@ class exports.Collection
   select: (fun) ->
     item for item in @ when fun(item)
 
+  toArray: ->
+    array = []
+    array[index] = val for index, val of @ when isArrayIndex(index)
+    array
+
   _in: (item) ->
     if item?._useDefer
       item._inCollections or= []

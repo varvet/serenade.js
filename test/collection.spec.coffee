@@ -174,3 +174,17 @@ describe 'Serenade.Collection', ->
       expect(@collection.delete('b')).to.eql('b')
     it "returns undefined if the item doesn't exist", ->
       expect(@collection.delete('z')).to.be.undefined
+
+  describe '#toArray', ->
+    it "returns the same values", ->
+      array = @collection.toArray()
+      expect(array[0]).to.eql("a")
+      expect(array[1]).to.eql("b")
+      expect(array[2]).to.eql("c")
+    it "returns an array", ->
+      expect(Array.isArray(@collection.toArray())).to.be.true
+
+  describe '#serialize', ->
+    it "serializes the array", ->
+      collection = new Serenade.Collection([{serialize: -> "foo"}, "bar"])
+      expect(collection.serialize()).to.eql(["foo", "bar"])
