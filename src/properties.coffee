@@ -107,7 +107,7 @@ Serenade.Properties =
 
     allDefers = (@_deferTo or {})
     if @_inCollections
-      for collection in @_inCollections
+      for own _,collection of @_inCollections
         extend(allDefers, collection._deferTo)
 
     for own deferName, deferObject of allDefers

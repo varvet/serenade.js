@@ -1,5 +1,5 @@
 {Events} = require './events'
-{extend, forEach, serializeObject, deleteItem, indexOf, get} = require './helpers'
+{extend, serializeObject, get} = require './helpers'
 
 isArrayIndex = (index) -> index.match(/^\d+$/)
 
@@ -83,10 +83,10 @@ class exports.Collection
 
   _in: (item) ->
     if item?._useDefer
-      item._inCollections or= []
-      item._inCollections?.push(this)
+      item._inCollections or= {}
+      item._inCollections[this] = this
 
   _notIn: (item) ->
-    deleteItem(item._inCollections, this) if item?._inCollections
+    delete item._inCollections[this] if item?._inCollections
 
   _useDefer: true
