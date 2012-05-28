@@ -284,3 +284,11 @@ describe 'Serenade.Collection', ->
   describe "#toLocaleString", ->
     it "joins the array with commas", ->
       expect(@collection.toLocaleString()).to.eql("a,b,c")
+
+  describe "#concat", ->
+    it "returns a new collection with the given items appended", ->
+      array = @collection.concat(["d", "e"], ["f"])
+      expect(array.length).to.eql(6)
+      expect(array[3]).to.eql("d")
+      expect(array[4]).to.eql("e")
+      expect(array[5]).to.eql("f")

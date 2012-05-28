@@ -84,7 +84,7 @@ class exports.Collection
   reverse: -> new Collection(Array.prototype.reverse.apply(@))
   toString: -> @toArray().toString()
   toLocaleString: -> @toArray().toLocaleString()
-
+  concat: (args...) -> new Collection(@toArray().concat(args...))
 
   toArray: ->
     array = []
