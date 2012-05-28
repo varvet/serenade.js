@@ -1,7 +1,7 @@
 {Serenade} = require './serenade'
 {Collection} = require './collection'
 {Events} = require './events'
-{pairToObject, serializeObject, extend, map} = require './helpers'
+{pairToObject, serializeObject, extend} = require './helpers'
 
 prefix = "_prop_"
 exp = /^_prop_/
@@ -111,7 +111,7 @@ Serenade.Properties =
         extend(allDefers, collection._deferTo)
 
     for own deferName, deferObject of allDefers
-      keys = map(changedProperties, (prop) -> "#{deferName}.#{prop}")
+      keys = ("#{deferName}.#{prop}" for prop in changedProperties)
       deferObject._triggerChangesTo(keys)
 
   _useDefer: true

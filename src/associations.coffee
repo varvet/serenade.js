@@ -1,6 +1,6 @@
 {AssociationCollection} = require './association_collection'
 {Collection} = require './collection'
-{extend, map, get, pairToObject} = require './helpers'
+{extend, get, pairToObject} = require './helpers'
 
 Associations =
   belongsTo: (name, attributes={}) ->
@@ -29,9 +29,9 @@ Associations =
         @get(name).update(value)
     @property name, attributes
     @property name + 'Ids',
-      get: -> new Collection(@get(name).map((item) -> get(item, 'id')))
+      get: -> new Collection(@get(name)).map((item) -> get(item, 'id'))
       set: (ids) ->
-        objects = map(ids, (id) -> attributes.as().find(id))
+        objects = (attributes.as().find(id) for id in ids)
         @attributes[name] = new AssociationCollection(attributes.as, objects)
         @_defer(name)
       dependsOn: name

@@ -14,12 +14,6 @@ Helpers =
       model.format(value)
     else
       Helpers.get(model, value, bound)
-  map: (collection, fun) ->
-    if typeof(collection.map) is 'function'
-      collection.map(fun)
-    else
-      fun(element) for element in collection
-
   isArray: (object) ->
     Object::toString.call(object) is "[object Array]"
 
@@ -32,7 +26,7 @@ Helpers =
     if object and typeof(object.serialize) is 'function'
       object.serialize()
     else if Helpers.isArray(object)
-      Helpers.map(object, (item) -> Helpers.serializeObject(item))
+      Helpers.serializeObject(item) for item in object
     else
       object
 
