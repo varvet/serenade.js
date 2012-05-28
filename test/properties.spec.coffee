@@ -13,69 +13,68 @@ describe 'Serenade.Properties', ->
     @object = extended()
 
   describe '.property', ->
-    describe 'with serialize with a string given', ->
-      it 'will setup a setter method for that name', ->
-        @object.property 'fooBar', serialize: 'foo_bar'
-        @object.set('foo_bar', 56)
-        expect(@object.get('foo_bar')).to.eql(56)
-        expect(@object.get('fooBar')).to.eql(56)
-      it 'can handle circular dependencies', ->
-        @object.property 'foo', dependsOn: 'bar'
-        @object.property 'bar', dependsOn: 'foo'
-        @object.set('foo', 23)
-        expect(@object).to.have.receivedEvent('change:foo')
-        expect(@object).to.have.receivedEvent('change:bar')
-      it 'can handle secondary dependencies', ->
-        @object.property 'foo', dependsOn: 'quox'
-        @object.property 'bar', dependsOn: ['quox']
-        @object.property 'quox', dependsOn: ['bar', 'foo']
-        @object.set('foo', 23)
-        expect(@object).to.have.receivedEvent('change:foo')
-        expect(@object).to.have.receivedEvent('change:bar')
-        expect(@object).to.have.receivedEvent('change:quox')
-      it 'can reach into properties and observe changes to them', ->
-        @object.property 'name', dependsOn: 'author.name'
-        @object.property 'author'
-        @object.set(author: extended())
-        @object.get('author').set(name: 'test')
-        expect(@object).to.have.receivedEvent('change:name')
-      it 'does not observe changes on objects which are no longer associated', ->
-        @object.property 'name', dependsOn: 'author.name'
-        @object.property 'author'
-        @object.set(author: extended())
-        oldAuthor = @object.get('author')
-        @object.set(author: extended())
-        oldAuthor.set(name: 'test')
-        expect(@object).not.to.have.receivedEvent('change:name')
-      it 'can reach into collections and observe changes to the entire collection', ->
-        @object.property 'authorNames', dependsOn: ['authors', 'authors.name']
-        @object.collection 'authors'
-        @object.authors.push(extended(name: "Anders"))
-        expect(@object).to.have.receivedEvent('change:authorNames')
-      it 'can reach into collections and observe changes to each individual object', ->
-        @object.collection 'authors'
-        @object.authors.push(extended())
-        @object.property 'authorNames', dependsOn: ['authors', 'authors.name']
-        @object.authors.get(0).set(name: 'test')
-        expect(@object).to.have.receivedEvent('change:authorNames')
-      it 'does not observe changes to elements no longer in the collcection', ->
-        @object.property 'authorNames', dependsOn: 'authors.name'
-        @object.collection 'authors'
-        @object.authors.push(extended())
-        oldAuthor = @object.authors.get(0)
-        oldAuthor.schmoo = true
-        @object.authors.deleteAt(0)
-        oldAuthor.set(name: 'test')
-        expect(@object).not.to.have.receivedEvent('change:authorNames')
-      it 'does not bleed over between objects with same prototype', ->
-        @ctor = ->
-        @inst1 = new @ctor()
-        @inst2 = new @ctor()
-        extend(@ctor.prototype, Serenade.Properties)
-        @ctor.prototype.property 'name', serialize: true
-        @inst1.property 'age', serialize: true
-        @inst2.property 'height', serialize: true
-        expect(Object.keys(@inst2.serialize())).not.to.include('age')
+    it 'will setup a setter method for that name', ->
+      @object.property 'fooBar', serialize: 'foo_bar'
+      @object.set('foo_bar', 56)
+      expect(@object.get('foo_bar')).to.eql(56)
+      expect(@object.get('fooBar')).to.eql(56)
+    it 'can handle circular dependencies', ->
+      @object.property 'foo', dependsOn: 'bar'
+      @object.property 'bar', dependsOn: 'foo'
+      @object.set('foo', 23)
+      expect(@object).to.have.receivedEvent('change:foo')
+      expect(@object).to.have.receivedEvent('change:bar')
+    it 'can handle secondary dependencies', ->
+      @object.property 'foo', dependsOn: 'quox'
+      @object.property 'bar', dependsOn: ['quox']
+      @object.property 'quox', dependsOn: ['bar', 'foo']
+      @object.set('foo', 23)
+      expect(@object).to.have.receivedEvent('change:foo')
+      expect(@object).to.have.receivedEvent('change:bar')
+      expect(@object).to.have.receivedEvent('change:quox')
+    it 'can reach into properties and observe changes to them', ->
+      @object.property 'name', dependsOn: 'author.name'
+      @object.property 'author'
+      @object.set(author: extended())
+      @object.get('author').set(name: 'test')
+      expect(@object).to.have.receivedEvent('change:name')
+    it 'does not observe changes on objects which are no longer associated', ->
+      @object.property 'name', dependsOn: 'author.name'
+      @object.property 'author'
+      @object.set(author: extended())
+      oldAuthor = @object.get('author')
+      @object.set(author: extended())
+      oldAuthor.set(name: 'test')
+      expect(@object).not.to.have.receivedEvent('change:name')
+    it 'can reach into collections and observe changes to the entire collection', ->
+      @object.property 'authorNames', dependsOn: ['authors', 'authors.name']
+      @object.collection 'authors'
+      @object.authors.push(extended(name: "Anders"))
+      expect(@object).to.have.receivedEvent('change:authorNames')
+    it 'can reach into collections and observe changes to each individual object', ->
+      @object.collection 'authors'
+      @object.authors.push(extended())
+      @object.property 'authorNames', dependsOn: ['authors', 'authors.name']
+      @object.authors.get(0).set(name: 'test')
+      expect(@object).to.have.receivedEvent('change:authorNames')
+    it 'does not observe changes to elements no longer in the collcection', ->
+      @object.property 'authorNames', dependsOn: 'authors.name'
+      @object.collection 'authors'
+      @object.authors.push(extended())
+      oldAuthor = @object.authors.get(0)
+      oldAuthor.schmoo = true
+      @object.authors.deleteAt(0)
+      oldAuthor.set(name: 'test')
+      expect(@object).not.to.have.receivedEvent('change:authorNames')
+    it 'does not bleed over between objects with same prototype', ->
+      @ctor = ->
+      @inst1 = new @ctor()
+      @inst2 = new @ctor()
+      extend(@ctor.prototype, Serenade.Properties)
+      @ctor.prototype.property 'name', serialize: true
+      @inst1.property 'age', serialize: true
+      @inst2.property 'height', serialize: true
+      expect(Object.keys(@inst2.serialize())).not.to.include('age')
 
   describe '.collection', ->
     it 'is initialized to a collection', ->
