@@ -7,6 +7,14 @@ getLength = (arr) ->
   indices = (parseInt(index, 10) for index, val of arr when isArrayIndex(index))
   if indices.length then Math.max(indices...) + 1 else 0
 
+mark = (collection, item) ->
+  if item?._useDefer
+    item._inCollections or= {}
+    item._inCollections[collection] = collection
+
+unmark = (collection, item) ->
+  delete item._inCollections[collection] if item?._inCollections
+
 class exports.Collection
   extend(@prototype, Events)
   constructor: (list) ->
@@ -15,16 +23,16 @@ class exports.Collection
     @bind "change", => @length = getLength(@)
   get: (index) -> @[index]
   set: (index, value) ->
-    @_notIn(@[index])
+    unmark(@, @[index])
     @[index] = value
-    @_in(value)
+    mark(@, value)
     @trigger("change:#{index}", value)
     @trigger("set", index, value)
     @trigger("change", @)
     value
   push: (element) ->
     @[@length] = element
-    @_in(element)
+    mark(@, element)
     @trigger("add", element)
     @trigger("change", @)
     element
@@ -32,17 +40,17 @@ class exports.Collection
   unshift: (item) -> @insertAt(0, item)
   shift: -> @deleteAt(0)
   update: (list) ->
-    @_notIn(element) for element in @
+    unmark(@, element) for element in @
     delete @[index] for index, _ of @ when isArrayIndex(index)
     @[index] = val for val, index in list
-    @_in(element) for element in list
+    mark(@, element) for element in list
     @trigger("update", list)
     @trigger("change", @)
     list
   splice: (start, deleteCount, list...) ->
-    @_in(element) for item in list
+    mark(@, element) for item in list
     deleted = Array.prototype.splice.apply(@, [start, deleteCount, list...])
-    @_notIn(element) for element in deleted
+    unmark(@, element) for element in deleted
     @trigger("update", list)
     @trigger("change", @)
     new Collection(deleted)
@@ -84,14 +92,14 @@ class exports.Collection
   find: (fun) ->
     return item for item in @ when fun(item)
   insertAt: (index, value) ->
-    @_in(value)
+    mark(@, value)
     Array.prototype.splice.call(@, index, 0, value)
     @trigger("insert", index, value)
     @trigger("change", @)
     value
   deleteAt: (index) ->
     value = @[index]
-    @_notIn(value)
+    unmark(@, value)
     Array.prototype.splice.call(@, index, 1)
     @trigger("delete", index, value)
     @trigger("change", @)
@@ -147,13 +155,5 @@ class exports.Collection
     array = []
     array[index] = val for index, val of @ when isArrayIndex(index)
     array
-
-  _in: (item) ->
-    if item?._useDefer
-      item._inCollections or= {}
-      item._inCollections[this] = this
-
-  _notIn: (item) ->
-    delete item._inCollections[this] if item?._inCollections
 
   _useDefer: true
