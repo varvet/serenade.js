@@ -5,11 +5,15 @@ class exports.Collection
   extend(@prototype, Events)
   constructor: (@list) ->
     @length = @list.length
-    @bind("change", => @length = @list.length)
+    @[index] = val for val, index in @list
+    @bind "change", =>
+      indices = (parseInt(index, 10) for index, val of @ when index.match(/^\d+$/))
+      @length = Math.max(indices...) + 1
   get: (index) -> @list[index]
   set: (index, value) ->
     @_notIn(@list[index])
     @list[index] = value
+    @[index] = value
     @_in(value)
     @trigger("change:#{index}", value)
     @trigger("set", index, value)
@@ -17,6 +21,7 @@ class exports.Collection
     value
   push: (element) ->
     @list.push(element)
+    @[@length] = element
     @_in(element)
     @trigger("add", element)
     @trigger("change", @list)
@@ -24,6 +29,8 @@ class exports.Collection
   update: (list) ->
     @_notIn(element) for element in @list
     @list = list
+    delete @[index] for index, _ of @ when index.match(/^\d+$/)
+    @[index] = val for val, index in @list
     @_in(element) for element in list
     @trigger("update", list)
     @trigger("change", @list)
@@ -45,6 +52,7 @@ class exports.Collection
     value = @list[index]
     @_notIn(value)
     @list.splice(index, 1)
+    Array.prototype.splice.call(@, index, 1)
     @trigger("delete", index, value)
     @trigger("change", @list)
     value

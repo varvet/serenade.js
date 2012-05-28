@@ -6,6 +6,10 @@ describe 'Serenade.Collection', ->
   beforeEach ->
     @collection = new Serenade.Collection(['a', 'b', 'c'])
 
+  it "is compatible with CoffeeScript's array comprehensions", ->
+    letters = (letter.toUpperCase() for letter in @collection)
+    expect(letters.join("")).to.eql("ABC")
+
   describe '#get', ->
     it 'gets an item from the collection', ->
       expect(@collection.get(0)).to.eql('a')
@@ -28,10 +32,23 @@ describe 'Serenade.Collection', ->
       expect(@collection).to.have.receivedEvent('set', with: [1, 'foo'])
     it 'returns the item', ->
       expect(@collection.set(0, 'foo')).to.eql('foo')
+    it 'allows direct property access', ->
+      @collection.set(0, 'foo')
+      expect(@collection[0]).to.eql('foo')
 
   describe '#update', ->
+    it 'sets the given properties', ->
+      @collection.update(["q", "x"])
+      expect(@collection.get(0)).to.eql("q")
+      expect(@collection.get(1)).to.eql("x")
+      expect(@collection.get(2)).to.eql(undefined)
+    it 'sets the given properties directly', ->
+      @collection.update(["q", "x"])
+      expect(@collection[0]).to.eql("q")
+      expect(@collection[1]).to.eql("x")
+      expect(@collection[2]).to.eql(undefined)
     it 'updates length', ->
-      @collection.update([1,2])
+      @collection.update(["q", "x"])
       expect(@collection.length).to.eql(2)
     it 'returns the new list', ->
       expect(@collection.update([1,2])).to.eql([1,2])
@@ -80,6 +97,12 @@ describe 'Serenade.Collection', ->
       expect(@collection).to.have.receivedEvent('add', with: ['g'])
     it 'returns the item', ->
       expect(@collection.push('g')).to.eql('g')
+    it 'makes is accessible as a property', ->
+      @collection.push('g')
+      expect(@collection[3]).to.eql("g")
+    it 'updates the length', ->
+      @collection.push('g')
+      expect(@collection.length).to.eql(4)
 
   describe '#indexOf', ->
     it 'returns where in the collection the given item is', ->
@@ -110,6 +133,11 @@ describe 'Serenade.Collection', ->
       expect(@collection.get(0)).to.eql('a')
       expect(@collection.get(1)).to.eql('c')
       expect(@collection.get(2)).to.eql(undefined)
+    it 'removes the property and reorders the remaining ones', ->
+      @collection.deleteAt(1)
+      expect(@collection[0]).to.eql('a')
+      expect(@collection[1]).to.eql('c')
+      expect(@collection[2]).to.eql(undefined)
     it 'triggers a change event', ->
       @collection.deleteAt(1)
       expect(@collection).to.have.receivedEvent('change')
