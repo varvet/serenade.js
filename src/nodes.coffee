@@ -1,5 +1,5 @@
 {Serenade} = require './serenade'
-{format, get, forEach, preventDefault} = require './helpers'
+{format, get, preventDefault} = require './helpers'
 
 class Node
   constructor: (@ast, @document, @model, @controller) ->
@@ -195,7 +195,7 @@ class Collection
 
   build: ->
     @items = []
-    forEach @collection, (item) => @appendItem(item)
+    new Serenade.Collection(@collection).forEach (item) => @appendItem(item)
 
   appendItem: (item) ->
     node = new CollectionItem(@ast.children, @document, item, @controller)

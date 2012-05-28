@@ -14,13 +14,6 @@ Helpers =
       model.format(value)
     else
       Helpers.get(model, value, bound)
-  # Iteration with fallback
-  forEach: (collection, fun) ->
-    if typeof(collection.forEach) is 'function'
-      collection.forEach(fun)
-    else
-      fun(element) for element in collection
-
   map: (collection, fun) ->
     if typeof(collection.map) is 'function'
       collection.map(fun)
@@ -65,6 +58,5 @@ Helpers =
       event.preventDefault()
     else
       event.returnValue = false
-
 
 Helpers.extend(exports, Helpers)
