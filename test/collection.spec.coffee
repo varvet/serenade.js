@@ -344,12 +344,16 @@ describe 'Serenade.Collection', ->
       expect(@collection.join(":")).to.eql("a:b:c")
 
   describe "#reverse", ->
-    it "returns the array reversed", ->
-      array = @collection.reverse()
-      expect(array[0]).to.eql("c")
-      expect(array[1]).to.eql("b")
-      expect(array[2]).to.eql("a")
-      expect(array).to.be.an.instanceof(Serenade.Collection)
+    it "reverses the collection", ->
+      @collection.reverse()
+      expect(@collection[0]).to.eql("c")
+      expect(@collection[1]).to.eql("b")
+      expect(@collection[2]).to.eql("a")
+    it "returns self", ->
+      expect(@collection.reverse()).to.eql(@collection)
+    it "triggers an update event", ->
+      @collection.reverse()
+      expect(@collection).to.have.receivedEvent('update')
 
   describe "#toString", ->
     it "joins the array with commas", ->

@@ -45,6 +45,10 @@ class exports.Collection
     @
   sortBy: (attribute) ->
     @sort((a, b) -> if get(a, attribute) < get(b, attribute) then -1 else 1)
+  reverse: ->
+    Array.prototype.reverse.call(@)
+    @trigger("update", @)
+    @
   forEach: (fun) ->
     if typeof(Array.prototype.forEach) is 'function'
       Array.prototype.forEach.call(@, fun)
@@ -95,7 +99,6 @@ class exports.Collection
       new Collection(item for item in @ when fun(item))
 
   join: (args...) -> Array.prototype.join.apply(@, args)
-  reverse: -> new Collection(Array.prototype.reverse.apply(@))
   toString: -> @toArray().toString()
   toLocaleString: -> @toArray().toLocaleString()
   concat: (args...) -> new Collection(@toArray().concat(args...))
