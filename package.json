@@ -43,7 +43,7 @@
    },
    "scripts": {
        "build": "cake build",
-       "test": "mocha {test/*.spec.coffee,test/**/*.spec.coffee}"
+       "test": "mocha test/*.spec.coffee test/**/*.spec.coffee"
    }
 }
 
