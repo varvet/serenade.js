@@ -129,3 +129,16 @@ describe 'Custom helpers', ->
       '''
       expect(@body).to.have.element('div > form > div#jonas')
       expect(@body).to.have.element('div > form > div#peter')
+
+    it "doesn't fail when called from a collection", ->
+      Serenade.Helpers.test = ->
+        @document.createElement("span")
+      model =
+        col: [1, 2]
+      @render '''
+        div
+          - collection @col
+            - test
+      ''', model
+      expect(@body).to.have.element('div > span')
+
