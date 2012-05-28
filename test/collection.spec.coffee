@@ -122,6 +122,8 @@ describe 'Serenade.Collection', ->
   describe '#pop', ->
     it 'removes an item from the collection', ->
       @collection.pop()
+      expect(@collection.get(0)).to.eql("a")
+      expect(@collection.get(1)).to.eql("b")
       expect(@collection.get(2)).to.eql(undefined)
     it 'returns the item', ->
       expect(@collection.pop()).to.eql('c')
@@ -133,6 +135,24 @@ describe 'Serenade.Collection', ->
       expect(@collection).to.have.receivedEvent('delete', with: [2, 'c'])
     it 'updates the length', ->
       @collection.pop()
+      expect(@collection.length).to.eql(2)
+
+  describe '#shift', ->
+    it 'removes an item from the collection', ->
+      @collection.shift()
+      expect(@collection.get(0)).to.eql("b")
+      expect(@collection.get(1)).to.eql("c")
+      expect(@collection.get(2)).to.eql(undefined)
+    it 'returns the item', ->
+      expect(@collection.shift()).to.eql('a')
+    it 'triggers a change event', ->
+      @collection.shift()
+      expect(@collection).to.have.receivedEvent('change')
+    it 'triggers a delete event', ->
+      @collection.shift()
+      expect(@collection).to.have.receivedEvent('delete', with: [0, 'a'])
+    it 'updates the length', ->
+      @collection.shift()
       expect(@collection.length).to.eql(2)
 
   describe '#indexOf', ->

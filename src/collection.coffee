@@ -29,6 +29,7 @@ class exports.Collection
     @trigger("change", @)
     element
   pop: -> @deleteAt(@length-1)
+  shift: -> @deleteAt(0)
   update: (list) ->
     @_notIn(element) for element in @
     delete @[index] for index, _ of @ when isArrayIndex(index)
