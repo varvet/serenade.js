@@ -400,3 +400,18 @@ describe 'Serenade.Collection', ->
       expect(@collection.some((item) -> item.match(/[ab]/))).to.be.true
       expect(@collection.some((item) -> item.match(/[d]/))).to.be.false
       Array.prototype.some = original
+
+  describe "#reduce", ->
+    it "reduces the collection to a value", ->
+      expect(@collection.reduce((agg, item) -> agg + ":" + item)).to.eql("a:b:c")
+      expect(@collection.reduce((agg, item) -> agg + ":" + item)).to.eql("a:b:c")
+      expect(@collection.reduce((agg, item, index, obj) -> agg + ":" + index + obj.join())).to.eql("a:1a,b,c:2a,b,c")
+
+    it "works without native implementation", ->
+      original = Array.prototype.reduce
+
+      Array.prototype.reduce = undefined
+      expect(@collection.reduce((agg, item) -> agg + ":" + item)).to.eql("a:b:c")
+      expect(@collection.reduce((agg, item) -> agg + ":" + item)).to.eql("a:b:c")
+      expect(@collection.reduce((agg, item, index, obj) -> agg + ":" + index + obj.join())).to.eql("a:1a,b,c:2a,b,c")
+      Array.prototype.reduce = original

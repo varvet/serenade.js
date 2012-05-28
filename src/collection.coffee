@@ -114,6 +114,14 @@ class exports.Collection
       for item in @
         return true if fun(item)
       return false
+  reduce: (fun) ->
+    if typeof Array.prototype.reduce is "function"
+      Array.prototype.reduce.call(@, fun)
+    else
+      carry = @[0]
+      for item, index in @ when index isnt 0
+        carry = fun(carry, item, index, @)
+      carry
 
   toArray: ->
     array = []
