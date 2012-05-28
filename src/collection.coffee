@@ -1,5 +1,5 @@
 {Events} = require './events'
-{extend, forEach, serializeObject, deleteItem, indexOf} = require './helpers'
+{extend, forEach, serializeObject, deleteItem, indexOf, get} = require './helpers'
 
 class exports.Collection
   extend(@prototype, Events)
@@ -32,7 +32,7 @@ class exports.Collection
     @list.sort(fun)
     @trigger("update", @list)
   sortBy: (attribute) ->
-    @sort((a, b) -> if a[attribute] < b[attribute] then -1 else 1)
+    @sort((a, b) -> if get(a, attribute) < get(b, attribute) then -1 else 1)
   forEach: (fun) ->
     forEach(@list, fun)
   map: (fun) ->

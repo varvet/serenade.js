@@ -60,6 +60,14 @@ describe 'Serenade.Collection', ->
       @collection.sortBy('name')
       expect(@collection.list).to.eql([item2, item1])
 
+    it 'works with Serenade Models', ->
+      item1 = new Serenade.Model(name: 'CJ', age: 30)
+      item2 = new Serenade.Model(name: 'Anders', age: 37)
+      @collection.update([item1, item2])
+
+      @collection.sortBy('name')
+      expect(@collection.list).to.eql([item2, item1])
+
   describe '#push', ->
     it 'adds an item to the collection', ->
       @collection.push('g')
