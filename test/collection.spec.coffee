@@ -118,6 +118,21 @@ describe 'Serenade.Collection', ->
     it 'updates the length', ->
       @collection.push('g')
       expect(@collection.length).to.eql(4)
+  describe '#pop', ->
+    it 'removes an item from the collection', ->
+      @collection.pop()
+      expect(@collection.get(2)).to.eql(undefined)
+    it 'returns the item', ->
+      expect(@collection.pop()).to.eql('c')
+    it 'triggers a change event', ->
+      @collection.pop()
+      expect(@collection).to.have.receivedEvent('change')
+    it 'triggers a delete event', ->
+      @collection.pop()
+      expect(@collection).to.have.receivedEvent('delete', with: [2, 'c'])
+    it 'updates the length', ->
+      @collection.pop()
+      expect(@collection.length).to.eql(2)
 
   describe '#indexOf', ->
     it 'returns where in the collection the given item is', ->
