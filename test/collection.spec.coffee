@@ -404,7 +404,7 @@ describe 'Serenade.Collection', ->
   describe "#reduce", ->
     it "reduces the collection to a value", ->
       expect(@collection.reduce((agg, item) -> agg + ":" + item)).to.eql("a:b:c")
-      expect(@collection.reduce((agg, item) -> agg + ":" + item)).to.eql("a:b:c")
+      expect(@collection.reduce(((agg, item) -> agg + ":" + item), "foo")).to.eql("foo:a:b:c")
       expect(@collection.reduce((agg, item, index, obj) -> agg + ":" + index + obj.join())).to.eql("a:1a,b,c:2a,b,c")
 
     it "works without native implementation", ->
@@ -412,6 +412,21 @@ describe 'Serenade.Collection', ->
 
       Array.prototype.reduce = undefined
       expect(@collection.reduce((agg, item) -> agg + ":" + item)).to.eql("a:b:c")
-      expect(@collection.reduce((agg, item) -> agg + ":" + item)).to.eql("a:b:c")
+      expect(@collection.reduce(((agg, item) -> agg + ":" + item), "foo")).to.eql("foo:a:b:c")
       expect(@collection.reduce((agg, item, index, obj) -> agg + ":" + index + obj.join())).to.eql("a:1a,b,c:2a,b,c")
       Array.prototype.reduce = original
+
+  describe "#reduceRight", ->
+    it "reduces the collection to a value", ->
+      expect(@collection.reduceRight((agg, item) -> agg + ":" + item)).to.eql("c:b:a")
+      expect(@collection.reduceRight(((agg, item) -> agg + ":" + item), "foo")).to.eql("foo:c:b:a")
+      expect(@collection.reduceRight((agg, item, index, obj) -> agg + ":" + index + obj.join())).to.eql("c:1a,b,c:0a,b,c")
+
+    it "works without native implementation", ->
+      original = Array.prototype.reduceRight
+
+      Array.prototype.reduceRight = undefined
+      expect(@collection.reduceRight((agg, item) -> agg + ":" + item)).to.eql("c:b:a")
+      expect(@collection.reduceRight(((agg, item) -> agg + ":" + item), "foo")).to.eql("foo:c:b:a")
+      expect(@collection.reduceRight((agg, item, index, obj) -> agg + ":" + index + obj.join())).to.eql("c:1a,b,c:0a,b,c")
+      Array.prototype.reduceRight = original

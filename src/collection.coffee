@@ -114,13 +114,22 @@ class exports.Collection
       for item in @
         return true if fun(item)
       return false
-  reduce: (fun) ->
+  reduce: (fun, initial) ->
     if typeof Array.prototype.reduce is "function"
-      Array.prototype.reduce.call(@, fun)
+      Array.prototype.reduce.apply(@, arguments)
     else
-      carry = @[0]
-      for item, index in @ when index isnt 0
+      carry = if initial then initial else @[0]
+      for item, index in @ when initial or index isnt 0
         carry = fun(carry, item, index, @)
+      carry
+  reduceRight: (fun, initial) ->
+    if typeof Array.prototype.reduceRight is "function"
+      Array.prototype.reduceRight.apply(@, arguments)
+    else
+      traversed = @toArray().reverse()
+      carry = if initial then initial else traversed[0]
+      for item, index in traversed when initial or index isnt 0
+        carry = fun(carry, item, traversed.length - index - 1, @)
       carry
 
   toArray: ->
