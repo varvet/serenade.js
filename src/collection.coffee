@@ -93,6 +93,7 @@ class exports.Collection
   toString: -> @toArray().toString()
   toLocaleString: -> @toArray().toLocaleString()
   concat: (args...) -> new Collection(@toArray().concat(args...))
+  slice: (args...) -> new Collection(@toArray().slice(args...))
 
   toArray: ->
     array = []

@@ -347,3 +347,11 @@ describe 'Serenade.Collection', ->
       expect(array[3]).to.eql("d")
       expect(array[4]).to.eql("e")
       expect(array[5]).to.eql("f")
+
+  describe "#slice", ->
+    it "slices the collection", ->
+      array = @collection.slice(1)
+      expect(array[0]).to.eql("b")
+      expect(array[1]).to.eql("c")
+      expect(array[2]).to.eql(undefined)
+      expect(array).to.be.an.instanceof(Serenade.Collection)
