@@ -1,67 +1,75 @@
 {Events} = require './events'
 {extend, forEach, serializeObject, deleteItem, indexOf, get} = require './helpers'
 
+getLength = (arr) ->
+  indices = (parseInt(index, 10) for index, val of arr when index.match(/^\d+$/))
+  Math.max(indices...) + 1
+
 class exports.Collection
   extend(@prototype, Events)
   constructor: (@list) ->
-    @length = @list.length
-    @[index] = val for val, index in @list
-    @bind "change", =>
-      indices = (parseInt(index, 10) for index, val of @ when index.match(/^\d+$/))
-      @length = Math.max(indices...) + 1
-  get: (index) -> @list[index]
+    @[index] = val for val, index in list
+    @length = getLength(@)
+    @bind "change", => @length = getLength(@)
+  get: (index) -> @[index]
   set: (index, value) ->
-    @_notIn(@list[index])
+    @_notIn(@[index])
     @list[index] = value
     @[index] = value
     @_in(value)
     @trigger("change:#{index}", value)
     @trigger("set", index, value)
-    @trigger("change", @list)
+    @trigger("change", @)
     value
   push: (element) ->
     @list.push(element)
     @[@length] = element
     @_in(element)
     @trigger("add", element)
-    @trigger("change", @list)
+    @trigger("change", @)
     element
   update: (list) ->
-    @_notIn(element) for element in @list
+    @_notIn(element) for element in @
     @list = list
     delete @[index] for index, _ of @ when index.match(/^\d+$/)
-    @[index] = val for val, index in @list
+    @[index] = val for val, index in list
     @_in(element) for element in list
     @trigger("update", list)
-    @trigger("change", @list)
+    @trigger("change", @)
     list
   sort: (fun) ->
     @list.sort(fun)
-    @trigger("update", @list)
+    Array.prototype.sort.call(@, fun)
+    @trigger("update", @)
   sortBy: (attribute) ->
     @sort((a, b) -> if get(a, attribute) < get(b, attribute) then -1 else 1)
   forEach: (fun) ->
-    forEach(@list, fun)
+    forEach(@, fun)
   map: (fun) ->
-    fun(item) for item in @list
-  indexOf: (search) -> indexOf(@list, search)
+    fun(item) for item in @
+  indexOf: (search) ->
+    if Array.prototype.indexOf
+      Array.prototype.indexOf.call(@, search)
+    else
+      return index for item, index in @ when item is search
+      return -1
   includes: (item) -> @indexOf(item) >= 0
   find: (fun) ->
-    return item for item in @list when fun(item)
+    return item for item in @ when fun(item)
   deleteAt: (index) ->
-    value = @list[index]
+    value = @[index]
     @_notIn(value)
     @list.splice(index, 1)
     Array.prototype.splice.call(@, index, 1)
     @trigger("delete", index, value)
-    @trigger("change", @list)
+    @trigger("change", @)
     value
   delete: (item) ->
     @deleteAt(@indexOf(item))
   serialize: ->
-    serializeObject(@list)
+    serializeObject(@)
   select: (fun) ->
-    item for item in @list when fun(item)
+    item for item in @ when fun(item)
 
   _in: (item) ->
     if item?._useDefer

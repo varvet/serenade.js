@@ -10,6 +10,9 @@ describe 'Serenade.Collection', ->
     letters = (letter.toUpperCase() for letter in @collection)
     expect(letters.join("")).to.eql("ABC")
 
+  it "sets the length", ->
+    expect(@collection.length).to.eql(3)
+
   describe '#get', ->
     it 'gets an item from the collection', ->
       expect(@collection.get(0)).to.eql('a')
@@ -59,8 +62,16 @@ describe 'Serenade.Collection', ->
       @collection.sort()
       expect(@collection.list).to.eql(['a', 'a', 'b', 'c'])
     it 'updates the order of the items in the collection', ->
+      @collection.push('a')
+      @collection.sort()
+      expect(@collection[0]).to.eql("a")
+      expect(@collection[1]).to.eql("a")
+      expect(@collection[2]).to.eql("b")
+      expect(@collection[3]).to.eql("c")
+    it 'updates the order of the items in the collection', ->
       @collection.sort((a, b) -> if a > b then -1 else 1)
       expect(@collection.list).to.eql(['c', 'b', 'a'])
+
     it 'triggers an update event', ->
       @collection.sort()
       expect(@collection).to.have.receivedEvent('update')
@@ -108,10 +119,16 @@ describe 'Serenade.Collection', ->
     it 'returns where in the collection the given item is', ->
       expect(@collection.indexOf('a')).to.eql(0)
       expect(@collection.indexOf('b')).to.eql(1)
+      expect(@collection.indexOf('foo')).to.eql(-1)
     it 'works without native indexOf function', ->
-      @collection.list.indexOf = undefined
+      original = Array.prototype.indexOf
+      Array.prototype.indexOf = undefined
+
       expect(@collection.indexOf('a')).to.eql(0)
       expect(@collection.indexOf('b')).to.eql(1)
+      expect(@collection.indexOf('foo')).to.eql(-1)
+
+      Array.prototype.indexOf = original
 
   describe '#includes', ->
     it 'returns true if the item exists in the collection', ->
