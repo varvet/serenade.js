@@ -29,6 +29,7 @@ class exports.Collection
     @trigger("change", @)
     element
   pop: -> @deleteAt(@length-1)
+  unshift: (item) -> @insertAt(0, item)
   shift: -> @deleteAt(0)
   update: (list) ->
     @_notIn(element) for element in @

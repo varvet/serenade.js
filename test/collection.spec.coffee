@@ -137,6 +137,25 @@ describe 'Serenade.Collection', ->
       @collection.pop()
       expect(@collection.length).to.eql(2)
 
+  describe '#unshift', ->
+    it 'adds an item to the collection', ->
+      @collection.unshift('g')
+      expect(@collection.get(0)).to.eql('g')
+      expect(@collection.get(1)).to.eql('a')
+      expect(@collection.get(2)).to.eql('b')
+      expect(@collection.get(3)).to.eql('c')
+    it 'triggers a change event', ->
+      @collection.unshift('g')
+      expect(@collection).to.have.receivedEvent('change')
+    it 'triggers an add event', ->
+      @collection.unshift('g')
+      expect(@collection).to.have.receivedEvent('insert', with: [0, 'g'])
+    it 'returns the item', ->
+      expect(@collection.unshift('g')).to.eql('g')
+    it 'updates the length', ->
+      @collection.unshift('g')
+      expect(@collection.length).to.eql(4)
+
   describe '#shift', ->
     it 'removes an item from the collection', ->
       @collection.shift()
