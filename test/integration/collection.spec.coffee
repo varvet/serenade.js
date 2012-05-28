@@ -57,3 +57,18 @@ describe 'Collection', ->
     model.people.deleteAt(0)
     expect(@body).not.to.have.element('ul > li#jonas')
     expect(@body).to.have.element('ul > li#peter')
+
+  it 'inserts item into collection when requested', ->
+    model = { people: new Serenade.Collection([{ name: 'jonas' }, { name: 'peter' }]) }
+
+    @render '''
+      ul
+        - collection "people"
+          li[id=name]
+    ''', model
+    expect(@body).to.have.element('ul > li#jonas')
+    expect(@body).to.have.element('ul > li#peter')
+    model.people.insertAt(1, {name: "carry"})
+    expect(@body).to.have.element('ul > li#jonas')
+    expect(@body).to.have.element('ul > li#carry')
+    expect(@body).to.have.element('ul > li#peter')

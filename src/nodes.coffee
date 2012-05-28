@@ -187,6 +187,7 @@ class Collection
       @collection.bind('update', => @rebuild())
       @collection.bind('set', => @rebuild())
       @collection.bind('add', (item) => @appendItem(item))
+      @collection.bind('insert', (index, item) => @insertItem(index, item))
       @collection.bind('delete', (index) => @delete(index))
 
   rebuild: ->
@@ -201,6 +202,11 @@ class Collection
     node = new CollectionItem(@ast.children, @document, item, @controller)
     node.insertAfter(@lastElement())
     @items.push(node)
+
+  insertItem: (index, item) ->
+    node = new CollectionItem(@ast.children, @document, item, @controller)
+    node.insertAfter(@items[index-1]?.lastElement() or @anchor)
+    @items.splice(0, node)
 
   delete: (index) ->
     @items[index].remove()

@@ -184,6 +184,22 @@ describe 'Serenade.Collection', ->
       predicate = (item) -> item.length > 1
       expect(@collection.find(predicate)).to.equal(undefined)
 
+  describe '#insertAt', ->
+    it 'inserts the item into the collection', ->
+      @collection.insertAt(1, "d")
+      expect(@collection.get(0)).to.eql("a")
+      expect(@collection.get(1)).to.eql("d")
+      expect(@collection.get(2)).to.eql("b")
+      expect(@collection.get(3)).to.eql("c")
+    it 'triggers a change event', ->
+      @collection.insertAt(1, "d")
+      expect(@collection).to.have.receivedEvent('change')
+    it 'triggers an insert event', ->
+      @collection.insertAt(1, "d")
+      expect(@collection).to.have.receivedEvent('insert', with: [1, 'd'])
+    it 'returns the item', ->
+      expect(@collection.insertAt(1, "d")).to.eql('d')
+
   describe '#deleteAt', ->
     it 'removes the item from the collection', ->
       @collection.deleteAt(1)

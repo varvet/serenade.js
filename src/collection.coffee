@@ -64,6 +64,12 @@ class exports.Collection
   includes: (item) -> @indexOf(item) >= 0
   find: (fun) ->
     return item for item in @ when fun(item)
+  insertAt: (index, value) ->
+    @_in(value)
+    Array.prototype.splice.call(@, index, 0, value)
+    @trigger("insert", index, value)
+    @trigger("change", @)
+    value
   deleteAt: (index) ->
     value = @[index]
     @_notIn(value)
