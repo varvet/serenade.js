@@ -53,14 +53,10 @@ describe 'Serenade.Collection', ->
     it 'updates length', ->
       @collection.update(["q", "x"])
       expect(@collection.length).to.eql(2)
-    it 'returns the new list', ->
+    it 'returns self', ->
       expect(@collection.update([1,2])).to.eql([1,2])
 
   describe '#sort', ->
-    it 'updates the order of the items in the collection', ->
-      @collection.push('a')
-      @collection.sort()
-      expect(@collection.list).to.eql(['a', 'a', 'b', 'c'])
     it 'updates the order of the items in the collection', ->
       @collection.push('a')
       @collection.sort()
@@ -70,7 +66,9 @@ describe 'Serenade.Collection', ->
       expect(@collection[3]).to.eql("c")
     it 'updates the order of the items in the collection', ->
       @collection.sort((a, b) -> if a > b then -1 else 1)
-      expect(@collection.list).to.eql(['c', 'b', 'a'])
+      expect(@collection[0]).to.eql("c")
+      expect(@collection[1]).to.eql("b")
+      expect(@collection[2]).to.eql("a")
 
     it 'triggers an update event', ->
       @collection.sort()
@@ -83,10 +81,12 @@ describe 'Serenade.Collection', ->
       @collection.update([item1, item2])
 
       @collection.sortBy('age')
-      expect(@collection.list).to.eql([item1, item2])
+      expect(@collection[0]).to.eql(item1)
+      expect(@collection[1]).to.eql(item2)
 
       @collection.sortBy('name')
-      expect(@collection.list).to.eql([item2, item1])
+      expect(@collection[0]).to.eql(item2)
+      expect(@collection[1]).to.eql(item1)
 
     it 'works with Serenade Models', ->
       item1 = new Serenade.Model(name: 'CJ', age: 30)
@@ -94,7 +94,8 @@ describe 'Serenade.Collection', ->
       @collection.update([item1, item2])
 
       @collection.sortBy('name')
-      expect(@collection.list).to.eql([item2, item1])
+      expect(@collection[0]).to.eql(item2)
+      expect(@collection[1]).to.eql(item1)
 
   describe '#push', ->
     it 'adds an item to the collection', ->

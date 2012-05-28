@@ -1,20 +1,21 @@
 {Events} = require './events'
 {extend, forEach, serializeObject, deleteItem, indexOf, get} = require './helpers'
 
+isArrayIndex = (index) -> index.match(/^\d+$/)
+
 getLength = (arr) ->
-  indices = (parseInt(index, 10) for index, val of arr when index.match(/^\d+$/))
+  indices = (parseInt(index, 10) for index, val of arr when isArrayIndex(index))
   Math.max(indices...) + 1
 
 class exports.Collection
   extend(@prototype, Events)
-  constructor: (@list) ->
+  constructor: (list) ->
     @[index] = val for val, index in list
     @length = getLength(@)
     @bind "change", => @length = getLength(@)
   get: (index) -> @[index]
   set: (index, value) ->
     @_notIn(@[index])
-    @list[index] = value
     @[index] = value
     @_in(value)
     @trigger("change:#{index}", value)
@@ -22,7 +23,6 @@ class exports.Collection
     @trigger("change", @)
     value
   push: (element) ->
-    @list.push(element)
     @[@length] = element
     @_in(element)
     @trigger("add", element)
@@ -30,17 +30,16 @@ class exports.Collection
     element
   update: (list) ->
     @_notIn(element) for element in @
-    @list = list
-    delete @[index] for index, _ of @ when index.match(/^\d+$/)
+    delete @[index] for index, _ of @ when isArrayIndex(index)
     @[index] = val for val, index in list
     @_in(element) for element in list
     @trigger("update", list)
     @trigger("change", @)
     list
   sort: (fun) ->
-    @list.sort(fun)
     Array.prototype.sort.call(@, fun)
     @trigger("update", @)
+    @
   sortBy: (attribute) ->
     @sort((a, b) -> if get(a, attribute) < get(b, attribute) then -1 else 1)
   forEach: (fun) ->
@@ -59,7 +58,6 @@ class exports.Collection
   deleteAt: (index) ->
     value = @[index]
     @_notIn(value)
-    @list.splice(index, 1)
     Array.prototype.splice.call(@, index, 1)
     @trigger("delete", index, value)
     @trigger("change", @)
@@ -67,7 +65,7 @@ class exports.Collection
   delete: (item) ->
     @deleteAt(@indexOf(item))
   serialize: ->
-    serializeObject(@)
+    serializeObject(@toArray())
   select: (fun) ->
     item for item in @ when fun(item)
 
