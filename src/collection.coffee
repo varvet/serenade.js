@@ -73,8 +73,11 @@ class exports.Collection
     @deleteAt(@indexOf(item))
   serialize: ->
     serializeObject(@toArray())
-  select: (fun) ->
-    item for item in @ when fun(item)
+  filter: (fun) ->
+    if typeof(Array.prototype.filter) is "function"
+      new Collection(Array.prototype.filter.call(@, fun))
+    else
+      new Collection(item for item in @ when fun(item))
 
   toArray: ->
     array = []

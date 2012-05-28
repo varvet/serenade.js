@@ -229,3 +229,20 @@ describe 'Serenade.Collection', ->
       expect(array[1]).to.eql([1, "b"])
       expect(array[2]).to.eql([2, "c"])
       expect(array).to.be.an.instanceof(Serenade.Collection)
+
+  describe "#filter", ->
+    it "filters the collections", ->
+      array = @collection.filter (item) -> item in ["a", "c"]
+      expect(array[0]).to.eql("a")
+      expect(array[1]).to.eql("c")
+      expect(array).to.be.an.instanceof(Serenade.Collection)
+    it "works without native map implementation", ->
+      original = Array.prototype.filter
+
+      Array.prototype.filter = undefined
+      array = @collection.filter (item) -> item in ["a", "c"]
+      Array.prototype.filter = original
+
+      expect(array[0]).to.eql("a")
+      expect(array[1]).to.eql("c")
+      expect(array).to.be.an.instanceof(Serenade.Collection)
