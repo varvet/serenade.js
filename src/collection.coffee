@@ -5,7 +5,7 @@ isArrayIndex = (index) -> index.match(/^\d+$/)
 
 getLength = (arr) ->
   indices = (parseInt(index, 10) for index, val of arr when isArrayIndex(index))
-  Math.max(indices...) + 1
+  if indices.length then Math.max(indices...) + 1 else 0
 
 class exports.Collection
   extend(@prototype, Events)

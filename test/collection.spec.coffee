@@ -12,6 +12,9 @@ describe 'Serenade.Collection', ->
 
   it "sets the length", ->
     expect(@collection.length).to.eql(3)
+  it "sets the length to zero when empty", ->
+    @collection = new Serenade.Collection([])
+    expect(@collection.length).to.eql(0)
 
   describe '#get', ->
     it 'gets an item from the collection', ->
