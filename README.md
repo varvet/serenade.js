@@ -213,11 +213,16 @@ MyModel.property('fullName', {
 The Serenade.js template language is inspired by Slim, Jade and HAML, but not
 identical to any of these.
 
-Any view in Serenade.js must have an element as its root node. Elements may
-have any number of children. Elements can have attributes within square
-brackets.
+A view in Serenade.js must have a single element at its root. Additional root
+elements will not be rendered:
 
-This is a single element with no children and an id attribute:
+``` slim
+div "Will be rendered"
+div "Will not be rendered"
+```
+
+Elements can have attributes within square brackets. This is a single element
+with no children and an id attribute:
 
 ``` slim
 div[id="serenade"]
@@ -235,7 +240,8 @@ You can omit the element name, which will create div elements:
 #serenade.some-class
 ```
 
-Indentation is significant and is used to nest elements:
+Elements may have any number of children. Indentation is significant and is
+used to nest elements:
 
 ``` slim
 #page
