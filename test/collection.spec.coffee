@@ -276,3 +276,11 @@ describe 'Serenade.Collection', ->
       expect(array[1]).to.eql("b")
       expect(array[2]).to.eql("a")
       expect(array).to.be.an.instanceof(Serenade.Collection)
+
+  describe "#toString", ->
+    it "joins the array with commas", ->
+      expect(@collection.toString()).to.eql("a,b,c")
+
+  describe "#toLocaleString", ->
+    it "joins the array with commas", ->
+      expect(@collection.toLocaleString()).to.eql("a,b,c")

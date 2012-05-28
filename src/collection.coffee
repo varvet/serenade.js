@@ -82,6 +82,8 @@ class exports.Collection
 
   join: (args...) -> Array.prototype.join.apply(@, args)
   reverse: -> new Collection(Array.prototype.reverse.apply(@))
+  toString: -> @toArray().toString()
+  toLocaleString: -> @toArray().toLocaleString()
 
 
   toArray: ->
