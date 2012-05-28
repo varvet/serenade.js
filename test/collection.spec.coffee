@@ -189,6 +189,25 @@ describe 'Serenade.Collection', ->
 
       Array.prototype.indexOf = original
 
+  describe "#lastIndexOf", ->
+    it "returns the last index of the given element", ->
+      @collection = new Serenade.Collection(["c", "a", "b", "a"])
+      expect(@collection.lastIndexOf("a")).to.eql(3)
+      expect(@collection.lastIndexOf("b")).to.eql(2)
+      expect(@collection.lastIndexOf("c")).to.eql(0)
+      expect(@collection.lastIndexOf("d")).to.eql(-1)
+    it "works without native implementation", ->
+      original = Array.prototype.lastIndexOf
+      Array.prototype.lastIndexOf = undefined
+
+      @collection = new Serenade.Collection(["c", "a", "b", "a"])
+      expect(@collection.lastIndexOf("a")).to.eql(3)
+      expect(@collection.lastIndexOf("b")).to.eql(2)
+      expect(@collection.lastIndexOf("c")).to.eql(0)
+      expect(@collection.lastIndexOf("d")).to.eql(-1)
+
+      Array.prototype.lastIndexOf = original
+
   describe '#includes', ->
     it 'returns true if the item exists in the collection', ->
       expect(@collection.includes('b')).to.be.true

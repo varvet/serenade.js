@@ -62,6 +62,12 @@ class exports.Collection
     else
       return index for item, index in @ when item is search
       return -1
+  lastIndexOf: (search) ->
+    if typeof(Array.prototype.lastIndexOf) is "function"
+      Array.prototype.lastIndexOf.call(@, search)
+    else
+      last = (index for item, index in @ when item is search).pop()
+      if last? then last else -1
   includes: (item) -> @indexOf(item) >= 0
   find: (fun) ->
     return item for item in @ when fun(item)
