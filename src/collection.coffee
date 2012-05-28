@@ -81,6 +81,7 @@ class exports.Collection
       new Collection(item for item in @ when fun(item))
 
   join: (args...) -> Array.prototype.join.apply(@, args)
+  reverse: -> new Collection(Array.prototype.reverse.apply(@))
 
 
   toArray: ->
