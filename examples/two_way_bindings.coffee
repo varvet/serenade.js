@@ -1,5 +1,5 @@
 Serenade.view 'form', '''
-  form
+  form[event:submit=stop!]
     h3 "Fill in stuff here"
     p
       label
@@ -28,9 +28,11 @@ Serenade.view 'form', '''
           option "World Domination"
     p
       label
-        "Body"
+        "Body (click Update to see this change)"
         br
-        textarea[binding:keyup=@body cols="60" rows="8"]
+        textarea[binding=@body cols="60" rows="8"]
+    p
+      input[type="submit" value="Update"]
 '''
 
 Serenade.view 'result', '''
@@ -48,6 +50,6 @@ class Post extends Serenade.Model
 
 window.onload = ->
   window.aPost = new Post()
-  document.body.appendChild Serenade.render('form', aPost)
+  document.body.appendChild Serenade.render('form', aPost, stop: ->)
   document.body.appendChild document.createElement("hr")
   document.body.appendChild Serenade.render('result', aPost)

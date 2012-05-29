@@ -14,6 +14,15 @@ describe 'Two-way bindings', ->
     @fireEvent input, "keyup"
     expect(model.name).to.eql("Test")
 
+  it 'updates model when form is submitted if no event name is specified', ->
+    model = {}
+    @render 'form\n\tinput[type="text" binding=name]\n\t', model, {}
+    input = @body.find('input').get(0)
+    input.value = "Test"
+    expect(model.name).to.eql(undefined)
+    @fireEvent input.form, "submit"
+    expect(model.name).to.eql("Test")
+
   it 'updates serenade model when event triggers', ->
     class MyModel extends Serenade.Model
       @property 'name'

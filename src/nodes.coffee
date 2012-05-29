@@ -9,7 +9,7 @@ class Node
     @element.setAttribute('class', @ast.classes.join(' ')) if @ast.classes?.length
 
     for property in @ast.properties
-      Nodes.property(property, this, @document, @model, @controller)
+      @addProperty(property, @document, @model, @controller)
 
     for child in @ast.children
       Nodes.compile(child, @document, @model, @controller).append(@element)
@@ -25,6 +25,18 @@ class Node
 
   lastElement: ->
     @element
+
+  addProperty: (ast, document, model, controller) ->
+    switch ast.scope
+      when "attribute"
+        if ast.name is "binding"
+          new TwoWayBinding(ast, this, document, model, controller)
+        else
+          new Attribute(ast, this, document, model, controller)
+      when "style" then new Style(ast, this, document, model, controller)
+      when "event" then new Event(ast, this, document, model, controller)
+      when "binding" then new TwoWayBinding(ast, this, document, model, controller)
+      else throw SyntaxError "#{ast.scope} is not a valid scope"
 
 class Style
   constructor: (@ast, @node, @document, @model, @controller) ->
@@ -50,7 +62,12 @@ class TwoWayBinding
     @element = @node.element
     @modelUpdated()
     @model.bind? "change:#{@ast.value}", (value) => @modelUpdated()
-    Serenade.bindEvent @element, @ast.name, => @domUpdated()
+    if @ast.name is "binding"
+      # we can't bind to the form directly since it doesn't exist yet
+      Serenade.bindEvent @document, "submit", (e) =>
+        @domUpdated() if @element.form is (e.target or e.srcElement)
+    else
+      Serenade.bindEvent @element, @ast.name, => @domUpdated()
 
   domUpdated: ->
     if @element.type is "checkbox"
@@ -314,13 +331,5 @@ Nodes =
           when "in" then new In(ast, document, model, controller)
           else new Helper(ast, document, model, controller)
       else throw SyntaxError "unknown type '#{ast.type}'"
-
-  property: (ast, node, document, model, controller) ->
-    switch ast.scope
-      when "attribute" then new Attribute(ast, node, document, model, controller)
-      when "style" then new Style(ast, node, document, model, controller)
-      when "event" then new Event(ast, node, document, model, controller)
-      when "binding" then new TwoWayBinding(ast, node, document, model, controller)
-      else throw SyntaxError "#{ast.scope} is not a valid scope"
 
 exports.Nodes = Nodes
