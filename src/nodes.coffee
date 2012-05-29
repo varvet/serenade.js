@@ -25,6 +25,12 @@ class Node
       Nodes.compile(child, model, controller).append(element)
     node
 
+  @view: (ast, model, parentController) ->
+    controller = Serenade.controllerFor(ast.arguments[0], model)
+    controller.parent = parentController if controller
+    controller or= parentController
+    new Node(ast, Serenade.render(ast.arguments[0], model, controller), model, controller)
+
   constructor: (@ast, @element, @model, @controller) ->
 
   append: (inside) ->
@@ -141,24 +147,6 @@ class TextNode
     value = format(@model, @ast.value, @ast.bound)
     value = "0" if value is 0
     value or ""
-
-class View
-  constructor: (@ast, @model, @parentController) ->
-    @controller = Serenade.controllerFor(@ast.arguments[0], @model)
-    @controller.parent = @parentController if @controller
-    @view = Serenade.render(@ast.arguments[0], @model, @controller or @parentController)
-
-  append: (inside) ->
-    inside.appendChild(@view)
-
-  insertAfter: (after) ->
-    after.parentNode.insertBefore(@view, after.nextSibling)
-
-  remove: ->
-    @view.parentNode.removeChild(@view)
-
-  lastElement: ->
-    @view
 
 class If
   constructor: (@ast, @model, @controller) ->
@@ -326,7 +314,7 @@ Nodes =
       when 'text' then new TextNode(ast, model, controller)
       when 'instruction'
         switch ast.command
-          when "view" then new View(ast, model, controller)
+          when "view" then new Node.view(ast, model, controller)
           when "collection" then new Collection(ast, model, controller)
           when "if" then new If(ast, model, controller)
           when "in" then new In(ast, model, controller)
