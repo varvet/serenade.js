@@ -55,3 +55,20 @@ describe 'Two-way bindings', ->
     @render 'input[type="text" binding:change=name]', model
     input = @body.find("input").get(0)
     expect(input.value).to.eql("")
+
+  it 'sets boolean value for checkboxes', ->
+    model = {}
+    @render 'input[type="checkbox" binding:change=active]', model, {}
+    input = @body.find('input').get(0)
+    input.checked = true
+    @fireEvent input, "change"
+    expect(model.active).to.eql(true)
+
+  it 'updates the value of checkbox when model changes', ->
+    class MyModel extends Serenade.Model
+      @property 'active'
+    model = new MyModel({active: false})
+    @render 'input[type="checkbox" binding:change=active]', model, {}
+    model.set("active", true)
+    input = @body.find('input').get(0)
+    expect(input.checked).to.eql(true)

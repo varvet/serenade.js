@@ -48,15 +48,24 @@ class TwoWayBinding
   constructor: (@ast, @node, @document, @model, @controller) ->
     @node.ast.name in ["input", "textarea"] or throw SyntaxError "invalid node type #{@node.ast.name} for two way binding"
     @element = @node.element
-    Serenade.bindEvent @element, @ast.name, (e) =>
-      set(@model, @ast.value, @element.value)
-    @update()
-    @model.bind? "change:#{@ast.value}", (value) => @update()
+    @modelUpdated()
+    @model.bind? "change:#{@ast.value}", (value) => @modelUpdated()
+    Serenade.bindEvent @element, @ast.name, => @domUpdated()
 
-  update: ->
-    val = get(@model, @ast.value)
-    val = "" if val == undefined
-    @element.value = val
+  domUpdated: ->
+    if @element.getAttribute("type") is "checkbox"
+      set(@model, @ast.value, @element.checked)
+    else
+      set(@model, @ast.value, @element.value)
+
+  modelUpdated: ->
+    if @element.getAttribute("type") is "checkbox"
+      val = get(@model, @ast.value)
+      @element.checked = !!val
+    else
+      val = get(@model, @ast.value)
+      val = "" if val == undefined
+      @element.value = val
 
 class Attribute
   constructor: (@ast, @node, @document, @model, @controller) ->
