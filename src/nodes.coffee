@@ -81,6 +81,18 @@ class Dynamic
     collection = get(model, ast.arguments[0])
     new Dynamic(ast, collection, model, controller)
 
+  @in: (ast, model, controller) ->
+    collection = new Serenade.Collection([])
+    update = ->
+      subModel = get(model, ast.arguments[0])
+      if subModel
+        collection.update([subModel])
+      else
+        collection.update([])
+    update()
+    model.bind? "change:#{ast.arguments[0]}", update
+    new Dynamic(ast, collection, model, controller)
+
   constructor: (@ast, @collection, @model, @controller) ->
     @anchor = Serenade.document.createTextNode('')
     if @collection.bind
@@ -244,36 +256,6 @@ class If
     else
       @anchor
 
-class In
-  constructor: (@ast, @model, @controller) ->
-    @anchor = Serenade.document.createTextNode('')
-    @model.bind? "change:#{@ast.arguments[0]}", @build
-
-  build: =>
-    @removeNodes()
-    subModel = get(@model, @ast.arguments[0])
-    @nodes = (Nodes.compile(child, subModel, @controller) for child in @ast.children)
-    node.insertAfter(@nodes[i-1]?.lastElement() or @anchor) for node, i in @nodes
-
-  append: (inside) ->
-    inside.appendChild(@anchor)
-    @build()
-
-  insertAfter: (after) ->
-    after.parentNode.insertBefore(@anchor, after.nextSibling)
-    @build()
-
-  remove: ->
-    @removeNodes()
-    @anchor.parentNode.removeChild(@anchor)
-
-  removeNodes: ->
-    node.remove() for node in @nodes if @nodes
-    @nodes = undefined
-
-  lastElement: ->
-    @nodes[@nodes.length - 1].lastElement()
-
 Nodes =
   compile: (ast, model, controller) ->
     switch ast.type
@@ -284,7 +266,7 @@ Nodes =
           when "view" then new Node.view(ast, model, controller)
           when "collection" then new Dynamic.collection(ast, model, controller)
           when "if" then new If(ast, model, controller)
-          when "in" then new In(ast, model, controller)
+          when "in" then new Dynamic.in(ast, model, controller)
           else new Node.helper(ast, model, controller)
       else throw SyntaxError "unknown type '#{ast.type}'"
 
