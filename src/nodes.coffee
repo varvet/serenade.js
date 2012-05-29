@@ -9,7 +9,16 @@ class Node
     @element.setAttribute('class', @ast.classes.join(' ')) if @ast.classes?.length
 
     for property in @ast.properties
-      @addProperty(property, @model, @controller)
+      switch property.scope
+        when "attribute"
+          if property.name is "binding"
+            new TwoWayBinding(property, this, @model, @controller)
+          else
+            new Attribute(property, this, @model, @controller)
+        when "style" then new Style(property, this, @model, @controller)
+        when "event" then new Event(property, this, @model, @controller)
+        when "binding" then new TwoWayBinding(property, this, @model, @controller)
+        else throw SyntaxError "#{property.scope} is not a valid scope"
 
     for child in @ast.children
       Nodes.compile(child, @model, @controller).append(@element)
@@ -25,18 +34,6 @@ class Node
 
   lastElement: ->
     @element
-
-  addProperty: (ast, model, controller) ->
-    switch ast.scope
-      when "attribute"
-        if ast.name is "binding"
-          new TwoWayBinding(ast, this, model, controller)
-        else
-          new Attribute(ast, this, model, controller)
-      when "style" then new Style(ast, this, model, controller)
-      when "event" then new Event(ast, this, model, controller)
-      when "binding" then new TwoWayBinding(ast, this, model, controller)
-      else throw SyntaxError "#{ast.scope} is not a valid scope"
 
 class Style
   constructor: (@ast, @node, @model, @controller) ->
