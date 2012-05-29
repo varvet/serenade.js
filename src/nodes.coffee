@@ -93,6 +93,18 @@ class Dynamic
     model.bind? "change:#{ast.arguments[0]}", update
     new Dynamic(ast, collection, model, controller)
 
+  @if: (ast, model, controller) ->
+    collection = new Serenade.Collection([])
+    update = ->
+      value = get(model, ast.arguments[0])
+      if value
+        collection.update([model])
+      else
+        collection.update([])
+    update()
+    model.bind? "change:#{ast.arguments[0]}", update
+    new Dynamic(ast, collection, model, controller)
+
   constructor: (@ast, @collection, @model, @controller) ->
     @anchor = Serenade.document.createTextNode('')
     if @collection.bind
@@ -222,40 +234,6 @@ class Attribute
 
   get: -> format(@model, @ast.value, @ast.bound)
 
-class If
-  constructor: (@ast, @model, @controller) ->
-    @anchor = Serenade.document.createTextNode('')
-    @model.bind? "change:#{@ast.arguments[0]}", @build
-
-  build: =>
-    if get(@model, @ast.arguments[0])
-      @nodes ||= (Nodes.compile(child, @model, @controller) for child in @ast.children)
-      node.insertAfter(@nodes[i-1]?.lastElement() or @anchor) for node, i in @nodes
-    else
-      @removeNodes()
-
-  append: (inside) ->
-    inside.appendChild(@anchor)
-    @build()
-
-  insertAfter: (after) ->
-    after.parentNode.insertBefore(@anchor, after.nextSibling)
-    @build()
-
-  remove: ->
-    @removeNodes()
-    @anchor.parentNode.removeChild(@anchor)
-
-  removeNodes: ->
-    node.remove() for node in @nodes if @nodes
-    @nodes = undefined
-
-  lastElement: ->
-    if @nodes?.length
-      @nodes[@nodes.length - 1].lastElement()
-    else
-      @anchor
-
 Nodes =
   compile: (ast, model, controller) ->
     switch ast.type
@@ -265,7 +243,7 @@ Nodes =
         switch ast.command
           when "view" then new Node.view(ast, model, controller)
           when "collection" then new Dynamic.collection(ast, model, controller)
-          when "if" then new If(ast, model, controller)
+          when "if" then new Dynamic.if(ast, model, controller)
           when "in" then new Dynamic.in(ast, model, controller)
           else new Node.helper(ast, model, controller)
       else throw SyntaxError "unknown type '#{ast.type}'"
