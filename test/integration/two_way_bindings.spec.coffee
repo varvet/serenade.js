@@ -36,6 +36,12 @@ describe 'Two-way bindings', ->
     input = @body.find('textarea').get(0)
     expect(input.value).to.eql("My name")
 
+  it 'sets value of select box to models value', ->
+    model = {name: "My name"}
+    @render 'select[binding:change=name]\n\toption "My name"', model, {}
+    input = @body.find('select').get(0)
+    expect(input.value).to.eql("My name")
+
   it 'updates the value of input when model changes', ->
     class MyModel extends Serenade.Model
       @property 'name'
