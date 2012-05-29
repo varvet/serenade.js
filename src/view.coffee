@@ -22,7 +22,7 @@ class View
   render: (model, controller) ->
     controller or= Serenade.controllerFor(@name, model) if @name
     controller or= {}
-    node = Nodes.compile(@parse(), Serenade.document, model, controller)
+    node = Nodes.compile(@parse(), model, controller)
     controller.model or= model
     controller.view or= node.element
     node.element

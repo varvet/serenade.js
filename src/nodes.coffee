@@ -2,17 +2,17 @@
 {format, get, set, preventDefault} = require './helpers'
 
 class Node
-  constructor: (@ast, @document, @model, @controller) ->
-    @element = @document.createElement(@ast.name)
+  constructor: (@ast, @model, @controller) ->
+    @element = Serenade.document.createElement(@ast.name)
 
     @element.setAttribute('id', @ast.id) if @ast.id
     @element.setAttribute('class', @ast.classes.join(' ')) if @ast.classes?.length
 
     for property in @ast.properties
-      @addProperty(property, @document, @model, @controller)
+      @addProperty(property, @model, @controller)
 
     for child in @ast.children
-      Nodes.compile(child, @document, @model, @controller).append(@element)
+      Nodes.compile(child, @model, @controller).append(@element)
 
   append: (inside) ->
     inside.appendChild(@element)
@@ -26,20 +26,20 @@ class Node
   lastElement: ->
     @element
 
-  addProperty: (ast, document, model, controller) ->
+  addProperty: (ast, model, controller) ->
     switch ast.scope
       when "attribute"
         if ast.name is "binding"
-          new TwoWayBinding(ast, this, document, model, controller)
+          new TwoWayBinding(ast, this, model, controller)
         else
-          new Attribute(ast, this, document, model, controller)
-      when "style" then new Style(ast, this, document, model, controller)
-      when "event" then new Event(ast, this, document, model, controller)
-      when "binding" then new TwoWayBinding(ast, this, document, model, controller)
+          new Attribute(ast, this, model, controller)
+      when "style" then new Style(ast, this, model, controller)
+      when "event" then new Event(ast, this, model, controller)
+      when "binding" then new TwoWayBinding(ast, this, model, controller)
       else throw SyntaxError "#{ast.scope} is not a valid scope"
 
 class Style
-  constructor: (@ast, @node, @document, @model, @controller) ->
+  constructor: (@ast, @node, @model, @controller) ->
     @element = @node.element
     @update()
     if @ast.bound
@@ -49,7 +49,7 @@ class Style
   get: -> format(@model, @ast.value, @ast.bound)
 
 class Event
-  constructor: (@ast, @node, @document, @model, @controller) ->
+  constructor: (@ast, @node, @model, @controller) ->
     @element = @node.element
     self = this # work around a bug in coffeescript
     Serenade.bindEvent @element, @ast.name, (e) ->
@@ -57,14 +57,14 @@ class Event
       self.controller[self.ast.value](e)
 
 class TwoWayBinding
-  constructor: (@ast, @node, @document, @model, @controller) ->
+  constructor: (@ast, @node, @model, @controller) ->
     @node.ast.name in ["input", "textarea", "select"] or throw SyntaxError "invalid node type #{@node.ast.name} for two way binding"
     @element = @node.element
     @modelUpdated()
     @model.bind? "change:#{@ast.value}", (value) => @modelUpdated()
     if @ast.name is "binding"
       # we can't bind to the form directly since it doesn't exist yet
-      Serenade.bindEvent @document, "submit", (e) =>
+      Serenade.bindEvent Serenade.document, "submit", (e) =>
         @domUpdated() if @element.form is (e.target or e.srcElement)
     else
       Serenade.bindEvent @element, @ast.name, => @domUpdated()
@@ -90,7 +90,7 @@ class TwoWayBinding
       @element.value = val
 
 class Attribute
-  constructor: (@ast, @node, @document, @model, @controller) ->
+  constructor: (@ast, @node, @model, @controller) ->
     @element = @node.element
     @update()
     if @ast.bound
@@ -118,8 +118,8 @@ class Attribute
   get: -> format(@model, @ast.value, @ast.bound)
 
 class TextNode
-  constructor: (@ast, @document, @model, @controller) ->
-    @textNode = document.createTextNode(@get())
+  constructor: (@ast, @model, @controller) ->
+    @textNode = Serenade.document.createTextNode(@get())
     if @ast.bound
       model.bind? "change:#{@ast.value}", =>
         @textNode.nodeValue = @get()
@@ -142,10 +142,10 @@ class TextNode
     value or ""
 
 class View
-  constructor: (@ast, @document, @model, @parentController) ->
+  constructor: (@ast, @model, @parentController) ->
     @controller = Serenade.controllerFor(@ast.arguments[0], @model)
     @controller.parent = @parentController if @controller
-    @view = Serenade.render(@ast.arguments[0], @model, @controller or @parentController, @document)
+    @view = Serenade.render(@ast.arguments[0], @model, @controller or @parentController)
 
   append: (inside) ->
     inside.appendChild(@view)
@@ -160,13 +160,13 @@ class View
     @view
 
 class If
-  constructor: (@ast, @document, @model, @controller) ->
-    @anchor = document.createTextNode('')
+  constructor: (@ast, @model, @controller) ->
+    @anchor = Serenade.document.createTextNode('')
     @model.bind? "change:#{@ast.arguments[0]}", @build
 
   build: =>
     if get(@model, @ast.arguments[0])
-      @nodes ||= (Nodes.compile(child, @document, @model, @controller) for child in @ast.children)
+      @nodes ||= (Nodes.compile(child, @model, @controller) for child in @ast.children)
       node.insertAfter(@nodes[i-1]?.lastElement() or @anchor) for node, i in @nodes
     else
       @removeNodes()
@@ -194,14 +194,14 @@ class If
       @anchor
 
 class In
-  constructor: (@ast, @document, @model, @controller) ->
-    @anchor = document.createTextNode('')
+  constructor: (@ast, @model, @controller) ->
+    @anchor = Serenade.document.createTextNode('')
     @model.bind? "change:#{@ast.arguments[0]}", @build
 
   build: =>
     @removeNodes()
     subModel = get(@model, @ast.arguments[0])
-    @nodes = (Nodes.compile(child, @document, subModel, @controller) for child in @ast.children)
+    @nodes = (Nodes.compile(child, subModel, @controller) for child in @ast.children)
     node.insertAfter(@nodes[i-1]?.lastElement() or @anchor) for node, i in @nodes
 
   append: (inside) ->
@@ -224,8 +224,8 @@ class In
     @nodes[@nodes.length - 1].lastElement()
 
 class Collection
-  constructor: (@ast, @document, @model, @controller) ->
-    @anchor = document.createTextNode('')
+  constructor: (@ast, @model, @controller) ->
+    @anchor = Serenade.document.createTextNode('')
     @collection = @get()
     if @collection.bind
       @collection.bind('update', => @rebuild())
@@ -243,12 +243,12 @@ class Collection
     new Serenade.Collection(@collection).forEach (item) => @appendItem(item)
 
   appendItem: (item) ->
-    node = new CollectionItem(@ast.children, @document, item, @controller)
+    node = new CollectionItem(@ast.children, item, @controller)
     node.insertAfter(@lastElement())
     @items.push(node)
 
   insertItem: (index, item) ->
-    node = new CollectionItem(@ast.children, @document, item, @controller)
+    node = new CollectionItem(@ast.children, item, @controller)
     node.insertAfter(@items[index-1]?.lastElement() or @anchor)
     @items.splice(0, node)
 
@@ -278,14 +278,14 @@ class Collection
   get: -> get(@model, @ast.arguments[0])
 
 class Helper
-  constructor: (@ast, @document, @model, @controller) ->
+  constructor: (@ast, @model, @controller) ->
     @helperFunction = Serenade.Helpers[@ast.command] or throw SyntaxError "no helper #{@ast.command} defined"
-    @context = { @document, @render, @model, @controller }
+    @context = { @render, @model, @controller }
     @element = @helperFunction.apply(@context, @ast.arguments)
 
   render: (element, model=@model, controller=@controller) =>
     for child in @ast.children
-      node = Nodes.compile(child, @document, model, controller)
+      node = Nodes.compile(child, model, controller)
       node.append(element)
     element
 
@@ -303,8 +303,8 @@ class Helper
     after.parentNode.insertBefore(@element, after.nextSibling)
 
 class CollectionItem
-  constructor: (@children, @document, @model, @controller) ->
-    @nodes = (Nodes.compile(child, @document, @model, @controller) for child in @children)
+  constructor: (@children, @model, @controller) ->
+    @nodes = (Nodes.compile(child, @model, @controller) for child in @children)
 
   insertAfter: (element) ->
     last = element
@@ -319,17 +319,17 @@ class CollectionItem
     node.remove() for node in @nodes
 
 Nodes =
-  compile: (ast, document, model, controller) ->
+  compile: (ast, model, controller) ->
     switch ast.type
-      when 'element' then new Node(ast, document, model, controller)
-      when 'text' then new TextNode(ast, document, model, controller)
+      when 'element' then new Node(ast, model, controller)
+      when 'text' then new TextNode(ast, model, controller)
       when 'instruction'
         switch ast.command
-          when "view" then new View(ast, document, model, controller)
-          when "collection" then new Collection(ast, document, model, controller)
-          when "if" then new If(ast, document, model, controller)
-          when "in" then new In(ast, document, model, controller)
-          else new Helper(ast, document, model, controller)
+          when "view" then new View(ast, model, controller)
+          when "collection" then new Collection(ast, model, controller)
+          when "if" then new If(ast, model, controller)
+          when "in" then new In(ast, model, controller)
+          else new Helper(ast, model, controller)
       else throw SyntaxError "unknown type '#{ast.type}'"
 
 exports.Nodes = Nodes
