@@ -42,6 +42,15 @@ class Node
     element = helperFunction.apply(context, ast.arguments)
     new Node(ast, element, model, controller)
 
+  @text: (ast, model, controller) ->
+    getValue = ->
+      value = format(model, ast.value, ast.bound)
+      value = "0" if value is 0
+      value or ""
+    textNode = Serenade.document.createTextNode(getValue())
+    model.bind?("change:#{ast.value}", -> textNode.nodeValue = getValue()) if ast.bound
+    new Node(ast, textNode, model, controller)
+
   constructor: (@ast, @element, @model, @controller) ->
 
   append: (inside) ->
@@ -134,30 +143,6 @@ class Attribute
       @element.setAttribute(@ast.name, value)
 
   get: -> format(@model, @ast.value, @ast.bound)
-
-class TextNode
-  constructor: (@ast, @model, @controller) ->
-    @textNode = Serenade.document.createTextNode(@get())
-    if @ast.bound
-      model.bind? "change:#{@ast.value}", =>
-        @textNode.nodeValue = @get()
-
-  append: (inside) ->
-    inside.appendChild(@textNode)
-
-  insertAfter: (after) ->
-    after.parentNode.insertBefore(@textNode, after.nextSibling)
-
-  remove: ->
-    @textNode.parentNode.removeChild(@textNode)
-
-  lastElement: ->
-    @textNode
-
-  get: ->
-    value = format(@model, @ast.value, @ast.bound)
-    value = "0" if value is 0
-    value or ""
 
 class If
   constructor: (@ast, @model, @controller) ->
@@ -297,7 +282,7 @@ Nodes =
   compile: (ast, model, controller) ->
     switch ast.type
       when 'element' then Node.element(ast, model, controller)
-      when 'text' then new TextNode(ast, model, controller)
+      when 'text' then new Node.text(ast, model, controller)
       when 'instruction'
         switch ast.command
           when "view" then new Node.view(ast, model, controller)
