@@ -9,6 +9,11 @@ Helpers =
       model?[value]
     else
       value
+  set: (model, key, value) ->
+    if model?.set
+      model.set(key, value)
+    else
+      model[key] = value
   format: (model, value, bound=true) ->
     if bound and model.format
       model.format(value)
