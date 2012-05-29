@@ -16,22 +16,25 @@ header = """
 """
 
 Build =
-  files: do ->
+  files: ->
     files = {}
     sourceFiles = fs.readdirSync 'src'
     for name in sourceFiles when name.match(/\.coffee$/)
       content = fs.readFileSync('src/' + name).toString()
       files[name.replace(/\.coffee$/, "")] = CoffeeScript.compile(content, bare: false)
-    files["parser"] = require('./src/grammar').Parser.generate()
+    files["parser"] = Build.parser()
     files
 
+  parser: -> require('./src/grammar').Parser.generate()
+
   compile: (callback) ->
+    files = Build.files()
     requires = ''
     for name in ['events', 'helpers', 'cache', 'collection', 'association_collection', 'associations', 'serenade', 'lexer', 'nodes', 'parser', 'properties', 'model', 'view']
       requires += """
         require['./#{name}'] = new function() {
           var exports = this;
-          #{Build.files[name]}
+          #{files[name]}
         };
       """
     callback """
