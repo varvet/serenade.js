@@ -2,26 +2,30 @@
 {format, get, set, preventDefault} = require './helpers'
 
 class Node
-  constructor: (@ast, @model, @controller) ->
-    @element = Serenade.document.createElement(@ast.name)
+  @element: (ast, model, controller) ->
+    element = Serenade.document.createElement(ast.name)
+    node = new Node(ast, element, model, controller)
 
-    @element.setAttribute('id', @ast.id) if @ast.id
-    @element.setAttribute('class', @ast.classes.join(' ')) if @ast.classes?.length
+    element.setAttribute('id', ast.id) if ast.id
+    element.setAttribute('class', ast.classes.join(' ')) if ast.classes?.length
 
-    for property in @ast.properties
+    for property in ast.properties
       switch property.scope
         when "attribute"
           if property.name is "binding"
-            new TwoWayBinding(property, this, @model, @controller)
+            new TwoWayBinding(property, node, model, controller)
           else
-            new Attribute(property, this, @model, @controller)
-        when "style" then new Style(property, this, @model, @controller)
-        when "event" then new Event(property, this, @model, @controller)
-        when "binding" then new TwoWayBinding(property, this, @model, @controller)
+            new Attribute(property, node, model, controller)
+        when "style" then new Style(property, node, model, controller)
+        when "event" then new Event(property, node, model, controller)
+        when "binding" then new TwoWayBinding(property, node, model, controller)
         else throw SyntaxError "#{property.scope} is not a valid scope"
 
-    for child in @ast.children
-      Nodes.compile(child, @model, @controller).append(@element)
+    for child in ast.children
+      Nodes.compile(child, model, controller).append(element)
+    node
+
+  constructor: (@ast, @element, @model, @controller) ->
 
   append: (inside) ->
     inside.appendChild(@element)
@@ -318,7 +322,7 @@ class CollectionItem
 Nodes =
   compile: (ast, model, controller) ->
     switch ast.type
-      when 'element' then new Node(ast, model, controller)
+      when 'element' then Node.element(ast, model, controller)
       when 'text' then new TextNode(ast, model, controller)
       when 'instruction'
         switch ast.command
