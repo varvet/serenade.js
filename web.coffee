@@ -18,10 +18,8 @@ app.get '/:name', (request, response) ->
   response.render('show.serenade', model: { name, title, source }, layout: false)
 
 app.get '/src/serenade.js', (request, response) ->
-  # ghetto live reload
-  if process.env.AUTORELOAD
-    require('./build.coffee').Build.all()
-  response.send(fs.readFileSync("./extras/serenade.js"))
+  require('./build.coffee').Build.minified (code) ->
+    response.send(code)
 
 app.get '/src/:name.coffee', (request, response) ->
   source = fs.readFileSync("./examples/#{request.params.name}.coffee")

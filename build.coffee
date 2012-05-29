@@ -16,26 +16,25 @@ header = """
 """
 
 Build =
-  files: ->
-    files = fs.readdirSync 'src'
-    for file in files when file.match(/\.coffee$/)
-      unless file is 'parser.coffee'
-        path = 'src/' + file
-        newPath = 'lib/' + file.replace(/\.coffee$/, '.js')
-        fs.writeFileSync newPath, CoffeeScript.compile(fs.readFileSync(path).toString(), bare: false)
-  parser: ->
-    {Parser} = require('./lib/grammar')
-    fs.writeFileSync 'lib/parser.js', Parser.generate()
-  browser: ->
+  files: do ->
+    files = {}
+    sourceFiles = fs.readdirSync 'src'
+    for name in sourceFiles when name.match(/\.coffee$/)
+      content = fs.readFileSync('src/' + name).toString()
+      files[name.replace(/\.coffee$/, "")] = CoffeeScript.compile(content, bare: false)
+    files["parser"] = require('./lib/grammar').Parser.generate()
+    files
+
+  compile: (callback) ->
     requires = ''
     for name in ['events', 'helpers', 'cache', 'collection', 'association_collection', 'associations', 'serenade', 'lexer', 'nodes', 'parser', 'properties', 'model', 'view']
       requires += """
         require['./#{name}'] = new function() {
           var exports = this;
-          #{fs.readFileSync "lib/#{name}.js"}
+          #{Build.files[name]}
         };
       """
-    code = """
+    callback """
       (function(root) {
         var Serenade = function() {
           function require(path){ return require[path]; }
@@ -48,16 +47,19 @@ Build =
         } else { root.Serenade = Serenade }
       }(this));
     """
-    {parser, uglify} = require 'uglify-js'
-    minified = uglify.gen_code uglify.ast_squeeze uglify.ast_mangle parser.parse code
-    fs.writeFileSync 'extras/serenade.js', header + '\n' + code
-    fs.writeFileSync 'extras/serenade.min.js', header + '\n' + minified
-    gzip (header + '\n' + minified), (err, data) ->
-      fs.writeFileSync 'extras/serenade.min.js.gz', data
 
-  all: ->
-    Build.files()
-    Build.parser()
-    Build.browser()
+  unpacked: (callback) ->
+    Build.compile (code) -> callback(header + '\n' + code)
+
+  minified: (callback) ->
+    Build.compile (code) ->
+      {parser, uglify} = require 'uglify-js'
+      minified = uglify.gen_code uglify.ast_squeeze uglify.ast_mangle parser.parse code
+      callback(header + "\n" + minified)
+
+  gzipped: (callback) ->
+    Build.minified (minified) ->
+      gzip (minified), (err, data) ->
+        callback(data)
 
 exports.Build = Build
