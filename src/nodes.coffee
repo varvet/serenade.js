@@ -40,26 +40,23 @@ class Event
   constructor: (@ast, @node, @document, @model, @controller) ->
     @element = @node.element
     self = this # work around a bug in coffeescript
-    callback = (e) ->
+    Serenade.bindEvent @element, @ast.name, (e) ->
       preventDefault(e) if self.ast.preventDefault
       self.controller[self.ast.value](e)
-    Serenade.bindEvent(@element, @ast.name, callback)
 
 class TwoWayBinding
-    constructor: (@ast, @node, @document, @model, @controller) ->
-      @node.ast.name in ["input", "textarea"] or throw SyntaxError "invalid node type #{@node.ast.name} for two way binding"
-      @element = @node.element
-      callback = (e) =>
-        set(@model, @ast.value, @element.value)
-      Serenade.bindEvent(@element, @ast.name, callback)
-      @update()
-      @model.bind? "change:#{@ast.value}", (value) => @update()
+  constructor: (@ast, @node, @document, @model, @controller) ->
+    @node.ast.name in ["input", "textarea"] or throw SyntaxError "invalid node type #{@node.ast.name} for two way binding"
+    @element = @node.element
+    Serenade.bindEvent @element, @ast.name, (e) =>
+      set(@model, @ast.value, @element.value)
+    @update()
+    @model.bind? "change:#{@ast.value}", (value) => @update()
 
-    update: ->
-      val = get(@model, @ast.value)
-      val = "" if val == undefined
-      @element.value = val
-
+  update: ->
+    val = get(@model, @ast.value)
+    val = "" if val == undefined
+    @element.value = val
 
 class Attribute
   constructor: (@ast, @node, @document, @model, @controller) ->
