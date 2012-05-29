@@ -22,7 +22,7 @@ Build =
     for name in sourceFiles when name.match(/\.coffee$/)
       content = fs.readFileSync('src/' + name).toString()
       files[name.replace(/\.coffee$/, "")] = CoffeeScript.compile(content, bare: false)
-    files["parser"] = require('./lib/grammar').Parser.generate()
+    files["parser"] = require('./src/grammar').Parser.generate()
     files
 
   compile: (callback) ->
