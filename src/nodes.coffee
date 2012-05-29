@@ -65,6 +65,72 @@ class Node
   lastElement: ->
     @element
 
+class Dynamic
+  class Item
+    constructor: (@children, @model, @controller) ->
+      @nodes = (Nodes.compile(child, @model, @controller) for child in @children)
+    insertAfter: (element) ->
+      last = element
+      for node in @nodes
+        node.insertAfter(last)
+        last = node.lastElement()
+    lastElement: -> @nodes[@nodes.length-1].lastElement()
+    remove: -> node.remove() for node in @nodes
+
+  @collection: (ast, model, controller) ->
+    collection = get(model, ast.arguments[0])
+    new Dynamic(ast, collection, model, controller)
+
+  constructor: (@ast, @collection, @model, @controller) ->
+    @anchor = Serenade.document.createTextNode('')
+    if @collection.bind
+      @collection.bind('update', => @rebuild())
+      @collection.bind('set', => @rebuild())
+      @collection.bind('add', (item) => @appendItem(item))
+      @collection.bind('insert', (index, item) => @insertItem(index, item))
+      @collection.bind('delete', (index) => @delete(index))
+
+  rebuild: ->
+    item.remove() for item in @items
+    @build()
+
+  build: ->
+    @items = []
+    new Serenade.Collection(@collection).forEach (item) => @appendItem(item)
+
+  appendItem: (item) ->
+    node = new Item(@ast.children, item, @controller)
+    node.insertAfter(@lastElement())
+    @items.push(node)
+
+  insertItem: (index, item) ->
+    node = new Item(@ast.children, item, @controller)
+    node.insertAfter(@items[index-1]?.lastElement() or @anchor)
+    @items.splice(0, node)
+
+  delete: (index) ->
+    @items[index].remove()
+    @items.splice(index, 1)
+
+  lastItem: ->
+    @items[@items.length - 1]
+
+  lastElement: ->
+    item = @lastItem()
+    if item then item.lastElement() else @anchor
+
+  remove: ->
+    @anchor.parentNode.removeChild(@anchor)
+    item.remove() for item in @items
+
+  append: (inside) ->
+    inside.appendChild(@anchor)
+    @build()
+
+  insertAfter: (after) ->
+    after.parentNode.insertBefore(@anchor, after.nextSibling)
+    @build()
+
 class Style
   constructor: (@ast, @node, @model, @controller) ->
     @element = @node.element
@@ -208,76 +274,6 @@ class In
   lastElement: ->
     @nodes[@nodes.length - 1].lastElement()
 
-class Collection
-  constructor: (@ast, @model, @controller) ->
-    @anchor = Serenade.document.createTextNode('')
-    @collection = @get()
-    if @collection.bind
-      @collection.bind('update', => @rebuild())
-      @collection.bind('set', => @rebuild())
-      @collection.bind('add', (item) => @appendItem(item))
-      @collection.bind('insert', (index, item) => @insertItem(index, item))
-      @collection.bind('delete', (index) => @delete(index))
-
-  rebuild: ->
-    item.remove() for item in @items
-    @build()
-
-  build: ->
-    @items = []
-    new Serenade.Collection(@collection).forEach (item) => @appendItem(item)
-
-  appendItem: (item) ->
-    node = new CollectionItem(@ast.children, item, @controller)
-    node.insertAfter(@lastElement())
-    @items.push(node)
-
-  insertItem: (index, item) ->
-    node = new CollectionItem(@ast.children, item, @controller)
-    node.insertAfter(@items[index-1]?.lastElement() or @anchor)
-    @items.splice(0, node)
-
-  delete: (index) ->
-    @items[index].remove()
-    @items.splice(index, 1)
-
-  lastItem: ->
-    @items[@items.length - 1]
-
-  lastElement: ->
-    item = @lastItem()
-    if item then item.lastElement() else @anchor
-
-  remove: ->
-    @anchor.parentNode.removeChild(@anchor)
-    item.remove() for item in @items
-
-  append: (inside) ->
-    inside.appendChild(@anchor)
-    @build()
-
-  insertAfter: (after) ->
-    after.parentNode.insertBefore(@anchor, after.nextSibling)
-    @build()
-
-  get: -> get(@model, @ast.arguments[0])
-
-class CollectionItem
-  constructor: (@children, @model, @controller) ->
-    @nodes = (Nodes.compile(child, @model, @controller) for child in @children)
-
-  insertAfter: (element) ->
-    last = element
-    for node in @nodes
-      node.insertAfter(last)
-      last = node.lastElement()
-
-  lastElement: ->
-    @nodes[@nodes.length-1].lastElement()
-
-  remove: ->
-    node.remove() for node in @nodes
-
 Nodes =
   compile: (ast, model, controller) ->
     switch ast.type
@@ -286,7 +282,7 @@ Nodes =
       when 'instruction'
         switch ast.command
           when "view" then new Node.view(ast, model, controller)
-          when "collection" then new Collection(ast, model, controller)
+          when "collection" then new Dynamic.collection(ast, model, controller)
           when "if" then new If(ast, model, controller)
           when "in" then new In(ast, model, controller)
           else new Node.helper(ast, model, controller)
