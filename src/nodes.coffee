@@ -31,6 +31,17 @@ class Node
     controller or= parentController
     new Node(ast, Serenade.render(ast.arguments[0], model, controller), model, controller)
 
+  @helper: (ast, model, controller) ->
+    render = (element, model=model, controller=controller) ->
+      for child in ast.children
+        node = Nodes.compile(child, model, controller)
+        node.append(element)
+      element
+    helperFunction = Serenade.Helpers[ast.command] or throw SyntaxError "no helper #{ast.command} defined"
+    context = { render, model, controller }
+    element = helperFunction.apply(context, ast.arguments)
+    new Node(ast, element, model, controller)
+
   constructor: (@ast, @element, @model, @controller) ->
 
   append: (inside) ->
@@ -266,31 +277,6 @@ class Collection
 
   get: -> get(@model, @ast.arguments[0])
 
-class Helper
-  constructor: (@ast, @model, @controller) ->
-    @helperFunction = Serenade.Helpers[@ast.command] or throw SyntaxError "no helper #{@ast.command} defined"
-    @context = { @render, @model, @controller }
-    @element = @helperFunction.apply(@context, @ast.arguments)
-
-  render: (element, model=@model, controller=@controller) =>
-    for child in @ast.children
-      node = Nodes.compile(child, model, controller)
-      node.append(element)
-    element
-
-  lastElement: ->
-    @element
-
-  remove: ->
-    unless @element.parentNode is null
-      @element.parentNode.removeChild(@element)
-
-  append: (inside) ->
-    inside.appendChild(@element)
-
-  insertAfter: (after) ->
-    after.parentNode.insertBefore(@element, after.nextSibling)
-
 class CollectionItem
   constructor: (@children, @model, @controller) ->
     @nodes = (Nodes.compile(child, @model, @controller) for child in @children)
@@ -318,7 +304,7 @@ Nodes =
           when "collection" then new Collection(ast, model, controller)
           when "if" then new If(ast, model, controller)
           when "in" then new In(ast, model, controller)
-          else new Helper(ast, model, controller)
+          else new Node.helper(ast, model, controller)
       else throw SyntaxError "unknown type '#{ast.type}'"
 
 exports.Nodes = Nodes
