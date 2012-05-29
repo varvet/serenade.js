@@ -72,3 +72,36 @@ describe 'Two-way bindings', ->
     model.set("active", true)
     input = @body.find('input').get(0)
     expect(input.checked).to.eql(true)
+
+  it 'sets model value if radio is checked', ->
+    model = {}
+    @render 'input[type="radio" value="small" binding:change=size]', model, {}
+    input = @body.find('input').get(0)
+    input.checked = true
+    @fireEvent input, "change"
+    expect(model.size).to.eql("small")
+
+  it 'does not set model value if radio is not checked', ->
+    model = {}
+    @render 'input[type="radio" value="small" binding:change=size]', model, {}
+    input = @body.find('input').get(0)
+    @fireEvent input, "change"
+    expect(model.size).to.eql(undefined)
+
+  it 'checks radio if model value matches its value', ->
+    class MyModel extends Serenade.Model
+      @property 'size'
+    model = new MyModel({size: "small"})
+    @render 'input[type="radio" value="large" binding:change=size]', model, {}
+    model.set("size", "large")
+    input = @body.find('input').get(0)
+    expect(input.checked).to.eql(true)
+
+  it 'unchecks radio if model value does not match its value', ->
+    class MyModel extends Serenade.Model
+      @property 'size'
+    model = new MyModel({size: "small"})
+    @render 'input[type="radio" value="large" binding:change=size]', model, {}
+    model.set("size", "medium")
+    input = @body.find('input').get(0)
+    expect(input.checked).to.eql(false)

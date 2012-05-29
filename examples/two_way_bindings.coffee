@@ -7,8 +7,17 @@ Serenade.view 'form', '''
         input[type="text" binding:keyup=@title]
     p
       label
-        "Active"
         input[type="checkbox" binding:change=@active]
+        " Active"
+    h4 "Length"
+    p
+      label
+        input[type="radio" name="length" value="Short" binding:change=@length]
+        " Short"
+    p
+      label
+        input[type="radio" name="length" value="Long" binding:change=@length]
+        " Long"
     p
       label
         "Body"
@@ -21,6 +30,7 @@ Serenade.view 'result', '''
     h3 "See this change magically"
     p "Title: " @title
     p "Active: " @active
+    p "Length: " @length
     p "Body: " @body
 '''
 
@@ -28,6 +38,7 @@ class Post extends Serenade.Model
   @property 'title'
   @property 'active', format: (active) -> if active then "yes" else "no"
   @property 'body'
+  @property 'length'
 
 window.aPost = new Post()
 

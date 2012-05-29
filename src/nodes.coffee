@@ -55,6 +55,8 @@ class TwoWayBinding
   domUpdated: ->
     if @element.getAttribute("type") is "checkbox"
       set(@model, @ast.value, @element.checked)
+    else if @element.getAttribute("type") is "radio"
+      set(@model, @ast.value, @element.getAttribute("value")) if @element.checked
     else
       set(@model, @ast.value, @element.value)
 
@@ -62,6 +64,9 @@ class TwoWayBinding
     if @element.getAttribute("type") is "checkbox"
       val = get(@model, @ast.value)
       @element.checked = !!val
+    else if @element.getAttribute("type") is "radio"
+      val = get(@model, @ast.value)
+      @element.checked = true if val == @element.getAttribute("value")
     else
       val = get(@model, @ast.value)
       val = "" if val == undefined
