@@ -20,8 +20,8 @@ Serenade =
 
   controller: (name, klass) ->
     @_controllers[name] = klass
-  controllerFor: (name, model) ->
-    new (@_controllers[name])(model) if @_controllers[name]
+  controllerFor: (name, model, parent) ->
+    new (@_controllers[name])(model, parent) if @_controllers[name]
   clearIdentityMap: -> Cache._identityMap = {}
   clearLocalStorage: -> Cache._storage.clear()
   clearCache: ->

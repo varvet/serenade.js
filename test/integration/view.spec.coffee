@@ -46,6 +46,21 @@ describe 'View', ->
     ''', model
     expect(funked).to.eql('foo')
 
+  it 'inits controller with parent', ->
+    funked = null
+    parent = { foo: "foo" }
+    class TestCon
+      constructor: (model, parent) -> funked = parent.foo
+
+    Serenade.view('test', 'li')
+    Serenade.controller('test', TestCon)
+
+    @render '''
+      ul
+        - view "test"
+    ''', {}, parent
+    expect(funked).to.eql('foo')
+
   it 'falls back to same controller if none is set up', ->
     funked = false
     class TestCon

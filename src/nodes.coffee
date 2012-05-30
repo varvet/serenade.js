@@ -25,10 +25,9 @@ class Node
       Nodes.compile(child, model, controller).append(element)
     node
 
-  @view: (ast, model, parentController) ->
-    controller = Serenade.controllerFor(ast.arguments[0], model)
-    controller.parent = parentController if controller
-    controller or= parentController
+  @view: (ast, model, parent) ->
+    controller = Serenade.controllerFor(ast.arguments[0], model, parent)
+    controller or= parent
     new Node(ast, Serenade.render(ast.arguments[0], model, controller), model, controller)
 
   @helper: (ast, model, controller) ->
@@ -169,9 +168,9 @@ class Event
   constructor: (@ast, @node, @model, @controller) ->
     @element = @node.element
     self = this # work around a bug in coffeescript
-    Serenade.bindEvent @element, @ast.name, (e) ->
+    Serenade.bindEvent @element, @ast.name, (e) =>
       preventDefault(e) if self.ast.preventDefault
-      self.controller[self.ast.value](e)
+      self.controller[self.ast.value](@model, @node.element, e)
 
 class TwoWayBinding
   constructor: (@ast, @node, @model, @controller) ->

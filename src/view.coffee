@@ -20,11 +20,14 @@ class View
     else
       @view
   render: (model, controller) ->
-    controller or= Serenade.controllerFor(@name, model) if @name
-    controller or= {}
+    if typeof(controller) is "function"
+      controller = new controller(model)
+    else
+      controller or= Serenade.controllerFor(@name, model) if @name
+      controller or= {}
+
     node = Nodes.compile(@parse(), model, controller)
-    controller.model or= model
-    controller.view or= node.element
+    controller.loaded?(model, node.element)
     node.element
 
 exports.View = View

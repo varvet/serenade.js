@@ -31,21 +31,15 @@ class Comment extends Serenade.Model
   @property 'body', serialize: true
 
 class PostController
+  constructor: (@post) ->
   postComment: ->
-    @model.comments.push(body: @body) if @body
-  commentEdited: (event) ->
-    @body = (event.target or event.srcElement).value
-  removeComment: (comment) ->
-    @model.comments.delete(comment)
-
-class CommentController
-  highlight: ->
-    @model.set('color', 'yellow')
-  remove: ->
-    @parent.removeComment(@model)
-
-Serenade.controller 'post', PostController
-Serenade.controller 'comment', CommentController
+    @post.comments.push(body: @body) if @body
+  commentEdited: (post,element) ->
+    @body = element.value
+  highlight: (comment) ->
+    comment.set('color', 'yellow')
+  remove: (comment) ->
+    @post.comments.delete(comment)
 
 window.aPost = Post.find(5)
 aPost.set
@@ -53,4 +47,4 @@ aPost.set
   body: 'New contender in the JS framework wars!'
 
 window.onload = ->
-  document.body.appendChild Serenade.render('post', aPost)
+  document.body.appendChild Serenade.render('post', aPost, PostController)

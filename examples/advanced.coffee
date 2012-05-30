@@ -22,6 +22,7 @@ class Thing extends Serenade.Model
   @property 'barr'
 
 class Controller
+  constructor: (@model) ->
   doThing: ->
     @model.set schmoo: 'I did a thing'
   over: ->
@@ -36,5 +37,5 @@ class Controller
 window.aThing = new Thing()
 
 window.onload = ->
-  view = Serenade.render('thing', aThing, new Controller())
+  view = Serenade.render('thing', aThing, Controller)
   sandbox = document.body.appendChild(view)
