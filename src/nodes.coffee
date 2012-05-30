@@ -79,10 +79,18 @@ class Dynamic
 
   @collection: (ast, model, controller) ->
     collection = get(model, ast.arguments[0])
-    new Dynamic(ast, collection, model, controller)
+    node = new Dynamic(ast, collection, model, controller)
+    if collection.bind
+      collection.bind('update', => node.rebuild())
+      collection.bind('set', => node.rebuild())
+      collection.bind('add', (item) => node.appendItem(item))
+      collection.bind('insert', (index, item) => node.insertItem(index, item))
+      collection.bind('delete', (index) => node.delete(index))
+    node
 
   @in: (ast, model, controller) ->
     collection = new Serenade.Collection([])
+    node = new Dynamic(ast, collection, model, controller)
     update = ->
       subModel = get(model, ast.arguments[0])
       if subModel
@@ -91,10 +99,13 @@ class Dynamic
         collection.update([])
     update()
     model.bind? "change:#{ast.arguments[0]}", update
-    new Dynamic(ast, collection, model, controller)
+    if collection.bind
+      collection.bind('update', => node.rebuild())
+    node
 
   @if: (ast, model, controller) ->
     collection = new Serenade.Collection([])
+    node = new Dynamic(ast, collection, model, controller)
     update = ->
       value = get(model, ast.arguments[0])
       if value
@@ -103,16 +114,12 @@ class Dynamic
         collection.update([])
     update()
     model.bind? "change:#{ast.arguments[0]}", update
-    new Dynamic(ast, collection, model, controller)
+    if collection.bind
+      collection.bind('update', => node.rebuild())
+    node
 
   constructor: (@ast, @collection, @model, @controller) ->
     @anchor = Serenade.document.createTextNode('')
-    if @collection.bind
-      @collection.bind('update', => @rebuild())
-      @collection.bind('set', => @rebuild())
-      @collection.bind('add', (item) => @appendItem(item))
-      @collection.bind('insert', (index, item) => @insertItem(index, item))
-      @collection.bind('delete', (index) => @delete(index))
 
   rebuild: ->
     item.remove() for item in @items
