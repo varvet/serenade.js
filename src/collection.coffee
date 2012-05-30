@@ -20,12 +20,12 @@ class exports.Collection
   constructor: (list) ->
     @[index] = val for val, index in list
     @length = getLength(@)
-    @bind "change", => @length = getLength(@)
   get: (index) -> @[index]
   set: (index, value) ->
     unmark(@, @[index])
     @[index] = value
     mark(@, value)
+    @length = getLength(@)
     @trigger("change:#{index}", value)
     @trigger("set", index, value)
     @trigger("change", @)
@@ -33,6 +33,7 @@ class exports.Collection
   push: (element) ->
     @[@length] = element
     mark(@, element)
+    @length = getLength(@)
     @trigger("add", element)
     @trigger("change", @)
     element
@@ -44,6 +45,7 @@ class exports.Collection
     delete @[index] for index, _ of @ when isArrayIndex(index)
     @[index] = val for val, index in list
     mark(@, element) for element in list
+    @length = getLength(@)
     @trigger("update", list)
     @trigger("change", @)
     list
@@ -51,6 +53,7 @@ class exports.Collection
     mark(@, element) for item in list
     deleted = Array.prototype.splice.apply(@, [start, deleteCount, list...])
     unmark(@, element) for element in deleted
+    @length = getLength(@)
     @trigger("update", list)
     @trigger("change", @)
     new Collection(deleted)
@@ -64,6 +67,7 @@ class exports.Collection
   reverse: ->
     Array.prototype.reverse.call(@)
     @trigger("update", @)
+    @trigger("change", @)
     @
   forEach: (fun) ->
     if typeof(Array.prototype.forEach) is 'function'
@@ -94,6 +98,7 @@ class exports.Collection
   insertAt: (index, value) ->
     mark(@, value)
     Array.prototype.splice.call(@, index, 0, value)
+    @length = getLength(@)
     @trigger("insert", index, value)
     @trigger("change", @)
     value
@@ -101,6 +106,7 @@ class exports.Collection
     value = @[index]
     unmark(@, value)
     Array.prototype.splice.call(@, index, 1)
+    @length = getLength(@)
     @trigger("delete", index, value)
     @trigger("change", @)
     value
