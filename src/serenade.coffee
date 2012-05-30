@@ -5,7 +5,6 @@ Serenade =
   VERSION: '0.1.3'
   _views: {}
   _controllers: {}
-  _formats: {}
 
   document: window?.document
 
@@ -23,8 +22,6 @@ Serenade =
     @_controllers[name] = klass
   controllerFor: (name, model) ->
     new (@_controllers[name])(model) if @_controllers[name]
-  registerFormat: (name, fun) ->
-    @_formats[name] = fun
   clearIdentityMap: -> Cache._identityMap = {}
   clearLocalStorage: -> Cache._storage.clear()
   clearCache: ->
@@ -33,7 +30,6 @@ Serenade =
   unregisterAll: ->
     Serenade._views = {}
     Serenade._controllers = {}
-    Serenade._formats = {}
   bindEvent: (element, event, callback) ->
     if typeof element.addEventListener is 'function'
       element.addEventListener(event, callback, false)

@@ -167,11 +167,6 @@ describe 'Serenade.Properties', ->
       @object.property('foo', format: (x) -> x + 2)
       @object.set('foo', 23)
       expect(@object.format('foo')).to.eql(25)
-    it 'uses a globally defined format function', ->
-      Serenade.registerFormat('plusTwo', (x) -> x + 2)
-      @object.property('foo', format: 'plusTwo')
-      @object.set('foo', 23)
-      expect(@object.format('foo')).to.eql(25)
 
   describe '.serialize', ->
     it 'serializes any properties marked as serializable', ->

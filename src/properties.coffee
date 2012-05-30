@@ -57,9 +57,7 @@ Serenade.Properties =
 
   format: (name) ->
     format = @[prefix + name]?.format
-    if typeof(format) is 'string'
-      Serenade._formats[format].call(this, @get(name))
-    else if typeof(format) is 'function'
+    if typeof(format) is 'function'
       format.call(this, @get(name))
     else
       @get(name)
