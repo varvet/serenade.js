@@ -96,12 +96,13 @@ class Dynamic
   @if: (ast, model, controller) ->
     collection = new Serenade.Collection([])
     update = ->
-      value = get(model, ast.arguments[0])
+      index = i for arg, i in ast.arguments when get(model, arg)
+      value = get(model, ast.arguments[index])
       if value
-        ast.children = ast.branches[0]
+        ast.children = ast.branches[index]
         collection.update([model])
       else if ast.branches.length > ast.arguments.length
-        ast.children = ast.branches[1]
+        ast.children = ast.branches[ast.branches.length - 1]
         collection.update([model])
       else
         collection.update([])
@@ -238,6 +239,7 @@ class Attribute
       @element.setAttribute(@ast.name, value)
 
   get: -> format(@model, @ast.value, @ast.bound)
+
 
 Nodes =
   compile: (ast, model, controller) ->

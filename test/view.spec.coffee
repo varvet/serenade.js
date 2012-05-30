@@ -192,6 +192,26 @@ describe 'View', ->
       expect(result.children[0].arguments).to.eql(['example'])
       expect(result.children[0].children[0].name).to.eql('span')
 
+    it 'parses if-then-else-if-else instructions', ->
+      result = parse """
+        div[id=foo]
+          - if @example
+            "affirmative"
+          - else if @alternative
+            "alternative"
+          - else
+            "negative"
+      """
+      expect(result.name).to.eql('div')
+      expect(result.children[0].command).to.eql('if')
+      expect(result.children[0].arguments).to.eql(['example', 'alternative'])
+      expect(result.children[0].branches[0][0].type).to.eql('text')
+      expect(result.children[0].branches[0][0].value).to.eql('affirmative')
+      expect(result.children[0].branches[1][0].type).to.eql('text')
+      expect(result.children[0].branches[1][0].value).to.eql('alternative')
+      expect(result.children[0].branches[2][0].type).to.eql('text')
+      expect(result.children[0].branches[2][0].value).to.eql('negative')
+
     it 'parses if-then-else instructions', ->
       result = parse """
         div[id=foo]

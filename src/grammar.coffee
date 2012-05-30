@@ -68,6 +68,7 @@ grammar =
 
   If: [
     o '- WHITESPACE IF WHITESPACE Text INDENT ChildList OUTDENT', -> { command: $3, arguments: [$5.value], children: [], branches: [$7], type: $3.toLowerCase() }
+    o 'If - WHITESPACE ELSE WHITESPACE IF WHITESPACE Text INDENT ChildList OUTDENT', -> $1.branches.push $10; $1.arguments.push $8.value; $1
     o 'If - WHITESPACE ELSE INDENT ChildList OUTDENT', -> $1.branches.push $6; $1
   ]
 
