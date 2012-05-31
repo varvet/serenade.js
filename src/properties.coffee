@@ -1,7 +1,8 @@
 {Serenade} = require './serenade'
 {Collection} = require './collection'
+{AssociationCollection} = require './association_collection'
 {Events} = require './events'
-{pairToObject, serializeObject, extend} = require './helpers'
+{pairToObject, serializeObject, extend, get} = require './helpers'
 
 prefix = "_prop_"
 exp = /^_prop_/
@@ -115,3 +116,37 @@ Serenade.Properties =
     serialized
 
 extend(Serenade.Properties, Events)
+
+Associations =
+  belongsTo: (name, attributes={}) ->
+    extend attributes,
+      set: (model) ->
+        if model.constructor is Object and attributes.as
+          model = new (attributes.as())(model)
+        @attributes[name] = model
+    @property name, attributes
+    @property name + 'Id',
+      get: -> get(@get(name), 'id')
+      set: (id) -> @attributes[name] = attributes.as().find(id)
+      dependsOn: name
+      serialize: attributes.serializeId
+
+  hasMany: (name, attributes={}) ->
+    extend attributes,
+      get: ->
+        unless @attributes[name]
+          @attributes[name] = new AssociationCollection(attributes.as, [])
+          @attributes[name].bind 'change', => triggerChangesTo(this, [name])
+        @attributes[name]
+      set: (value) ->
+        @get(name).update(value)
+    @property name, attributes
+    @property name + 'Ids',
+      get: -> new Collection(@get(name)).map((item) -> get(item, 'id'))
+      set: (ids) ->
+        objects = (attributes.as().find(id) for id in ids)
+        @get(name).update(objects)
+      dependsOn: name
+      serialize: attributes.serializeIds
+
+exports.Associations = Associations

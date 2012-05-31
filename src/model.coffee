@@ -1,6 +1,6 @@
 {Serenade} = require './serenade'
 {Cache} = require './cache'
-{Associations} = require './associations'
+{Associations} = require './properties'
 {extend} = require './helpers'
 
 class Serenade.Model

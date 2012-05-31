@@ -219,7 +219,7 @@ describe 'Serenade.Model', ->
         @property 'confirmed'
       class Post extends Serenade.Model
         @hasMany 'comments', as: -> Comment
-        @property 'confirmedComments', dependsOn: 'comments.confirmed'
+        @property 'confirmedComments', dependsOn: 'comments:confirmed'
       post = new Post(name: "test")
       post.comments = [{ id: 5, body: 'Hello', confirmed: true }, { id: 8, body: 'Monkey', confirmed: false }]
       comment = post.comments.get(1)
