@@ -7,10 +7,53 @@ prefix = "_prop_"
 exp = /^_prop_/
 define = Object.defineProperties # we check for the plural because it is unsupported in buggy IE8
 
+contains = (array, search) ->
+  return false unless array
+  if typeof(array.indexOf) is "function"
+    array.indexOf(search) isnt -1
+  else
+    return true for element in array when element is search
+    return false
+
+addDependencies = (object, dependency, names) ->
+  names = [].concat(names)
+  for name in names
+    if name.match(/\./)
+      [name, subname] = name.split(".")
+      Serenade.bind "change", (changed, changes) ->
+        if changes.hasOwnProperty(subname) and changed is object.get(name)
+          triggerChangesTo(object, [dependency])
+    else if name.match(/:/)
+      [name, subname] = name.split(":")
+      Serenade.bind "change", (changed, changes) ->
+        if changes.hasOwnProperty(subname) and contains(object.get(name), changed)
+          triggerChangesTo(object, [dependency])
+
+    object["_dep_" + name] ||= []
+    object["_dep_" + name].push(dependency) if object["_dep_" + name].indexOf(dependency) is -1
+
+triggerChangesTo = (object, names) ->
+  findDependencies = (name) ->
+    dependencies = object["_dep_" + name]
+    if dependencies
+      for dependency in dependencies
+        if names.indexOf(dependency) is -1
+          names.push(dependency)
+          findDependencies(dependency)
+  findDependencies(name) for name in names
+
+  changes = {}
+  changes[name] = object.get(name) for name in names
+  object.trigger("change", changes)
+  Serenade.trigger("change", object, changes)
+  for own name, value of changes
+    object.trigger("change:#{name}", value)
+
 Serenade.Properties =
   property: (name, options={}) ->
     @[prefix + name] = options
     @[prefix + name].name = name
+    addDependencies(this, name, options.dependsOn) if options.dependsOn
     if define
       Object.defineProperty @, name,
         get: -> Serenade.Properties.get.call(this, name)
@@ -26,8 +69,7 @@ Serenade.Properties =
         unless @attributes[name]
           @attributes[name] = new Collection([])
           @attributes[name].bind 'change', =>
-            @_triggerChangesTo([name])
-          @_defer(name)
+            triggerChangesTo(this, [name])
         @attributes[name]
       set: (value) ->
         @get(name).update(value)
@@ -38,15 +80,13 @@ Serenade.Properties =
 
     names = []
     for name, value of attributes
-      @_undefer(name)
       names.push(name)
       @attributes or= {}
       if @[prefix + name]?.set
         @[prefix + name].set.call(this, value)
       else
         @attributes[name] = value
-      @_defer(name)
-    @_triggerChangesTo(names)
+    triggerChangesTo(this, names)
 
   get: (name) ->
     @attributes or= {}
@@ -73,45 +113,5 @@ Serenade.Properties =
       else if options.serialize
         serialized[options.name] = serializeObject(@get(options.name))
     serialized
-
-  _defer: (name) ->
-    deferred = @get(name)
-    if deferred? and deferred?._useDefer
-      deferred._deferTo or= {}
-      deferred._deferTo?[name] = this
-
-  _undefer: (name) ->
-    deferred = @get(name)
-    delete deferred._deferTo[name] if deferred?._deferTo
-
-  _triggerChangesTo: (changedProperties) ->
-    normalizeDeps = (deps) -> [].concat(deps)
-    checkDependenciesFor = (toCheck) =>
-      for name, property of this when name.match(exp) and property.dependsOn
-        if toCheck in normalizeDeps(property.dependsOn) and property.name not in changedProperties
-          changedProperties.push(property.name)
-          checkDependenciesFor(property.name)
-    checkDependenciesFor(prop) for prop in changedProperties
-
-    changes = {}
-    for name in changedProperties
-      value = @get(name)
-      @trigger("change:#{name}", value)
-      changes[name] = value
-      unless define
-        @[name] = @get(name)
-
-    @trigger("change", changes)
-
-    allDefers = (@_deferTo or {})
-    if @_inCollections
-      for own _,collection of @_inCollections
-        extend(allDefers, collection._deferTo)
-
-    for own deferName, deferObject of allDefers
-      keys = ("#{deferName}.#{prop}" for prop in changedProperties)
-      deferObject._triggerChangesTo(keys)
-
-  _useDefer: true
 
 extend(Serenade.Properties, Events)

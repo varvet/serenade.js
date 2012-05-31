@@ -43,6 +43,8 @@ Serenade =
   Collection: require('./collection').Collection
   Helpers: {}
 
+extend(Serenade, Serenade.Events)
+
 exports.Serenade = Serenade
 
 # Express.js support

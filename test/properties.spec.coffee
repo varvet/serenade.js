@@ -46,18 +46,18 @@ describe 'Serenade.Properties', ->
       @object.set(author: extended())
       expect(-> oldAuthor.set(name: 'test')).not.to.triggerEvent(@object, 'change:name')
     it 'can reach into collections and observe changes to the entire collection', ->
-      @object.property 'authorNames', dependsOn: ['authors', 'authors.name']
+      @object.property 'authorNames', dependsOn: ['authors', 'authors:name']
       @object.collection 'authors'
       newAuthor = extended(name: "Anders")
       expect(=> @object.authors.push(newAuthor)).to.triggerEvent(@object, 'change:authorNames')
     it 'can reach into collections and observe changes to each individual object', ->
       @object.collection 'authors'
       @object.authors.push(extended())
-      @object.property 'authorNames', dependsOn: ['authors', 'authors.name']
+      @object.property 'authorNames', dependsOn: ['authors', 'authors:name']
       author = @object.authors.get(0)
       expect(-> author.set(name: 'test')).to.triggerEvent(@object, 'change:authorNames')
     it 'does not observe changes to elements no longer in the collcection', ->
-      @object.property 'authorNames', dependsOn: 'authors.name'
+      @object.property 'authorNames', dependsOn: 'authors:name'
       @object.collection 'authors'
       @object.authors.push(extended())
       oldAuthor = @object.authors.get(0)
