@@ -45,25 +45,6 @@ describe 'Serenade.Properties', ->
       oldAuthor = @object.get('author')
       @object.set(author: extended())
       expect(-> oldAuthor.set(name: 'test')).not.to.triggerEvent(@object, 'change:name')
-    it 'can reach into collections and observe changes to the entire collection', ->
-      @object.property 'authorNames', dependsOn: ['authors', 'authors:name']
-      @object.collection 'authors'
-      newAuthor = extended(name: "Anders")
-      expect(=> @object.authors.push(newAuthor)).to.triggerEvent(@object, 'change:authorNames')
-    it 'can reach into collections and observe changes to each individual object', ->
-      @object.collection 'authors'
-      @object.authors.push(extended())
-      @object.property 'authorNames', dependsOn: ['authors', 'authors:name']
-      author = @object.authors.get(0)
-      expect(-> author.set(name: 'test')).to.triggerEvent(@object, 'change:authorNames')
-    it 'does not observe changes to elements no longer in the collcection', ->
-      @object.property 'authorNames', dependsOn: 'authors:name'
-      @object.collection 'authors'
-      @object.authors.push(extended())
-      oldAuthor = @object.authors.get(0)
-      oldAuthor.schmoo = true
-      @object.authors.deleteAt(0)
-      expect(-> oldAuthor.set(name: 'test')).not.to.triggerEvent(@object, 'change:authorNames')
     it 'does not bleed over between objects with same prototype', ->
       @ctor = ->
       @inst1 = new @ctor()
@@ -92,6 +73,25 @@ describe 'Serenade.Properties', ->
       @object.collection 'numbers', serialize: true
       @object.set('numbers', [1,2,3])
       expect(@object.serialize()).to.eql(numbers: [1,2,3])
+    it 'can reach into collections and observe changes to the entire collection', ->
+      @object.property 'authorNames', dependsOn: ['authors', 'authors:name']
+      @object.collection 'authors'
+      newAuthor = extended(name: "Anders")
+      expect(=> @object.authors.push(newAuthor)).to.triggerEvent(@object, 'change:authorNames')
+    it 'can reach into collections and observe changes to each individual object', ->
+      @object.collection 'authors'
+      @object.authors.push(extended())
+      @object.property 'authorNames', dependsOn: ['authors', 'authors:name']
+      author = @object.authors.get(0)
+      expect(-> author.set(name: 'test')).to.triggerEvent(@object, 'change:authorNames')
+    it 'does not observe changes to elements no longer in the collcection', ->
+      @object.property 'authorNames', dependsOn: 'authors:name'
+      @object.collection 'authors'
+      @object.authors.push(extended())
+      oldAuthor = @object.authors.get(0)
+      oldAuthor.schmoo = true
+      @object.authors.deleteAt(0)
+      expect(-> oldAuthor.set(name: 'test')).not.to.triggerEvent(@object, 'change:authorNames')
 
   describe '.set', ->
     describe 'with a single property', ->
