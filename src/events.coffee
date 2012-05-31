@@ -16,10 +16,6 @@ exports.Events =
   trigger: (args...) ->
     ev = args.shift()
 
-    if recordEvents?
-      @_triggeredEvents or= {}
-      @_triggeredEvents[ev] = args
-
     list = @hasOwnProperty('_callbacks') and @_callbacks?[ev]
     return false unless list
 

@@ -60,11 +60,20 @@ beforeEach ->
     @assert @obj.text().trim().replace(/\s/g, ' ') is text
   chai.Assertion::attribute = (name) ->
     @assert @obj.get(0).hasAttribute(name)
-  chai.Assertion::receivedEvent = (name, options={}) ->
+  chai.Assertion::triggerEvent = (object, eventName, options={}) ->
+    args = null
+    triggered = null
+    fun = (a...) ->
+      args = a
+      triggered = true
+
+    object.bind eventName, fun
+    @obj()
+    object.unbind eventName, fun
+
+    @assert triggered, "event #{eventName} was not triggered"
     if options.with
-      @assert compareArrays(@obj._triggeredEvents[name], options.with)
-    else
-      @assert @obj._triggeredEvents.hasOwnProperty(name)
+      @assert compareArrays(args, options.with), "event arguments #{args} do not match expected arguments #{options.with}"
 
   @sinon = sinon.sandbox.create()
 
@@ -72,4 +81,3 @@ afterEach ->
   @sinon.restore()
 
 root.context = describe
-root.recordEvents = true

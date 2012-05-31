@@ -21,42 +21,41 @@ describe 'Serenade.Properties', ->
     it 'can handle circular dependencies', ->
       @object.property 'foo', dependsOn: 'bar'
       @object.property 'bar', dependsOn: 'foo'
-      @object.set('foo', 23)
-      expect(@object).to.have.receivedEvent('change:foo')
-      expect(@object).to.have.receivedEvent('change:bar')
+      fun = => @object.set('foo', 23)
+      expect(fun).to.triggerEvent(@object, 'change:foo')
+      expect(fun).to.triggerEvent(@object, 'change:bar')
     it 'can handle secondary dependencies', ->
       @object.property 'foo', dependsOn: 'quox'
       @object.property 'bar', dependsOn: ['quox']
       @object.property 'quox', dependsOn: ['bar', 'foo']
-      @object.set('foo', 23)
-      expect(@object).to.have.receivedEvent('change:foo')
-      expect(@object).to.have.receivedEvent('change:bar')
-      expect(@object).to.have.receivedEvent('change:quox')
+      fun = => @object.set('foo', 23)
+      expect(fun).to.triggerEvent(@object, 'change:foo', with: [23])
+      expect(fun).to.triggerEvent(@object, 'change:bar', with: [undefined])
+      expect(fun).to.triggerEvent(@object, 'change:quox', with: [undefined])
     it 'can reach into properties and observe changes to them', ->
       @object.property 'name', dependsOn: 'author.name'
       @object.property 'author'
       @object.set(author: extended())
       @object.get('author').set(name: 'test')
-      expect(@object).to.have.receivedEvent('change:name')
+      expect(=> @object.get('author').set(name: 'test')).to.triggerEvent(@object, 'change:name')
     it 'does not observe changes on objects which are no longer associated', ->
       @object.property 'name', dependsOn: 'author.name'
       @object.property 'author'
       @object.set(author: extended())
       oldAuthor = @object.get('author')
       @object.set(author: extended())
-      oldAuthor.set(name: 'test')
-      expect(@object).not.to.have.receivedEvent('change:name')
+      expect(-> oldAuthor.set(name: 'test')).not.to.triggerEvent(@object, 'change:name')
     it 'can reach into collections and observe changes to the entire collection', ->
       @object.property 'authorNames', dependsOn: ['authors', 'authors.name']
       @object.collection 'authors'
-      @object.authors.push(extended(name: "Anders"))
-      expect(@object).to.have.receivedEvent('change:authorNames')
+      newAuthor = extended(name: "Anders")
+      expect(=> @object.authors.push(newAuthor)).to.triggerEvent(@object, 'change:authorNames')
     it 'can reach into collections and observe changes to each individual object', ->
       @object.collection 'authors'
       @object.authors.push(extended())
       @object.property 'authorNames', dependsOn: ['authors', 'authors.name']
-      @object.authors.get(0).set(name: 'test')
-      expect(@object).to.have.receivedEvent('change:authorNames')
+      author = @object.authors.get(0)
+      expect(-> author.set(name: 'test')).to.triggerEvent(@object, 'change:authorNames')
     it 'does not observe changes to elements no longer in the collcection', ->
       @object.property 'authorNames', dependsOn: 'authors.name'
       @object.collection 'authors'
@@ -64,8 +63,7 @@ describe 'Serenade.Properties', ->
       oldAuthor = @object.authors.get(0)
       oldAuthor.schmoo = true
       @object.authors.deleteAt(0)
-      oldAuthor.set(name: 'test')
-      expect(@object).not.to.have.receivedEvent('change:authorNames')
+      expect(-> oldAuthor.set(name: 'test')).not.to.triggerEvent(@object, 'change:authorNames')
     it 'does not bleed over between objects with same prototype', ->
       @ctor = ->
       @inst1 = new @ctor()
@@ -88,8 +86,8 @@ describe 'Serenade.Properties', ->
       expect(@object.get('numbers').get(0)).to.eql(1)
     it 'triggers a change event when collection is changed', ->
       @object.collection 'numbers'
-      @object.get('numbers').push(4)
-      expect(@object).to.have.receivedEvent('change:numbers', with: [@object.get('numbers')])
+      collection = @object.numbers
+      expect(-> collection.push(4)).to.triggerEvent(@object, 'change:numbers', with: [@object.numbers])
     it 'passes on the serialize option', ->
       @object.collection 'numbers', serialize: true
       @object.set('numbers', [1,2,3])
@@ -101,11 +99,9 @@ describe 'Serenade.Properties', ->
         @object.set('foo', 23)
         expect(@object.get('foo')).to.eql(23)
       it 'triggers a change event', ->
-        @object.set('foo', 23)
-        expect(@object).to.have.receivedEvent('change')
+        expect(=> @object.set('foo', 23)).to.triggerEvent(@object, 'change')
       it 'triggers a change event for this property', ->
-        @object.set('foo', 23)
-        expect(@object).to.have.receivedEvent('change:foo', with: [23])
+        expect(=> @object.set('foo', 23)).to.triggerEvent(@object, 'change:foo', with: [23])
       it 'uses a custom setter', ->
         setValue = null
         @object.property 'foo', set: (value) -> setValue = value
@@ -117,12 +113,11 @@ describe 'Serenade.Properties', ->
         expect(@object.get('foo')).to.eql(23)
         expect(@object.get('bar')).to.eql(56)
       it 'triggers a change event', ->
-        @object.set(foo: 23, bar: 56)
-        expect(@object).to.have.receivedEvent('change')
+        expect(=> @object.set(foo: 23, bar: 56)).to.triggerEvent(@object, 'change')
       it 'triggers a change event for each property', ->
-        @object.set(foo: 23, bar: 56)
-        expect(@object).to.have.receivedEvent('change:foo', with: [23])
-        expect(@object).to.have.receivedEvent('change:bar', with: [56])
+        fun = => @object.set(foo: 23, bar: 56)
+        expect(fun).to.triggerEvent(@object, 'change:foo', with: [23])
+        expect(fun).to.triggerEvent(@object, 'change:bar', with: [56])
       it 'uses a custom setter', ->
         setValue = null
         @object.property 'foo', set: (value) -> setValue = value
@@ -143,17 +138,19 @@ describe 'Serenade.Properties', ->
       @object.property 'fullName', get: -> [@get('first'), @get('last')].join(' ')
       expect(@object.get('fullName')).to.eql('Jonas Nicklas')
     it 'binds to dependencies', ->
+      @object.property 'first'
+      @object.property 'last'
       @object.property 'fullName',
-        get: -> 'derp'
+        get: -> @first + " " + @last
         dependsOn: ['first', 'last']
-      @object.set('first', 'Peter')
-      expect(@object).to.have.receivedEvent('change:fullName', with: ['derp'])
+      fun = => @object.set(first: 'Peter', last: 'Pan')
+      expect(fun).to.triggerEvent(@object, 'change:fullName', with: ['Peter Pan'])
     it 'binds to single dependency', ->
+      @object.property 'name'
       @object.property 'reverseName',
-        get: -> 'reverse!'
+        get: -> @name.split("").reverse().join("")
         dependsOn: 'name'
-      @object.set('name', 'Jonas')
-      expect(@object).to.have.receivedEvent('change:reverseName', with: ['reverse!'])
+      expect(=> @object.set('name', 'Jonas')).to.triggerEvent(@object, 'change:reverseName', with: ['sanoJ'])
 
   describe '.format', ->
     it 'reads an existing property normally if it is not declared', ->
