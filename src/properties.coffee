@@ -8,26 +8,18 @@ prefix = "_prop_"
 exp = /^_prop_/
 define = Object.defineProperties # we check for the plural because it is unsupported in buggy IE8
 
-contains = (array, search) ->
-  return false unless array
-  if typeof(array.indexOf) is "function"
-    array.indexOf(search) isnt -1
-  else
-    return true for element in array when element is search
-    return false
-
 addGlobalDependencies = (object, dependency, names) ->
-  for name in names
-    if name.match(/\./)
-      [name, subname] = name.split(".")
-      Serenade.bind "change", (changed, changes) ->
-        if changes.hasOwnProperty(subname) and changed is object.get(name)
-          triggerChangesTo(object, [dependency])
-    else if name.match(/:/)
-      [name, subname] = name.split(":")
-      Serenade.bind "change", (changed, changes) ->
-        if changes.hasOwnProperty(subname) and contains(object.get(name), changed)
-          triggerChangesTo(object, [dependency])
+  unless object["_glb_" + dependency]
+    object["_glb_" + dependency] = true
+    for name in names
+      if name.match(/\./)
+        type = "singular"
+        [name, subname] = name.split(".")
+      else if name.match(/:/)
+        type = "collection"
+        [name, subname] = name.split(":")
+      Serenade.globalDependencies[subname] or= []
+      Serenade.globalDependencies[subname].push({ object, dependency, subname, name, type })
 
 addDependencies = (object, dependency, names) ->
   names = [].concat(names)
@@ -35,6 +27,18 @@ addDependencies = (object, dependency, names) ->
     [name, subname] = name.split(/[:\.]/) if name.match(/[:\.]/)
     object["_dep_" + name] ||= []
     object["_dep_" + name].push(dependency) if object["_dep_" + name].indexOf(dependency) is -1
+
+triggerGlobal = (object, names) ->
+  for name in names
+    if Serenade.globalDependencies[name]
+      for dependency in Serenade.globalDependencies[name]
+        if dependency.type is "singular"
+          if object is dependency.object.get(dependency.name)
+            triggerChangesTo(dependency.object, [dependency.dependency])
+        else if dependency.type is "collection"
+          if object in dependency.object.get(dependency.name)
+            triggerChangesTo(dependency.object, [dependency.dependency])
+
 
 triggerChangesTo = (object, names) ->
   findDependencies = (name) ->
@@ -49,7 +53,7 @@ triggerChangesTo = (object, names) ->
   changes = {}
   changes[name] = object.get(name) for name in names
   object.trigger("change", changes)
-  Serenade.trigger("change", object, changes)
+  triggerGlobal(object, names)
   for own name, value of changes
     object.trigger("change:#{name}", value)
 

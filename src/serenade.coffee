@@ -26,6 +26,7 @@ Serenade =
   clearCache: ->
     Serenade.clearIdentityMap()
     Serenade.clearLocalStorage()
+    Serenade.globalDependencies = {}
   unregisterAll: ->
     Serenade._views = {}
     Serenade._controllers = {}
@@ -42,8 +43,7 @@ Serenade =
   Events: require('./events').Events
   Collection: require('./collection').Collection
   Helpers: {}
-
-extend(Serenade, Serenade.Events)
+  globalDependencies: {}
 
 exports.Serenade = Serenade
 

@@ -95,6 +95,15 @@ describe 'Serenade.Properties', ->
       author = @child.authors.get(0)
       expect(-> author.set(name: 'test')).to.triggerEvent(@child, 'change:authorNames')
       expect(-> author.set(name: 'test')).not.to.triggerEvent(@object, 'change:authorNames')
+    it 'does not trigger events multiple times when reaching and property is accessed multiple times', ->
+      @object.collection 'authors'
+      @object.property 'authorNames', dependsOn: ['authors', 'authors:name']
+      @object.authors.push(extended())
+      @object.authorNames
+      @object.authorNames
+
+      author = @object.authors.get(0)
+      expect(-> author.set(name: 'test')).to.triggerEvent(@object, 'change:authorNames')
     it 'does not observe changes to elements no longer in the collcection', ->
       @object.property 'authorNames', dependsOn: 'authors:name'
       @object.authorNames
