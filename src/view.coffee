@@ -19,12 +19,11 @@ class View
       parser.parse(new Lexer().tokenize(@view))
     else
       @view
-  render: (model, controller) ->
+  render: (model, controller, parent) ->
+    controller or= Serenade.controllerFor(@name, model) if @name
+    controller or= {}
     if typeof(controller) is "function"
-      controller = new controller(model)
-    else
-      controller or= Serenade.controllerFor(@name, model) if @name
-      controller or= {}
+      controller = new controller(model, parent)
 
     node = Nodes.compile(@parse(), model, controller)
     controller.loaded?(model, node.element)

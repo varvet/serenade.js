@@ -12,13 +12,14 @@ describe 'Events', ->
     @fireEvent @body.find('div').get(0), 'click'
     expect(controller.clicked).to.be.ok
 
-  it 'initializes controllers sent in as constructors', ->
-    clicked = false
+  it 'initializes controllers sent in as constructors with the model instance', ->
+    funked = null
     class Controller
-      iWasClicked: -> clicked = true
-    @render 'div[event:click=iWasClicked]', {}, Controller
+      constructor: (@model) ->
+      iWasClicked: -> funked = @model.foo
+    @render 'div[event:click=iWasClicked]', { foo: "foo" }, Controller
     @fireEvent @body.find('div').get(0), 'click'
-    expect(clicked).to.be.ok
+    expect(funked).to.eql("foo")
 
   it 'calls the loaded event after the view is done rendering, sending in model and view', ->
     nodeName = null

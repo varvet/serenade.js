@@ -26,9 +26,8 @@ class Node
     node
 
   @view: (ast, model, parent) ->
-    controller = Serenade.controllerFor(ast.arguments[0], model, parent)
-    controller or= parent
-    new Node(ast, Serenade.render(ast.arguments[0], model, controller), model, controller)
+    controller = Serenade.controllerFor(ast.arguments[0]) or parent
+    new Node(ast, Serenade.render(ast.arguments[0], model, controller, parent), model, controller)
 
   @helper: (ast, model, controller) ->
     render = (element, model=model, controller=controller) ->

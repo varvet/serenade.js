@@ -15,13 +15,12 @@ Serenade =
     else
       new View(undefined, nameOrTemplate)
 
-  render: (name, model, controller) ->
-    @_views[name].render(model, controller)
+  render: (name, model, controller, parent) ->
+    @_views[name].render(model, controller, parent)
 
   controller: (name, klass) ->
     @_controllers[name] = klass
-  controllerFor: (name, model, parent) ->
-    new (@_controllers[name])(model, parent) if @_controllers[name]
+  controllerFor: (name) -> @_controllers[name]
   clearIdentityMap: -> Cache._identityMap = {}
   clearLocalStorage: -> Cache._storage.clear()
   clearCache: ->
