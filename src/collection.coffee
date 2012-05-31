@@ -7,14 +7,6 @@ getLength = (arr) ->
   indices = (parseInt(index, 10) for index, val of arr when isArrayIndex(index))
   if indices.length then Math.max(indices...) + 1 else 0
 
-mark = (collection, item) ->
-  if item?._useDefer
-    item._inCollections or= {}
-    item._inCollections[collection] = collection
-
-unmark = (collection, item) ->
-  delete item._inCollections[collection] if item?._inCollections
-
 class exports.Collection
   extend(@prototype, Events)
   constructor: (list) ->
@@ -22,9 +14,7 @@ class exports.Collection
     @length = getLength(@)
   get: (index) -> @[index]
   set: (index, value) ->
-    unmark(@, @[index])
     @[index] = value
-    mark(@, value)
     @length = getLength(@)
     @trigger("change:#{index}", value)
     @trigger("set", index, value)
@@ -32,7 +22,6 @@ class exports.Collection
     value
   push: (element) ->
     @[@length] = element
-    mark(@, element)
     @length = getLength(@)
     @trigger("add", element)
     @trigger("change", @)
@@ -41,18 +30,14 @@ class exports.Collection
   unshift: (item) -> @insertAt(0, item)
   shift: -> @deleteAt(0)
   update: (list) ->
-    unmark(@, element) for element in @
     delete @[index] for index, _ of @ when isArrayIndex(index)
     @[index] = val for val, index in list
-    mark(@, element) for element in list
     @length = getLength(@)
     @trigger("update", list)
     @trigger("change", @)
     list
   splice: (start, deleteCount, list...) ->
-    mark(@, element) for item in list
     deleted = Array.prototype.splice.apply(@, [start, deleteCount, list...])
-    unmark(@, element) for element in deleted
     @length = getLength(@)
     @trigger("update", list)
     @trigger("change", @)
@@ -96,7 +81,6 @@ class exports.Collection
   find: (fun) ->
     return item for item in @ when fun(item)
   insertAt: (index, value) ->
-    mark(@, value)
     Array.prototype.splice.call(@, index, 0, value)
     @length = getLength(@)
     @trigger("insert", index, value)
@@ -104,7 +88,6 @@ class exports.Collection
     value
   deleteAt: (index) ->
     value = @[index]
-    unmark(@, value)
     Array.prototype.splice.call(@, index, 1)
     @length = getLength(@)
     @trigger("delete", index, value)
