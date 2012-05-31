@@ -27,7 +27,7 @@ planned.
 
 Download here: https://github.com/elabs/serenade.js/downloads
 
-You can integrate Serenade into Ruby on Rails through the 
+You can integrate Serenade into Ruby on Rails through the
 [serenade_rails](https://github.com/elabs/serenade_rails) gem.
 
 ## Architecture
@@ -63,7 +63,7 @@ always the first argument to `render`. We'll add a controller to receive
 events:
 
 ``` javascript
-var controller = { say: function() { alert("Hello " + this.model.name) } };
+var controller = { say: function(model) { alert("Hello " + model.name) } };
 var model = { name: "Jonas" };
 
 var element = Serenade.view('button[event:click=say] "Say hello"').render(model, controller)
@@ -147,20 +147,27 @@ class MyModel
 
 ## Two way data binding
 
-The dynamic properties are one way only; a change in the model triggers a change
-in the DOM, but not the other way around. Two way data binding exists so that a
-change in the DOM automatically updates the model, and vice versa.
+The dynamic properties are one way only; a change in the model triggers a
+change in the DOM, but not the other way around. Two way data binding exist so
+that a change in the DOM automatically updates the model, and vice versa.
 
 ``` javascript
 var model = { name: "Jonas" };
-var element = Serenade.view('input[type=text binding:change=name]').render(model, {});
+var element = Serenade.view('input[type="text" binding=@name]').render(model, {});
 ```
 
-This sets up an event listener for the `change` event, setting the `name` property
-on the model to the value of the input element every time the `change` event
-triggers. You can use any event you want, such as `keyup`, `keydown`, etc.
+When the form is submitted, the model is updated with the values from the form
+element. It is also possible to update the model when an event occurs on the
+form elements, such as a `change` or `keyup` event:
 
-Note: It only works for textarea and input elements.
+``` javascript
+var model = { name: "Jonas" };
+var element = Serenade.view('input[type="text" binding:keyup=@name]').render(model, {});
+```
+
+Currently Serenade supports binding to text fields, text areas, checkboxes,
+radio buttons and select boxes (not multiple selects). Support for other form
+elements is planned.
 
 ## Custom getters and setters
 
@@ -200,7 +207,7 @@ MyModel.property('price', { format: function(value) { return "€ " + value } })
 
 To retrieve a formatted value, call `format('price')`.
 
-Format functions also works for collections. The entire collection object will 
+Format functions also works for collections. The entire collection object will
 be passed as an argument.
 
 ``` javascript
@@ -274,14 +281,65 @@ text or any mix thereof:
 div "Name: " @name
 ```
 
+## Controllers
+
+Controllers may either be normal objects, or functions. If the controller is
+given as a function, it is called as a constructor (using the `new` operator)
+and passed the model as an argument. So a controller could be set up like this:
+
+``` javascript
+var PostController = function(post) {
+  this.post = post;
+};
+
+PostController.prototype.favourite = function() {
+  this.post.favourite = true;
+};
+
+Serenade.render("post", post, PostController);
+```
+
+When the controller is a constructor, it is initialized *before* the view is
+rendered. This means that it is impossible to access the view from the
+constructor function. This gives you the opportunity of doing whatever you need
+before rendering happens.
+
+For both controllers passed as functions and as regular objects, if they
+implement a method called `loaded` then it is called with the model and root
+element of the view after the view has rendered:
+
+``` javascript
+var PostController = function(post) {};
+
+PostController.prototype.loaded = function(model, view) {
+  new Datepicker(view.querySelector("#date"));
+};
+
+Serenade.render("post", post, PostController);
+```
+
+As you can see, the loaded function makes it possible to bind events to views
+which fall outside the normal flow of Serenade views and events.
+
+If you're using CoffeeScript you can use classes for your controllers:
+
+``` coffeescript
+class PostController
+  constructor: (@post) ->
+  loaded: (post, view) -> new Datepicker(view.querySelector("#date"))
+  favourite: -> @post.favourite = true
+
+Serenade.controller 'comment', PostController
+```
+
 ## Events
 
-Events are dispatched to the controller. The controller may choose to act on
-these events in any way it chooses. The controller has a reference to both the
-model, through `this.model`, and the view, through `this.view`. These
-properties will be set automatically by Serenade.js as the view is rendered. If
-the view is a subview, the controller can also access its parent controller
-through `this.parent`.
+Events are bound and given a name in the view. When the event is triggered,
+Serenade looks up the property with the name of the event on the controller and
+calls it as a function. Such a function is called an `action`.
+
+Actions receive as parameters the model, the element that the event was bound
+to, and the event object itself.
 
 While you *can* access the view and thus dynamically change it from the
 controller through standard DOM manipulation, you should generally avoid doing
@@ -304,12 +362,9 @@ as a function. You could implement this as follows:
 
 ``` javascript
 var controller = {
-  like: function() { this.model.set('liked', true) }
+  like: function(model) { model.set('liked', true) }
 };
 ```
-
-Note that we do not have to set `this.model` ourselves, Serenade.js does this for
-you.
 
 In this example, if we have scrolled down a bit, we would jump to the start of
 the page, since the link points to the `#` anchor. In many JavaScript
@@ -320,16 +375,12 @@ object is passed into the function call on the controller, so we can use the
 
 ``` javascript
 var controller = {
-  like: function(event) {
-    this.model.set('liked', true)
+  like: function(model, element, event) {
+    model.set('liked', true)
     event.preventDefault()
   }
 };
 ```
-
-You can use `event` for any number of things here, such as attaching the same
-event to multiple targets and then figuring out which triggered the event
-through `event.target`.
 
 Preventing the default action of an event is really, really common, so having
 to call `preventDefault` everywhere gets old very fast. For this reason,
@@ -345,11 +396,11 @@ div
 
 ## Binding styles
 
-We can change the style of an element by binding its class attribute to a model
-property. If possible, this is what you should do, since it separates styling
-from behaviour. Sometimes however, its necessary to bind a style attribute
-directly. Consider for example if you have a progress bar, whose width should
-be changed based on the `progress` property of a model object.
+We can change the style of an element by binding its `class` attribute to a
+model property. If possible, this is what you should do, since it separates
+styling from behaviour. Sometimes however, its necessary to bind a style
+attribute directly. Consider for example if you have a progress bar, whose
+width should be changed based on the `progress` property of a model object.
 
 You can use the special `style:name=value` syntax to dynamically bind styles to
 elements like so:
@@ -384,8 +435,8 @@ ul[id="comments"]
 
 This should output one li element for each comment.
 
-If `comments` is an instance of `Serenade.Collection`, Serenade.js will dynamically
-update this collection as comments are added, removed or changed:
+If `comments` is an instance of `Serenade.Collection`, Serenade.js will
+dynamically update this collection as comments are added, removed or changed:
 
 ``` javascript
 var post = {
@@ -420,23 +471,12 @@ div
 
 By default, the subviews will use the same controller as their parent view.
 This can be quite inconvenient in a lot of cases, and we would really like to
-use a specific controller for this new view.
-
-If your controller can be instantiated with JavaScript's `new` operator, you
-can use `controller` to tell Serenade.js which controller to use for your
-view. Any constructor function in JavaScript and any CoffeeScript class can be
-used here. For example:
+use a specific controller for this new view. You can register a controller to
+be used for a particular view like this:
 
 ``` javascript
 var CommentController = function() {};
 Serenade.controller('comment', CommentController);
-```
-
-Or in CoffeeScript:
-
-``` coffeescript
-class CommentController
-Serenade.controller 'comment', CommentController
 ```
 
 Serenade.js will now infer that you want to use a `CommentController` with the
@@ -445,8 +485,8 @@ Serenade.js will now infer that you want to use a `CommentController` with the
 ## Custom helpers
 
 Sometimes you need to break out of the mould that Serenade has provided for
-you.  In order to expose arbitrary functionality in views, Serenade has custom
-helpers.  Using them is quite simple, just add a function which returns a DOM
+you. In order to expose arbitrary functionality in views, Serenade has custom
+helpers. Using them is quite simple, just add a function which returns a DOM
 element to `Serenade.Helpers`:
 
 ``` javascript
@@ -582,9 +622,6 @@ For simplicity's sake we will refer to instances of constructors derived from
 `Serenade.Model` as documents.
 
 ## Identity map
-
-NOTE: Due to a bug in CoffeeScript, this is currently broken. The bug is fixed
-on CoffeeScript master and the next release should work as expected.
 
 Serenade.Model assumes you have a property named `id` and that this uniquely
 identifies each document. Provided that such a property exists, documents are
@@ -750,6 +787,10 @@ Run the tests:
 Build Serenade.js into a single file:
 
     cake build
+
+Run the example app:
+
+    coffee web.coffee
 
 You should now have the built project in `./extras`.
 
