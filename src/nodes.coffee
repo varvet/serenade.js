@@ -30,11 +30,12 @@ class Node
     new Node(ast, Serenade.render(ast.arguments[0], model, controller, parent), model, controller)
 
   @helper: (ast, model, controller) ->
-    render = (element, model=model, controller=controller) ->
+    render = (model=model, controller=controller) ->
+      fragment = Serenade.document.createDocumentFragment()
       for child in ast.children
         node = Nodes.compile(child, model, controller)
-        node.append(element)
-      element
+        node.append(fragment)
+      fragment
     helperFunction = Serenade.Helpers[ast.command] or throw SyntaxError "no helper #{ast.command} defined"
     context = { render, model, controller }
     element = helperFunction.apply(context, ast.arguments)

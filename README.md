@@ -556,9 +556,9 @@ Both the `@web` and `"Google"` syntaxes produce strings as argument. It is
 convention to use the syntax with an `@` when the argument is meant to
 reference a model attribute.
 
-Finally you have access to `this.render()` which is a function that renders
-any children of this instruction into the given element. For example if we
-wanted to create a block helper for links like this:
+Finally you have access to `this.render()` which is a function that renders any
+children of this instruction. For example if we wanted to create a block helper
+for links like this:
 
 ```
 div
@@ -573,16 +573,16 @@ You could implement the helper like this:
 Serenade.Helpers.link = function(url) {
   var a = document.createElement('a');
   a.setAttribute('href', url);
-  this.render(a);
+  a.appendChild(this.render());
   return a;
 };
 ```
 
-The `render` function must always receive the element as its first argument but
-it may optionally also take a model as its second and a controller as its third
+The `render` takes the model as its second and the controller as its third
 argument. You can call `render` multiple times, possibly sending in different
-models and/or controllers for each invocation. If you call it multiple times,
-it's no problem to send in the same element each time.
+models and/or controllers for each invocation. Render returns a document
+fragment, so like in the example above, it is no problem for a helper have
+multiple direct children.
 
 # Serenade.Model
 

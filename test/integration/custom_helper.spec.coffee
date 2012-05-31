@@ -74,13 +74,28 @@ describe 'Custom helpers', ->
     it 'renders the block contents into an element', ->
       Serenade.Helpers.form = ->
         element = Serenade.document.createElement('form')
-        @render(element)
+        element.appendChild(@render())
+        element
       @render '''
         div
           - form
             div[id="jonas"]
       '''
       expect(@body).to.have.element('div > form > div#jonas')
+
+    it 'works with muliple elements at the same indentation level in a block', ->
+      Serenade.Helpers.form = ->
+        element = Serenade.document.createElement('form')
+        element.appendChild(@render())
+        element
+      @render '''
+        div
+          - form
+            div#jonas
+            div#peter
+      '''
+      expect(@body).to.have.element('div > form > div#jonas')
+      expect(@body).to.have.element('div > form > div#peter')
 
     it 'does not use block contents if render is not called', ->
       Serenade.Helpers.form = ->
@@ -95,7 +110,8 @@ describe 'Custom helpers', ->
     it 'allows model to be changed by passing it as an argument to render', ->
       Serenade.Helpers.form = ->
         element = Serenade.document.createElement('form')
-        @render(element, name: 'peter')
+        element.appendChild(@render(name: 'peter'))
+        element
       @render '''
         div
           - form
@@ -107,7 +123,8 @@ describe 'Custom helpers', ->
       funked = false
       Serenade.Helpers.form = ->
         element = Serenade.document.createElement('form')
-        @render(element, null, funky: -> funked = true)
+        element.appendChild(@render(null, funky: -> funked = true))
+        element
       @render '''
         div
           - form
@@ -120,8 +137,9 @@ describe 'Custom helpers', ->
       funked = false
       Serenade.Helpers.form = ->
         element = Serenade.document.createElement('form')
-        @render(element, name: 'jonas')
-        @render(element, name: 'peter')
+        element.appendChild(@render(name: 'jonas'))
+        element.appendChild(@render(name: 'peter'))
+        element
       @render '''
         div
           - form
