@@ -62,16 +62,16 @@ beforeEach ->
     @assert @obj.get(0).hasAttribute(name)
   chai.Assertion::triggerEvent = (object, eventName, options={}) ->
     args = null
-    triggered = null
+    count = 0
     fun = (a...) ->
       args = a
-      triggered = true
+      count += 1
 
     object.bind eventName, fun
     @obj()
     object.unbind eventName, fun
 
-    @assert triggered, "event #{eventName} was not triggered"
+    @assert count is 1, "event #{eventName} was triggered #{count} times, expected 1"
     if options.with
       @assert compareArrays(args, options.with), "event arguments #{args} do not match expected arguments #{options.with}"
 
