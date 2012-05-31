@@ -36,8 +36,8 @@ describe 'Serenade.Properties', ->
       @object.property 'name', dependsOn: 'author.name'
       @object.property 'author'
       @object.set(author: extended())
-      @object.get('author').set(name: 'test')
-      expect(=> @object.get('author').set(name: 'test')).to.triggerEvent(@object, 'change:name')
+      @object.name
+      expect(=> @object.author.set('name', 'test')).to.triggerEvent(@object, 'change:name')
     it 'does not observe changes on objects which are no longer associated', ->
       @object.property 'name', dependsOn: 'author.name'
       @object.property 'author'
@@ -82,10 +82,22 @@ describe 'Serenade.Properties', ->
       @object.collection 'authors'
       @object.authors.push(extended())
       @object.property 'authorNames', dependsOn: ['authors', 'authors:name']
+      @object.authorNames
       author = @object.authors.get(0)
       expect(-> author.set(name: 'test')).to.triggerEvent(@object, 'change:authorNames')
+    it 'can reach into collections and observe changes to each individual object when defined on prototype', ->
+      @object.collection 'authors'
+      @object.property 'authorNames', dependsOn: ['authors', 'authors:name']
+
+      @child = Object.create(@object)
+      @child.authors.push(extended())
+      @child.authorNames
+      author = @child.authors.get(0)
+      expect(-> author.set(name: 'test')).to.triggerEvent(@child, 'change:authorNames')
+      expect(-> author.set(name: 'test')).not.to.triggerEvent(@object, 'change:authorNames')
     it 'does not observe changes to elements no longer in the collcection', ->
       @object.property 'authorNames', dependsOn: 'authors:name'
+      @object.authorNames
       @object.collection 'authors'
       @object.authors.push(extended())
       oldAuthor = @object.authors.get(0)

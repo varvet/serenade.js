@@ -16,8 +16,7 @@ contains = (array, search) ->
     return true for element in array when element is search
     return false
 
-addDependencies = (object, dependency, names) ->
-  names = [].concat(names)
+addGlobalDependencies = (object, dependency, names) ->
   for name in names
     if name.match(/\./)
       [name, subname] = name.split(".")
@@ -30,6 +29,10 @@ addDependencies = (object, dependency, names) ->
         if changes.hasOwnProperty(subname) and contains(object.get(name), changed)
           triggerChangesTo(object, [dependency])
 
+addDependencies = (object, dependency, names) ->
+  names = [].concat(names)
+  for name in names
+    [name, subname] = name.split(/[:\.]/) if name.match(/[:\.]/)
     object["_dep_" + name] ||= []
     object["_dep_" + name].push(dependency) if object["_dep_" + name].indexOf(dependency) is -1
 
@@ -57,7 +60,9 @@ Serenade.Properties =
     addDependencies(this, name, options.dependsOn) if options.dependsOn
     if define
       Object.defineProperty @, name,
-        get: -> Serenade.Properties.get.call(this, name)
+        get: ->
+          addGlobalDependencies(this, name, [].concat(options.dependsOn)) if options.dependsOn
+          Serenade.Properties.get.call(this, name)
         set: (value) -> Serenade.Properties.set.call(this, name, value)
     if typeof(options.serialize) is 'string'
       @property options.serialize,

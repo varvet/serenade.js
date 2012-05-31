@@ -221,6 +221,7 @@ describe 'Serenade.Model', ->
         @hasMany 'comments', as: -> Comment
         @property 'confirmedComments', dependsOn: 'comments:confirmed'
       post = new Post(name: "test")
+      post.confirmedComments
       post.comments = [{ id: 5, body: 'Hello', confirmed: true }, { id: 8, body: 'Monkey', confirmed: false }]
       comment = post.comments.get(1)
       expect(-> comment.confirmed = true).to.triggerEvent(post, 'change:confirmedComments')
