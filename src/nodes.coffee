@@ -96,12 +96,18 @@ class Dynamic
   @if: (ast, model, controller) ->
     collection = new Serenade.Collection([])
     update = ->
-      value = get(model, ast.arguments[0])
+      index = i for arg, i in ast.arguments when get(model, arg)
+      value = get(model, ast.arguments[index])
       if value
+        ast.children = ast.branches[index]
+        collection.update([model])
+      else if ast.branches.length > ast.arguments.length
+        ast.children = ast.branches[ast.branches.length - 1]
         collection.update([model])
       else
         collection.update([])
     update()
+
     model.bind? "change:#{ast.arguments[0]}", update
     new Dynamic(ast, collection, model, controller)
 
@@ -234,16 +240,17 @@ class Attribute
 
   get: -> format(@model, @ast.value, @ast.bound)
 
+
 Nodes =
   compile: (ast, model, controller) ->
     switch ast.type
       when 'element' then Node.element(ast, model, controller)
       when 'text' then new Node.text(ast, model, controller)
+      when 'if' then new Dynamic.if(ast, model, controller)
       when 'instruction'
         switch ast.command
           when "view" then new Node.view(ast, model, controller)
           when "collection" then new Dynamic.collection(ast, model, controller)
-          when "if" then new Dynamic.if(ast, model, controller)
           when "in" then new Dynamic.in(ast, model, controller)
           else new Node.helper(ast, model, controller)
       else throw SyntaxError "unknown type '#{ast.type}'"
