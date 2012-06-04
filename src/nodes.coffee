@@ -1,10 +1,11 @@
 {Serenade} = require './serenade'
+{Collection} = require './collection'
 {format, get, set, preventDefault} = require './helpers'
 
 class Node
   @element: (ast, model, controller) ->
     element = Serenade.document.createElement(ast.name)
-    node = new Node(ast, element, model, controller)
+    node = new Node(ast, element)
 
     element.setAttribute('id', ast.id) if ast.id
     element.setAttribute('class', ast.classes.join(' ')) if ast.classes?.length
@@ -27,7 +28,8 @@ class Node
 
   @view: (ast, model, parent) ->
     controller = Serenade.controllerFor(ast.arguments[0]) or parent
-    new Node(ast, Serenade.render(ast.arguments[0], model, controller, parent), model, controller)
+    element = Serenade.render(ast.arguments[0], model, controller, parent)
+    new Node(ast, element)
 
   @helper: (ast, model, controller) ->
     render = (model=model, controller=controller) ->
@@ -39,7 +41,7 @@ class Node
     helperFunction = Serenade.Helpers[ast.command] or throw SyntaxError "no helper #{ast.command} defined"
     context = { render, model, controller }
     element = helperFunction.apply(context, ast.arguments)
-    new Node(ast, element, model, controller)
+    new Node(ast, element)
 
   @text: (ast, model, controller) ->
     getValue = ->
@@ -48,9 +50,9 @@ class Node
       value or ""
     textNode = Serenade.document.createTextNode(getValue())
     model.bind?("change:#{ast.value}", -> textNode.nodeValue = getValue()) if ast.bound
-    new Node(ast, textNode, model, controller)
+    new Node(ast, textNode)
 
-  constructor: (@ast, @element, @model, @controller) ->
+  constructor: (@ast, @element) ->
 
   append: (inside) ->
     inside.appendChild(@element)
@@ -65,94 +67,96 @@ class Node
     @element
 
 class Dynamic
-  class Item
-    constructor: (@children, @model, @controller) ->
-      @nodes = (Nodes.compile(child, @model, @controller) for child in @children)
-    insertAfter: (element) ->
-      last = element
-      for node in @nodes
-        node.insertAfter(last)
-        last = node.lastElement()
-    lastElement: -> @nodes[@nodes.length-1].lastElement()
-    remove: -> node.remove() for node in @nodes
-
   @collection: (ast, model, controller) ->
+    compileItem = (item) -> Nodes.compile(child, item, controller) for child in ast.children
+
+    dynamic = new Dynamic(ast)
     collection = get(model, ast.arguments[0])
-    new Dynamic(ast, collection, model, controller)
+    if typeof(collection.bind) is "function"
+      collection.bind('set', => dynamic.replace(compileItem(item) for item in collection))
+      collection.bind('update', => dynamic.replace(compileItem(item) for item in collection))
+      collection.bind('add', (item) => dynamic.appendNodeSet(compileItem(item)))
+      collection.bind('insert', (index, item) => dynamic.insertNodeSet(index, compileItem(item)))
+      collection.bind('delete', (index) => dynamic.deleteNodeSet(index))
+    dynamic.replace(compileItem(item) for item in collection)
+    dynamic
 
   @in: (ast, model, controller) ->
-    collection = new Serenade.Collection([])
-    update = ->
-      subModel = get(model, ast.arguments[0])
-      if subModel
-        collection.update([subModel])
-      else
-        collection.update([])
-    update()
-    model.bind? "change:#{ast.arguments[0]}", update
-    new Dynamic(ast, collection, model, controller)
-
-  @if: (ast, model, controller) ->
-    collection = new Serenade.Collection([])
+    dynamic = new Dynamic(ast)
     update = ->
       value = get(model, ast.arguments[0])
       if value
-        collection.update([model])
+        nodes = (Nodes.compile(child, value, controller) for child in ast.children)
+        dynamic.replace([nodes])
       else
-        collection.update([])
+        dynamic.clear()
     update()
     model.bind? "change:#{ast.arguments[0]}", update
-    new Dynamic(ast, collection, model, controller)
+    dynamic
 
-  constructor: (@ast, @collection, @model, @controller) ->
+  @if: (ast, model, controller) ->
+    dynamic = new Dynamic(ast)
+    update = ->
+      value = get(model, ast.arguments[0])
+      if value
+        nodes = (Nodes.compile(child, model, controller) for child in ast.children)
+        dynamic.replace([nodes])
+      else
+        dynamic.clear()
+    update()
+    model.bind? "change:#{ast.arguments[0]}", update
+    dynamic
+
+  constructor: (@ast) ->
     @anchor = Serenade.document.createTextNode('')
-    if @collection.bind
-      @collection.bind('update', => @rebuild())
-      @collection.bind('set', => @rebuild())
-      @collection.bind('add', (item) => @appendItem(item))
-      @collection.bind('insert', (index, item) => @insertItem(index, item))
-      @collection.bind('delete', (index) => @delete(index))
+    @nodeSets = new Collection([])
+
+  eachNode: (fun) ->
+    for set in @nodeSets
+      fun(node) for node in set
 
   rebuild: ->
-    item.remove() for item in @items
-    @build()
+    if @anchor.parentNode
+      last = @anchor
+      @eachNode (node) ->
+        node.insertAfter(last)
+        last = node.lastElement()
 
-  build: ->
-    @items = []
-    new Serenade.Collection(@collection).forEach (item) => @appendItem(item)
+  replace: (sets) ->
+    @clear()
+    @nodeSets.update(new Collection(set) for set in sets)
+    @rebuild()
 
-  appendItem: (item) ->
-    node = new Item(@ast.children, item, @controller)
-    node.insertAfter(@lastElement())
-    @items.push(node)
+  appendNodeSet: (nodes) ->
+    @insertNodeSet(@nodeSets.length, nodes)
 
-  insertItem: (index, item) ->
-    node = new Item(@ast.children, item, @controller)
-    node.insertAfter(@items[index-1]?.lastElement() or @anchor)
-    @items.splice(0, node)
+  deleteNodeSet: (index) ->
+    node.remove() for node in @nodeSets[index]
+    @nodeSets.deleteAt(index)
 
-  delete: (index) ->
-    @items[index].remove()
-    @items.splice(index, 1)
+  insertNodeSet: (index, nodes) ->
+    last = @nodeSets[index-1].last()
+    for node in nodes
+      node.insertAfter(last.lastElement())
+      last = node
+    @nodeSets.insertAt(index, new Collection(nodes))
 
-  lastItem: ->
-    @items[@items.length - 1]
-
-  lastElement: ->
-    item = @lastItem()
-    if item then item.lastElement() else @anchor
+  clear: -> @eachNode (node) -> node.remove()
 
   remove: ->
+    @clear()
     @anchor.parentNode.removeChild(@anchor)
-    item.remove() for item in @items
 
   append: (inside) ->
     inside.appendChild(@anchor)
-    @build()
+    @rebuild()
 
   insertAfter: (after) ->
     after.parentNode.insertBefore(@anchor, after.nextSibling)
-    @build()
+    @rebuild()
+
+  lastElement: ->
+    @nodeSets.last()?.last()?.lastElement() or @anchor
 
 class Style
   constructor: (@ast, @node, @model, @controller) ->
@@ -237,14 +241,14 @@ Nodes =
   compile: (ast, model, controller) ->
     switch ast.type
       when 'element' then Node.element(ast, model, controller)
-      when 'text' then new Node.text(ast, model, controller)
+      when 'text' then Node.text(ast, model, controller)
       when 'instruction'
         switch ast.command
-          when "view" then new Node.view(ast, model, controller)
-          when "collection" then new Dynamic.collection(ast, model, controller)
-          when "if" then new Dynamic.if(ast, model, controller)
-          when "in" then new Dynamic.in(ast, model, controller)
-          else new Node.helper(ast, model, controller)
+          when "view" then Node.view(ast, model, controller)
+          when "collection" then Dynamic.collection(ast, model, controller)
+          when "if" then Dynamic.if(ast, model, controller)
+          when "in" then Dynamic.in(ast, model, controller)
+          else Node.helper(ast, model, controller)
       else throw SyntaxError "unknown type '#{ast.type}'"
 
 exports.Nodes = Nodes
