@@ -15,7 +15,7 @@ Property =
       preventDefault(e) if ast.preventDefault
       controller[ast.value](model, node.element, e)
 
-  twoWayBinding: (ast, node, model, controller) ->
+  binding: (ast, node, model, controller) ->
     element = node.element
     node.ast.name in ["input", "textarea", "select"] or throw SyntaxError "invalid node type #{node.ast.name} for two way binding"
 
@@ -49,6 +49,7 @@ Property =
       Serenade.bindEvent element, ast.name, domUpdated
 
   attribute: (ast, node, model, controller) ->
+    return Property.binding(ast, node, model, controller) if ast.name is "binding"
     element = node.element
     update = ->
       value = format(model, ast.value, ast.bound)
@@ -81,16 +82,11 @@ Compile =
     element.setAttribute('class', ast.classes.join(' ')) if ast.classes?.length
 
     for property in ast.properties
-      switch property.scope
-        when "attribute"
-          if property.name is "binding"
-            Property.twoWayBinding(property, node, model, controller)
-          else
-            Property.attribute(property, node, model, controller)
-        when "style" then new Property.style(property, node, model, controller)
-        when "event" then new Property.event(property, node, model, controller)
-        when "binding" then new Property.twoWayBinding(property, node, model, controller)
-        else throw SyntaxError "#{property.scope} is not a valid scope"
+      action = Property[property.scope]
+      if action
+        action(property, node, model, controller)
+      else
+        throw SyntaxError "#{property.scope} is not a valid scope"
 
     for child in ast.children
       compile(child, model, controller).append(element)
