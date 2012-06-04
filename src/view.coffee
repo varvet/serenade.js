@@ -1,6 +1,6 @@
 {parser} = require './parser'
 {Lexer} = require './lexer'
-{Nodes} = require './nodes'
+{compile} = require './compile'
 {Serenade} = require './serenade'
 
 parser.lexer =
@@ -25,7 +25,7 @@ class View
     if typeof(controller) is "function"
       controller = new controller(model, parent)
 
-    node = Nodes.compile(@parse(), model, controller)
+    node = compile(@parse(), model, controller)
     controller.loaded?(model, node.element)
     node.element
 
