@@ -7,9 +7,14 @@ require('../src/properties')
 require('../src/model')
 sinon = require('sinon')
 
+isArray = (arr) -> arr and (Array.isArray(arr) or arr.constructor is Serenade.Collection)
+
 compareArrays = (one, two) ->
-  fail = true for item, i in one when two[i] isnt item
-  one.length is two.length and not fail
+  if isArray(one) and isArray(two)
+    fail = true for item, i in one when not compareArrays(two[i], item)
+    one.length is two.length and not fail
+  else
+    one is two
 
 jsdom = require("jsdom")
 fs = require('fs')

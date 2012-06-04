@@ -50,6 +50,10 @@ describe 'Serenade.Collection', ->
       expect(@collection[0]).to.eql("q")
       expect(@collection[1]).to.eql("x")
       expect(@collection[2]).to.eql(undefined)
+    it 'triggers a change event', ->
+      expect(=> @collection.update(["q", "x"])).to.triggerEvent(@collection, 'change', with: [@collection])
+    it 'triggers an update event', ->
+      expect(=> @collection.update(["q", "x"])).to.triggerEvent(@collection, 'update', with: [["a", "b", "c"], ["q", "x"]])
     it 'updates length', ->
       @collection.update(["q", "x"])
       expect(@collection.length).to.eql(2)
@@ -71,7 +75,10 @@ describe 'Serenade.Collection', ->
       expect(@collection[2]).to.eql("a")
 
     it 'triggers an update event', ->
-      expect(=> @collection.sort()).to.triggerEvent(@collection, 'update')
+      @collection.push('a')
+      expect(=> @collection.sort()).to.triggerEvent(@collection, 'update', with: [["a", "b", "c", "a"], ["a", "a", "b", "c"]])
+    it 'triggers a change event', ->
+      expect(=> @collection.sort()).to.triggerEvent(@collection, 'change', with: [@collection])
 
   describe '#sortBy', ->
     it 'updates the order of the items in the collection', ->
@@ -337,7 +344,9 @@ describe 'Serenade.Collection', ->
     it "returns self", ->
       expect(@collection.reverse()).to.eql(@collection)
     it "triggers an update event", ->
-      expect(=> @collection.reverse()).to.triggerEvent(@collection, 'update')
+      expect(=> @collection.reverse()).to.triggerEvent(@collection, 'update', with: [["a", "b", "c"], ["c", "b", "a"]])
+    it "triggers a change event", ->
+      expect(=> @collection.reverse()).to.triggerEvent(@collection, 'change', with: [@collection])
 
   describe "#toString", ->
     it "joins the array with commas", ->
@@ -375,9 +384,9 @@ describe 'Serenade.Collection', ->
       expect(deleted.length).to.eql(1)
       expect(deleted.get(0)).to.eql("b")
     it 'triggers an update event', ->
-      expect(=> @collection.sort()).to.triggerEvent(@collection, 'update')
+      expect(=> @collection.splice(1, 1, "q", "x")).to.triggerEvent(@collection, 'update', with: [["a", "b", "c"], ["a", "q", "x", "c"]])
     it 'triggers a change event', ->
-      expect(=> @collection.sort()).to.triggerEvent(@collection, 'change')
+      expect(=> @collection.splice(1, 1, "q", "x")).to.triggerEvent(@collection, 'change', with: [@collection])
 
   describe "#every", ->
     it "returns whether every item matches the given function", ->
@@ -434,3 +443,12 @@ describe 'Serenade.Collection', ->
       expect(@collection.reduceRight(((agg, item) -> agg + ":" + item), "foo")).to.eql("foo:c:b:a")
       expect(@collection.reduceRight((agg, item, index, obj) -> agg + ":" + index + obj.join())).to.eql("c:1a,b,c:0a,b,c")
       Array.prototype.reduceRight = original
+
+  describe "#clone", ->
+    it "returns a collection which is identical, but not the same object", ->
+      clone = @collection.clone()
+      expect(clone).not.to.equal(@collection)
+      expect(clone[0]).to.eql("a")
+      expect(clone[1]).to.eql("b")
+      expect(clone[2]).to.eql("c")
+      expect(clone.length).to.eql(3)

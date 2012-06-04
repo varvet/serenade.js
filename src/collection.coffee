@@ -30,28 +30,32 @@ class exports.Collection
   unshift: (item) -> @insertAt(0, item)
   shift: -> @deleteAt(0)
   update: (list) ->
+    old = @clone()
     delete @[index] for index, _ of @ when isArrayIndex(index)
     @[index] = val for val, index in list
     @length = getLength(@)
-    @trigger("update", list)
+    @trigger("update", old, @)
     @trigger("change", @)
     list
   splice: (start, deleteCount, list...) ->
+    old = @clone()
     deleted = Array.prototype.splice.apply(@, [start, deleteCount, list...])
     @length = getLength(@)
-    @trigger("update", list)
+    @trigger("update", old, @)
     @trigger("change", @)
     new Collection(deleted)
   sort: (fun) ->
+    old = @clone()
     Array.prototype.sort.call(@, fun)
-    @trigger("update", @)
+    @trigger("update", old, @)
     @trigger("change", @)
     @
   sortBy: (attribute) ->
     @sort((a, b) -> if get(a, attribute) < get(b, attribute) then -1 else 1)
   reverse: ->
+    old = @clone()
     Array.prototype.reverse.call(@)
-    @trigger("update", @)
+    @trigger("update", old, @)
     @trigger("change", @)
     @
   forEach: (fun) ->
@@ -144,5 +148,7 @@ class exports.Collection
     array = []
     array[index] = val for index, val of @ when isArrayIndex(index)
     array
+
+  clone: -> new Collection(@toArray())
 
   _useDefer: true
