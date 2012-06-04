@@ -452,3 +452,11 @@ describe 'Serenade.Collection', ->
       expect(clone[1]).to.eql("b")
       expect(clone[2]).to.eql("c")
       expect(clone.length).to.eql(3)
+
+  describe "#first", ->
+    it "returns the first element", ->
+      expect(@collection.first()).to.eql("a")
+
+  describe "#last", ->
+    it "returns the last element", ->
+      expect(@collection.last()).to.eql("c")

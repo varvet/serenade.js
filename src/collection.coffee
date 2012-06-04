@@ -144,6 +144,9 @@ class exports.Collection
         carry = fun(carry, item, traversed.length - index - 1, @)
       carry
 
+  first: -> @[0]
+  last: -> @[@length-1]
+
   toArray: ->
     array = []
     array[index] = val for index, val of @ when isArrayIndex(index)
