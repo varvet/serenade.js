@@ -57,9 +57,10 @@ beforeEach ->
 
   chai.Assertion::element = (selector, options) ->
     if options and options.count
-      @assert @obj.find(selector).length == options.count
+      actual = @obj.find(selector).length
+      @assert actual == options.count, "expected #{options.count} of @{selector}, but there were #{actual}"
     else
-      @assert @obj.find(selector).length > 0
+      @assert @obj.find(selector).length > 0, "expected #{selector} to occur"
 
   chai.Assertion::text = (text) ->
     @assert @obj.text().trim().replace(/\s/g, ' ') is text
