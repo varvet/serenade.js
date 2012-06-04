@@ -185,7 +185,7 @@ describe 'View', ->
             span
       """
       expect(result.name).to.eql('div')
-      expect(result.children[0].command).to.eql('view')
+      expect(result.children[0].type).to.eql('view')
       expect(result.children[0].arguments).to.eql(['example'])
       expect(result.children[0].children[0].name).to.eql('span')
 

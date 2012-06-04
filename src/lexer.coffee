@@ -8,6 +8,8 @@ MULTI_DENT = /^(?:\r?\n[^\r\n\S]*)+/
 
 WHITESPACE = /^[^\r\n\S]+/
 
+KEYWORDS = ["IF", "COLLECTION", "IN", "VIEW"]
+
 class Lexer
 
   tokenize: (code, opts = {}) ->
@@ -46,7 +48,11 @@ class Lexer
 
   identifierToken: ->
     if match = IDENTIFIER.exec @chunk
-      @token 'IDENTIFIER', match[0]
+      name = match[0].toUpperCase()
+      if name in KEYWORDS
+        @token name, match[0]
+      else
+        @token 'IDENTIFIER', match[0]
       match[0].length
     else
       0

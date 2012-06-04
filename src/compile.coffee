@@ -159,16 +159,10 @@ Compile =
     dynamic
 
 compile = (ast, model, controller) ->
-  switch ast.type
-    when 'element' then Compile.element(ast, model, controller)
-    when 'text' then Compile.text(ast, model, controller)
-    when 'instruction'
-      switch ast.command
-        when "view" then Compile.view(ast, model, controller)
-        when "collection" then Compile.collection(ast, model, controller)
-        when "if" then Compile.if(ast, model, controller)
-        when "in" then Compile.in(ast, model, controller)
-        else Compile.helper(ast, model, controller)
-    else throw SyntaxError "unknown type '#{ast.type}'"
+  action = Compile[ast.type]
+  if action
+    action(ast, model, controller)
+  else
+    throw SyntaxError "unknown type '#{ast.type}'"
 
 exports.compile = compile

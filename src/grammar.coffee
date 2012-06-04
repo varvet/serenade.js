@@ -15,11 +15,11 @@ grammar =
   ]
 
   ElementIdentifier: [
-    o 'IDENTIFIER', -> { name: $1, classes: [] }
-    o 'IDENTIFIER # IDENTIFIER', -> { name: $1, id: $3, classes: [] }
-    o '# IDENTIFIER', -> { name: 'div', id: $2, classes: [] }
-    o '. IDENTIFIER', -> { name: 'div', classes: [$2] }
-    o 'ElementIdentifier . IDENTIFIER', -> $1.classes.push($3); $1
+    o 'AnyIdentifier', -> { name: $1, classes: [] }
+    o 'AnyIdentifier # AnyIdentifier', -> { name: $1, id: $3, classes: [] }
+    o '# AnyIdentifier', -> { name: 'div', id: $2, classes: [] }
+    o '. AnyIdentifier', -> { name: 'div', classes: [$2] }
+    o 'ElementIdentifier . AnyIdentifier', -> $1.classes.push($3); $1
   ]
 
   Element: [
@@ -57,22 +57,34 @@ grammar =
   ]
 
   Property: [
-    o 'IDENTIFIER = IDENTIFIER', -> { name: $1, value: $3, bound: true, scope: 'attribute' }
-    o 'IDENTIFIER = Bound', -> { name: $1, value: $3, bound: true, scope: 'attribute' }
-    o 'IDENTIFIER = IDENTIFIER !', -> { name: $1, value: $3, bound: true, scope: 'attribute', preventDefault: true }
-    o 'IDENTIFIER = Bound !', -> { name: $1, value: $3, bound: true, scope: 'attribute', preventDefault: true }
-    o 'IDENTIFIER = STRING_LITERAL', -> { name: $1, value: $3, bound: false, scope: 'attribute' }
-    o 'IDENTIFIER : Property', -> $3.scope = $1; $3
+    o 'AnyIdentifier = AnyIdentifier', -> { name: $1, value: $3, bound: true, scope: 'attribute' }
+    o 'AnyIdentifier = Bound', -> { name: $1, value: $3, bound: true, scope: 'attribute' }
+    o 'AnyIdentifier = AnyIdentifier !', -> { name: $1, value: $3, bound: true, scope: 'attribute', preventDefault: true }
+    o 'AnyIdentifier = Bound !', -> { name: $1, value: $3, bound: true, scope: 'attribute', preventDefault: true }
+    o 'AnyIdentifier = STRING_LITERAL', -> { name: $1, value: $3, bound: false, scope: 'attribute' }
+    o 'AnyIdentifier : Property', -> $3.scope = $1; $3
   ]
 
   Instruction: [
-    o '- WHITESPACE IDENTIFIER', -> { command: $3, arguments: [], children: [], type: 'instruction' }
+    o '- WHITESPACE VIEW', -> { arguments: [], children: [], type: 'view' }
+    o '- WHITESPACE COLLECTION', -> { arguments: [], children: [], type: 'collection' }
+    o '- WHITESPACE IF', -> { arguments: [], children: [], type: 'if' }
+    o '- WHITESPACE IN', -> { arguments: [], children: [], type: 'in' }
+    o '- WHITESPACE IDENTIFIER', -> { command: $3, arguments: [], children: [], type: 'helper' }
     o 'Instruction WHITESPACE Text', -> $1.arguments.push $3.value; $1
     o 'Instruction INDENT ChildList OUTDENT', -> $1.children = $3; $1
   ]
 
+  AnyIdentifier: [
+    o 'VIEW', -> $1
+    o 'COLLECTION', -> $1
+    o 'IF', -> $1
+    o 'IN', -> $1
+    o 'IDENTIFIER', -> $1
+  ]
+
   Bound: [
-    o '@ IDENTIFIER', -> $2
+    o '@ AnyIdentifier', -> $2
   ]
 
 Jison = require("jison").Parser
