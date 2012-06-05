@@ -18,8 +18,10 @@ addGlobalDependencies = (object, dependency, names) ->
       else if name.match(/:/)
         type = "collection"
         [name, subname] = name.split(":")
-      Serenade.globalDependencies[subname] or= []
-      Serenade.globalDependencies[subname].push({ object, dependency, subname, name, type })
+
+      if subname
+        Serenade.globalDependencies[subname] or= []
+        Serenade.globalDependencies[subname].push({ object, dependency, subname, name, type })
 
 addDependencies = (object, dependency, names) ->
   names = [].concat(names)
