@@ -152,7 +152,7 @@ class exports.Collection
     array[index] = val for index, val of @ when isArrayIndex(index)
     array
 
-  toJSON: -> @toArray()
+  toJSON: -> @serialize()
 
   clone: -> new Collection(@toArray())
 
