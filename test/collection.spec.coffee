@@ -16,6 +16,9 @@ describe 'Serenade.Collection', ->
     @collection = new Serenade.Collection([])
     expect(@collection.length).to.eql(0)
 
+  it "can be serialized to JSON", ->
+    expect(JSON.parse(JSON.stringify(@collection))).to.eql(["a", "b", "c"])
+
   describe '#get', ->
     it 'gets an item from the collection', ->
       expect(@collection.get(0)).to.eql('a')
