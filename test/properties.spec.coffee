@@ -54,6 +54,23 @@ describe 'Serenade.Properties', ->
       @inst1.property 'age', serialize: true
       @inst2.property 'height', serialize: true
       expect(Object.keys(@inst2.serialize())).not.to.include('age')
+    it 'can set up default value', ->
+      @object.property 'name', default: "foobar"
+      expect(@object.name).to.eql("foobar")
+      @object.name = "baz"
+      expect(@object.name).to.eql("baz")
+      @object.name = undefined
+      expect(@object.name).to.eql(undefined)
+    it 'can set up falsy default values', ->
+      @object.property 'name', default: null
+      expect(@object.name).to.equal(null)
+    it 'ignores default when custom getter given', ->
+      @object.property 'name', default: "bar", get: -> "foo"
+      expect(@object.name).to.eql("foo")
+    it 'automatically sets up previous value as default', ->
+      @object.name = "Jonas"
+      @object.property 'name'
+      expect(@object.name).to.eql("Jonas")
 
   describe '.collection', ->
     it 'is initialized to a collection', ->

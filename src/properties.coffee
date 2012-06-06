@@ -63,6 +63,7 @@ Serenade.Properties =
   property: (name, options={}) ->
     @[prefix + name] = options
     @[prefix + name].name = name
+    @[prefix + name].default = @[name] if @.hasOwnProperty(name)
     addDependencies(this, name, options.dependsOn) if options.dependsOn
     if define
       Object.defineProperty @, name,
@@ -104,6 +105,8 @@ Serenade.Properties =
     @attributes or= {}
     value = if @[prefix + name]?.get
       @[prefix + name].get.call(this)
+    else if @[prefix + name]?.hasOwnProperty("default") and not @attributes.hasOwnProperty(name)
+      @[prefix + name].default
     else
       @attributes[name]
 
