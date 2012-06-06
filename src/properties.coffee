@@ -71,10 +71,12 @@ Serenade.Properties =
           addGlobalDependencies(this, name, [].concat(options.dependsOn)) if options.dependsOn
           Serenade.Properties.get.call(this, name)
         set: (value) -> Serenade.Properties.set.call(this, name, value)
+        configurable: true
     if typeof(options.serialize) is 'string'
       @property options.serialize,
         get: -> @get(name)
         set: (v) -> @set(name, v)
+        configurable: true
 
   collection: (name, options={}) ->
     extend options,

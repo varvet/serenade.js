@@ -71,6 +71,10 @@ describe 'Serenade.Properties', ->
       @object.name = "Jonas"
       @object.property 'name'
       expect(@object.name).to.eql("Jonas")
+    it 'can be redefined', ->
+      @object.property 'name', get: -> "foo"
+      @object.property 'name', get: -> "bar"
+      expect(@object.name).to.eql("bar")
 
   describe '.collection', ->
     it 'is initialized to a collection', ->
