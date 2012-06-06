@@ -172,19 +172,18 @@ describe 'Serenade.Properties', ->
         get: -> @name.split("").reverse().join("")
         dependsOn: 'name'
       expect(=> @object.set('name', 'Jonas')).to.triggerEvent(@object, 'change:reverseName', with: ['sanoJ'])
-
-  describe '.format', ->
-    it 'reads an existing property normally if it is not declared', ->
-      @object.set('foo', 23)
-      expect(@object.format('foo')).to.eql(23)
-    it 'reads an existing property normally if it is declared without format', ->
-      @object.property('foo')
-      @object.set('foo', 23)
-      expect(@object.format('foo')).to.eql(23)
-    it 'converts a property through a given format function', ->
-      @object.property('foo', format: (x) -> x + 2)
-      @object.set('foo', 23)
-      expect(@object.format('foo')).to.eql(25)
+    describe 'with format given', ->
+      it 'reads an existing property normally if it is not declared', ->
+        @object.set('foo', 23)
+        expect(@object.get('foo', true)).to.eql(23)
+      it 'reads an existing property normally if it is declared without format', ->
+        @object.property('foo')
+        @object.set('foo', 23)
+        expect(@object.get('foo', true)).to.eql(23)
+      it 'converts a property through a given format function', ->
+        @object.property('foo', format: (x) -> x + 2)
+        @object.set('foo', 23)
+        expect(@object.get('foo', true)).to.eql(25)
 
   describe '.serialize', ->
     it 'serializes any properties marked as serializable', ->

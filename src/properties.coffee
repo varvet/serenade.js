@@ -100,19 +100,18 @@ Serenade.Properties =
         @attributes[name] = value
     triggerChangesTo(this, names)
 
-  get: (name) ->
+  get: (name, format) ->
     @attributes or= {}
-    if @[prefix + name]?.get
+    value = if @[prefix + name]?.get
       @[prefix + name].get.call(this)
     else
       @attributes[name]
 
-  format: (name) ->
-    format = @[prefix + name]?.format
-    if typeof(format) is 'function'
-      format.call(this, @get(name))
+    formatter = @[prefix + name]?.format
+    if format and typeof(formatter) is 'function'
+      formatter.call(this, value)
     else
-      @get(name)
+      value
 
   serialize: ->
     serialized = {}

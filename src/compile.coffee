@@ -2,11 +2,12 @@
 {Collection} = require './collection'
 {Node} = require './node'
 {DynamicNode} = require './dynamic_node'
-{format, get, set, preventDefault} = require './helpers'
+{get, set, preventDefault} = require './helpers'
 
 Property =
   style: (ast, node, model, controller) ->
-    update = -> node.element.style[ast.name] = format(model, ast.value, ast.bound)
+    update = ->
+      node.element.style[ast.name] = if ast.bound then get(model, ast.value, true) else ast.value
     update()
     model.bind?("change:#{ast.value}", update) if ast.bound
 
@@ -52,7 +53,7 @@ Property =
     return Property.binding(ast, node, model, controller) if ast.name is "binding"
     element = node.element
     update = ->
-      value = format(model, ast.value, ast.bound)
+      value = if ast.bound then get(model, ast.value, true) else ast.value
       if ast.name is 'value'
         element.value = value or ''
       else if node.ast.name is 'input' and ast.name is 'checked'
@@ -111,7 +112,7 @@ Compile =
 
   text: (ast, model, controller) ->
     getValue = ->
-      value = format(model, ast.value, ast.bound)
+      value = if ast.bound then get(model, ast.value, true) else ast.value
       value = "0" if value is 0
       value or ""
     textNode = Serenade.document.createTextNode(getValue())

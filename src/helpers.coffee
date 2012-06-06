@@ -2,23 +2,16 @@ Helpers =
   extend: (target, source) ->
     for own key, value of source
       target[key] = value
-  get: (model, value, bound=true) ->
-    if bound and model?.get
+  get: (model, value, format=true) ->
+    if typeof(model?.get) is "function"
       model.get(value)
-    else if bound
-      model?[value]
     else
-      value
+      model?[value]
   set: (model, key, value) ->
     if model?.set
       model.set(key, value)
     else
       model[key] = value
-  format: (model, value, bound=true) ->
-    if bound and model.format
-      model.format(value)
-    else
-      Helpers.get(model, value, bound)
   isArray: (object) ->
     Object::toString.call(object) is "[object Array]"
 
