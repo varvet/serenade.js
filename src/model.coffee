@@ -29,10 +29,6 @@ class Serenade.Model
         fromCache = Cache.get(@constructor, attributes.id)
         if fromCache
           fromCache.set(attributes)
-          # temporary workaround until CS bug is fixed
-          # otherwise, we neither return the cached object
-          # nor set attributes on the new one
-          @set(attributes)
           return fromCache
         else
           Cache.set(@constructor, attributes.id, this)
