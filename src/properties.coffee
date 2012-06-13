@@ -97,6 +97,7 @@ Serenade.Properties =
     for name, value of attributes
       names.push(name)
       @attributes or= {}
+      Serenade.Properties.property.call(@, name) unless @[prefix + name]
       if @[prefix + name]?.set
         @[prefix + name].set.call(this, value)
       else

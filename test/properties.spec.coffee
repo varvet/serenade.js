@@ -149,6 +149,9 @@ describe 'Serenade.Properties', ->
         @object.property 'foo', set: (value) -> setValue = value
         @object.set('foo', 42)
         expect(setValue).to.eql(42)
+      it 'automatically sets up a property for an unkown key', ->
+        @object.set('foo', 42)
+        expect(@object.foo).to.eql(42)
     describe 'with multiple properties', ->
       it 'sets those property', ->
         @object.set(foo: 23, bar: 56)
