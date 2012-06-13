@@ -50,7 +50,6 @@ extend Serenade,
   Model: require('./model').Model
   Collection: require('./collection').Collection
   Helpers: {}
-  globalDependencies: {}
 
 exports.Serenade = Serenade
 
