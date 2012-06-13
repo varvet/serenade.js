@@ -45,7 +45,6 @@ extend Serenade,
   useJQuery: ->
     @bindEvent = (element, event, callback) ->
       jQuery(element).bind(event, callback)
-  extend: extend
 
   Events: require('./events').Events
   Model: require('./model').Model
