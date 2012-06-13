@@ -64,7 +64,7 @@ Properties =
   property: (name, options={}) ->
     @[prefix + name] = options
     @[prefix + name].name = name
-    @[prefix + name].default = @[name] if @.hasOwnProperty(name)
+    @set(name, @[name]) if @.hasOwnProperty(name)
     addDependencies(this, name, options.dependsOn) if options.dependsOn
     if define
       Object.defineProperty @, name,
