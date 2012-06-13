@@ -87,3 +87,11 @@ describe 'Bound attributes and text nodes', ->
     @render 'div[data-foo=number] @number', model
     expect(@body.find('div').attr('data-foo')).to.eql("0")
     expect(@body.find('div').text()).to.eql("0")
+
+  it 'uses model formatter', ->
+    model = Serenade({ name: "Jonas" })
+    model.property("name", format: (val) -> val.toUpperCase())
+    @render 'div[data-name=@name style:color=@name] @name', model
+    expect(@body.find('div').attr('data-name')).to.eql("JONAS")
+    expect(@body.find('div').css("color")).to.eql("JONAS")
+    expect(@body.find('div').text()).to.eql("JONAS")
