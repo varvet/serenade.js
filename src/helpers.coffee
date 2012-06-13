@@ -2,9 +2,9 @@ Helpers =
   extend: (target, source) ->
     for own key, value of source
       target[key] = value
-  get: (model, value, format=true) ->
+  get: (model, value, format) ->
     if typeof(model?.get) is "function"
-      model.get(value)
+      model.get(value, format)
     else
       model?[value]
   set: (model, key, value) ->
