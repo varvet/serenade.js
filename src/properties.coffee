@@ -1,4 +1,3 @@
-{Serenade} = require './serenade'
 {Collection} = require './collection'
 {AssociationCollection} = require './association_collection'
 {Events} = require './events'
@@ -7,6 +6,8 @@
 prefix = "_prop_"
 exp = /^_prop_/
 define = Object.defineProperties # we check for the plural because it is unsupported in buggy IE8
+
+globalDependencies = {}
 
 addGlobalDependencies = (object, dependency, names) ->
   unless object["_glb_" + dependency]
@@ -20,8 +21,8 @@ addGlobalDependencies = (object, dependency, names) ->
         [name, subname] = name.split(":")
 
       if subname
-        Serenade.globalDependencies[subname] or= []
-        Serenade.globalDependencies[subname].push({ object, dependency, subname, name, type })
+        globalDependencies[subname] or= []
+        globalDependencies[subname].push({ object, dependency, subname, name, type })
 
 addDependencies = (object, dependency, names) ->
   names = [].concat(names)
@@ -32,8 +33,8 @@ addDependencies = (object, dependency, names) ->
 
 triggerGlobal = (object, names) ->
   for name in names
-    if Serenade.globalDependencies[name]
-      for dependency in Serenade.globalDependencies[name]
+    if globalDependencies[name]
+      for dependency in globalDependencies[name]
         if dependency.type is "singular"
           if object is dependency.object.get(dependency.name)
             triggerChangesTo(dependency.object, [dependency.dependency])
@@ -59,7 +60,7 @@ triggerChangesTo = (object, names) ->
   for own name, value of changes
     object.trigger("change:#{name}", value)
 
-Serenade.Properties =
+Properties =
   property: (name, options={}) ->
     @[prefix + name] = options
     @[prefix + name].name = name
@@ -69,8 +70,8 @@ Serenade.Properties =
       Object.defineProperty @, name,
         get: ->
           addGlobalDependencies(this, name, [].concat(options.dependsOn)) if options.dependsOn
-          Serenade.Properties.get.call(this, name)
-        set: (value) -> Serenade.Properties.set.call(this, name, value)
+          Properties.get.call(this, name)
+        set: (value) -> Properties.set.call(this, name, value)
         configurable: true
     if typeof(options.serialize) is 'string'
       @property options.serialize,
@@ -97,7 +98,7 @@ Serenade.Properties =
     for name, value of attributes
       names.push(name)
       @attributes or= {}
-      Serenade.Properties.property.call(@, name) unless @[prefix + name]
+      Properties.property.call(@, name) unless @[prefix + name]
       if @[prefix + name]?.set
         @[prefix + name].set.call(this, value)
       else
@@ -131,7 +132,7 @@ Serenade.Properties =
         serialized[options.name] = serializeObject(@get(options.name))
     serialized
 
-extend(Serenade.Properties, Events)
+extend(Properties, Events)
 
 Associations =
   belongsTo: (name, attributes={}) ->
@@ -165,4 +166,6 @@ Associations =
       dependsOn: name
       serialize: attributes.serializeIds
 
+exports.Properties = Properties
 exports.Associations = Associations
+exports.globalDependencies = globalDependencies

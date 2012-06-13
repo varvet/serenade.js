@@ -1,12 +1,13 @@
 require './spec_helper'
 {Serenade} = require '../src/serenade'
 {Collection} = require '../src/collection'
+{Properties} = require '../src/properties'
 {extend} = require '../src/helpers'
 {expect} = require('chai')
 
-describe 'Serenade.Properties', ->
+describe 'Properties', ->
   extended = (obj={}) ->
-    extend(obj, Serenade.Properties)
+    extend(obj, Properties)
     obj
 
   beforeEach ->
@@ -49,7 +50,7 @@ describe 'Serenade.Properties', ->
       @ctor = ->
       @inst1 = new @ctor()
       @inst2 = new @ctor()
-      extend(@ctor.prototype, Serenade.Properties)
+      extend(@ctor.prototype, Properties)
       @ctor.prototype.property 'name', serialize: true
       @inst1.property 'age', serialize: true
       @inst2.property 'height', serialize: true

@@ -1,7 +1,14 @@
 {Cache} = require './cache'
 {extend} = require './helpers'
+{Properties, globalDependencies} = require("./properties")
 
-Serenade =
+Serenade = (attributes) ->
+  return new Serenade(attributes) if this is root
+  @set(attributes)
+  this
+
+extend Serenade.prototype, Properties
+extend Serenade,
   VERSION: '0.1.3'
   _views: {}
   _controllers: {}
@@ -26,7 +33,7 @@ Serenade =
   clearCache: ->
     Serenade.clearIdentityMap()
     Serenade.clearLocalStorage()
-    Serenade.globalDependencies = {}
+    delete globalDependencies[key] for value, key in globalDependencies
   unregisterAll: ->
     Serenade._views = {}
     Serenade._controllers = {}
@@ -41,6 +48,7 @@ Serenade =
   extend: extend
 
   Events: require('./events').Events
+  Model: require('./model').Model
   Collection: require('./collection').Collection
   Helpers: {}
   globalDependencies: {}

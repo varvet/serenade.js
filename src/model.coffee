@@ -1,10 +1,9 @@
-{Serenade} = require './serenade'
 {Cache} = require './cache'
-{Associations} = require './properties'
+{Associations, Properties} = require './properties'
 {extend} = require './helpers'
 
-class Serenade.Model
-  extend(@prototype, Serenade.Properties)
+class Model
+  extend(@prototype, Properties)
   extend(@prototype, Associations)
 
   @property: -> @prototype.property(arguments...)
@@ -40,3 +39,5 @@ class Serenade.Model
 
   save: ->
     @trigger('saved')
+
+exports.Model = Model
