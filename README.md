@@ -7,7 +7,7 @@ indulge in recreating the wheel? We believe that Serenade.js more closely follow
 the ideas of classical MVC than competing frameworks and has a number of other
 advantages as well:
 
-* Super pretty, powerful yet logic-less template language
+* Clean, simple and logic less template language
 * Data bindings keep your views up-to-date without any extra work
 * Powerful caching features
 * Absolutely no dependencies, everything works without jQuery
@@ -99,16 +99,16 @@ Serenade.js](https://github.com/elabs/serenade_todomvc).
 
 Unfortunately JavaScript does not make it possible to track changes to
 arbitrary objects, so in order to update the view automatically as the model
-changes, we will have to add some functionality to it. Thankfully this is quite
-simple:
+changes, we will have to add some functionality to it. Serenade provides a
+decorator which adds functionality to existing objects, so that they can be
+kept in sync:
 
 ``` javascript
-var model = {};
-Serenade.extend(model, Serenade.Properties);
-model.property('name');
+var model = Serenade({ name: "Jonas" })
+Serenade.render('h1 "Hello " @name')
 ```
 
-Now we can set and get the name property using the `set` and `get` functions:
+Now we can set and get properties using the `set` and `get` functions:
 
 ``` javascript
 model.set('name', 'Peter');
@@ -123,26 +123,39 @@ model.name = 'Peter';
 model.name
 ```
 
-Note that Opera and IE8 and below do *not* support this, so you might want to
-refrain from using this syntax. Further note that it is not strictly necessary
-to call `model.property 'name'` unless you plan on using this feature, `get`
-and `set` work fine without the property being declared.
+Note that IE8 and below do not support setting properties this way.
 
-If your model is a constructor, you might want to add the properties to its
-prototype instead:
+Further note that you can only use this syntax with properties that Serenade
+already knows about. If you try to set a property which has previously never
+been set in this way, Serenade will not know how to track it.
+
+Serenade provides a Model constructor, which provides a more fully featured
+and in many cases more convenient starting point than the decorator. It is
+documented in more detail later in this README.
+
+You can derive your own constructor by calling `extend` on `Serenade.Model`:
 
 ``` javascript
-var MyModel = function(name) {
-  this.set('name', name);
-};
-Serenade.extend(MyModel.prototype, Serenade.Properties)
+var MyModel = Serenade.Model.extend('MyModel', function(attributes) {
+  // constructor here
+});
 ```
 
-Or in CoffeeScript:
+In CoffeeScript you can use the standard CoffeeScript inheritance mechanism:
 
 ``` coffeescript
-class MyModel
-  Serenade.extend(@prototype, Serenade.Properties)
+class MyModel extends Serenade.Model
+  constructor: (attributes) ->
+    # constructor here
+```
+
+You can declare properties on model constructors and they will be available
+on all instances:
+
+``` javascript ```
+MyModel.property("name");
+model = new MyModel()
+model.name = "Jonas"
 ```
 
 ## Two way data binding
@@ -590,34 +603,6 @@ Serenade.Model provides a more fully featured starting point for creating
 feature rich model objects. You can of course bind to instances of
 `Serenade.Model` in views and changes are reflected there dynamically.
 
-In CoffeeScript, you can use it, simply by extending the base class
-Serenade.Model
-
-``` coffeescript
-class MyModel extends Serenade.Model
-```
-
-In JavaScript you can use the `extend` function on Serenade.Model, you need to
-pass the name of the class as the first parameter:
-
-``` javascript
-var MyModel = Serenade.Model.extend('MyModel');
-```
-
-Note that in following with JavaScript conventions, you need to define instance
-methods on the prototype of the new model:
-
-``` javascript
-var MyModel = Serenade.Model.extend('MyModel');
-MyModel.prototype.someInstanceMethod = function() { … };
-```
-
-You can use the same property declarations in these models:
-
-``` javascript
-MyModel.property('name');
-```
-
 For simplicity's sake we will refer to instances of constructors derived from
 `Serenade.Model` as documents.
 
@@ -742,7 +727,7 @@ its alias `set`, which will cache the document to local storage as it is
 updated through setter functions, and finally `save` which will only cache the
 document if `save` is called explicitely.
 
-## Express.js support
+# Express.js support
 
 Serenade.js provides the expected api which allows it to be used from inside
 express.js, you could use this API for other JavaScript server side frameworks
