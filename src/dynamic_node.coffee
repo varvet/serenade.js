@@ -30,10 +30,10 @@ class DynamicNode
     @nodeSets.deleteAt(index)
 
   insertNodeSet: (index, nodes) ->
-    last = @nodeSets[index-1].last()
+    last = @nodeSets[index-1]?.last()?.lastElement() or @anchor
     for node in nodes
-      node.insertAfter(last.lastElement())
-      last = node
+      node.insertAfter(last)
+      last = node.lastElement()
     @nodeSets.insertAt(index, new Collection(nodes))
 
   clear: -> @eachNode (node) -> node.remove()

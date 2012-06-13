@@ -72,3 +72,14 @@ describe 'Collection', ->
     expect(@body).to.have.element('ul > li#jonas')
     expect(@body).to.have.element('ul > li#carry')
     expect(@body).to.have.element('ul > li#peter')
+
+  it 'can insert at index zero', ->
+    model = { people: new Serenade.Collection([]) }
+
+    @render '''
+      ul
+        - collection "people"
+          li[id=name]
+    ''', model
+    model.people.insertAt(0, {name: "carry"})
+    expect(@body).to.have.element('ul > li#carry')
