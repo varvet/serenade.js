@@ -68,9 +68,7 @@ Properties =
     addDependencies(this, name, options.dependsOn) if options.dependsOn
     if define
       Object.defineProperty @, name,
-        get: ->
-          addGlobalDependencies(this, name, [].concat(options.dependsOn)) if options.dependsOn
-          Properties.get.call(this, name)
+        get: -> Properties.get.call(this, name)
         set: (value) -> Properties.set.call(this, name, value)
         configurable: true
     if typeof(options.serialize) is 'string'
@@ -106,6 +104,8 @@ Properties =
     triggerChangesTo(this, names)
 
   get: (name, format) ->
+    if @[prefix + name]?.dependsOn
+      addGlobalDependencies(this, name, [].concat(@[prefix + name].dependsOn))
     @attributes or= {}
     value = if @[prefix + name]?.get
       @[prefix + name].get.call(this)
