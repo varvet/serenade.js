@@ -168,6 +168,19 @@ Compile =
     model.bind? "change:#{ast.arguments[0]}", update
     dynamic
 
+  unless: (ast, model, controller) ->
+    dynamic = new DynamicNode(ast)
+    update = ->
+      value = get(model, ast.arguments[0])
+      if value
+        dynamic.clear()
+      else
+        nodes = (compile(child, model, controller) for child in ast.children)
+        dynamic.replace([nodes])
+    update()
+    model.bind? "change:#{ast.arguments[0]}", update
+    dynamic
+
 compile = (ast, model, controller) ->
   action = Compile[ast.type]
   if action

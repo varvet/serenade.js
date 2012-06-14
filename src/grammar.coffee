@@ -69,6 +69,7 @@ grammar =
     o '- WHITESPACE VIEW', -> { arguments: [], children: [], type: 'view' }
     o '- WHITESPACE COLLECTION', -> { arguments: [], children: [], type: 'collection' }
     o '- WHITESPACE IF', -> { arguments: [], children: [], type: 'if' }
+    o '- WHITESPACE UNLESS', -> { arguments: [], children: [], type: 'unless' }
     o '- WHITESPACE IN', -> { arguments: [], children: [], type: 'in' }
     o '- WHITESPACE IDENTIFIER', -> { command: $3, arguments: [], children: [], type: 'helper' }
     o 'Instruction WHITESPACE Text', -> $1.arguments.push $3.value; $1
@@ -79,6 +80,7 @@ grammar =
     o 'VIEW', -> $1
     o 'COLLECTION', -> $1
     o 'IF', -> $1
+    o 'UNLESS', -> $1
     o 'IN', -> $1
     o 'IDENTIFIER', -> $1
   ]

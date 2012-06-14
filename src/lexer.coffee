@@ -8,7 +8,7 @@ MULTI_DENT = /^(?:\r?\n[^\r\n\S]*)+/
 
 WHITESPACE = /^[^\r\n\S]+/
 
-KEYWORDS = ["IF", "COLLECTION", "IN", "VIEW"]
+KEYWORDS = ["IF", "COLLECTION", "IN", "VIEW", "UNLESS"]
 
 class Lexer
 
