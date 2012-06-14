@@ -60,8 +60,11 @@ describe 'Two-way bindings', ->
     input = @body.find('input').get(0)
     expect(input.value).to.eql("Changed name")
 
-  it 'rejects none-input elements', ->
+  it 'rejects non-input elements', ->
     expect(=> @render 'div[binding:keyup=name]', {}, {}).to.throw()
+
+  it 'rejects binding to the model itself', ->
+    expect(=> @render 'input[binding:keyup=@]', {}, {}).to.throw()
 
   # Note: jsdom seems to set input.value to "" when we set it to undefined.
   # Actual browsers will set it to "undefined".

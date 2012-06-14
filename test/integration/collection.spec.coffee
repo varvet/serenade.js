@@ -17,6 +17,18 @@ describe 'Collection', ->
     expect(@body).to.have.element('ul > li#jonas')
     expect(@body).to.have.element('ul > li#peter')
 
+  it 'can reference the items itself', ->
+    model = { people: ['jonas', 'peter'] }
+
+    @render '''
+      ul
+        - collection "people"
+          li[id=@ style:color=@] @
+    ''', model
+    expect(@body).to.have.element('ul > li#jonas:contains(jonas)')
+    expect(@body).to.have.element('ul > li#peter:contains(peter)')
+    expect(@body.find("li:first").css("color")).to.eql("jonas")
+
   it 'compiles a Serenade.collection in a collection instruction', ->
     model = { people: new Serenade.Collection([{ name: 'jonas' }, { name: 'peter' }]) }
 

@@ -85,6 +85,7 @@ grammar =
 
   Bound: [
     o '@ AnyIdentifier', -> $2
+    o '@', ->
   ]
 
 Jison = require("jison").Parser

@@ -4,10 +4,18 @@
 {DynamicNode} = require './dynamic_node'
 {get, set, preventDefault} = require './helpers'
 
+getValue = (ast, model) ->
+  if ast.bound and ast.value
+    get(model, ast.value, true)
+  else if ast.value
+    ast.value
+  else
+    model
+
 Property =
   style: (ast, node, model, controller) ->
     update = ->
-      node.element.style[ast.name] = if ast.bound then get(model, ast.value, true) else ast.value
+      node.element.style[ast.name] = getValue(ast, model)
     update()
     model.bind?("change:#{ast.value}", update) if ast.bound
 
@@ -19,6 +27,7 @@ Property =
   binding: (ast, node, model, controller) ->
     element = node.element
     node.ast.name in ["input", "textarea", "select"] or throw SyntaxError "invalid node type #{node.ast.name} for two way binding"
+    ast.value or throw SyntaxError "cannot bind to whole model, please specify an attribute to bind to"
 
     domUpdated = ->
       if element.type is "checkbox"
@@ -53,7 +62,7 @@ Property =
     return Property.binding(ast, node, model, controller) if ast.name is "binding"
     element = node.element
     update = ->
-      value = if ast.bound then get(model, ast.value, true) else ast.value
+      value = getValue(ast, model)
       if ast.name is 'value'
         element.value = value or ''
       else if node.ast.name is 'input' and ast.name is 'checked'
@@ -111,12 +120,12 @@ Compile =
     new Node(ast, element)
 
   text: (ast, model, controller) ->
-    getValue = ->
-      value = if ast.bound then get(model, ast.value, true) else ast.value
+    getText = ->
+      value = getValue(ast, model)
       value = "0" if value is 0
       value or ""
-    textNode = Serenade.document.createTextNode(getValue())
-    model.bind?("change:#{ast.value}", -> textNode.nodeValue = getValue()) if ast.bound
+    textNode = Serenade.document.createTextNode(getText())
+    model.bind?("change:#{ast.value}", -> textNode.nodeValue = getText()) if ast.bound
     new Node(ast, textNode)
 
   collection: (ast, model, controller) ->
