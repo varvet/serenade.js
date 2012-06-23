@@ -261,8 +261,11 @@ describe 'Serenade.Collection', ->
       expect(@collection.get(2)).to.be.undefined
     it 'returns the item', ->
       expect(@collection.delete('b')).to.eql('b')
-    it "returns undefined if the item doesn't exist", ->
+    it "does nothing and returns undefined if the item doesn't exist", ->
       expect(@collection.delete('z')).to.be.undefined
+      expect(@collection[0]).to.eql("a")
+      expect(@collection[1]).to.eql("b")
+      expect(@collection[2]).to.eql("c")
 
   describe '#toArray', ->
     it "returns the same values", ->

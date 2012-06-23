@@ -98,7 +98,8 @@ class exports.Collection
     @trigger("change", @)
     value
   delete: (item) ->
-    @deleteAt(@indexOf(item))
+    index = @indexOf(item)
+    @deleteAt(index) if index isnt -1
   serialize: ->
     serializeObject(@toArray())
   filter: (fun) ->
