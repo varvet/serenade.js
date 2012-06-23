@@ -35,7 +35,7 @@ describe 'Serenade.Model', ->
       test = new Test(id: 5, test: 'foo')
       expect(Cache.retrieve(Test, 5)).to.not.exist
 
-    it 'binds sets the cache on any changes if localStorage is true', ->
+    it 'persists to cache on any changes if localStorage is true', ->
       class Test extends Serenade.Model
         @property 'test', serialize: 'testing'
         @localStorage = true
@@ -45,7 +45,7 @@ describe 'Serenade.Model', ->
       test.set('test', 'monkey')
       expect(Cache.retrieve(Test, 5).test).to.eql('monkey')
 
-    it 'binds a sets the cache only when saved if localStorage is "save"', ->
+    it 'persists to cache when saved if localStorage is "save"', ->
       class Test extends Serenade.Model
         @property 'test', serialize: 'testing'
         @localStorage = 'save'
@@ -56,6 +56,17 @@ describe 'Serenade.Model', ->
       expect(Cache.retrieve(Test, 5)).to.not.exist
       test.save()
       expect(Cache.retrieve(Test, 5).test).to.eql('monkey')
+
+    it 'persists to cache when saved if localStorage is true', ->
+      class Test extends Serenade.Model
+        @collection "names", serialize: true
+        @localStorage = true
+
+      test = new Test(id: 5, names: [{ first: "Jonas" }])
+      test.names[0].first = "Peter"
+      expect(Cache.retrieve(Test, 5).names[0].first).to.eql("Jonas")
+      test.save()
+      expect(Cache.retrieve(Test, 5).names[0].first).to.eql("Peter")
 
   describe '.extend', ->
     it 'sets the name of the class', ->

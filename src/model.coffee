@@ -31,10 +31,10 @@ class Model
           return fromCache
         else
           Cache.set(@constructor, attributes.id, this)
-    if @constructor.localStorage is 'save'
+    if @constructor.localStorage
       @bind('saved', => Cache.store(@constructor, @get('id'), this))
-    else if @constructor.localStorage
-      @bind('change', => Cache.store(@constructor, @get('id'), this))
+      if @constructor.localStorage isnt 'save'
+        @bind('change', => Cache.store(@constructor, @get('id'), this))
     @set(attributes)
 
   save: ->
