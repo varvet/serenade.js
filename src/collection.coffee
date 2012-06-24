@@ -1,5 +1,5 @@
 {Events} = require './events'
-{extend, serializeObject, get} = require './helpers'
+{indexOf, extend, serializeObject, get} = require './helpers'
 
 isArrayIndex = (index) -> index.match(/^\d+$/)
 
@@ -69,12 +69,7 @@ class exports.Collection
       new Collection(Array.prototype.map.call(@, fun))
     else
       new Collection(fun(element, index) for element, index in @)
-  indexOf: (search) ->
-    if typeof(Array.prototype.indexOf) is "function"
-      Array.prototype.indexOf.call(@, search)
-    else
-      return index for item, index in @ when item is search
-      return -1
+  indexOf: (search) -> indexOf @, search
   lastIndexOf: (search) ->
     if typeof(Array.prototype.lastIndexOf) is "function"
       Array.prototype.lastIndexOf.call(@, search)
