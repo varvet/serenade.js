@@ -2,18 +2,28 @@ Helpers =
   extend: (target, source) ->
     for own key, value of source
       target[key] = value
+
   get: (model, value, format) ->
     if typeof(model?.get) is "function"
       model.get(value, format)
     else
       model?[value]
+
   set: (model, key, value) ->
     if model?.set
       model.set(key, value)
     else
       model[key] = value
+
   isArray: (object) ->
     Object::toString.call(object) is "[object Array]"
+
+  indexOf: (object, search) ->
+    if typeof(Array.prototype.indexOf) is "function"
+      Array.prototype.indexOf.call(object, search)
+    else
+      return index for item, index in object when item is search
+      return -1
 
   pairToObject: (one, two) ->
     temp = {}
