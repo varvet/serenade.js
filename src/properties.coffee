@@ -1,7 +1,7 @@
 {Collection} = require './collection'
 {AssociationCollection} = require './association_collection'
 {Events} = require './events'
-{pairToObject, serializeObject, extend, get} = require './helpers'
+{indexOf, pairToObject, serializeObject, extend, get} = require './helpers'
 
 prefix = "_prop_"
 exp = /^_prop_/
@@ -29,7 +29,7 @@ addDependencies = (object, dependency, names) ->
   for name in names
     [name, subname] = name.split(/[:\.]/) if name.match(/[:\.]/)
     object["_dep_" + name] ||= []
-    object["_dep_" + name].push(dependency) if object["_dep_" + name].indexOf(dependency) is -1
+    object["_dep_" + name].push(dependency) if indexOf(object["_dep_" + name], dependency) is -1
 
 triggerGlobal = (object, names) ->
   for name in names
@@ -48,7 +48,7 @@ triggerChangesTo = (object, names) ->
     dependencies = object["_dep_" + name]
     if dependencies
       for dependency in dependencies
-        if names.indexOf(dependency) is -1
+        if indexOf(names, dependency) is -1
           names.push(dependency)
           findDependencies(dependency)
   findDependencies(name) for name in names
