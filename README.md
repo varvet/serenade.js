@@ -240,8 +240,32 @@ this easily like this:
 
 ``` javascript
 MyModel.property('fullName', {
-  get: function() { return this.get('firstName') + " " + this.get('lastName') },
+  get: function() { return this.firstName + " " + this.lastName },
   dependsOn: ['firstName', 'lastName']
+});
+```
+
+A property can specify that it depends upon the value of a property in another
+object, by "reaching" into that object, with the `object.property` syntax. For
+example:
+
+``` javascript
+MyModel.property("author");
+MyModel.property("authorName", {
+  get: function() { return this.author.name; },
+  dependsOn: "author.name")
+});
+```
+
+It is also possible to reach into collections, and depend on the values of
+properties of each item in the collections by using a colon as the separator,
+as in `object:property`. For example:
+
+``` javascript
+MyModel.collection("authors");
+MyModel.property("authorNames", {
+  get: function() { return this.author.map(function(a) { return a.name }); },
+  dependsOn: "authors:name")
 });
 ```
 
