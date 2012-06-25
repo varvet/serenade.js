@@ -9,7 +9,7 @@ describe 'Two-way bindings', ->
   it 'updates plain model when event triggers', ->
     model = {}
     @render 'input[type="text" binding:keyup=name]', model, {}
-    input = @body.find('input').get(0)
+    input = @body.querySelector('input')
     input.value = "Test"
     @fireEvent input, "keyup"
     expect(model.name).to.eql("Test")
@@ -17,7 +17,7 @@ describe 'Two-way bindings', ->
   it 'updates model when form is submitted if no event name is specified', ->
     model = {}
     @render 'form\n\tinput[type="text" binding=name]\n\t', model, {}
-    input = @body.find('input').get(0)
+    input = @body.querySelector('input')
     input.value = "Test"
     expect(model.name).to.eql(undefined)
     @fireEvent input.form, "submit"
@@ -28,7 +28,7 @@ describe 'Two-way bindings', ->
       @property 'name'
     model = new MyModel()
     @render 'input[type="text" binding:keyup=name]', model, {}
-    input = @body.find('input').get(0)
+    input = @body.querySelector('input')
     input.value = "Test"
     @fireEvent input, "keyup"
     expect(model.name).to.eql("Test")
@@ -36,19 +36,19 @@ describe 'Two-way bindings', ->
   it 'sets value of input to models value', ->
     model = {name: "My name"}
     @render 'input[type="text" binding:keyup=name]', model, {}
-    input = @body.find('input').get(0)
+    input = @body.querySelector('input')
     expect(input.value).to.eql("My name")
 
   it 'sets value of textarea to models value', ->
     model = {name: "My name"}
     @render 'textarea[binding:keyup=name]', model, {}
-    input = @body.find('textarea').get(0)
+    input = @body.querySelector('textarea')
     expect(input.value).to.eql("My name")
 
   it 'sets value of select box to models value', ->
     model = {name: "My name"}
     @render 'select[binding:change=name]\n\toption "My name"', model, {}
-    input = @body.find('select').get(0)
+    input = @body.querySelector('select')
     expect(input.value).to.eql("My name")
 
   it 'updates the value of input when model changes', ->
@@ -57,7 +57,7 @@ describe 'Two-way bindings', ->
     model = new MyModel({name: "My name"})
     @render 'input[type="text" binding:keyup=name]', model, {}
     model.set("name", "Changed name")
-    input = @body.find('input').get(0)
+    input = @body.querySelector('input')
     expect(input.value).to.eql("Changed name")
 
   it 'rejects non-input elements', ->
@@ -71,13 +71,13 @@ describe 'Two-way bindings', ->
   it 'sets value to empty string when model property is undefined', ->
     model = {name: undefined}
     @render 'input[type="text" binding:change=name]', model
-    input = @body.find("input").get(0)
+    input = @body.querySelector("input")
     expect(input.value).to.eql("")
 
   it 'sets boolean value for checkboxes', ->
     model = {}
     @render 'input[type="checkbox" binding:change=active]', model, {}
-    input = @body.find('input').get(0)
+    input = @body.querySelector('input')
     input.checked = true
     @fireEvent input, "change"
     expect(model.active).to.eql(true)
@@ -88,13 +88,13 @@ describe 'Two-way bindings', ->
     model = new MyModel({active: false})
     @render 'input[type="checkbox" binding:change=active]', model, {}
     model.set("active", true)
-    input = @body.find('input').get(0)
+    input = @body.querySelector('input')
     expect(input.checked).to.eql(true)
 
   it 'sets model value if radio is checked', ->
     model = {}
     @render 'input[type="radio" value="small" binding:change=size]', model, {}
-    input = @body.find('input').get(0)
+    input = @body.querySelector('input')
     input.checked = true
     @fireEvent input, "change"
     expect(model.size).to.eql("small")
@@ -102,7 +102,7 @@ describe 'Two-way bindings', ->
   it 'does not set model value if radio is not checked', ->
     model = {}
     @render 'input[type="radio" value="small" binding:change=size]', model, {}
-    input = @body.find('input').get(0)
+    input = @body.querySelector('input')
     @fireEvent input, "change"
     expect(model.size).to.eql(undefined)
 
@@ -112,7 +112,7 @@ describe 'Two-way bindings', ->
     model = new MyModel({size: "small"})
     @render 'input[type="radio" value="large" binding:change=size]', model, {}
     model.set("size", "large")
-    input = @body.find('input').get(0)
+    input = @body.querySelector('input')
     expect(input.checked).to.eql(true)
 
   it 'unchecks radio if model value does not match its value', ->
@@ -121,5 +121,5 @@ describe 'Two-way bindings', ->
     model = new MyModel({size: "small"})
     @render 'input[type="radio" value="large" binding:change=size]', model, {}
     model.set("size", "medium")
-    input = @body.find('input').get(0)
+    input = @body.querySelector('input')
     expect(input.checked).to.eql(false)

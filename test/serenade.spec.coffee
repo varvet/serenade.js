@@ -15,31 +15,31 @@ describe "Serenade", ->
   describe ".view", ->
     it "registers a view object", ->
       Serenade.view("test", "h1#test")
-      @body.append Serenade.render("test", {}, {})
+      @body.appendChild Serenade.render("test", {}, {})
       expect(@body).to.have.element("h1#test")
 
     it "doesn't require model or controller to be given", ->
       Serenade.view("test", "h1#test")
-      @body.append Serenade.render("test")
+      @body.appendChild Serenade.render("test")
       expect(@body).to.have.element("h1#test")
 
     it "can be rendered directly", ->
-      @body.append Serenade.view("test", "h1#test").render()
+      @body.appendChild Serenade.view("test", "h1#test").render()
       expect(@body).to.have.element("h1#test")
 
     it "works fine without a name", ->
-      @body.append Serenade.view("h1#test").render()
+      @body.appendChild Serenade.view("h1#test").render()
       expect(@body).to.have.element("h1#test")
 
     it "can be take models as parameters", ->
       model = { id: 'test' }
-      @body.append Serenade.view("test", "h1[id=@id]").render(model)
+      @body.appendChild Serenade.view("test", "h1[id=@id]").render(model)
       expect(@body).to.have.element("h1#test")
 
     it "can be take controllers as parameters", ->
       tested = false
       controller = { test: -> tested = true }
       model = {}
-      @body.append Serenade.view("test", "a[event:click=test]").render(model, controller)
-      @fireEvent @body.find('a').get(0), 'click'
+      @body.appendChild Serenade.view("test", "a[event:click=test]").render(model, controller)
+      @fireEvent @body.querySelector('a'), 'click'
       expect(tested).to.be.ok

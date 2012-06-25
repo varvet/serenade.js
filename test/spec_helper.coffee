@@ -18,7 +18,6 @@ compareArrays = (one, two) ->
 
 jsdom = require("jsdom")
 fs = require('fs')
-jquery = fs.readFileSync("test/jquery.js").toString()
 
 Cache._storage =
   _items: {}
@@ -31,20 +30,9 @@ beforeEach ->
   Serenade.clearCache()
 
   @setupDom = ->
-    html = """
-      <html>
-        <head>
-          <script>
-            #{jquery}
-          </script>
-        </head>
-        <body></body>
-      </html>
-
-    """
-    @document = require("jsdom").jsdom(html, null, src: jquery)
+    @document = require("jsdom").jsdom(null, null, features: { QuerySelector: true })
     @window = @document.createWindow()
-    @body = @window.$(@document.body)
+    @body = @document.body
     Serenade.document = @document
 
   @fireEvent = (element, name) ->
@@ -53,19 +41,19 @@ beforeEach ->
     element.dispatchEvent(event)
 
   @render = (template, model, controller) =>
-    @body.append(Serenade.view(template).render(model, controller))
+    @body.appendChild(Serenade.view(template).render(model, controller))
 
   chai.Assertion::element = (selector, options) ->
     if options and options.count
       actual = @obj.find(selector).length
       @assert actual == options.count, "expected #{options.count} of @{selector}, but there were #{actual}"
     else
-      @assert @obj.find(selector).length > 0, "expected #{selector} to occur"
+      @assert @obj.querySelectorAll(selector).length > 0, "expected #{selector} to occur"
 
   chai.Assertion::text = (text) ->
-    @assert @obj.text().trim().replace(/\s/g, ' ') is text
+    @assert @obj.textContent.trim().replace(/\s/g, ' ') is text
   chai.Assertion::attribute = (name) ->
-    @assert @obj.get(0).hasAttribute(name)
+    @assert @obj.hasAttribute(name)
   chai.Assertion::triggerEvent = (object, eventName, options={}) ->
     args = null
     count = 0

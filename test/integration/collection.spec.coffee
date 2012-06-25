@@ -27,7 +27,7 @@ describe 'Collection', ->
     ''', model
     expect(@body).to.have.element('ul > li#jonas:contains(jonas)')
     expect(@body).to.have.element('ul > li#peter:contains(peter)')
-    expect(@body.find("li:first").css("color")).to.eql("jonas")
+    expect(@body.querySelector("li").style.color).to.eql("jonas")
 
   it 'compiles a Serenade.collection in a collection instruction', ->
     model = { people: new Serenade.Collection([{ name: 'jonas' }, { name: 'peter' }]) }

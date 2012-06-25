@@ -26,7 +26,7 @@ describe 'View', ->
       ul
         - view "test"
     '''
-    @fireEvent @body.find('li#foo').get(0), 'click'
+    @fireEvent @body.querySelector('li#foo'), 'click'
 
     expect(funked).to.be.ok
 
@@ -72,6 +72,6 @@ describe 'View', ->
       ul
         - view "test"
     ''', {}, new TestCon()
-    @fireEvent @body.find('li#foo').get(0), 'click'
+    @fireEvent @body.querySelector('li#foo'), 'click'
 
     expect(funked).to.be.ok

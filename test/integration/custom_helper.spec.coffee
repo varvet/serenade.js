@@ -130,7 +130,7 @@ describe 'Custom helpers', ->
           - form
             div[id="jonas" event:click=funky]
       '''
-      @fireEvent(@body.find('div#jonas').get(0), 'click')
+      @fireEvent(@body.querySelector('div#jonas'), 'click')
       expect(funked).to.be.ok
 
     it 'allows block content to be reused', ->

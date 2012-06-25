@@ -9,7 +9,7 @@ describe 'Events', ->
   it 'attaches an event which calls the controller action when triggered', ->
     controller = { iWasClicked: -> @clicked = true }
     @render 'div[event:click=iWasClicked]', {}, controller
-    @fireEvent @body.find('div').get(0), 'click'
+    @fireEvent @body.querySelector('div'), 'click'
     expect(controller.clicked).to.be.ok
 
   it 'initializes controllers sent in as constructors with the model instance', ->
@@ -18,7 +18,7 @@ describe 'Events', ->
       constructor: (@model) ->
       iWasClicked: -> funked = @model.foo
     @render 'div[event:click=iWasClicked]', { foo: "foo" }, Controller
-    @fireEvent @body.find('div').get(0), 'click'
+    @fireEvent @body.querySelector('div'), 'click'
     expect(funked).to.eql("foo")
 
   it 'calls the loaded event after the view is done rendering, sending in model and view', ->
@@ -42,7 +42,7 @@ describe 'Events', ->
         name = model.name
         eventType = event.type
     @render 'div\n\ta[event:click=iWasClicked]', { name: "Jonas" }, controller
-    @fireEvent @body.find('a').get(0), 'click'
+    @fireEvent @body.querySelector('a'), 'click'
     expect(nodeName).to.eql("A")
     expect(name).to.eql("Jonas")
     expect(eventType).to.eql("click")
@@ -53,5 +53,5 @@ describe 'Events', ->
       iWasClicked: (_, view) ->
         nodeName = view.nodeName
     @render 'div[event:click=iWasClicked]\n\ta', {}, controller
-    @fireEvent @body.find('a').get(0), 'click'
+    @fireEvent @body.querySelector('a'), 'click'
     expect(nodeName).to.eql("DIV")
