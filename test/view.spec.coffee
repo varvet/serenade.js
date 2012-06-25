@@ -203,3 +203,23 @@ describe 'View', ->
 
     it 'parses a tag containing an underscore in the short form id', ->
       expect(parse('div#foo_bar').id).to.eql('foo_bar')
+
+    it 'ignores comments', ->
+      result = parse """
+        // Hello
+        // From
+        div // this
+          // view
+        // which
+          ul // has
+            // lots
+            li
+            // foo
+            p
+        // of
+        // comments
+      """
+      expect(result.name).to.eql('div')
+      expect(result.children[0].name).to.eql('ul')
+      expect(result.children[0].children[0].name).to.eql('li')
+      expect(result.children[0].children[1].name).to.eql('p')

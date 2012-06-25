@@ -8,6 +8,8 @@ MULTI_DENT = /^(?:\r?\n[^\r\n\S]*)+/
 
 WHITESPACE = /^[^\r\n\S]+/
 
+COMMENT = /^\s*\/\/[^\n]*/
+
 KEYWORDS = ["IF", "COLLECTION", "IN", "VIEW", "UNLESS"]
 
 class Lexer
@@ -23,7 +25,7 @@ class Lexer
     i = 0
     while @chunk = @code.slice i
       i += @identifierToken() or
-           #@commentToken()    or
+           @commentToken()    or
            @whitespaceToken() or
            @lineToken()       or
            @stringToken()     or
@@ -34,7 +36,15 @@ class Lexer
         @token 'OUTDENT'
       else
         @error "missing #{tag}"
+    @tokens.shift() until @tokens[0][0] isnt "TERMINATOR"
+    @tokens.pop() until @tokens[@tokens.length - 1][0] isnt "TERMINATOR"
     @tokens
+
+  commentToken: ->
+    if match = COMMENT.exec @chunk
+      match[0].length
+    else
+      0
 
   whitespaceToken: ->
     if match = WHITESPACE.exec @chunk
