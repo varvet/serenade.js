@@ -143,43 +143,38 @@ Compile =
     dynamic
 
   in: (ast, model, controller) ->
-    dynamic = new DynamicNode(ast)
-    update = ->
-      value = get(model, ast.arguments[0])
+    Compile.bound ast, model, controller, (dynamic, value) ->
       if value
         nodes = (compile(child, value, controller) for child in ast.children)
         dynamic.replace([nodes])
       else
         dynamic.clear()
-    update()
-    model.bind? "change:#{ast.arguments[0]}", update
-    dynamic
 
   if: (ast, model, controller) ->
-    dynamic = new DynamicNode(ast)
-    update = ->
-      value = get(model, ast.arguments[0])
+    Compile.bound ast, model, controller, (dynamic, value) ->
       if value
         nodes = (compile(child, model, controller) for child in ast.children)
         dynamic.replace([nodes])
       else
         dynamic.clear()
+
+  unless: (ast, model, controller) ->
+    Compile.bound ast, model, controller, (dynamic, value) ->
+      if value
+        dynamic.clear()
+      else
+        nodes = (compile(child, model, controller) for child in ast.children)
+        dynamic.replace([nodes])
+
+  bound: (ast, model, controller, callback) ->
+    dynamic = new DynamicNode(ast)
+    update = ->
+      value = get(model, ast.arguments[0])
+      callback(dynamic, value)
     update()
     model.bind? "change:#{ast.arguments[0]}", update
     dynamic
 
-  unless: (ast, model, controller) ->
-    dynamic = new DynamicNode(ast)
-    update = ->
-      value = get(model, ast.arguments[0])
-      if value
-        dynamic.clear()
-      else
-        nodes = (compile(child, model, controller) for child in ast.children)
-        dynamic.replace([nodes])
-    update()
-    model.bind? "change:#{ast.arguments[0]}", update
-    dynamic
 
 compile = (ast, model, controller) ->
   action = Compile[ast.type]
