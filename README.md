@@ -152,7 +152,7 @@ class MyModel extends Serenade.Model
 You can declare properties on model constructors and they will be available
 on all instances:
 
-``` javascript ```
+``` javascript
 MyModel.property("name");
 model = new MyModel()
 model.name = "Jonas"
