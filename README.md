@@ -795,13 +795,13 @@ Run the tests:
 
 Build Serenade.js into a single file:
 
-    cake build
+    npm run-script build
+
+You should now have the built project in `./extras`.
 
 Run the example app:
 
-    coffee web.coffee
-
-You should now have the built project in `./extras`.
+    npm run-script examples
 
 # License
 
