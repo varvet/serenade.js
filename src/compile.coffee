@@ -7,7 +7,7 @@
 getValue = (ast, model) ->
   if ast.bound and ast.value
     get(model, ast.value, true)
-  else if ast.value
+  else if ast.value?
     ast.value
   else
     model
