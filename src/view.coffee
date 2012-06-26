@@ -16,7 +16,11 @@ class View
   constructor: (@name, @view) ->
   parse: ->
     if typeof(@view) is 'string'
-      parser.parse(new Lexer().tokenize(@view))
+      try
+        parser.parse(new Lexer().tokenize(@view))
+      catch e
+        e.message = "In #{@name}: #{e.message}"
+        throw e
     else
       @view
   render: (model, controller, parent) ->
