@@ -91,6 +91,9 @@ Compile =
     element.setAttribute('id', ast.id) if ast.id
     element.setAttribute('class', ast.classes.join(' ')) if ast.classes?.length
 
+    for child in ast.children
+      compile(child, model, controller).append(element)
+
     for property in ast.properties
       action = Property[property.scope]
       if action
@@ -98,8 +101,6 @@ Compile =
       else
         throw SyntaxError "#{property.scope} is not a valid scope"
 
-    for child in ast.children
-      compile(child, model, controller).append(element)
     node
 
   view: (ast, model, parent) ->

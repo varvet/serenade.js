@@ -45,9 +45,13 @@ describe 'Two-way bindings', ->
     input = @body.querySelector('textarea')
     expect(input.value).to.eql("My name")
 
-  it 'sets value of select box to models value', ->
+  it "sets value of select box to model's value", ->
     model = {name: "My name"}
-    @render 'select[binding:change=name]\n\toption "My name"', model, {}
+    @render """
+      select[binding:change=name]
+        option "Other name"
+        option "My name"
+    """, model, {}
     input = @body.querySelector('select')
     expect(input.value).to.eql("My name")
 
