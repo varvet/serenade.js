@@ -91,6 +91,8 @@ grammar =
   ]
 
 Jison = require("jison").Parser
-parser = new Jison(tokens: [], lex: { rules: [] }, bnf: grammar, startSymbol: 'Root')
+parser = new Jison(tokens: [], bnf: grammar, startSymbol: 'Root')
+parser.lexer = {}
+parser.moduleInclude = ";"
 
 exports.Parser = parser
