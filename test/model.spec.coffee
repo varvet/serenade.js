@@ -83,6 +83,15 @@ describe 'Serenade.Model', ->
       Test = Serenade.Model.extend('Testing', -> @foo = true)
       test = new Test()
       expect(test.foo).to.be.ok
+    it 'works with the identity map', ->
+      Person = Serenade.Model.extend("Person")
+      john1 = new Person(id: 'j123', name: 'John', age: 23)
+      john1.test = true
+      john2 = new Person(id: 'j123', age: 46)
+
+      expect(john2.test).to.be.ok
+      expect(john2.get('age')).to.eql(46)
+      expect(john2.get('name')).to.eql('John')
 
   describe '.find', ->
     it 'creates a new blank object with the given id', ->

@@ -19,7 +19,8 @@ class Model
     class New extends this
       @modelName: name
       constructor: ->
-        super
+        val = super
+        return val if val
         ctor.apply(this, arguments) if ctor
 
   constructor: (attributes, bypassCache=false) ->
