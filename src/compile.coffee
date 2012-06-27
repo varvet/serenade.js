@@ -71,8 +71,9 @@ Property =
         classes = node.ast.classes
         classes = classes.concat(value) unless value is undefined
         if classes.length
-          element.setAttribute(ast.name, classes.join(' '))
+          element.className = classes.join(' ')
         else
+          element.className = '' # IE7-compat
           element.removeAttribute(ast.name)
       else if value is undefined
         element.removeAttribute(ast.name)
