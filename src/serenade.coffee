@@ -7,6 +7,9 @@ Serenade = (attributes) ->
   @set(attributes)
   this
 
+# IE7 (minimum IE supported version) demands lots of special cases
+Serenade.isIE7 = /MSIE 7/.test navigator.userAgent if (ua = window?.navigator?.userAgent)
+
 extend Serenade.prototype, Properties
 extend Serenade,
   VERSION: '0.2.1'

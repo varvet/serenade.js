@@ -50,6 +50,9 @@ Property =
         element.value = val unless element.value is val
 
     modelUpdated()
+    # serenade:afterRender should be triggered after appending
+    # the node created by Serenade.render to the DOM in IE7
+    model.one?('serenade:afterRender', modelUpdated)
     model.bind?("change:#{ast.value}", modelUpdated)
     if ast.name is "binding"
       # we can't bind to the form directly since it doesn't exist yet
@@ -84,13 +87,25 @@ Property =
     model.bind?("change:#{ast.value}", update) if ast.bound
     update()
 
+createElement = (ast)->
+  unless Serenade.isIE7 and ast.name is 'input'
+    return Serenade.document.createElement ast.name
+  # In IE7 radio inputs must be created in a special way
+  # you can't change their names after they were created.
+  (name = p.value; break) for p in ast.properties when p.name is "name"
+  if name
+    return Serenade.document.createElement "<input name='#{name}'>"
+  else
+    return Serenade.document.createElement ast.name
+
 Compile =
   element: (ast, model, controller) ->
-    element = Serenade.document.createElement(ast.name)
+    element = createElement(ast)
+
     node = new Node(ast, element)
 
     element.setAttribute('id', ast.id) if ast.id
-    element.setAttribute('class', ast.classes.join(' ')) if ast.classes?.length
+    element.className = ast.classes.join(' ') if ast.classes?.length
 
     for child in ast.children
       compile(child, model, controller).append(element)
