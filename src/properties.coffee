@@ -144,7 +144,7 @@ Associations =
     @property name, attributes
     @property name + 'Id',
       get: -> get(@get(name), 'id')
-      set: (id) -> @attributes[name] = attributes.as().find(id)
+      set: (id) -> @set(name, attributes.as().find(id)) if id?
       dependsOn: name
       serialize: attributes.serializeId
 

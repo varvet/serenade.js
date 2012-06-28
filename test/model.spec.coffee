@@ -145,6 +145,20 @@ describe 'Serenade.Model', ->
       expect(comment.post.body).to.eql('Hello')
       comment.postId = 12
       expect(comment.post.body).to.eql('World')
+    it 'does nothing when given an undefined id', ->
+      class Post extends Serenade.Model
+      class Comment extends Serenade.Model
+        @belongsTo('post', as: -> Post)
+      comment = new Comment(postId: undefined)
+      expect(comment.post).to.eql(undefined)
+    it 'can handle ids given as strings', ->
+      class Post extends Serenade.Model
+        @property 'body'
+      class Comment extends Serenade.Model
+        @belongsTo('post', as: -> Post)
+      post1 = new Post(id: 5, body: 'Hello')
+      comment = new Comment(postId: "5")
+      expect(comment.post.body).to.eql('Hello')
     it 'serializes the entire associated document', ->
       class Post extends Serenade.Model
         @property 'body', serialize: true
