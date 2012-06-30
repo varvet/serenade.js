@@ -105,8 +105,13 @@ Compile =
     node
 
   view: (ast, model, parent) ->
-    controller = Serenade.controllerFor(ast.arguments[0]) or parent
-    element = Serenade.render(ast.arguments[0], model, controller, parent)
+    controller = Serenade.controllerFor(ast.arguments[0])
+    # If we cannot find a controller, we inherit the base view's controller,
+    # in that case we don't want the `loaded` callback to be called
+    unless controller
+      skipCallback = true
+      controller = parent
+    element = Serenade.render(ast.arguments[0], model, controller, parent, skipCallback)
     new Node(ast, element)
 
   helper: (ast, model, controller) ->

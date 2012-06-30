@@ -22,8 +22,8 @@ extend Serenade,
     else
       new View(undefined, nameOrTemplate)
 
-  render: (name, model, controller, parent) ->
-    @_views[name].render(model, controller, parent)
+  render: (name, model, controller, parent, skipCallback) ->
+    @_views[name].render(model, controller, parent, skipCallback)
 
   controller: (name, klass) ->
     @_controllers[name] = klass

@@ -19,14 +19,14 @@ class View
       parser.parse(new Lexer().tokenize(@view))
     else
       @view
-  render: (model, controller, parent) ->
+  render: (model, controller, parent, skipCallback) ->
     controller or= Serenade.controllerFor(@name, model) if @name
     controller or= {}
     if typeof(controller) is "function"
       controller = new controller(model, parent)
 
     node = compile(@parse(), model, controller)
-    controller.loaded?(model, node.element)
+    controller.loaded?(model, node.element) unless skipCallback
     node.element
 
 exports.View = View
