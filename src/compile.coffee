@@ -47,7 +47,7 @@ Property =
       else
         val = get(model, ast.value)
         val = "" if val == undefined
-        element.value = val
+        element.value = val unless element.value is val
 
     modelUpdated()
     model.bind?("change:#{ast.value}", modelUpdated)
