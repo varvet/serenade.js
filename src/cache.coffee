@@ -12,6 +12,12 @@ Cache =
     if name and id
       @_identityMap[name] or= {}
       @_identityMap[name][id] = obj
+  unset: (ctor, id) ->
+    name = getFunctionName(ctor)
+    if name and id
+      @_identityMap[name] or= {}
+      delete @_identityMap[name][id]
+
   store: (ctor, id, obj) ->
     name = getFunctionName(ctor)
     if name and id and JSON?

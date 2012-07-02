@@ -259,3 +259,13 @@ describe 'Serenade.Model', ->
       post.comments = [{ id: 5, body: 'Hello', confirmed: true }, { id: 8, body: 'Monkey', confirmed: false }]
       comment = post.comments.get(1)
       expect(-> comment.confirmed = true).to.triggerEvent(post, 'change:confirmedComments')
+
+  describe "#id", ->
+    it "updates identify map when changed", ->
+      class Person extends Serenade.Model
+        @property "name"
+      person = new Person(id: 5, name: "Nicklas")
+      person.id = 10
+      expect(person.id).to.eql(10)
+      expect(Person.find(5).name).to.eql(undefined)
+      expect(Person.find(10).name).to.eql("Nicklas")

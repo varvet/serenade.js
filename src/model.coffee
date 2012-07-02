@@ -13,7 +13,10 @@ class Model
 
   @find: (id) -> Cache.get(this, id) or new this(id: id)
 
-  @property 'id', serialize: true
+  @property 'id', serialize: true, set: (val) ->
+    Cache.unset(@constructor, @attributes.id)
+    Cache.set(@constructor, val, this)
+    @attributes.id = val
 
   @extend: (name, ctor) ->
     class New extends this
