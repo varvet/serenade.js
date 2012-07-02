@@ -182,12 +182,6 @@ Compile =
     model.bind? "change:#{ast.arguments[0]}", update
     dynamic
 
-
-compile = (ast, model, controller) ->
-  action = Compile[ast.type]
-  if action
-    action(ast, model, controller)
-  else
-    throw SyntaxError "unknown type '#{ast.type}'"
+compile = (ast, model, controller) -> Compile[ast.type](ast, model, controller)
 
 exports.compile = compile
