@@ -1,6 +1,6 @@
 {Cache} = require './cache'
 {Associations, Properties} = require './properties'
-{extend} = require './helpers'
+{extend, capitalize} = require './helpers'
 
 class Model
   extend(@prototype, Properties)
@@ -25,6 +25,15 @@ class Model
         val = super
         return val if val
         ctor.apply(this, arguments) if ctor
+
+  @delegate = (names..., options) ->
+    to = options.to
+    for name in names
+      do (name) =>
+        propName = name
+        propName = to + capitalize(name) if options.prefix
+        propName = propName + capitalize(to) if options.suffix
+        @property propName, dependsOn: "#{to}.#{name}", get: -> @[to]?[name]
 
   constructor: (attributes, bypassCache=false) ->
     unless bypassCache

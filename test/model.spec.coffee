@@ -260,6 +260,41 @@ describe 'Serenade.Model', ->
       comment = post.comments.get(1)
       expect(-> comment.confirmed = true).to.triggerEvent(post, 'change:confirmedComments')
 
+  describe ".delegate", ->
+    it "sets up delegated attributes", ->
+      class Post extends Serenade.Model
+        @delegate "name", "email", to: "author"
+      post = new Post(author: { name: "Jonas", email: "jonas@elabs.se" })
+      expect(post.name).to.eql("Jonas")
+      expect(post.email).to.eql("jonas@elabs.se")
+    it "returns undefined when the attribute being delegated to is undefined", ->
+      class Post extends Serenade.Model
+        @delegate "name", "email", to: "author"
+      post = new Post(author: undefined)
+      expect(post.name).to.eql(undefined)
+      expect(post.email).to.eql(undefined)
+    it "notifies of changes when delegated attributes are changed", ->
+      author = new Serenade.Model(name: "Jonas", email: "jonas@elabs.se")
+      class Post extends Serenade.Model
+        @delegate "name", "email", to: "author"
+      post = new Post(author: author)
+      expect(-> author.set("name", "peter")).to.triggerEvent(post, "change:name", with: ["peter"])
+      expect(-> author.set("email", "peter@elabs.se")).to.triggerEvent(post, "change:email", with: ["peter@elabs.se"])
+    it "can set prefix", ->
+      author = new Serenade.Model(name: "Jonas", email: "jonas@elabs.se")
+      class Post extends Serenade.Model
+        @delegate "name", "email", to: "author", prefix: true
+      post = new Post(author: { name: "Jonas", email: "jonas@elabs.se" })
+      expect(post.authorName).to.eql("Jonas")
+      expect(post.authorEmail).to.eql("jonas@elabs.se")
+    it "can set suffix", ->
+      author = new Serenade.Model(name: "Jonas", email: "jonas@elabs.se")
+      class Post extends Serenade.Model
+        @delegate "name", "email", to: "author", suffix: true
+      post = new Post(author: { name: "Jonas", email: "jonas@elabs.se" })
+      expect(post.nameAuthor).to.eql("Jonas")
+      expect(post.emailAuthor).to.eql("jonas@elabs.se")
+
   describe "#id", ->
     it "updates identify map when changed", ->
       class Person extends Serenade.Model

@@ -19,3 +19,9 @@ describe 'Helpers', ->
     it 'returns it from a function like to string', ->
       obj = { toString: -> "function Comment() {}" }
       expect(Helpers.getFunctionName(obj)).to.eql('Comment')
+
+  describe ".capitalize", ->
+    it "capitalizes a word", ->
+      expect(Helpers.capitalize("word")).to.eql("Word")
+    it "does nothing with already capitalized words", ->
+      expect(Helpers.capitalize("Word")).to.eql("Word")
