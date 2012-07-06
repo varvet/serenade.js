@@ -17,7 +17,7 @@ class View
   parse: ->
     if typeof(@view) is 'string'
       try
-        parser.parse(new Lexer().tokenize(@view))
+        @view = parser.parse(new Lexer().tokenize(@view))
       catch e
         e.message = "In #{@name}: #{e.message}"
         throw e
