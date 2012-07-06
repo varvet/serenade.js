@@ -33,7 +33,7 @@ Serenade.Properties =
         @get(name).update(value)
     @property name, options
 
-  set: (attributes, value) ->
+  set: (attributes, value, trigger = true) ->
     attributes = pairToObject(attributes, value) if typeof(attributes) is 'string'
 
     names = []
@@ -46,7 +46,8 @@ Serenade.Properties =
       else
         @attributes[name] = value
       @_defer(name)
-    @_triggerChangesTo(names)
+    if trigger
+      @_triggerChangesTo(names)
 
   get: (name) ->
     @attributes or= {}

@@ -40,7 +40,7 @@ class Serenade.Model
       @bind('saved', => Cache.store(@constructor, @get('id'), this))
     else if @constructor.localStorage
       @bind('change', => Cache.store(@constructor, @get('id'), this))
-    @set(attributes)
+    @set(attributes, null, false)
 
   save: ->
     @trigger('saved')
