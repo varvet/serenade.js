@@ -127,7 +127,7 @@ model.name = 'Peter';
 model.name
 ```
 
-Note that IE8 and below do not support setting properties this way.
+Note that IE8 does not support setting properties this way.
 
 Further note that you can only use this syntax with properties that Serenade
 already knows about. If you try to set a property which has previously never
