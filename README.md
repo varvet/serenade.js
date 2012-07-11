@@ -222,7 +222,7 @@ on. You can use the `format` option for this.
 MyModel.property('price', { format: function(value) { return "€ " + value } });
 ```
 
-To retrieve a formatted value, call `format('price')`.
+To retrieve a formatted value, call `get('price', true)`.
 
 Format functions also works for collections. The entire collection object will
 be passed as an argument.
