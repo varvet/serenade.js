@@ -796,14 +796,18 @@ after the element is appended to the document, due to a IE7 bug.
 
 When you click on a checkbox or radio input, the changed value won't trigger the
 "change" event and Serenade won't be able to update the model accordingly. This
-may also affect IE8 as well. If you're using jQuery, a solution could be something
-like this, for getting a consistent behavior across browsers:
+may also affect IE8 as well. If you're using jQuery, this can be fixed by 
+`Serenade.useJQuery()`. Otherwise you might prefer to bind to the `click` event
+instead of `change`. Another approach would be to listen to `click` on those
+elements fire the `change` or `blur` followed by a `focus` event on `click` for
+such browsers.
+
+Also, most browsers will trigger the `change` event on text inputs when `Enter`
+is pressed. This is not the case for IE < 9, so you might want to include something
+like this (example using jQuery):
 
 ``` javascript
 if ($.browser.msie and $.browser.version < 9) $(function() {
-  $(document).on('click', 'input[type=checkbox], input[type=radio]', function() {
-    $(this).trigger("change").blur(); $(this).focus();
-  });
   $(document).on('keydown', 'input[type=text]', function(ev) {
     if (ev.which == 13) { $(this).trigger("change").blur(); $(this).focus(); } // Enter
   });
