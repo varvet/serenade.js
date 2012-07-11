@@ -102,6 +102,7 @@ Properties =
       else
         @attributes[name] = value
     triggerChangesTo(this, names)
+    @[name] = @get(name) for name in names unless define
 
   get: (name, format) ->
     if @[prefix + name]?.dependsOn
