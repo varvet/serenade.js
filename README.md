@@ -19,9 +19,13 @@ advantages as well:
 ## Important Note!
 
 This is an ongoing, alpha level project. Be prepared that the API might change
-and bugs might occur. Currently, versions of Internet Explorer below IE8 are
-not supported. In the future, IE7 will be supported. Support for IE6 is not
-planned.
+and bugs might occur.
+
+## Browser support
+
+Serenade.js should work in all modern browsers, including IE9. IE8 is supported
+with certain limitations, which are documented where applicable. IE7 and below
+are not supported.
 
 ## Download
 
