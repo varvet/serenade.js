@@ -35,7 +35,6 @@ class exports.Collection
   splice: (start, deleteCount, list...) ->
     old = @clone()
     deleted = Array.prototype.splice.apply(@, [start, deleteCount, list...])
-    @length = getLength(@)
     @trigger("update", old, @)
     @trigger("change", @)
     new Collection(deleted)
@@ -76,14 +75,12 @@ class exports.Collection
     return item for item in @ when fun(item)
   insertAt: (index, value) ->
     Array.prototype.splice.call(@, index, 0, value)
-    @length = getLength(@)
     @trigger("insert", index, value)
     @trigger("change", @)
     value
   deleteAt: (index) ->
     value = @[index]
     Array.prototype.splice.call(@, index, 1)
-    @length = getLength(@)
     @trigger("delete", index, value)
     @trigger("change", @)
     value
