@@ -1,28 +1,23 @@
 {Events} = require './events'
 {indexOf, extend, serializeObject, get} = require './helpers'
 
-isArrayIndex = (index) -> index.match(/^\d+$/)
-
-getLength = (arr) ->
-  indices = (parseInt(index, 10) for index, val of arr when isArrayIndex(index))
-  if indices.length then Math.max(indices...) + 1 else 0
+isArrayIndex = (index) -> "#{index}".match(/^\d+$/)
 
 class exports.Collection
   extend(@prototype, Events)
   constructor: (list) ->
     @[index] = val for val, index in list
-    @length = getLength(@)
+    @length = list?.length or 0
   get: (index) -> @[index]
   set: (index, value) ->
     @[index] = value
-    @length = getLength(@)
+    @length = Math.max(@length, index + 1) if isArrayIndex(index)
     @trigger("change:#{index}", value)
     @trigger("set", index, value)
     @trigger("change", @)
     value
   push: (element) ->
-    @[@length] = element
-    @length = getLength(@)
+    @[@length++] = element
     @trigger("add", element)
     @trigger("change", @)
     element
@@ -33,14 +28,14 @@ class exports.Collection
     old = @clone()
     delete @[index] for index, _ of @ when isArrayIndex(index)
     @[index] = val for val, index in list
-    @length = getLength(@)
+    @length = list?.length or 0
     @trigger("update", old, @)
     @trigger("change", @)
     list
   splice: (start, deleteCount, list...) ->
     old = @clone()
     deleted = Array.prototype.splice.apply(@, [start, deleteCount, list...])
-    @length = getLength(@)
+    delete @[index] for index in [@length..@length + deleteCount - 1]
     @trigger("update", old, @)
     @trigger("change", @)
     new Collection(deleted)
@@ -81,14 +76,13 @@ class exports.Collection
     return item for item in @ when fun(item)
   insertAt: (index, value) ->
     Array.prototype.splice.call(@, index, 0, value)
-    @length = getLength(@)
     @trigger("insert", index, value)
     @trigger("change", @)
     value
   deleteAt: (index) ->
     value = @[index]
     Array.prototype.splice.call(@, index, 1)
-    @length = getLength(@)
+    delete @[@length]
     @trigger("delete", index, value)
     @trigger("change", @)
     value

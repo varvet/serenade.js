@@ -92,6 +92,7 @@ And you can render it later, through the global `Serenade.render` function:
 ``` javascript
 var element = Serenade.render('hello_world', model, controller);
 document.body.appendChild(element);
+if (Serenade.isIE7) model.trigger('serenade:afterRender')
 ```
 
 There are more advanced examples in the `examples` folder, check out a live
@@ -780,6 +781,42 @@ app.get('/:name', function(req, res) {
 Since Serenade.js has no special syntax for doctypes, an HTML5 doctype is
 automatically added. If you do not want this, pass `doctype: false` as an
 option to `render`.
+
+# Internet Explorer 7 and 8 notes
+
+IE7 has some bugs that prevent Serenade to fully support it without some extra
+code from programmers. So, if you're targetting IE7 as well, this section explains
+how to support it with Serenade.js. IE8 has also some quirks with regards to
+some input event handling, so keep reading.
+
+## checkboxes and radio inputs initial values
+
+You should call `model.trigger('serenade:afterRender')` just after appending the
+element created by `Serenade.render(...)` to the DOM.  Otherwise checkboxes and
+radio inputs won't have their value correctly checked, as they can only be set
+after the element is appended to the document, due to a IE7 bug.
+
+## "change" events are delayed
+
+When you click on a checkbox or radio input, the changed value won't trigger the
+"change" event and Serenade won't be able to update the model accordingly. This
+may also affect IE8 as well. If you're using jQuery, this can be fixed by 
+`Serenade.useJQuery()`. Otherwise you might prefer to bind to the `click` event
+instead of `change`. Another approach would be to listen to `click` on those
+elements fire the `change` or `blur` followed by a `focus` event on `click` for
+such browsers.
+
+Also, most browsers will trigger the `change` event on text inputs when `Enter`
+is pressed. This is not the case for IE < 9, so you might want to include something
+like this (example using jQuery):
+
+``` javascript
+if ($.browser.msie and $.browser.version < 9) $(function() {
+  $(document).on('keydown', 'input[type=text]', function(ev) {
+    if (ev.which == 13) { $(this).trigger("change").blur(); $(this).focus(); } // Enter
+  });
+});
+```
 
 # Development
 
