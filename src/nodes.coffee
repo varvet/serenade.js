@@ -116,12 +116,13 @@ class View
     @view
 
 class If
-  constructor: (@ast, @document, @model, @controller) ->
+  constructor: (@ast, @document, @model, @controller, @negation=false) ->
     @anchor = document.createTextNode('')
     @model.bind? "change:#{@ast.arguments[0]}", @build
 
   build: =>
-    if get(@model, @ast.arguments[0])
+    value = get(@model, @ast.arguments[0])
+    if value and not @negation or not value and @negation
       @nodes ||= (Nodes.compile(child, @document, @model, @controller) for child in @ast.children)
       node.insertAfter(@nodes[i-1]?.lastElement() or @anchor) for node, i in @nodes
     else
@@ -157,8 +158,9 @@ class In
   build: =>
     @removeNodes()
     subModel = get(@model, @ast.arguments[0])
-    @nodes = (Nodes.compile(child, @document, subModel, @controller) for child in @ast.children)
-    node.insertAfter(@nodes[i-1]?.lastElement() or @anchor) for node, i in @nodes
+    if subModel
+      @nodes = (Nodes.compile(child, @document, subModel, @controller) for child in @ast.children)
+      node.insertAfter(@nodes[i-1]?.lastElement() or @anchor) for node, i in @nodes
 
   append: (inside) ->
     inside.appendChild(@anchor)
@@ -279,6 +281,7 @@ Nodes =
           when "view" then new View(ast, document, model, controller)
           when "collection" then new Collection(ast, document, model, controller)
           when "if" then new If(ast, document, model, controller)
+          when "ifnot" then new If(ast, document, model, controller, true)
           when "in" then new In(ast, document, model, controller)
           else new Helper(ast, document, model, controller)
       else throw SyntaxError "unknown type '#{ast.type}'"
