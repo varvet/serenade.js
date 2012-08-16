@@ -16,7 +16,7 @@ class View
   constructor: (@name, @view) ->
   parse: ->
     if typeof(@view) is 'string'
-      parser.parse(new Lexer().tokenize(@view))
+      @view = parser.parse(new Lexer().tokenize(@view))
     else
       @view
   render: (model, controller, parent, skipCallback) ->
