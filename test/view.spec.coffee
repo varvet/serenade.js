@@ -223,3 +223,6 @@ describe 'View', ->
       expect(result.children[0].name).to.eql('ul')
       expect(result.children[0].children[0].name).to.eql('li')
       expect(result.children[0].children[1].name).to.eql('p')
+
+    it 'it adds view name to error message', ->
+      expect(-> parse('div\ndiv')).to.throw(Error, /In view '.*': .*/)
