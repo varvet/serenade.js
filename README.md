@@ -140,7 +140,7 @@ documented in more detail later in this README.
 You can derive your own constructor by calling `extend` on `Serenade.Model`:
 
 ``` javascript
-var MyModel = Serenade.Model.extend('MyModel', function(attributes) {
+var MyModel = Serenade.Model.extend(function(attributes) {
   // constructor here
 });
 ```
@@ -643,7 +643,7 @@ id return the same object. This is key to working effectively with objects
 bound to views.
 
 ``` javascript
-var Person = Serenade.Model.extend('Person');
+var Person = Serenade.Model.extend();
 
 person1 = new Person({ id: 1, name: 'John'} );
 person2 = new Person({ id: 1, age: 23 });

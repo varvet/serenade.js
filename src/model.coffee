@@ -2,6 +2,8 @@
 {Associations, Properties} = require './properties'
 {extend, capitalize} = require './helpers'
 
+idCounter = 1
+
 class Model
   extend(@prototype, Properties)
   extend(@prototype, Associations)
@@ -18,9 +20,8 @@ class Model
     Cache.set(@constructor, val, this)
     @attributes.id = val
 
-  @extend: (name, ctor) ->
+  @extend: (ctor) ->
     class New extends this
-      @modelName: name
       constructor: ->
         val = super
         return val if val
@@ -34,6 +35,12 @@ class Model
         propName = to + capitalize(name) if options.prefix
         propName = propName + capitalize(to) if options.suffix
         @property propName, dependsOn: "#{to}.#{name}", get: -> @[to]?[name]
+
+  @uniqueId: ->
+    unless @_uniqueId and @_uniqueGen is this
+      @_uniqueId = (idCounter += 1)
+      @_uniqueGen = this
+    @_uniqueId
 
   constructor: (attributes, bypassCache=false) ->
     unless bypassCache

@@ -5,9 +5,10 @@ require './spec_helper'
 
 describe 'Cache', ->
   beforeEach ->
-    class CTOR
+    class CTOR extends Serenade.Model
       constructor: (@attributes) ->
     @ctor = CTOR
+    @uid = @ctor.uniqueId()
 
   describe '.get', ->
     it 'returns undefined when nothing has been cached', ->
@@ -35,22 +36,22 @@ describe 'Cache', ->
   describe '.store', ->
     it 'stores an object in the local storage engine', ->
       Cache.store(@ctor, 5, 12345)
-      expect(Cache._storage.getItem('CTOR_5')).to.eql('12345')
+      expect(Cache._storage.getItem("#{@uid}_5")).to.eql('12345')
 
     it 'uses a serialize function', ->
       Cache.store(@ctor, 5, { serialize: -> 456 })
-      expect(Cache._storage.getItem('CTOR_5')).to.eql('456')
+      expect(Cache._storage.getItem("#{@uid}_5")).to.eql('456')
 
     it 'represents the result as JSON', ->
       Cache.store(@ctor, 5, { serialize: -> { test: 'foo' }})
-      expect(JSON.parse(Cache._storage.getItem('CTOR_5')).test).to.eql('foo')
+      expect(JSON.parse(Cache._storage.getItem("#{@uid}_5")).test).to.eql('foo')
 
   describe '.retrieve', ->
     it 'retrieves an object from the local storage engine and inits it with constructor', ->
       @ctor.localStorage = true
-      Cache._storage.setItem('CTOR_5', '12345')
+      Cache._storage.setItem("#{@uid}_5", '12345')
       expect(Cache.retrieve(@ctor, 5).attributes).to.eql(12345)
     it 'returns undefined if local storage is disabled', ->
       @ctor.localStorage = false
-      Cache._storage.setItem('CTOR_5', '12345')
+      Cache._storage.setItem("#{@uid}_5", '12345')
       expect(Cache.retrieve(@ctor, 5)).to.not.exist

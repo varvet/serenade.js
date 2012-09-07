@@ -38,13 +38,6 @@ Helpers =
     else
       object
 
-  getFunctionName: (fun) ->
-    name = fun.modelName
-    name or= fun.name
-    name or= fun.toString().match(/\[object (.+?)\]/)?[1]
-    name or= fun.toString().match(/function (.+?)\(\)/)?[1]
-    name
-
   preventDefault: (event) ->
     if event.preventDefault
       event.preventDefault()
