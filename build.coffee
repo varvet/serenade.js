@@ -5,15 +5,22 @@ fs = require 'fs'
 path = require 'path'
 gzip = require 'gzip'
 
-header = """
-  /**
-   * Serenade.js JavaScript Framework v#{Serenade.VERSION}
-   * http://github.com/elabs/serenade.js
-   *
-   * Copyright 2011, Jonas Nicklas, Elabs AB
-   * Released under the MIT License
-   */
-"""
+sys = require('sys')
+exec = require('child_process').exec
+
+
+header = (cb) ->
+  exec "git rev-parse HEAD", (error, stdout, stderr) ->
+    cb """
+      /**
+       * Serenade.js JavaScript Framework v#{Serenade.VERSION}
+       * Revision: #{stdout.slice(0, 10)}
+       * http://github.com/elabs/serenade.js
+       *
+       * Copyright 2011, Jonas Nicklas, Elabs AB
+       * Released under the MIT License
+       */
+    """
 
 Build =
   files: ->
@@ -52,13 +59,15 @@ Build =
     """
 
   unpacked: (callback) ->
-    Build.compile (code) -> callback(header + '\n' + code)
+    header (header) ->
+      Build.compile (code) -> callback(header + '\n' + code)
 
   minified: (callback) ->
-    Build.compile (code) ->
-      {parser, uglify} = require 'uglify-js'
-      minified = uglify.gen_code uglify.ast_squeeze uglify.ast_mangle parser.parse code
-      callback(header + "\n" + minified)
+    header (header) ->
+      Build.compile (code) ->
+        {parser, uglify} = require 'uglify-js'
+        minified = uglify.gen_code uglify.ast_squeeze uglify.ast_mangle parser.parse code
+        callback(header + "\n" + minified)
 
   gzipped: (callback) ->
     Build.minified (minified) ->
