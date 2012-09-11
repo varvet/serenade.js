@@ -23,6 +23,18 @@ describe 'Two-way bindings', ->
     @fireEvent input.form, "submit"
     expect(model.name).to.eql("Test")
 
+  it 'is triggered before form submits', ->
+    model = {}
+    stored = null
+    @render """
+      form[event:submit=store!]
+        input[type="text" binding=name]
+    """, model, store: -> stored = model.name
+    input = @body.querySelector('input')
+    input.value = "Test"
+    @fireEvent input.form, "submit"
+    expect(stored).to.eql("Test")
+
   it 'updates serenade model when event triggers', ->
     class MyModel extends Serenade.Model
       @property 'name'

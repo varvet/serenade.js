@@ -53,8 +53,8 @@ Property =
     model.bind?("change:#{ast.value}", modelUpdated)
     if ast.name is "binding"
       # we can't bind to the form directly since it doesn't exist yet
-      Serenade.bindEvent Serenade.document, "submit", (e) =>
-        domUpdated() if element.form is (e.target or e.srcElement)
+      handler = (e) => domUpdated() if element.form is (e.target or e.srcElement)
+      Serenade.bindEvent Serenade.document, "submit", handler, true
     else
       Serenade.bindEvent element, ast.name, domUpdated
 

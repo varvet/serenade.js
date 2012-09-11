@@ -37,9 +37,9 @@ extend Serenade,
   unregisterAll: ->
     Serenade._views = {}
     Serenade._controllers = {}
-  bindEvent: (element, event, callback) ->
+  bindEvent: (element, event, callback, useCapture) ->
     if typeof element.addEventListener is 'function'
-      element.addEventListener(event, callback, false)
+      element.addEventListener(event, callback, useCapture)
     else
       element.attachEvent('on' + event, callback)
   useJQuery: ->
