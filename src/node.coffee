@@ -1,6 +1,10 @@
 {Serenade} = require './serenade'
+{Events} = require './events'
+{extend} = require './helpers'
 
 class Node
+  extend(@prototype, Events)
+
   constructor: (@ast, @element) ->
 
   append: (inside) ->

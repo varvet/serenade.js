@@ -84,6 +84,13 @@ Property =
     model.bind?("change:#{ast.value}", update) if ast.bound
     update()
 
+  on: (ast, node, model, controller) ->
+    if ast.name isnt "load"
+      throw new SyntaxError("unkown lifecycle event '#{ast.name}'")
+    else
+      node.bind ast.name, ->
+        controller[ast.value](model, node.element)
+
 Compile =
   element: (ast, model, controller) ->
     element = Serenade.document.createElement(ast.name)
@@ -102,6 +109,7 @@ Compile =
       else
         throw SyntaxError "#{property.scope} is not a valid scope"
 
+    node.trigger("load")
     node
 
   view: (ast, model, parent) ->
