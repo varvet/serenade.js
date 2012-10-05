@@ -131,7 +131,11 @@ Associations =
       set: (model) ->
         if model.constructor is Object and attributes.as
           model = new (attributes.as())(model)
+        previous = @attributes[name]
         @attributes[name] = model
+        if attributes.inverseOf and not model[attributes.inverseOf].includes(this)
+          previous[attributes.inverseOf].delete(this) if previous
+          model[attributes.inverseOf].push(this)
     @property name, attributes
     @property name + 'Id',
       get: -> @get(name)?.id
@@ -143,7 +147,7 @@ Associations =
     extend attributes,
       get: ->
         unless @attributes[name]
-          @attributes[name] = new AssociationCollection(attributes.as, [])
+          @attributes[name] = new AssociationCollection(this, attributes, [])
           @attributes[name].bind 'change', => triggerChangesTo(this, [name])
         @attributes[name]
       set: (value) ->

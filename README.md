@@ -727,6 +727,14 @@ Post.hasMany('comments', { as: function() { return Comment } });
 If the `constructor` property is omitted from either declaration, then the
 associated documents will be plain objects instead.
 
+You can declare that an association has a property on the other side, this
+will automatically set the inverse association.
+
+``` javascript
+Post.hasMany('comments', { inverseOf: "post", as: function() { return Comment } });
+Comment.belongsTo('post', { inverseOf: "comments", as: function() { return Post } });
+```
+
 ## Serializing associations
 
 Both types of associations can be serialized by declaring `serialize: true` on

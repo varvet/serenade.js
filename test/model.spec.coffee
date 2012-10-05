@@ -197,6 +197,35 @@ describe 'Serenade.Model', ->
         @belongsTo('post', serializeId: true, as: -> Post)
       comment = new Comment(post: { id: 5, body: "foo" })
       expect(comment.toJSON().postId).to.eql(5)
+    it 'can add itself to its inverse relation', ->
+      class Comment extends Serenade.Model
+        @belongsTo "post", inverseOf: "comments", as: -> Post
+      class Post extends Serenade.Model
+        @hasMany 'comments', as: -> Comment
+      comment = new Comment(post: { body: "hey" })
+      expect(comment.post.comments[0]).to.eql(comment)
+    it 'does not add itself multiple times to the same inverse relation', ->
+      class Comment extends Serenade.Model
+        @belongsTo "post", inverseOf: "comments", as: -> Post
+      class Post extends Serenade.Model
+        @hasMany 'comments', as: -> Comment
+      post = new Post()
+      comment = new Comment(post: post)
+      comment.post = post
+      expect(post.comments[0]).to.eql(comment)
+      expect(post.comments.length).to.eql(1)
+    it 'removes itself from its previous inverse relation', ->
+      class Comment extends Serenade.Model
+        @belongsTo "post", inverseOf: "comments", as: -> Post
+      class Post extends Serenade.Model
+        @hasMany 'comments', as: -> Comment
+      post = new Post()
+      otherPost = new Post()
+      comment = new Comment(post: post)
+      comment.post = otherPost
+      expect(post.comments.length).to.eql(0)
+      expect(otherPost.comments[0]).to.eql(comment)
+      expect(otherPost.comments.length).to.eql(1)
 
   describe '.hasMany', ->
     it 'allows objects to be added and retrieved', ->
@@ -283,6 +312,20 @@ describe 'Serenade.Model', ->
       post.comments = [{ id: 5, body: 'Hello', confirmed: true }, { id: 8, body: 'Monkey', confirmed: false }]
       comment = post.comments.get(1)
       expect(-> comment.confirmed = true).to.triggerEvent(post, 'change:confirmedComments')
+    it 'can set itself on its inverse relation', ->
+      class Comment extends Serenade.Model
+        @belongsTo "post"
+      class Post extends Serenade.Model
+        @hasMany 'comments', inverseOf: "post", as: -> Comment
+      post = new Post(comments: [{ body: "hey" }])
+      expect(post.comments[0].post).to.eql(post)
+    it 'can handle circular inverse associations', ->
+      class Comment extends Serenade.Model
+        @belongsTo "post", inverseOf: "comments", as: -> Post
+      class Post extends Serenade.Model
+        @hasMany 'comments', inverseOf: "post", as: -> Comment
+      post = new Post(comments: [{ body: "hey" }])
+      expect(post.comments[0].post).to.eql(post)
 
   describe ".delegate", ->
     it "sets up delegated attributes", ->
