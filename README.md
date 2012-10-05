@@ -23,9 +23,8 @@ and bugs might occur.
 
 ## Browser support
 
-Serenade.js should work in all modern browsers, including IE9. IE8 is supported
-with certain limitations, which are documented where applicable. IE7 and below
-are not supported.
+Serenade.js should work in all modern browsers, including IE9. IE8 and
+below are not supported.
 
 ## Download
 
@@ -222,7 +221,7 @@ on. You can use the `format` option for this.
 MyModel.property('price', { format: function(value) { return "€ " + value } });
 ```
 
-To retrieve a formatted value, call `get('price', true)`.
+To retrieve a formatted value, call `Serenade.format(model, 'price')`.
 
 Format functions also works for collections. The entire collection object will
 be passed as an argument.

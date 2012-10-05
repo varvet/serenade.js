@@ -2,11 +2,11 @@
 {Collection} = require './collection'
 {Node} = require './node'
 {DynamicNode} = require './dynamic_node'
-{get, set, preventDefault} = require './helpers'
+{format, preventDefault} = require './helpers'
 
 getValue = (ast, model) ->
   if ast.bound and ast.value
-    get(model, ast.value, true)
+    format(model, ast.value)
   else if ast.value?
     ast.value
   else
@@ -31,21 +31,21 @@ Property =
 
     domUpdated = ->
       if element.type is "checkbox"
-        set(model, ast.value, element.checked)
+        model[ast.value] = element.checked
       else if element.type is "radio"
-        set(model, ast.value, element.getAttribute("value")) if element.checked
+        model[ast.value] = element.getAttribute("value") if element.checked
       else
-        set(model, ast.value, element.value)
+        model[ast.value] = element.value
 
     modelUpdated = ->
       if element.type is "checkbox"
-        val = get(model, ast.value)
+        val = model[ast.value]
         element.checked = !!val
       else if element.type is "radio"
-        val = get(model, ast.value)
+        val = model[ast.value]
         element.checked = true if val == element.getAttribute("value")
       else
-        val = get(model, ast.value)
+        val = model[ast.value]
         val = "" if val == undefined
         element.value = val unless element.value is val
 
@@ -149,7 +149,7 @@ Compile =
     compileItem = (item) -> compileAll(ast.children, item, controller)
 
     dynamic = new DynamicNode(ast)
-    collection = get(model, ast.arguments[0])
+    collection = model[ast.arguments[0]]
     if typeof(collection.bind) is "function"
       dynamic.bindEvent(collection, 'set', => dynamic.replace(compileItem(item) for item in collection))
       dynamic.bindEvent(collection, 'update', => dynamic.replace(compileItem(item) for item in collection))
@@ -186,7 +186,7 @@ Compile =
   bound: (ast, model, controller, callback) ->
     dynamic = new DynamicNode(ast)
     update = ->
-      value = get(model, ast.arguments[0])
+      value = model[ast.arguments[0]]
       callback(dynamic, value)
     update()
     dynamic.bindEvent model, "change:#{ast.arguments[0]}", update

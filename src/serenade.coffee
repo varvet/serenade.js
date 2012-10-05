@@ -1,5 +1,5 @@
 {Cache} = require './cache'
-{extend} = require './helpers'
+{extend, format} = require './helpers'
 {Properties, globalDependencies} = require("./properties")
 
 Serenade = (attributes) ->
@@ -14,6 +14,7 @@ extend Serenade,
   _controllers: {}
 
   document: window?.document
+  format: format
 
   view: (nameOrTemplate, template) ->
     {View} = require('./view')

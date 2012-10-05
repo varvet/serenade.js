@@ -1,29 +1,19 @@
 Helpers =
+  prefix: "_prop_"
   extend: (target, source) ->
     for own key, value of source
       target[key] = value
 
-  get: (model, value, format) ->
-    if typeof(model?.get) is "function"
-      model.get(value, format)
+  format: (model, key) ->
+    value = model[key]
+    formatter = model[Helpers.prefix + key]?.format
+    if typeof(formatter) is 'function'
+      formatter.call(this, value)
     else
-      model?[value]
-
-  set: (model, key, value) ->
-    if model?.set
-      model.set(key, value)
-    else
-      model[key] = value
+      value
 
   isArray: (object) ->
     Object::toString.call(object) is "[object Array]"
-
-  indexOf: (object, search) ->
-    if typeof(Array.prototype.indexOf) is "function"
-      Array.prototype.indexOf.call(object, search)
-    else
-      return index for item, index in object when item is search
-      return -1
 
   pairToObject: (one, two) ->
     temp = {}

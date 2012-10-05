@@ -1,11 +1,9 @@
 {Collection} = require './collection'
 {AssociationCollection} = require './association_collection'
 {Events} = require './events'
-{indexOf, pairToObject, serializeObject, extend, get} = require './helpers'
+{prefix, pairToObject, serializeObject, extend} = require './helpers'
 
-prefix = "_prop_"
 exp = /^_prop_/
-define = Object.defineProperties # we check for the plural because it is unsupported in buggy IE8
 
 globalDependencies = {}
 
@@ -29,7 +27,7 @@ addDependencies = (object, dependency, names) ->
   for name in names
     [name, subname] = name.split(/[:\.]/) if name.match(/[:\.]/)
     object["_dep_" + name] ||= []
-    object["_dep_" + name].push(dependency) if indexOf(object["_dep_" + name], dependency) is -1
+    object["_dep_" + name].push(dependency) if dependency not in object["_dep_" + name]
 
 triggerGlobal = (object, names) ->
   for name in names
@@ -48,7 +46,7 @@ triggerChangesTo = (object, names) ->
     dependencies = object["_dep_" + name]
     if dependencies
       for dependency in dependencies
-        if indexOf(names, dependency) is -1
+        if dependency not in names
           names.push(dependency)
           findDependencies(dependency)
   findDependencies(name) for name in names
@@ -66,11 +64,10 @@ Properties =
     @[prefix + name].name = name
     @set(name, @[name]) if @.hasOwnProperty(name)
     addDependencies(this, name, options.dependsOn) if options.dependsOn
-    if define
-      Object.defineProperty @, name,
-        get: -> Properties.get.call(this, name)
-        set: (value) -> Properties.set.call(this, name, value)
-        configurable: true
+    Object.defineProperty @, name,
+      get: -> Properties.get.call(this, name)
+      set: (value) -> Properties.set.call(this, name, value)
+      configurable: true
     if typeof(options.serialize) is 'string'
       @property options.serialize,
         get: -> @get(name)
@@ -102,24 +99,17 @@ Properties =
       else
         @attributes[name] = value
     triggerChangesTo(this, names)
-    @[name] = @get(name) for name in names unless define
 
-  get: (name, format) ->
+  get: (name) ->
     if @[prefix + name]?.dependsOn
       addGlobalDependencies(this, name, [].concat(@[prefix + name].dependsOn))
     @attributes or= {}
-    value = if @[prefix + name]?.get
+    if @[prefix + name]?.get
       @[prefix + name].get.call(this)
     else if @[prefix + name]?.hasOwnProperty("default") and not @attributes.hasOwnProperty(name)
       @[prefix + name].default
     else
       @attributes[name]
-
-    formatter = @[prefix + name]?.format
-    if format and typeof(formatter) is 'function'
-      formatter.call(this, value)
-    else
-      value
 
   serialize: ->
     serialized = {}
@@ -144,7 +134,7 @@ Associations =
         @attributes[name] = model
     @property name, attributes
     @property name + 'Id',
-      get: -> get(@get(name), 'id')
+      get: -> @get(name)?.id
       set: (id) -> @set(name, attributes.as().find(id)) if id?
       dependsOn: name
       serialize: attributes.serializeId
@@ -160,7 +150,7 @@ Associations =
         @get(name).update(value)
     @property name, attributes
     @property name + 'Ids',
-      get: -> new Collection(@get(name)).map((item) -> get(item, 'id'))
+      get: -> new Collection(@get(name)).map((item) -> item?.id)
       set: (ids) ->
         objects = (attributes.as().find(id) for id in ids)
         @get(name).update(objects)

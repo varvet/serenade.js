@@ -178,15 +178,6 @@ describe 'Serenade.Collection', ->
       expect(@collection.indexOf('a')).to.eql(0)
       expect(@collection.indexOf('b')).to.eql(1)
       expect(@collection.indexOf('foo')).to.eql(-1)
-    it 'works without native indexOf function', ->
-      original = Array.prototype.indexOf
-      Array.prototype.indexOf = undefined
-
-      expect(@collection.indexOf('a')).to.eql(0)
-      expect(@collection.indexOf('b')).to.eql(1)
-      expect(@collection.indexOf('foo')).to.eql(-1)
-
-      Array.prototype.indexOf = original
 
   describe "#lastIndexOf", ->
     it "returns the last index of the given element", ->
@@ -195,17 +186,6 @@ describe 'Serenade.Collection', ->
       expect(@collection.lastIndexOf("b")).to.eql(2)
       expect(@collection.lastIndexOf("c")).to.eql(0)
       expect(@collection.lastIndexOf("d")).to.eql(-1)
-    it "works without native implementation", ->
-      original = Array.prototype.lastIndexOf
-      Array.prototype.lastIndexOf = undefined
-
-      @collection = new Serenade.Collection(["c", "a", "b", "a"])
-      expect(@collection.lastIndexOf("a")).to.eql(3)
-      expect(@collection.lastIndexOf("b")).to.eql(2)
-      expect(@collection.lastIndexOf("c")).to.eql(0)
-      expect(@collection.lastIndexOf("d")).to.eql(-1)
-
-      Array.prototype.lastIndexOf = original
 
   describe '#includes', ->
     it 'returns true if the item exists in the collection', ->
@@ -288,16 +268,6 @@ describe 'Serenade.Collection', ->
       expect(array).to.eql(["a", "b", "c"])
     it "returns undefined", ->
       expect(@collection.forEach(->)).to.be.undefined
-    it "works without native forEach implementation", ->
-      array = []
-      original = Array.prototype.forEach
-
-      Array.prototype.forEach = undefined
-      @collection.forEach (val, index) -> array[index] = val
-      Array.prototype.forEach = original
-
-      expect(array).to.eql(["a", "b", "c"])
-      expect(@collection.forEach(->)).to.be.undefined
 
   describe "#map", ->
     it "maps over the collection", ->
@@ -306,31 +276,10 @@ describe 'Serenade.Collection', ->
       expect(array[1]).to.eql([1, "b"])
       expect(array[2]).to.eql([2, "c"])
       expect(array).to.be.an.instanceof(Serenade.Collection)
-    it "works without native map implementation", ->
-      original = Array.prototype.map
-
-      Array.prototype.map = undefined
-      array = @collection.map (val, index) -> [index, val]
-      Array.prototype.map = original
-
-      expect(array[0]).to.eql([0, "a"])
-      expect(array[1]).to.eql([1, "b"])
-      expect(array[2]).to.eql([2, "c"])
-      expect(array).to.be.an.instanceof(Serenade.Collection)
 
   describe "#filter", ->
     it "filters the collections", ->
       array = @collection.filter (item) -> item in ["a", "c"]
-      expect(array[0]).to.eql("a")
-      expect(array[1]).to.eql("c")
-      expect(array).to.be.an.instanceof(Serenade.Collection)
-    it "works without native map implementation", ->
-      original = Array.prototype.filter
-
-      Array.prototype.filter = undefined
-      array = @collection.filter (item) -> item in ["a", "c"]
-      Array.prototype.filter = original
-
       expect(array[0]).to.eql("a")
       expect(array[1]).to.eql("c")
       expect(array).to.be.an.instanceof(Serenade.Collection)
@@ -404,27 +353,12 @@ describe 'Serenade.Collection', ->
     it "returns whether every item matches the given function", ->
       expect(@collection.every((item) -> item.match(/[abc]/))).to.be.true
       expect(@collection.every((item) -> item.match(/[ab]/))).to.be.false
-    it "works without native implementation", ->
-      original = Array.prototype.every
-
-      Array.prototype.every = undefined
-      expect(@collection.every((item) -> item.match(/[abc]/))).to.be.true
-      expect(@collection.every((item) -> item.match(/[ab]/))).to.be.false
-      Array.prototype.every = original
 
   describe "#some", ->
     it "returns whether some item matches the given function", ->
       expect(@collection.some((item) -> item.match(/[abc]/))).to.be.true
       expect(@collection.some((item) -> item.match(/[ab]/))).to.be.true
       expect(@collection.some((item) -> item.match(/[d]/))).to.be.false
-    it "works without native implementation", ->
-      original = Array.prototype.some
-
-      Array.prototype.some = undefined
-      expect(@collection.some((item) -> item.match(/[abc]/))).to.be.true
-      expect(@collection.some((item) -> item.match(/[ab]/))).to.be.true
-      expect(@collection.some((item) -> item.match(/[d]/))).to.be.false
-      Array.prototype.some = original
 
   describe "#reduce", ->
     it "reduces the collection to a value", ->
@@ -432,29 +366,11 @@ describe 'Serenade.Collection', ->
       expect(@collection.reduce(((agg, item) -> agg + ":" + item), "foo")).to.eql("foo:a:b:c")
       expect(@collection.reduce((agg, item, index, obj) -> agg + ":" + index + obj.join())).to.eql("a:1a,b,c:2a,b,c")
 
-    it "works without native implementation", ->
-      original = Array.prototype.reduce
-
-      Array.prototype.reduce = undefined
-      expect(@collection.reduce((agg, item) -> agg + ":" + item)).to.eql("a:b:c")
-      expect(@collection.reduce(((agg, item) -> agg + ":" + item), "foo")).to.eql("foo:a:b:c")
-      expect(@collection.reduce((agg, item, index, obj) -> agg + ":" + index + obj.join())).to.eql("a:1a,b,c:2a,b,c")
-      Array.prototype.reduce = original
-
   describe "#reduceRight", ->
     it "reduces the collection to a value", ->
       expect(@collection.reduceRight((agg, item) -> agg + ":" + item)).to.eql("c:b:a")
       expect(@collection.reduceRight(((agg, item) -> agg + ":" + item), "foo")).to.eql("foo:c:b:a")
       expect(@collection.reduceRight((agg, item, index, obj) -> agg + ":" + index + obj.join())).to.eql("c:1a,b,c:0a,b,c")
-
-    it "works without native implementation", ->
-      original = Array.prototype.reduceRight
-
-      Array.prototype.reduceRight = undefined
-      expect(@collection.reduceRight((agg, item) -> agg + ":" + item)).to.eql("c:b:a")
-      expect(@collection.reduceRight(((agg, item) -> agg + ":" + item), "foo")).to.eql("foo:c:b:a")
-      expect(@collection.reduceRight((agg, item, index, obj) -> agg + ":" + index + obj.join())).to.eql("c:1a,b,c:0a,b,c")
-      Array.prototype.reduceRight = original
 
   describe "#clone", ->
     it "returns a collection which is identical, but not the same object", ->
