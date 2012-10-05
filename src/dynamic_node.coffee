@@ -36,7 +36,9 @@ class DynamicNode
       last = node.lastElement()
     @nodeSets.insertAt(index, new Collection(nodes))
 
-  clear: -> @eachNode (node) -> node.remove()
+  clear: ->
+    @eachNode (node) -> node.remove()
+    @nodeSets.update([])
 
   remove: ->
     @clear()

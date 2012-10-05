@@ -79,3 +79,15 @@ describe 'If', ->
     expect(@body).to.have.element('ul > li#foo')
     expect(@body).not.to.have.element('ul > li#bar')
 
+  it "can be nested", ->
+    model = new Serenade.Model(show: true, details: "test")
+    @render """
+      div
+        - if @show
+          - if @details
+            p#test
+    """, model
+    model.show = false
+    model.show = true
+    expect(@body).to.have.element('#test')
+
