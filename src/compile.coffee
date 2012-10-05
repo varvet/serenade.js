@@ -2,7 +2,7 @@
 {Collection} = require './collection'
 {Node} = require './node'
 {DynamicNode} = require './dynamic_node'
-{format, preventDefault} = require './helpers'
+{format} = require './helpers'
 
 getValue = (ast, model) ->
   if ast.bound and ast.value
@@ -20,8 +20,8 @@ Property =
     model.bind?("change:#{ast.value}", update) if ast.bound
 
   event: (ast, node, model, controller) ->
-    Serenade.bindEvent node.element, ast.name, (e) =>
-      preventDefault(e) if ast.preventDefault
+    node.element.addEventListener ast.name, (e) ->
+      e.preventDefault() if ast.preventDefault
       controller[ast.value](model, node.element, e)
 
   binding: (ast, node, model, controller) ->
@@ -30,22 +30,20 @@ Property =
     ast.value or throw SyntaxError "cannot bind to whole model, please specify an attribute to bind to"
 
     domUpdated = ->
-      if element.type is "checkbox"
-        model[ast.value] = element.checked
+      model[ast.value] = if element.type is "checkbox"
+        element.checked
       else if element.type is "radio"
-        model[ast.value] = element.getAttribute("value") if element.checked
+        element.getAttribute("value") if element.checked
       else
-        model[ast.value] = element.value
+        element.value
 
     modelUpdated = ->
+      val = model[ast.value]
       if element.type is "checkbox"
-        val = model[ast.value]
         element.checked = !!val
       else if element.type is "radio"
-        val = model[ast.value]
-        element.checked = true if val == element.getAttribute("value")
+        element.checked = true if val is element.getAttribute("value")
       else
-        val = model[ast.value]
         val = "" if val == undefined
         element.value = val unless element.value is val
 
@@ -53,10 +51,10 @@ Property =
     model.bind?("change:#{ast.value}", modelUpdated)
     if ast.name is "binding"
       # we can't bind to the form directly since it doesn't exist yet
-      handler = (e) => domUpdated() if element.form is (e.target or e.srcElement)
-      Serenade.bindEvent Serenade.document, "submit", handler, true
+      handler = (e) -> domUpdated() if element.form is (e.target or e.srcElement)
+      Serenade.document.addEventListener("submit", handler, true)
     else
-      Serenade.bindEvent element, ast.name, domUpdated
+      element.addEventListener(ast.name, domUpdated)
 
   attribute: (ast, node, model, controller) ->
     return Property.binding(ast, node, model, controller) if ast.name is "binding"

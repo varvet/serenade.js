@@ -28,14 +28,7 @@ Helpers =
     else
       object
 
-  preventDefault: (event) ->
-    if event.preventDefault
-      event.preventDefault()
-    else
-      event.returnValue = false
-
   capitalize: (word) ->
     word.slice(0,1).toUpperCase() + word.slice(1)
-
 
 Helpers.extend(exports, Helpers)
