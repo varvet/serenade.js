@@ -31,7 +31,7 @@ below are not supported.
 Download here: https://github.com/elabs/serenade.js/downloads
 
 You can integrate Serenade into Ruby on Rails through the
-[serenade_rails](https://github.com/elabs/serenade_rails) gem.
+[serenade.rb](https://github.com/elabs/serenade.rb) gem.
 
 ## Architecture
 
