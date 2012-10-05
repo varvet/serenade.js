@@ -369,6 +369,12 @@ describe 'Serenade.Collection', ->
       expect(array[3]).to.eql("d")
       expect(array[4]).to.eql("e")
       expect(array[5]).to.eql("f")
+    it "returns a new collection with the given collections appended", ->
+      array = @collection.concat(new Serenade.Collection(["d", "e"]), ["f"])
+      expect(array.length).to.eql(6)
+      expect(array[3]).to.eql("d")
+      expect(array[4]).to.eql("e")
+      expect(array[5]).to.eql("f")
 
   describe "#slice", ->
     it "slices the collection", ->

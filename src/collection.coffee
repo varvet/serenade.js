@@ -94,11 +94,13 @@ class exports.Collection
       new Collection(Array.prototype.filter.call(@, fun))
     else
       new Collection(item for item in @ when fun(item))
-
   join: (args...) -> Array.prototype.join.apply(@, args)
   toString: -> @toArray().toString()
   toLocaleString: -> @toArray().toLocaleString()
-  concat: (args...) -> new Collection(@toArray().concat(args...))
+  concat: (args...) ->
+    args = for arg in args
+      if arg instanceof Collection then arg.toArray() else arg
+    new Collection(@toArray().concat(args...))
   slice: (args...) -> new Collection(@toArray().slice(args...))
   every: (fun) ->
     if typeof Array.prototype.every is "function"
