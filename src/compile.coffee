@@ -83,11 +83,11 @@ Property =
     update()
 
   on: (ast, node, model, controller) ->
-    if ast.name isnt "load"
-      throw new SyntaxError("unkown lifecycle event '#{ast.name}'")
-    else
+    if ast.name in ["load", "unload"]
       node.bind ast.name, ->
         controller[ast.value](model, node.element)
+    else
+      throw new SyntaxError("unkown lifecycle event '#{ast.name}'")
 
 Compile =
   element: (ast, model, controller) ->

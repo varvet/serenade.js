@@ -21,3 +21,17 @@ describe "Lifecycle events", ->
       expect(ran).to.eql(false)
       model.foo = true
       expect(ran).to.eql("thing")
+
+  describe "on:unload", ->
+    it "runs an event when an element is removed from the DOM", ->
+      ran = false
+      model = Serenade(foo: true)
+      @render """
+        div
+          - if @foo
+            div
+              div[on:unload=run id="thing"]
+      """, model, run: (model, element) -> ran = element.getAttribute("id")
+      expect(ran).to.eql(false)
+      model.foo = false
+      expect(ran).to.eql("thing")

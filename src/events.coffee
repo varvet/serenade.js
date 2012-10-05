@@ -50,5 +50,6 @@ exports.NodeEvents =
       to.bind(name, fun)
 
   unbindEvents: ->
+    @trigger?("unload")
     node.unbindEvents() for node in @nodes()
     to.unbind(name, fun) for {to, name, fun} in @boundEvents if @boundEvents
