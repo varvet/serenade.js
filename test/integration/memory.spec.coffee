@@ -75,3 +75,33 @@ describe 'Memory management', ->
     """, model
     model.toggle = false
     expect(model._callbacks["change:leaking"].length).to.eql(0)
+
+  it 'prevents memory leaks on attributes', ->
+    model = Serenade(leaking: "foobar", toggle: true)
+    @render '''
+      div
+        - if @toggle
+          p[id=@leaking]
+    ''', model
+    model.toggle = false
+    expect(model._callbacks["change:leaking"].length).to.eql(0)
+
+  it 'prevents memory leaks on two-way-bindings', ->
+    model = Serenade(leaking: "foobar", toggle: true)
+    @render '''
+      div
+        - if @toggle
+          input[binding:change=@leaking]
+    ''', model
+    model.toggle = false
+    expect(model._callbacks["change:leaking"].length).to.eql(0)
+
+  it 'prevents memory leaks on style bindings', ->
+    model = Serenade(leaking: "foobar", toggle: true)
+    @render '''
+      div
+        - if @toggle
+          input[style:color=@leaking]
+    ''', model
+    model.toggle = false
+    expect(model._callbacks["change:leaking"].length).to.eql(0)

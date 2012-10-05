@@ -17,7 +17,7 @@ Property =
     update = ->
       node.element.style[ast.name] = getValue(ast, model)
     update()
-    model.bind?("change:#{ast.value}", update) if ast.bound
+    node.bindEvent(model, "change:#{ast.value}", update) if ast.bound
 
   event: (ast, node, model, controller) ->
     node.element.addEventListener ast.name, (e) ->
@@ -48,7 +48,7 @@ Property =
         element.value = val unless element.value is val
 
     modelUpdated()
-    model.bind?("change:#{ast.value}", modelUpdated)
+    node.bindEvent(model, "change:#{ast.value}", modelUpdated)
     if ast.name is "binding"
       # we can't bind to the form directly since it doesn't exist yet
       handler = (e) -> domUpdated() if element.form is (e.target or e.srcElement)
@@ -79,7 +79,7 @@ Property =
         value = "0" if value is 0
         element.setAttribute(ast.name, value)
 
-    model.bind?("change:#{ast.value}", update) if ast.bound
+    node.bindEvent(model, "change:#{ast.value}", update) if ast.bound
     update()
 
   on: (ast, node, model, controller) ->
