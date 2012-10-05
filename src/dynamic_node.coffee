@@ -1,20 +1,25 @@
 {Serenade} = require './serenade'
 {Collection} = require './collection'
+{extend} = require './helpers'
+{NodeEvents} = require './events'
 
 class DynamicNode
+  extend(@prototype, NodeEvents)
+
   constructor: (@ast) ->
     @anchor = Serenade.document.createTextNode('')
     @nodeSets = new Collection([])
-    @boundEvents = new Collection([])
 
-  eachNode: (fun) ->
+  nodes: ->
+    nodes = []
     for set in @nodeSets
-      fun(node) for node in set
+      nodes.push(node) for node in set
+    nodes
 
   rebuild: ->
     if @anchor.parentNode
       last = @anchor
-      @eachNode (node) ->
+      for node in @nodes()
         node.insertAfter(last)
         last = node.lastElement()
 
@@ -38,7 +43,7 @@ class DynamicNode
     @nodeSets.insertAt(index, new Collection(nodes))
 
   clear: ->
-    @eachNode (node) -> node.remove()
+    node.remove() for node in @nodes()
     @nodeSets.update([])
 
   remove: ->
@@ -56,14 +61,5 @@ class DynamicNode
 
   lastElement: ->
     @nodeSets.last()?.last()?.lastElement() or @anchor
-
-  bindEvent: (to, name, fun) ->
-    if to?.bind
-      @boundEvents.push({ to, name, fun })
-      to.bind(name, fun)
-
-  unbindEvents: ->
-    @eachNode (node) -> node.unbindEvents()
-    to.unbind(name, fun) for {to, name, fun} in @boundEvents
 
 exports.DynamicNode = DynamicNode

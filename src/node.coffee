@@ -1,13 +1,13 @@
 {Serenade} = require './serenade'
-{Events} = require './events'
+{Events, NodeEvents} = require './events'
 {extend} = require './helpers'
 {Collection} = require './collection'
 
 class Node
   extend(@prototype, Events)
+  extend(@prototype, NodeEvents)
 
   constructor: (@ast, @element) ->
-    @boundEvents = new Collection([])
     @children = new Collection([])
 
   append: (inside) ->
@@ -23,13 +23,7 @@ class Node
   lastElement: ->
     @element
 
-  bindEvent: (to, name, fun) ->
-    if to?.bind
-      @boundEvents.push({ to, name, fun })
-      to.bind(name, fun)
-
-  unbindEvents: ->
-    child.unbindEvents() for child in @children
-    to.unbind(name, fun) for {to, name, fun} in @boundEvents
+  nodes: ->
+    @children
 
 exports.Node = Node

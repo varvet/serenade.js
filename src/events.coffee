@@ -41,3 +41,14 @@ exports.Events =
       @_callbacks[ev] = list
       break
     @
+
+exports.NodeEvents =
+  bindEvent: (to, name, fun) ->
+    if to?.bind
+      @boundEvents or= []
+      @boundEvents.push({ to, name, fun })
+      to.bind(name, fun)
+
+  unbindEvents: ->
+    node.unbindEvents() for node in @nodes()
+    to.unbind(name, fun) for {to, name, fun} in @boundEvents if @boundEvents
