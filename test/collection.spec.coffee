@@ -16,8 +16,14 @@ describe 'Serenade.Collection', ->
     @collection = new Serenade.Collection([])
     expect(@collection.length).to.eql(0)
 
-  it "can be serialized to JSON", ->
-    expect(JSON.parse(JSON.stringify(@collection))).to.eql(["a", "b", "c"])
+  describe '#toJSON', ->
+    it "can be serialized to JSON", ->
+      expect(JSON.parse(JSON.stringify(@collection))).to.eql(["a", "b", "c"])
+
+    it "serializes the array", ->
+      collection = new Serenade.Collection([{toJSON: -> "foo"}, "bar"])
+      expect(collection.toJSON()).to.eql(["foo", "bar"])
+
 
   describe '#get', ->
     it 'gets an item from the collection', ->
@@ -255,11 +261,6 @@ describe 'Serenade.Collection', ->
       expect(array[2]).to.eql("c")
     it "returns an array", ->
       expect(Array.isArray(@collection.toArray())).to.be.true
-
-  describe '#serialize', ->
-    it "serializes the array", ->
-      collection = new Serenade.Collection([{serialize: -> "foo"}, "bar"])
-      expect(collection.serialize()).to.eql(["foo", "bar"])
 
   describe "#forEach", ->
     it "iterates over the collection", ->

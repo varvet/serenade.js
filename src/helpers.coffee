@@ -21,8 +21,8 @@ Helpers =
     temp
 
   serializeObject: (object) ->
-    if object and typeof(object.serialize) is 'function'
-      object.serialize()
+    if object and typeof(object.toJSON) is 'function'
+      object.toJSON()
     else if Helpers.isArray(object)
       Helpers.serializeObject(item) for item in object
     else

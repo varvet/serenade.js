@@ -189,14 +189,14 @@ describe 'Serenade.Model', ->
       class Comment extends Serenade.Model
         @belongsTo('post', serialize: true, as: -> Post)
       comment = new Comment(post: { body: "foo" })
-      expect(comment.serialize().post.body).to.eql("foo")
+      expect(comment.toJSON().post.body).to.eql("foo")
     it 'serializes the id', ->
       class Post extends Serenade.Model
         @property 'body', serialize: true
       class Comment extends Serenade.Model
         @belongsTo('post', serializeId: true, as: -> Post)
       comment = new Comment(post: { id: 5, body: "foo" })
-      expect(comment.serialize().postId).to.eql(5)
+      expect(comment.toJSON().postId).to.eql(5)
 
   describe '.hasMany', ->
     it 'allows objects to be added and retrieved', ->
@@ -260,7 +260,7 @@ describe 'Serenade.Model', ->
       class Post extends Serenade.Model
         @hasMany 'comments', serialize: true, as: -> Comment
       post = new Post(comments: [{ body: 'Hello' }, { body: 'Monkey' }])
-      serialized = post.serialize()
+      serialized = post.toJSON()
       expect(serialized.comments[0].body).to.eql('Hello')
       expect(serialized.comments[1].body).to.eql('Monkey')
     it 'serializes the ids', ->
@@ -269,7 +269,7 @@ describe 'Serenade.Model', ->
       class Post extends Serenade.Model
         @hasMany 'comments', serializeIds: true, as: -> Comment
       post = new Post(comments: [{ id: 5, body: 'Hello' }, { id: 8, body: 'Monkey' }])
-      serialized = post.serialize()
+      serialized = post.toJSON()
       expect(serialized.commentsIds[0]).to.eql(5)
       expect(serialized.commentsIds[1]).to.eql(8)
     it 'can observe changes to items in the collection', ->

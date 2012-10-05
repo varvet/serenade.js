@@ -39,11 +39,11 @@ describe 'Cache', ->
       expect(Cache._storage.getItem("#{@uid}_5")).to.eql('12345')
 
     it 'uses a serialize function', ->
-      Cache.store(@ctor, 5, { serialize: -> 456 })
+      Cache.store(@ctor, 5, { toJSON: -> 456 })
       expect(Cache._storage.getItem("#{@uid}_5")).to.eql('456')
 
     it 'represents the result as JSON', ->
-      Cache.store(@ctor, 5, { serialize: -> { test: 'foo' }})
+      Cache.store(@ctor, 5, { toJSON: -> { test: 'foo' }})
       expect(JSON.parse(Cache._storage.getItem("#{@uid}_5")).test).to.eql('foo')
 
   describe '.retrieve', ->

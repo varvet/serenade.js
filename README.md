@@ -682,6 +682,15 @@ be added, so that you can do `set('first_name', 'Jonas')`. This is especially
 useful when providing JSON data from the server, as it will allow you to use
 the correct naming conventions both on the server and client.
 
+You can retrieve the serialized represenation like this:
+
+``` javascript
+person.toJSON()
+```
+
+If you send in the model to `JSON.stringify`, that will happen automatically so
+you can simply do `JSON.stringify(person)`.
+
 ## Associations
 
 You can declare that a model has an associated model. For example, each comment

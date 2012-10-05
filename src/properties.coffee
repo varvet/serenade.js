@@ -111,7 +111,7 @@ Properties =
     else
       @attributes[name]
 
-  serialize: ->
+  toJSON: ->
     serialized = {}
     for name, options of this when name.match(exp)
       if typeof(options.serialize) is 'string'

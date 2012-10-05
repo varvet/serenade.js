@@ -58,9 +58,6 @@ class exports.Collection
     index = @indexOf(item)
     @deleteAt(index) if index isnt -1
 
-  serialize: ->
-    serializeObject(@toArray())
-
   first: ->
     @[0]
 
@@ -137,4 +134,4 @@ class exports.Collection
     @toArray().toLocaleString()
 
   toJSON: ->
-    @serialize()
+    serializeObject(@toArray())

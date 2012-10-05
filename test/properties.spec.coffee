@@ -54,7 +54,7 @@ describe 'Properties', ->
       @ctor.prototype.property 'name', serialize: true
       @inst1.property 'age', serialize: true
       @inst2.property 'height', serialize: true
-      expect(Object.keys(@inst2.serialize())).not.to.include('age')
+      expect(Object.keys(@inst2.toJSON())).not.to.include('age')
     it 'can set up default value', ->
       @object.property 'name', default: "foobar"
       expect(@object.name).to.eql("foobar")
@@ -94,7 +94,7 @@ describe 'Properties', ->
     it 'passes on the serialize option', ->
       @object.collection 'numbers', serialize: true
       @object.set('numbers', [1,2,3])
-      expect(@object.serialize()).to.eql(numbers: [1,2,3])
+      expect(@object.toJSON()).to.eql(numbers: [1,2,3])
     it 'can reach into collections and observe changes to the entire collection', ->
       @object.property 'authorNames', dependsOn: ['authors', 'authors:name']
       @object.collection 'authors'
@@ -198,13 +198,13 @@ describe 'Properties', ->
         dependsOn: 'name'
       expect(=> @object.set('name', 'Jonas')).to.triggerEvent(@object, 'change:reverseName', with: ['sanoJ'])
 
-  describe '.serialize', ->
+  describe '.toJSON', ->
     it 'serializes any properties marked as serializable', ->
       @object.property('foo', serialize: true)
       @object.property('barBaz', serialize: true)
       @object.property('quox')
       @object.set(foo: 23, barBaz: 'quack', quox: 'schmoo', other: 55)
-      serialized = @object.serialize()
+      serialized = @object.toJSON()
       expect(serialized.foo).to.eql(23)
       expect(serialized.barBaz).to.eql('quack')
       expect(serialized.quox).to.not.exist
@@ -214,7 +214,7 @@ describe 'Properties', ->
       @object.property('barBaz', serialize: 'bar_baz')
       @object.property('quox')
       @object.set(foo: 23, barBaz: 'quack', quox: 'schmoo', other: 55)
-      serialized = @object.serialize()
+      serialized = @object.toJSON()
       expect(serialized.foo).to.eql(23)
       expect(serialized.bar_baz).to.eql('quack')
       expect(serialized.barBaz).to.not.exist
@@ -225,7 +225,7 @@ describe 'Properties', ->
       @object.property('barBaz', serialize: -> ['bork', @get('foo').toUpperCase()])
       @object.property('quox')
       @object.set(foo: 'fooy', barBaz: 'quack', quox: 'schmoo', other: 55)
-      serialized = @object.serialize()
+      serialized = @object.toJSON()
       expect(serialized.foo).to.eql('fooy')
       expect(serialized.bork).to.eql('FOOY')
       expect(serialized.barBaz).to.not.exist
@@ -233,21 +233,21 @@ describe 'Properties', ->
       expect(serialized.other).to.not.exist
     it 'serializes an object which has a serialize function', ->
       @object.property('foo', serialize: true)
-      @object.set(foo: { serialize: -> 'from serialize' })
-      serialized = @object.serialize()
+      @object.set(foo: { toJSON: -> 'from serialize' })
+      serialized = @object.toJSON()
       expect(serialized.foo).to.eql('from serialize')
     it 'serializes an array of objects which have a serialize function', ->
       @object.property('foo', serialize: true)
-      @object.set(foo: [{ serialize: -> 'from serialize' }, {serialize: -> 'another'}, "normal"])
-      serialized = @object.serialize()
+      @object.set(foo: [{ toJSON: -> 'from serialize' }, {toJSON: -> 'another'}, "normal"])
+      serialized = @object.toJSON()
       expect(serialized.foo[0]).to.eql('from serialize')
       expect(serialized.foo[1]).to.eql('another')
       expect(serialized.foo[2]).to.eql('normal')
     it 'serializes a Serenade.Collection by virtue of it having a serialize method', ->
       @object.property('foo', serialize: true)
-      collection = new Collection([{ serialize: -> 'from serialize' }, {serialize: -> 'another'}, "normal"])
+      collection = new Collection([{ toJSON: -> 'from serialize' }, {toJSON: -> 'another'}, "normal"])
       @object.set(foo: collection)
-      serialized = @object.serialize()
+      serialized = @object.toJSON()
       expect(serialized.foo[0]).to.eql('from serialize')
       expect(serialized.foo[1]).to.eql('another')
       expect(serialized.foo[2]).to.eql('normal')
