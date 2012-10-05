@@ -1,4 +1,5 @@
 {View} = require '../src/view'
+{Serenade} = require '../src/serenade'
 {expect} = require('chai')
 
 describe 'View', ->
@@ -223,3 +224,7 @@ describe 'View', ->
       expect(result.children[0].name).to.eql('ul')
       expect(result.children[0].children[0].name).to.eql('li')
       expect(result.children[0].children[1].name).to.eql('p')
+
+    it 'it adds view name to error message', ->
+      view = Serenade.view("someView", "div\ndiv")
+      expect(-> view.parse()).to.throw(Error, /In view 'someView':/)
