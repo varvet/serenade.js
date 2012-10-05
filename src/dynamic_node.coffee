@@ -5,6 +5,7 @@ class DynamicNode
   constructor: (@ast) ->
     @anchor = Serenade.document.createTextNode('')
     @nodeSets = new Collection([])
+    @boundEvents = new Collection([])
 
   eachNode: (fun) ->
     for set in @nodeSets
@@ -41,6 +42,7 @@ class DynamicNode
     @nodeSets.update([])
 
   remove: ->
+    @unbindEvents()
     @clear()
     @anchor.parentNode.removeChild(@anchor)
 
@@ -54,5 +56,14 @@ class DynamicNode
 
   lastElement: ->
     @nodeSets.last()?.last()?.lastElement() or @anchor
+
+  bindEvent: (to, name, fun) ->
+    if to?.bind
+      @boundEvents.push({ to, name, fun })
+      to.bind(name, fun)
+
+  unbindEvents: ->
+    @eachNode (node) -> node.unbindEvents()
+    to.unbind(name, fun) for {to, name, fun} in @boundEvents
 
 exports.DynamicNode = DynamicNode

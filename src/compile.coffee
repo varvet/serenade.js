@@ -100,7 +100,9 @@ Compile =
     element.setAttribute('class', ast.classes.join(' ')) if ast.classes?.length
 
     for child in ast.children
-      compile(child, model, controller).append(element)
+      childNode = compile(child, model, controller)
+      childNode.append(element)
+      node.children.push childNode
 
     for property in ast.properties
       action = Property[property.scope]
@@ -119,8 +121,7 @@ Compile =
     unless controller
       skipCallback = true
       controller = parent
-    element = Serenade.render(ast.arguments[0], model, controller, parent, skipCallback)
-    new Node(ast, element)
+    Serenade._views[ast.arguments[0]].node(model, controller, parent, skipCallback)
 
   helper: (ast, model, controller) ->
     render = (model=model, controller=controller) ->
@@ -140,8 +141,9 @@ Compile =
       value = "0" if value is 0
       value or ""
     textNode = Serenade.document.createTextNode(getText())
-    model.bind?("change:#{ast.value}", -> textNode.nodeValue = getText()) if ast.bound
-    new Node(ast, textNode)
+    node = new Node(ast, textNode)
+    node.bindEvent(model, "change:#{ast.value}", -> textNode.nodeValue = getText()) if ast.bound
+    node
 
   collection: (ast, model, controller) ->
     compileItem = (item) -> compileAll(ast.children, item, controller)
@@ -149,11 +151,11 @@ Compile =
     dynamic = new DynamicNode(ast)
     collection = get(model, ast.arguments[0])
     if typeof(collection.bind) is "function"
-      collection.bind('set', => dynamic.replace(compileItem(item) for item in collection))
-      collection.bind('update', => dynamic.replace(compileItem(item) for item in collection))
-      collection.bind('add', (item) => dynamic.appendNodeSet(compileItem(item)))
-      collection.bind('insert', (index, item) => dynamic.insertNodeSet(index, compileItem(item)))
-      collection.bind('delete', (index) => dynamic.deleteNodeSet(index))
+      dynamic.bindEvent(collection, 'set', => dynamic.replace(compileItem(item) for item in collection))
+      dynamic.bindEvent(collection, 'update', => dynamic.replace(compileItem(item) for item in collection))
+      dynamic.bindEvent(collection, 'add', (item) => dynamic.appendNodeSet(compileItem(item)))
+      dynamic.bindEvent(collection, 'insert', (index, item) => dynamic.insertNodeSet(index, compileItem(item)))
+      dynamic.bindEvent(collection, 'delete', (index) => dynamic.deleteNodeSet(index))
     dynamic.replace(compileItem(item) for item in collection)
     dynamic
 
@@ -187,7 +189,7 @@ Compile =
       value = get(model, ast.arguments[0])
       callback(dynamic, value)
     update()
-    model.bind? "change:#{ast.arguments[0]}", update
+    dynamic.bindEvent model, "change:#{ast.arguments[0]}", update
     dynamic
 
 compile = (ast, model, controller) -> Compile[ast.type](ast, model, controller)
