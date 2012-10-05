@@ -53,6 +53,7 @@ Property =
       # we can't bind to the form directly since it doesn't exist yet
       handler = (e) -> domUpdated() if element.form is (e.target or e.srcElement)
       Serenade.document.addEventListener("submit", handler, true)
+      node.bind "unload", -> Serenade.document.removeEventListener("submit", handler, true)
     else
       element.addEventListener(ast.name, domUpdated)
 

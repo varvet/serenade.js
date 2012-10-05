@@ -105,3 +105,15 @@ describe 'Memory management', ->
     ''', model
     model.toggle = false
     expect(model._callbacks["change:leaking"].length).to.eql(0)
+
+  it 'prevents global event bindings on submit from leaking', ->
+    model = Serenade(leaking: "foobar", toggle: true)
+    @render '''
+      form
+        - if @toggle
+          input[binding=@leaking]
+    ''', model
+    @sinon.stub(Serenade.document, "removeEventListener")
+    model.toggle = false
+    expect(Serenade.document.removeEventListener.calledWith("submit")).to.be.ok
+
