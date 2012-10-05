@@ -144,7 +144,7 @@ Compile =
     new Node(ast, textNode)
 
   collection: (ast, model, controller) ->
-    compileItem = (item) -> compile(child, item, controller) for child in ast.children
+    compileItem = (item) -> compileAll(ast.children, item, controller)
 
     dynamic = new DynamicNode(ast)
     collection = get(model, ast.arguments[0])
@@ -160,16 +160,16 @@ Compile =
   in: (ast, model, controller) ->
     Compile.bound ast, model, controller, (dynamic, value) ->
       if value
-        nodes = (compile(child, value, controller) for child in ast.children)
-        dynamic.replace([nodes])
+        dynamic.replace([compileAll(ast.children, value, controller)])
       else
         dynamic.clear()
 
   if: (ast, model, controller) ->
     Compile.bound ast, model, controller, (dynamic, value) ->
       if value
-        nodes = (compile(child, model, controller) for child in ast.children)
-        dynamic.replace([nodes])
+        dynamic.replace([compileAll(ast.children, model, controller)])
+      else if ast.else
+        dynamic.replace([compileAll(ast.else.children, model, controller)])
       else
         dynamic.clear()
 
@@ -191,5 +191,6 @@ Compile =
     dynamic
 
 compile = (ast, model, controller) -> Compile[ast.type](ast, model, controller)
+compileAll = (asts, model, controller) -> Compile[ast.type](ast, model, controller) for ast in asts
 
 exports.compile = compile

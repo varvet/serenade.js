@@ -10,7 +10,7 @@ WHITESPACE = /^[^\r\n\S]+/
 
 COMMENT = /^\s*\/\/[^\n]*/
 
-KEYWORDS = ["IF", "COLLECTION", "IN", "VIEW", "UNLESS"]
+KEYWORDS = ["IF", "ELSE", "COLLECTION", "IN", "VIEW", "UNLESS"]
 
 class Lexer
 
@@ -59,6 +59,13 @@ class Lexer
   identifierToken: ->
     if match = IDENTIFIER.exec @chunk
       name = match[0].toUpperCase()
+
+      # This is like a pseudo rewriter, we remove the previous terminator
+      # in case this is an else expression, so that we can parse it as
+      # part of the if expression
+      if name is "ELSE" and @tokens[@tokens.length-3][0] is "TERMINATOR"
+        @tokens.splice(@tokens.length-3, 1)
+
       if name in KEYWORDS
         @token name, match[0]
       else

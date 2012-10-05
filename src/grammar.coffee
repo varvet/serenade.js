@@ -47,6 +47,7 @@ grammar =
 
   Child: [
     o 'Element', -> $1
+    o 'IfInstruction', -> $1
     o 'Instruction', -> $1
     o 'TextList', -> $1
   ]
@@ -68,12 +69,22 @@ grammar =
   Instruction: [
     o '- WHITESPACE VIEW', -> { arguments: [], children: [], type: 'view' }
     o '- WHITESPACE COLLECTION', -> { arguments: [], children: [], type: 'collection' }
-    o '- WHITESPACE IF', -> { arguments: [], children: [], type: 'if' }
     o '- WHITESPACE UNLESS', -> { arguments: [], children: [], type: 'unless' }
     o '- WHITESPACE IN', -> { arguments: [], children: [], type: 'in' }
     o '- WHITESPACE IDENTIFIER', -> { command: $3, arguments: [], children: [], type: 'helper' }
     o 'Instruction WHITESPACE Text', -> $1.arguments.push $3.value; $1
     o 'Instruction INDENT ChildList OUTDENT', -> $1.children = $3; $1
+  ]
+
+  IfInstruction: [
+    o '- WHITESPACE IF', -> { arguments: [], children: [], type: 'if' }
+    o 'IfInstruction WHITESPACE Text', -> $1.arguments.push $3.value; $1
+    o 'IfInstruction INDENT ChildList OUTDENT', -> $1.children = $3; $1
+    o 'IfInstruction ElseInstruction', -> $1.else = $2; $1
+  ]
+
+  ElseInstruction: [
+    o '- WHITESPACE ELSE INDENT ChildList OUTDENT', -> { arguments: [], children: $5, type: 'else' }
   ]
 
   AnyIdentifier: [
