@@ -22,6 +22,9 @@ describe 'View', ->
     it 'raises a syntax error when multiple root nodes are given', ->
       expect(-> parse('div\ndiv')).to.throw(Error)
 
+    it 'raises a syntax error when unexpected token is encountered', ->
+      expect(-> parse('div$')).to.throw("Unexpected token '$' on line 1")
+
     it 'parses a tag with an attribute', ->
       result = parse('div[id="foo"]')
       expect(result.name).to.eql('div')

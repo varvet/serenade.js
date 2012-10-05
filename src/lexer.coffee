@@ -22,9 +22,9 @@ class Lexer
     @ends    = []             # The stack for pairing up tokens.
     @tokens  = []             # Stream of parsed tokens in the form `['TYPE', value, line]`.
 
-    i = 0
-    while @chunk = @code.slice i
-      i += @identifierToken() or
+    @i = 0
+    while @chunk = @code.slice @i
+      @i += @identifierToken() or
            @commentToken()    or
            @whitespaceToken() or
            @lineToken()       or
@@ -63,7 +63,7 @@ class Lexer
       # This is like a pseudo rewriter, we remove the previous terminator
       # in case this is an else expression, so that we can parse it as
       # part of the if expression
-      if name is "ELSE" and @tokens[@tokens.length-3][0] is "TERMINATOR"
+      if name is "ELSE" and @last(@tokens, 2)[0] is "TERMINATOR"
         @tokens.splice(@tokens.length-3, 1)
 
       if name in KEYWORDS
@@ -99,7 +99,6 @@ class Lexer
       @ends.push 'OUTDENT'
     else
       while diff < 0
-        @error('Should be an OUTDENT, yo') unless @last(@ends) is 'OUTDENT'
         @ends.pop()
         diff += @indents.pop()
         @token 'OUTDENT'
@@ -113,7 +112,7 @@ class Lexer
       @token match[0]
       1
     else
-      @error("WUT??? is '#{@chunk.charAt(0)}'")
+      @error("Unexpected token '#{@chunk.charAt(0)}'")
 
   newlineToken: ->
     @token 'TERMINATOR', '\n' unless @tag() is 'TERMINATOR'
@@ -125,7 +124,8 @@ class Lexer
     (tok = @last @tokens, index) and if val then tok[1] = val else tok[1]
 
   error: (message) ->
-    throw SyntaxError "#{message} on line #{ @line + 1}"
+    chunk = @code.slice(Math.max(0, @i-10),Math.min(@code.length, @i+10))
+    throw SyntaxError "#{message} on line #{ @line + 1} near #{JSON.stringify(chunk)}"
 
   count: (string, substr) ->
     num = pos = 0
