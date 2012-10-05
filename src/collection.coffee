@@ -143,5 +143,3 @@ class exports.Collection
   toJSON: -> @serialize()
 
   clone: -> new Collection(@toArray())
-
-  _useDefer: true
