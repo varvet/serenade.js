@@ -30,8 +30,8 @@ class Controller
     @model.set schmoo: 'mousin over'
   out: ->
     @model.set schmoo: @originalSchmoo
-  didChange: (e) ->
-    target = e.target or e.srcElement
+  didChange: ->
+    target = event.target or event.srcElement
     @model.set target.getAttribute('name'), target.value
 
 window.aThing = new Thing()
