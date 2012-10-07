@@ -326,6 +326,16 @@ describe 'Serenade.Model', ->
         @hasMany 'comments', inverseOf: "post", as: -> Comment
       post = new Post(comments: [{ body: "hey" }])
       expect(post.comments[0].post).to.eql(post)
+      expect(post.comments.length).to.eql(1)
+    it 'does not push itself twice to its inverse association', ->
+      class Comment extends Serenade.Model
+        @belongsTo "post", inverseOf: "comments", as: -> Post
+      class Post extends Serenade.Model
+        @hasMany 'comments', inverseOf: "post", as: -> Comment
+      post = new Post()
+      post.comments.push({})
+      expect(post.comments[0].post).to.eql(post)
+      expect(post.comments.length).to.eql(1)
 
   describe ".delegate", ->
     it "sets up delegated attributes", ->

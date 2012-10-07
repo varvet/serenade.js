@@ -2,29 +2,39 @@
 
 class AssociationCollection extends Collection
   constructor: (@owner, @options, list) ->
-    super(@_convert(item) for item in list)
+    @_convert list..., (items...) =>
+      super(items)
 
   set: (index, item) ->
-    super(index, @_convert(item))
+    @_convert item, (item) =>
+      super(index, item)
 
   push: (item) ->
-    super(@_convert(item))
+    @_convert item, (item) =>
+      super(item)
 
   update: (list) ->
-    super(@_convert(item) for item in list)
+    @_convert list..., (items...) =>
+      super(items)
 
   splice: (start, deleteCount, list...) ->
-    list = (@_convert(item) for item in list)
-    super(start, deleteCount, list...)
+    @_convert list..., (items...) =>
+      super(start, deleteCount, items...)
 
   insertAt: (index, item) ->
-    super(index, @_convert(item))
+    @_convert item, (item) =>
+      super(index, item)
 
-  _convert: (item) ->
-    if item.constructor is Object and @options.as
-      item = new (@options.as())(item)
-    if @options.inverseOf and item[@options.inverseOf] isnt @owner
-      item[@options.inverseOf] = @owner
-    item
+  _convert: (items..., fn) ->
+    items = for item in items
+      if item?.constructor is Object and @options.as
+        item = new (@options.as())(item)
+      else
+        item
+    returnValue = fn(items...)
+    for item in items
+      if @options.inverseOf and item[@options.inverseOf] isnt @owner
+        item[@options.inverseOf] = @owner
+    returnValue
 
 exports.AssociationCollection = AssociationCollection
