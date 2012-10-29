@@ -16,6 +16,10 @@ describe 'Serenade.Collection', ->
     @collection = new Serenade.Collection([])
     expect(@collection.length).to.eql(0)
 
+  it "defaults to empty", ->
+    c = new Serenade.Collection()
+    expect(c.length).to.eql(0)
+
   describe '#toJSON', ->
     it "can be serialized to JSON", ->
       expect(JSON.parse(JSON.stringify(@collection))).to.eql(["a", "b", "c"])
