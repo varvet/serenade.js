@@ -6,7 +6,7 @@ isArrayIndex = (index) -> "#{index}".match(/^\d+$/)
 class exports.Collection
   extend(@prototype, Events)
 
-  constructor: (list) ->
+  constructor: (list=[]) ->
     @[index] = val for val, index in list
     @length = list?.length or 0
 
