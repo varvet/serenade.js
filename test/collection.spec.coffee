@@ -126,7 +126,7 @@ describe 'Serenade.Collection', ->
       expect(=> @collection.push("g")).to.triggerEvent(@collection, 'add', with: ['g'])
     it 'returns the item', ->
       expect(@collection.push('g')).to.eql('g')
-    it 'makes is accessible as a property', ->
+    it 'makes it accessible as a property', ->
       @collection.push('g')
       expect(@collection[3]).to.eql("g")
     it 'updates the length', ->

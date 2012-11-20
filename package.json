@@ -3,7 +3,7 @@
    "main": "src/serenade",
    "version": "0.3.0",
    "description": "JavaScript client side MVC framework",
-   "keywords": [ "MVC", "data bingings", "client-side" ],
+   "keywords": [ "MVC", "data bindings", "client-side" ],
    "maintainers": [
        {
            "name": "Jonas Nicklas",
