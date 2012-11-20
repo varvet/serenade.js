@@ -197,6 +197,17 @@ describe 'Properties', ->
         get: -> @name.split("").reverse().join("")
         dependsOn: 'name'
       expect(=> @object.set('name', 'Jonas')).to.triggerEvent(@object, 'change:reverseName', with: ['sanoJ'])
+    it 'can access nested properties with dotted notation', ->
+      scotch = extended()
+      container = extended()
+      scotch.set('make', 'Talisker')
+      container.set('type', 'flask')
+      container.set('contents', scotch)
+      @object.set('thingOnMyDesk', container)
+      expect(@object.get('thingOnMyDesk.type')).to.eql('flask')
+      # Just testing the inductive case below -- not recommended for use!
+      # (Demeter and all that)
+      expect(@object.get('thingOnMyDesk.contents.make')).to.eql('Talisker')
 
   describe '.toJSON', ->
     it 'serializes any properties marked as serializable', ->

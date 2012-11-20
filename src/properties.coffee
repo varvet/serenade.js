@@ -101,15 +101,20 @@ Properties =
     triggerChangesTo(this, names)
 
   get: (name) ->
-    if @[prefix + name]?.dependsOn
-      addGlobalDependencies(this, name, [].concat(@[prefix + name].dependsOn))
-    @attributes or= {}
-    if @[prefix + name]?.get
-      @[prefix + name].get.call(this)
-    else if @[prefix + name]?.hasOwnProperty("default") and not @attributes.hasOwnProperty(name)
-      @[prefix + name].default
+    sep = name.indexOf '.'
+    if (sep >= 0)
+      first = @get(name.substr(0,sep))
+      first?.get(name.slice(sep+1))
     else
-      @attributes[name]
+      if @[prefix + name]?.dependsOn
+        addGlobalDependencies(this, name, [].concat(@[prefix + name].dependsOn))
+      @attributes or= {}
+      if @[prefix + name]?.get
+        @[prefix + name].get.call(this)
+      else if @[prefix + name]?.hasOwnProperty("default") and not @attributes.hasOwnProperty(name)
+        @[prefix + name].default
+      else
+        @attributes[name]
 
   toJSON: ->
     serialized = {}
