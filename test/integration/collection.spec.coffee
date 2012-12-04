@@ -95,3 +95,20 @@ describe 'Collection', ->
     ''', model
     model.people.insertAt(0, {name: "carry"})
     expect(@body).to.have.element('ul > li#carry')
+
+  it 'follows dependencies', ->
+    class M extends Serenade.Model
+      @property 'names'
+      @property 'namesProxy',
+        dependsOn: 'names'
+        get: -> @.names
+    model = new M(names: [{ name: 'jonas' }])
+    @render '''
+    ul
+      - collection @namesProxy
+        li[id=name]
+    ''', model
+    expect(@body).to.have.element('ul > li#jonas')
+    model.names = [{ name: 'peter' }]
+    expect(@body).to.have.element('ul > li#peter')
+    expect(@body).to.not.have.element('ul > li#jonas')
