@@ -34,7 +34,12 @@ class Model
         propName = name
         propName = to + capitalize(name) if options.prefix
         propName = propName + capitalize(to) if options.suffix
-        @property propName, dependsOn: "#{to}.#{name}", get: -> @[to]?[name]
+        @property propName,
+          dependsOn: "#{to}.#{name}"
+          get: -> @[to]?[name]
+          set: (v) ->
+            @[to] ||= {}
+            @[to][name] = v
 
   @uniqueId: ->
     unless @_uniqueId and @_uniqueGen is this
