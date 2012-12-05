@@ -371,6 +371,12 @@ describe 'Serenade.Model', ->
       post = new Post(author: { name: "Jonas", email: "jonas@elabs.se" })
       expect(post.nameAuthor).to.eql("Jonas")
       expect(post.emailAuthor).to.eql("jonas@elabs.se")
+    it "delegates set", ->
+      class Post extends Serenade.Model
+        @delegate "name", "email", to: "author"
+      post = new Post()
+      post.name = "Bob"
+      expect(post.author.name).to.eql("Bob")
 
   describe "#id", ->
     it "updates identify map when changed", ->
