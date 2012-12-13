@@ -129,7 +129,7 @@ Associations =
   belongsTo: (name, attributes={}) ->
     extend attributes,
       set: (model) ->
-        if model.constructor is Object and attributes.as
+        if model and model.constructor is Object and attributes.as
           model = new (attributes.as())(model)
         previous = @attributes[name]
         @attributes[name] = model
