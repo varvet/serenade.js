@@ -25,8 +25,10 @@ describe 'Collection', ->
         - collection "people"
           li[id=@ style:color=@] @
     ''', model
-    expect(@body).to.have.element('ul > li#jonas:contains(jonas)')
-    expect(@body).to.have.element('ul > li#peter:contains(peter)')
+    expect(@body).to.have.element('ul > li#jonas')
+    expect(@body).to.have.element('ul > li#peter')
+    expect(@body.querySelector("#jonas")).to.have.text("jonas")
+    expect(@body.querySelector("#peter")).to.have.text("peter")
     expect(@body.querySelector("li").style.color).to.eql("jonas")
 
   it 'compiles a Serenade.collection in a collection instruction', ->

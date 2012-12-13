@@ -37,4 +37,4 @@ describe 'Basics', ->
     @render '''
       div "Serenade"
     '''
-    expect(@body).to.have.element('div:contains(Serenade)')
+    expect(@body.children[0]).to.have.text("Serenade")
