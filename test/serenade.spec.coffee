@@ -61,3 +61,9 @@ describe "Serenade", ->
       @object.property('foo', format: (x) -> x + 2)
       @object.set('foo', 23)
       expect(Serenade.format(@object, 'foo')).to.eql(25)
+    it 'properly assigns the formatters scope', ->
+      @object = Serenade({})
+      @object.property('bar', get: -> 2)
+      @object.property('foo', format: (x) -> x + @bar)
+      @object.set('foo', 23)
+      expect(Serenade.format(@object, 'foo')).to.eql(25)
