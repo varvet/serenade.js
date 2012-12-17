@@ -146,8 +146,10 @@ Compile =
 
   collection: (ast, model, controller) ->
     compileItem = (item) -> compileAll(ast.children, item, controller)
+    update = (dynamic, collection) ->
+      dynamic.replace(compileItem(item) for item in collection)
 
-    dynamic = new DynamicNode(ast)
+    dynamic = @bound(ast, model, controller, update)
     collection = model[ast.arguments[0]]
     if typeof(collection.bind) is "function"
       dynamic.bindEvent(collection, 'set', => dynamic.replace(compileItem(item) for item in collection))
@@ -155,7 +157,6 @@ Compile =
       dynamic.bindEvent(collection, 'add', (item) => dynamic.appendNodeSet(compileItem(item)))
       dynamic.bindEvent(collection, 'insert', (index, item) => dynamic.insertNodeSet(index, compileItem(item)))
       dynamic.bindEvent(collection, 'delete', (index) => dynamic.deleteNodeSet(index))
-    dynamic.replace(compileItem(item) for item in collection)
     dynamic
 
   in: (ast, model, controller) ->
