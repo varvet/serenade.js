@@ -97,3 +97,14 @@ describe 'Collection', ->
     ''', model
     model.people.insertAt(0, {name: "carry"})
     expect(@body).to.have.element('ul > li#carry')
+
+  it 'updates when the collection is replaced', ->
+    model = Serenade(things: ["hello"])
+
+    @render """
+      ul
+        - collection @things
+          li[id=@]
+    """, model
+    model.things = ["world"]
+    expect(@body).to.have.element('ul > li#world')
