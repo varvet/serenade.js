@@ -8,7 +8,7 @@ Helpers =
     value = model[key]
     formatter = model[Helpers.prefix + key]?.format
     if typeof(formatter) is 'function'
-      formatter.call(this, value)
+      formatter.call(model, value)
     else
       value
 
