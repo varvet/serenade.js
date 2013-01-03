@@ -25,6 +25,9 @@ class Model
   @property: (name, options) ->
     defineProperty(@prototype, name, options)
 
+  @properties: (names...) ->
+    @property(name) for name in names
+
   @delegate: (names..., options) ->
     to = options.to
     names.forEach (name) =>
