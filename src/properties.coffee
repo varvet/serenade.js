@@ -37,8 +37,8 @@ Associations =
           model[attributes.inverseOf].push(this)
     @property name, attributes
     @property name + 'Id',
-      get: -> @get(name)?.id
-      set: (id) -> @set(name, attributes.as().find(id)) if id?
+      get: -> @[name]?.id
+      set: (id) -> @[name] = attributes.as().find(id) if id?
       dependsOn: name
       serialize: attributes.serializeId
 
@@ -55,10 +55,10 @@ Associations =
         @[name].update(value)
     @property name, attributes
     @property name + 'Ids',
-      get: -> new Collection(@get(name)).map((item) -> item?.id)
+      get: -> new Collection(@[name]).map((item) -> item?.id)
       set: (ids) ->
         objects = (attributes.as().find(id) for id in ids)
-        @get(name).update(objects)
+        @[name].update(objects)
       dependsOn: name
       serialize: attributes.serializeIds
 

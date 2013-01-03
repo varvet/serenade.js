@@ -1,5 +1,6 @@
 require './spec_helper'
 {Serenade} = require '../src/serenade'
+{Collection} = require '../src/collection'
 {Cache} = require '../src/cache'
 {expect} = require('chai')
 
@@ -28,7 +29,7 @@ describe 'Serenade.Model', ->
 
       expect(john1).not.to.eql(john2)
       expect(john1.age).to.eql(23)
-      expect(john1.name).to.eql(John)
+      expect(john1.name).to.eql("John")
       expect(john2.age).to.eql(46)
       expect(john2.name).to.eql(undefined)
 
@@ -376,6 +377,8 @@ describe 'Serenade.Model', ->
       class Post extends Serenade.Model
         @delegate "name", "email", to: "author"
       post = new Post(author: author)
+      post.name
+      post.email
       expect(-> author.name = "peter").to.triggerEvent(post, "change:name", with: ["peter"])
       expect(-> author.email = "peter@elabs.se").to.triggerEvent(post, "change:email", with: ["peter@elabs.se"])
     it "can set prefix", ->
@@ -404,27 +407,23 @@ describe 'Serenade.Model', ->
       expect(Person.find(10).name).to.eql("Nicklas")
 
   describe '.toJSON', ->
+    beforeEach ->
+      class @Person extends Serenade.Model
     it 'serializes any properties marked as serializable', ->
-      @object.property('foo', serialize: true)
-      @object.property('barBaz', serialize: true)
-      @object.property('quox')
-      @object.foo = 23
-      @object.barBaz = 'quack'
-      @object.quox = 'schmoo'
-      @object.other = 55
+      @Person.property('foo', serialize: true)
+      @Person.property('barBaz', serialize: true)
+      @Person.property('quox')
+      @object = new @Person(foo: 23, barBaz: 'quack', quox: 'schmoo', other: 55)
       serialized = @object.toJSON()
       expect(serialized.foo).to.eql(23)
       expect(serialized.barBaz).to.eql('quack')
       expect(serialized.quox).to.not.exist
       expect(serialized.other).to.not.exist
     it 'serializes properties with the given string as key', ->
-      @object.property('foo', serialize: true)
-      @object.property('barBaz', serialize: 'bar_baz')
-      @object.property('quox')
-      @object.foo = 23
-      @object.barBaz = 'quack'
-      @object.quox = 'schmoo'
-      @object.other = 55
+      @Person.property('foo', serialize: true)
+      @Person.property('barBaz', serialize: 'bar_baz')
+      @Person.property('quox')
+      @object = new @Person(foo: 23, barBaz: 'quack', quox: 'schmoo', other: 55)
       serialized = @object.toJSON()
       expect(serialized.foo).to.eql(23)
       expect(serialized.bar_baz).to.eql('quack')
@@ -432,30 +431,30 @@ describe 'Serenade.Model', ->
       expect(serialized.quox).to.not.exist
       expect(serialized.other).to.not.exist
     it 'serializes a property with the given function', ->
-      @object.property('foo', serialize: true)
-      @object.property('barBaz', serialize: -> ['bork', @foo.toUpperCase()])
-      @object.property('quox')
-      @object.foo = 'fooy'
+      @Person.property('foo', serialize: true)
+      @Person.property('barBaz', serialize: -> ['bork', @foo.toUpperCase()])
+      @Person.property('quox')
+      @object = new @Person(foo: 'fooy')
       serialized = @object.toJSON()
       expect(serialized.foo).to.eql('fooy')
       expect(serialized.bork).to.eql('FOOY')
       expect(serialized.barBaz).to.not.exist
     it 'serializes an object which has a serialize function', ->
-      @object.property('foo', serialize: true)
-      @object.foo = { toJSON: -> 'from serialize' }
+      @Person.property('foo', serialize: true)
+      @object = new @Person(foo: { toJSON: -> 'from serialize' })
       serialized = @object.toJSON()
       expect(serialized.foo).to.eql('from serialize')
     it 'serializes an array of objects which have a serialize function', ->
-      @object.property('foo', serialize: true)
-      @object.foo = [{ toJSON: -> 'from serialize' }, {toJSON: -> 'another'}, "normal"]
+      @Person.property('foo', serialize: true)
+      @object = new @Person(foo: [{ toJSON: -> 'from serialize' }, {toJSON: -> 'another'}, "normal"])
       serialized = @object.toJSON()
       expect(serialized.foo[0]).to.eql('from serialize')
       expect(serialized.foo[1]).to.eql('another')
       expect(serialized.foo[2]).to.eql('normal')
     it 'serializes a Serenade.Collection by virtue of it having a serialize method', ->
-      @object.property('foo', serialize: true)
+      @Person.property('foo', serialize: true)
       collection = new Collection([{ toJSON: -> 'from serialize' }, {toJSON: -> 'another'}, "normal"])
-      @object.foo = collection
+      @object = new @Person(foo: collection)
       serialized = @object.toJSON()
       expect(serialized.foo[0]).to.eql('from serialize')
       expect(serialized.foo[1]).to.eql('another')

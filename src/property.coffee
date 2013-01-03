@@ -35,6 +35,8 @@ class Property
       @serializeAlias = @options.serialize
 
     @dependsOn = if @options.dependsOn then [].concat(@options.dependsOn) else []
+    @serialize = @options.serialize
+    @format = @options.format
 
   set: (object, value) ->
     if @options.set
