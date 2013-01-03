@@ -1,14 +1,17 @@
 {Cache} = require './cache'
 {extend, format} = require './helpers'
-{Property, defineProperty} = require("./property")
-{Properties, globalDependencies} = require("./properties")
+{Property, defineProperty, globalDependencies} = require("./property")
+{Events} = require("./events")
+{Properties} = require("./properties")
 
 Serenade = (attributes) ->
   return new Serenade(attributes) if this is root
-  @set(attributes)
+  for name, value of attributes
+    defineProperty(this, name)
+    @[name] = value
   this
 
-extend Serenade.prototype, Properties
+extend Serenade.prototype, Events
 extend Serenade,
   VERSION: '0.3.0'
   _views: {}

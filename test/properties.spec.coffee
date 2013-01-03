@@ -6,12 +6,9 @@ require './spec_helper'
 {expect} = require('chai')
 
 describe 'Properties', ->
-  extended = (obj={}) ->
-    extend(obj, Properties)
-    obj
-
   beforeEach ->
-    @object = extended()
+    @object = {}
+    extend(@object, Properties)
 
   describe '.property', ->
     it 'will setup a setter method for that name', ->
@@ -36,15 +33,15 @@ describe 'Properties', ->
     it 'can reach into properties and observe changes to them', ->
       @object.property 'name', dependsOn: 'author.name'
       @object.property 'author'
-      @object.author = extended()
+      @object.author = Serenade(name: "Jonas")
       @object.name
       expect(=> @object.author.name = 'test').to.triggerEvent(@object, 'change:name')
     it 'does not observe changes on objects which are no longer associated', ->
       @object.property 'name', dependsOn: 'author.name'
       @object.property 'author'
-      @object.author = extended()
+      @object.author = Serenade(name: "Jonas")
       oldAuthor = @object.author
-      @object.author = extended()
+      @object.author = Serenade(name: "Peter")
       expect(-> oldAuthor.name = 'test').not.to.triggerEvent(@object, 'change:name')
     it 'does not bleed over between objects with same prototype', ->
       @ctor = ->
@@ -98,11 +95,11 @@ describe 'Properties', ->
     it 'can reach into collections and observe changes to the entire collection', ->
       @object.property 'authorNames', dependsOn: ['authors', 'authors:name']
       @object.collection 'authors'
-      newAuthor = extended(name: "Anders")
+      newAuthor = Serenade(name: "Anders")
       expect(=> @object.authors.push(newAuthor)).to.triggerEvent(@object, 'change:authorNames')
     it 'can reach into collections and observe changes to each individual object', ->
       @object.collection 'authors'
-      @object.authors.push(extended())
+      @object.authors.push(Serenade(name: "Bert"))
       @object.property 'authorNames', dependsOn: ['authors', 'authors:name']
       @object.authorNames
       author = @object.authors[0]
@@ -112,7 +109,7 @@ describe 'Properties', ->
       @object.property 'authorNames', dependsOn: ['authors', 'authors:name']
 
       @child = Object.create(@object)
-      @child.authors.push(extended())
+      @child.authors.push(Serenade(name: "Bert"))
       @child.authorNames
       author = @child.authors[0]
       expect(-> author.name = 'test').to.triggerEvent(@child, 'change:authorNames')
@@ -120,7 +117,7 @@ describe 'Properties', ->
     it 'does not trigger events multiple times when reaching and property is accessed multiple times', ->
       @object.collection 'authors'
       @object.property 'authorNames', dependsOn: ['authors', 'authors:name']
-      @object.authors.push(extended())
+      @object.authors.push(Serenade(name: "Bert"))
       @object.authorNames
       @object.authorNames
 
@@ -130,7 +127,7 @@ describe 'Properties', ->
       @object.property 'authorNames', dependsOn: 'authors:name'
       @object.authorNames
       @object.collection 'authors'
-      @object.authors.push(extended())
+      @object.authors.push(Serenade(name: "Bert"))
       oldAuthor = @object.authors[0]
       oldAuthor.schmoo = true
       @object.authors.deleteAt(0)
@@ -181,61 +178,3 @@ describe 'Properties', ->
         get: -> @name.split("").reverse().join("")
         dependsOn: 'name'
       expect(=> @object.name = 'Jonas').to.triggerEvent(@object, 'change:reverseName', with: ['sanoJ'])
-
-  describe '.toJSON', ->
-    it 'serializes any properties marked as serializable', ->
-      @object.property('foo', serialize: true)
-      @object.property('barBaz', serialize: true)
-      @object.property('quox')
-      @object.foo = 23
-      @object.barBaz = 'quack'
-      @object.quox = 'schmoo'
-      @object.other = 55
-      serialized = @object.toJSON()
-      expect(serialized.foo).to.eql(23)
-      expect(serialized.barBaz).to.eql('quack')
-      expect(serialized.quox).to.not.exist
-      expect(serialized.other).to.not.exist
-    it 'serializes properties with the given string as key', ->
-      @object.property('foo', serialize: true)
-      @object.property('barBaz', serialize: 'bar_baz')
-      @object.property('quox')
-      @object.foo = 23
-      @object.barBaz = 'quack'
-      @object.quox = 'schmoo'
-      @object.other = 55
-      serialized = @object.toJSON()
-      expect(serialized.foo).to.eql(23)
-      expect(serialized.bar_baz).to.eql('quack')
-      expect(serialized.barBaz).to.not.exist
-      expect(serialized.quox).to.not.exist
-      expect(serialized.other).to.not.exist
-    it 'serializes a property with the given function', ->
-      @object.property('foo', serialize: true)
-      @object.property('barBaz', serialize: -> ['bork', @foo.toUpperCase()])
-      @object.property('quox')
-      @object.foo = 'fooy'
-      serialized = @object.toJSON()
-      expect(serialized.foo).to.eql('fooy')
-      expect(serialized.bork).to.eql('FOOY')
-      expect(serialized.barBaz).to.not.exist
-    it 'serializes an object which has a serialize function', ->
-      @object.property('foo', serialize: true)
-      @object.foo = { toJSON: -> 'from serialize' }
-      serialized = @object.toJSON()
-      expect(serialized.foo).to.eql('from serialize')
-    it 'serializes an array of objects which have a serialize function', ->
-      @object.property('foo', serialize: true)
-      @object.foo = [{ toJSON: -> 'from serialize' }, {toJSON: -> 'another'}, "normal"]
-      serialized = @object.toJSON()
-      expect(serialized.foo[0]).to.eql('from serialize')
-      expect(serialized.foo[1]).to.eql('another')
-      expect(serialized.foo[2]).to.eql('normal')
-    it 'serializes a Serenade.Collection by virtue of it having a serialize method', ->
-      @object.property('foo', serialize: true)
-      collection = new Collection([{ toJSON: -> 'from serialize' }, {toJSON: -> 'another'}, "normal"])
-      @object.foo = collection
-      serialized = @object.toJSON()
-      expect(serialized.foo[0]).to.eql('from serialize')
-      expect(serialized.foo[1]).to.eql('another')
-      expect(serialized.foo[2]).to.eql('normal')
