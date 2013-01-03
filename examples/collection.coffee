@@ -29,6 +29,7 @@ class Post extends Serenade.Model
 
 class Comment extends Serenade.Model
   @property 'body', serialize: true
+  @property 'color'
 
 class PostController
   constructor: (@post) ->
@@ -37,7 +38,7 @@ class PostController
   commentEdited: (post,element) ->
     @body = element.value
   highlight: (comment) ->
-    comment.set('color', 'yellow')
+    comment.color = 'yellow'
   remove: (comment) ->
     @post.comments.delete(comment)
 

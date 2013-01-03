@@ -24,15 +24,15 @@ class Thing extends Serenade.Model
 class Controller
   constructor: (@model) ->
   doThing: ->
-    @model.set schmoo: 'I did a thing'
+    @model.schmoo = 'I did a thing'
   over: ->
     @originalSchmoo = @model.schmoo
-    @model.set schmoo: 'mousin over'
+    @model.schmoo = 'mousin over'
   out: ->
-    @model.set schmoo: @originalSchmoo
+    @model.schmoo = @originalSchmoo
   didChange: ->
     target = event.target or event.srcElement
-    @model.set target.getAttribute('name'), target.value
+    @model[target.getAttribute('name')] = target.value
 
 window.aThing = new Thing()
 
