@@ -101,64 +101,71 @@ Serenade.js](https://github.com/elabs/serenade_todomvc).
 ## Dynamic properties
 
 Unfortunately JavaScript does not make it possible to track changes to
-arbitrary objects, so in order to update the view automatically as the model
-changes, we will have to add some functionality to it. Serenade provides a
-decorator which adds functionality to existing objects, so that they can be
-kept in sync:
+arbitrary properties, so in order to update the view automatically as the model
+changes, we will have to add some functionality to it.
+
+We can use the `Serenade.defineProperty` function to declare our properties,
+this will allow Serenade track any changes made to them. It works pretty much
+the same way as the standard `Object.defineProperty`, except that it takes a
+number of additional options.
 
 ``` javascript
-var model = Serenade({ name: "Jonas" })
-Serenade.render('h1 "Hello " @name')
+var model = { name: "Jonas" };
+Serenade.defineProperty(model, "name", { format: function(value) { return value.toUpperCase() }});
+Serenade.view('h1 "Hello " @name').render(model); // => <h1>Hello JONAS</h1>
 ```
 
-Now we can set and get properties using the `set` and `get` functions:
+If we don't need to specify any options, we can use `Serenade` as a decorator
+instead:
 
 ``` javascript
-model.set('name', 'Peter');
-model.get('name');
+var model = Serenade({ name: "Jonas" });
+Serenade.view('h1 "Hello " @name').render(model)
 ```
 
-In browsers which support `Object.defineProperty`, we can even set and get this
-property directly, like so:
-
-``` javascript
-model.name = 'Peter';
-model.name
-```
-
-Note that IE8 does not support setting properties this way.
-
-Further note that you can only use this syntax with properties that Serenade
-already knows about. If you try to set a property which has previously never
-been set in this way, Serenade will not know how to track it.
-
-Serenade provides a Model constructor, which provides a more fully featured
-and in many cases more convenient starting point than the decorator. It is
+While both of these options work well for simple scripts, when you're building
+a full application you likely want to define proper models.  Serenade provides
+a constructor, which provides a more fully featured starting point. It is
 documented in more detail later in this README.
 
 You can derive your own constructor by calling `extend` on `Serenade.Model`:
 
 ``` javascript
-var MyModel = Serenade.Model.extend(function(attributes) {
+var Person = Serenade.Model.extend(function(attributes) {
   // constructor here
 });
-```
-
-In CoffeeScript you can use the standard CoffeeScript inheritance mechanism:
-
-``` coffeescript
-class MyModel extends Serenade.Model
-  constructor: (attributes) ->
-    # constructor here
 ```
 
 You can declare properties on model constructors and they will be available
 on all instances:
 
 ``` javascript
-MyModel.property("name");
-model = new MyModel()
+Person.property("name", { format: function(value) { return value.toUpperCase() }});
+model = new Person()
 model.name = "Jonas"
+Serenade.view('h1 "Hello " @name').render(model); // => <h1>Hello JONAS</h1>
+```
+
+If you're using CoffeeScript, you can use the standard CoffeeScript inheritance
+mechanism:
+
+``` coffeescript
+class Person extends Serenade.Model
+  @property "name", format: (value) -> value.toUpperCase()
+```
+
+If you assign a function to a property, that function will automatically be
+used as the getter function. This is especially useful for cleaning up classes
+in CoffeeScript, if you have a lot of property declarations:
+
+``` coffeescript
+class Person extends Serenade.Model
+  @properties "firstName", "lastName", "name"
+
+  name: ->
+    @firstName + " " + @lastName
+
+new Person(firstName: "Jonas", lastName: "Nicklas").name # => "Jonas Nicklas"
 ```
 
 ## Two way data binding
@@ -185,30 +192,6 @@ Currently Serenade supports binding to text fields, text areas, checkboxes,
 radio buttons and select boxes (not multiple selects). Support for other form
 elements is planned.
 
-## Custom getters and setters
-
-Sometimes it can be convenient to define a property with a custom getter and/or
-setter function. Serenade.js mimics the `Object.defineProperty` API in
-ECMAScript 5 in this regard. Most often you will want to override the get
-function, for example you could have a `fullName` property which combines first
-and last names like so:
-
-``` javascript
-MyModel.property('fullName', {
-  get: function() { return this.get('firstName') + " " + this.get('lastName') }
-});
-```
-
-You can use the `collection` shortcut to create a property which is
-automatically initialized to a `Serenade.Collection`. This is convenient for
-binding collections to views (see below).
-
-``` javascript
-MyModel.collection('comments');
-```
-
-Internally this just calls `property` with a specialized getter and setter.
-
 ## Format
 
 Sometimes you want the value of the property to appear differently in a view
@@ -218,7 +201,7 @@ the view should show it properly formatted, with currency information and so
 on. You can use the `format` option for this.
 
 ``` javascript
-MyModel.property('price', { format: function(value) { return "€ " + value } });
+Person.property('price', { format: function(value) { return "€ " + value } });
 ```
 
 To retrieve a formatted value, call `Serenade.format(model, 'price')`.
@@ -227,7 +210,7 @@ Format functions also works for collections. The entire collection object will
 be passed as an argument.
 
 ``` javascript
-MyModel.collection('sizes', { format: function(collection) { return collection.list.join(", ") } });
+Person.collection('sizes', { format: function(collection) { return collection.list.join(", ") } });
 ```
 
 ## Dependencies
@@ -242,7 +225,7 @@ it if any of the dependent properties change, just like it should. You can do
 this easily like this:
 
 ``` javascript
-MyModel.property('fullName', {
+Person.property('fullName', {
   get: function() { return this.firstName + " " + this.lastName },
   dependsOn: ['firstName', 'lastName']
 });
@@ -253,8 +236,8 @@ object, by "reaching" into that object, with the `object.property` syntax. For
 example:
 
 ``` javascript
-MyModel.property("author");
-MyModel.property("authorName", {
+Book.property("author");
+Book.property("authorName", {
   get: function() { return this.author.name; },
   dependsOn: "author.name")
 });
@@ -265,8 +248,8 @@ properties of each item in the collections by using a colon as the separator,
 as in `object:property`. For example:
 
 ``` javascript
-MyModel.collection("authors");
-MyModel.property("authorNames", {
+Book.collection("authors");
+Book.property("authorNames", {
   get: function() { return this.author.map(function(a) { return a.name }); },
   dependsOn: "authors:name")
 });
@@ -277,8 +260,8 @@ MyModel.property("authorNames", {
 The Serenade.js template language is inspired by Slim, Jade and HAML, but not
 identical to any of these.
 
-Any view in Serenade.js must have an element as its root node. Elements may
-have any number of children. Elements can have attributes within square
+Any view in Serenade.js must have a single element as its root node. Elements
+may have any number of children. Elements can have attributes within square
 brackets.
 
 This is a single element with no children and an id attribute:
@@ -369,7 +352,7 @@ class PostController
   loaded: (post, view) -> new Datepicker(view.querySelector("#date"))
   favourite: -> @post.favourite = true
 
-Serenade.controller 'comment', PostController
+Serenade.render("post", post, PostController)
 ```
 
 ## Events
