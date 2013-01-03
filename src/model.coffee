@@ -47,7 +47,7 @@ class Model
       if attributes?.id
         fromCache = Cache.get(@constructor, attributes.id)
         if fromCache
-          fromCache.set(attributes)
+          extend(fromCache, attributes)
           return fromCache
         else
           Cache.set(@constructor, attributes.id, this)
@@ -55,7 +55,7 @@ class Model
       @bind('saved', => Cache.store(@constructor, @get('id'), this))
       if @constructor.localStorage isnt 'save'
         @bind('change', => Cache.store(@constructor, @get('id'), this))
-    @set(attributes)
+    extend(this, attributes)
 
   save: ->
     @trigger('saved')

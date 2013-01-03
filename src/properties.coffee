@@ -64,8 +64,8 @@ Properties =
     defineProperty(this, name, options)
     if typeof(options.serialize) is 'string'
       @property options.serialize,
-        get: -> @get(name)
-        set: (v) -> @set(name, v)
+        get: -> @[name]
+        set: (v) -> @[name] = v
         configurable: true
 
   collection: (name, options={}) ->

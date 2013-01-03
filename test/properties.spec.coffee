@@ -17,8 +17,8 @@ describe 'Properties', ->
     it 'will setup a setter method for that name', ->
       @object.property 'fooBar', serialize: 'foo_bar'
       @object.foo_bar = 56
-      expect(@object.get('foo_bar')).to.eql(56)
-      expect(@object.get('fooBar')).to.eql(56)
+      expect(@object.foo_bar).to.eql(56)
+      expect(@object.fooBar).to.eql(56)
     it 'can handle circular dependencies', ->
       @object.property 'foo', dependsOn: 'bar'
       @object.property 'bar', dependsOn: 'foo'
@@ -43,7 +43,7 @@ describe 'Properties', ->
       @object.property 'name', dependsOn: 'author.name'
       @object.property 'author'
       @object.author = extended()
-      oldAuthor = @object.get('author')
+      oldAuthor = @object.author
       @object.author = extended()
       expect(-> oldAuthor.name = 'test').not.to.triggerEvent(@object, 'change:name')
     it 'does not bleed over between objects with same prototype', ->
@@ -80,13 +80,13 @@ describe 'Properties', ->
   describe '.collection', ->
     it 'is initialized to a collection', ->
       @object.collection 'numbers'
-      expect(@object.numbers.get(0)).to.not.exist
+      expect(@object.numbers[0]).to.not.exist
       @object.numbers.push(5)
-      expect(@object.numbers.get(0)).to.eql(5)
+      expect(@object.numbers[0]).to.eql(5)
     it 'updates the collection on set', ->
       @object.collection 'numbers'
       @object.numbers = [1,2,3]
-      expect(@object.get('numbers').get(0)).to.eql(1)
+      expect(@object.numbers[0]).to.eql(1)
     it 'triggers a change event when collection is changed', ->
       @object.collection 'numbers'
       collection = @object.numbers
@@ -105,7 +105,7 @@ describe 'Properties', ->
       @object.authors.push(extended())
       @object.property 'authorNames', dependsOn: ['authors', 'authors:name']
       @object.authorNames
-      author = @object.authors.get(0)
+      author = @object.authors[0]
       expect(-> author.name = 'test').to.triggerEvent(@object, 'change:authorNames')
     it 'can reach into collections and observe changes to each individual object when defined on prototype', ->
       @object.collection 'authors'
@@ -114,7 +114,7 @@ describe 'Properties', ->
       @child = Object.create(@object)
       @child.authors.push(extended())
       @child.authorNames
-      author = @child.authors.get(0)
+      author = @child.authors[0]
       expect(-> author.name = 'test').to.triggerEvent(@child, 'change:authorNames')
       expect(-> author.name = 'test').not.to.triggerEvent(@object, 'change:authorNames')
     it 'does not trigger events multiple times when reaching and property is accessed multiple times', ->
@@ -124,14 +124,14 @@ describe 'Properties', ->
       @object.authorNames
       @object.authorNames
 
-      author = @object.authors.get(0)
+      author = @object.authors[0]
       expect(-> author.name = 'test').to.triggerEvent(@object, 'change:authorNames')
     it 'does not observe changes to elements no longer in the collcection', ->
       @object.property 'authorNames', dependsOn: 'authors:name'
       @object.authorNames
       @object.collection 'authors'
       @object.authors.push(extended())
-      oldAuthor = @object.authors.get(0)
+      oldAuthor = @object.authors[0]
       oldAuthor.schmoo = true
       @object.authors.deleteAt(0)
       expect(-> oldAuthor.name = 'test').not.to.triggerEvent(@object, 'change:authorNames')
@@ -139,7 +139,7 @@ describe 'Properties', ->
   describe '.set', ->
     it 'sets that property', ->
       @object.foo = 23
-      expect(@object.get('foo')).to.eql(23)
+      expect(@object.foo).to.eql(23)
     it 'triggers a change event', ->
       expect(=> @object.foo = 23).to.triggerEvent(@object, 'change')
     it 'triggers a change event for this property', ->
@@ -156,15 +156,15 @@ describe 'Properties', ->
   describe '.get', ->
     it 'reads an existing property', ->
       @object.foo = 23
-      expect(@object.get('foo')).to.eql(23)
+      expect(@object.foo).to.eql(23)
     it 'uses a custom getter', ->
       @object.property 'foo', get: -> 42
-      expect(@object.get('foo')).to.eql(42)
+      expect(@object.foo).to.eql(42)
     it 'runs custom getter in context of object', ->
       @object.first = 'Jonas'
       @object.last = 'Nicklas'
-      @object.property 'fullName', get: -> [@get('first'), @get('last')].join(' ')
-      expect(@object.get('fullName')).to.eql('Jonas Nicklas')
+      @object.property 'fullName', get: -> [@first, @last].join(' ')
+      expect(@object.fullName).to.eql('Jonas Nicklas')
     it 'binds to dependencies', ->
       @object.property 'first'
       @object.property 'last'
@@ -212,7 +212,7 @@ describe 'Properties', ->
       expect(serialized.other).to.not.exist
     it 'serializes a property with the given function', ->
       @object.property('foo', serialize: true)
-      @object.property('barBaz', serialize: -> ['bork', @get('foo').toUpperCase()])
+      @object.property('barBaz', serialize: -> ['bork', @foo.toUpperCase()])
       @object.property('quox')
       @object.foo = 'fooy'
       serialized = @object.toJSON()

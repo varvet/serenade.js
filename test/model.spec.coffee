@@ -7,8 +7,8 @@ describe 'Serenade.Model', ->
   describe '#constructor', ->
     it 'sets the given properties', ->
       john = new Serenade.Model(name: 'John', age: 23)
-      expect(john.get('age')).to.eql(23)
-      expect(john.get('name')).to.eql('John')
+      expect(john.age).to.eql(23)
+      expect(john.name).to.eql('John')
 
     it 'returns the same object if given the same id', ->
       john1 = new Serenade.Model(id: 'j123', name: 'John', age: 23)
@@ -16,8 +16,8 @@ describe 'Serenade.Model', ->
       john2 = new Serenade.Model(id: 'j123', age: 46)
 
       expect(john2.test).to.be.ok
-      expect(john2.get('age')).to.eql(46)
-      expect(john2.get('name')).to.eql('John')
+      expect(john2.age).to.eql(46)
+      expect(john2.name).to.eql('John')
 
     it 'returns different instances for same id on different constructors', ->
       Test1 = class Test extends Serenade.Model
@@ -27,10 +27,10 @@ describe 'Serenade.Model', ->
       john2 = new Test2(id: 'j123', age: 46)
 
       expect(john1).not.to.eql(john2)
-      expect(john1.get('age')).to.eql(23)
-      expect(john1.get('name')).to.eql("John")
-      expect(john2.get('age')).to.eql(46)
-      expect(john2.get('name')).to.eql(undefined)
+      expect(john1.age).to.eql(23)
+      expect(john1.name).to.eql(John)
+      expect(john2.age).to.eql(46)
+      expect(john2.name).to.eql(undefined)
 
     it 'returns a new object when given a different id', ->
       john1 = new Serenade.Model(id: 'j123', name: 'John', age: 23)
@@ -38,8 +38,8 @@ describe 'Serenade.Model', ->
       john2 = new Serenade.Model(id: 'j456', age: 46)
 
       expect(john2.test).not.to.be.ok
-      expect(john2.get('age')).to.eql(46)
-      expect(john2.get('name')).to.not.exist
+      expect(john2.age).to.eql(46)
+      expect(john2.name).to.not.exist
 
     it 'does not store in local storage if local storage is false', ->
       class Test extends Serenade.Model
@@ -55,7 +55,7 @@ describe 'Serenade.Model', ->
 
       test = new Test(id: 5, test: 'foo')
       expect(Cache.retrieve(Test, 5).test).to.eql('foo')
-      test.set('test', 'monkey')
+      test.test = 'monkey'
       expect(Cache.retrieve(Test, 5).test).to.eql('monkey')
 
     it 'persists to cache when saved if localStorage is "save"', ->
@@ -65,7 +65,7 @@ describe 'Serenade.Model', ->
 
       test = new Test(id: 5, test: 'foo')
       expect(Cache.retrieve(Test, 5)).to.not.exist
-      test.set('test', 'monkey')
+      test.test = 'monkey'
       expect(Cache.retrieve(Test, 5)).to.not.exist
       test.save()
       expect(Cache.retrieve(Test, 5).test).to.eql('monkey')
@@ -85,7 +85,7 @@ describe 'Serenade.Model', ->
     it 'sets up prototypes correctly', ->
       Test = Serenade.Model.extend()
       test = new Test(foo: 'bar')
-      expect(test.get('foo')).to.eql('bar')
+      expect(test.foo).to.eql('bar')
     it 'copies over class variables', ->
       Test = Serenade.Model.extend()
       expect(typeof Test.hasMany).to.eql('function')
@@ -100,8 +100,8 @@ describe 'Serenade.Model', ->
       john2 = new Person(id: 'j123', age: 46)
 
       expect(john2.test).to.be.ok
-      expect(john2.get('age')).to.eql(46)
-      expect(john2.get('name')).to.eql('John')
+      expect(john2.age).to.eql(46)
+      expect(john2.name).to.eql('John')
 
   describe '.uniqueId', ->
     it 'is different for different classes', ->
@@ -120,13 +120,13 @@ describe 'Serenade.Model', ->
   describe '.find', ->
     it 'creates a new blank object with the given id', ->
       document = Serenade.Model.find('j123')
-      expect(document.get('id')).to.eql('j123')
+      expect(document.id).to.eql('j123')
     it 'returns the same object if it has previously been initialized', ->
       john1 = new Serenade.Model(id: 'j123', name: 'John')
       john1.test = true
       john2 = Serenade.Model.find('j123')
       expect(john2.test).to.be.ok
-      expect(john2.get('name')).to.eql('John')
+      expect(john2.name).to.eql('John')
 
   describe '.belongsTo', ->
     it 'allows model to be assigned and retrieved', ->
@@ -257,39 +257,39 @@ describe 'Serenade.Model', ->
       comment1 = new Comment(body: 'Hello')
       comment2 = new Comment(body: 'Monkey')
       post = new Post(comments: [comment1, comment2])
-      expect(post.comments.get(0)).to.eql(comment1)
-      expect(post.comments.get(1)).to.eql(comment2)
+      expect(post.comments[0]).to.eql(comment1)
+      expect(post.comments[1]).to.eql(comment2)
     it 'uses the given constructor', ->
       class Comment extends Serenade.Model
         @property 'body'
       class Post extends Serenade.Model
         @hasMany 'comments', as: -> Comment
       post = new Post(comments: [{ body: 'Hello' }, { body: 'Monkey' }])
-      expect(post.comments.get(0).constructor).to.eql(Comment)
-      expect(post.comments.get(1).constructor).to.eql(Comment)
-      expect(post.comments.get(0).body).to.eql('Hello')
-      expect(post.comments.get(1).body).to.eql('Monkey')
+      expect(post.comments[0].constructor).to.eql(Comment)
+      expect(post.comments[1].constructor).to.eql(Comment)
+      expect(post.comments[0].body).to.eql('Hello')
+      expect(post.comments[1].body).to.eql('Monkey')
     it 'creates plain objects if there is no constructor given', ->
       class Comment extends Serenade.Model
         @property 'body'
       class Post extends Serenade.Model
         @hasMany 'comments'
       post = new Post(comments: [{ body: 'Hello' }, { body: 'Monkey' }])
-      expect(post.comments.get(0).constructor).to.eql(Object)
-      expect(post.comments.get(1).constructor).to.eql(Object)
-      expect(post.comments.get(0).body).to.eql('Hello')
-      expect(post.comments.get(1).body).to.eql('Monkey')
+      expect(post.comments[0].constructor).to.eql(Object)
+      expect(post.comments[1].constructor).to.eql(Object)
+      expect(post.comments[0].body).to.eql('Hello')
+      expect(post.comments[1].body).to.eql('Monkey')
     it 'updates the ids property as it changes', ->
       class Comment extends Serenade.Model
         @property 'body'
       class Post extends Serenade.Model
         @hasMany 'comments', as: -> Comment
       post = new Post(comments: [{ id: 4 }, { id: 3 }])
-      expect(post.commentsIds.get(0)).to.eql(4)
-      expect(post.commentsIds.get(1)).to.eql(3)
+      expect(post.commentsIds[0]).to.eql(4)
+      expect(post.commentsIds[1]).to.eql(3)
       post.comments = [{id: 12}]
-      expect(post.commentsIds.get(0)).to.eql(12)
-      expect(post.commentsIds.get(1)).to.not.exist
+      expect(post.commentsIds[0]).to.eql(12)
+      expect(post.commentsIds[1]).to.not.exist
     it 'is updated if the ids property changes', ->
       class Comment extends Serenade.Model
         @property 'body'
@@ -299,11 +299,11 @@ describe 'Serenade.Model', ->
       comment = new Comment(id: 8, body: 'World')
       comment = new Comment(id: 9, body: 'Cat')
       post = new Post(commentsIds: [5,8], body: 'Hello')
-      expect(post.comments.get(0).body).to.eql('Hello')
-      expect(post.comments.get(1).body).to.eql('World')
+      expect(post.comments[0].body).to.eql('Hello')
+      expect(post.comments[1].body).to.eql('World')
       post.commentsIds = [8,9]
-      expect(post.comments.get(0).body).to.eql('World')
-      expect(post.comments.get(1).body).to.eql('Cat')
+      expect(post.comments[0].body).to.eql('World')
+      expect(post.comments[1].body).to.eql('Cat')
     it 'serializes the entire associated documents', ->
       class Comment extends Serenade.Model
         @property 'body', serialize: true
@@ -331,7 +331,7 @@ describe 'Serenade.Model', ->
       post = new Post(name: "test")
       post.confirmedComments
       post.comments = [{ id: 5, body: 'Hello', confirmed: true }, { id: 8, body: 'Monkey', confirmed: false }]
-      comment = post.comments.get(1)
+      comment = post.comments[1]
       expect(-> comment.confirmed = true).to.triggerEvent(post, 'change:confirmedComments')
     it 'can set itself on its inverse relation', ->
       class Comment extends Serenade.Model
@@ -376,8 +376,8 @@ describe 'Serenade.Model', ->
       class Post extends Serenade.Model
         @delegate "name", "email", to: "author"
       post = new Post(author: author)
-      expect(-> author.set("name", "peter")).to.triggerEvent(post, "change:name", with: ["peter"])
-      expect(-> author.set("email", "peter@elabs.se")).to.triggerEvent(post, "change:email", with: ["peter@elabs.se"])
+      expect(-> author.name = "peter").to.triggerEvent(post, "change:name", with: ["peter"])
+      expect(-> author.email = "peter@elabs.se").to.triggerEvent(post, "change:email", with: ["peter@elabs.se"])
     it "can set prefix", ->
       author = new Serenade.Model(name: "Jonas", email: "jonas@elabs.se")
       class Post extends Serenade.Model

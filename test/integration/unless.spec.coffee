@@ -58,13 +58,15 @@ describe 'Unless', ->
     ''', model
     expect(@body).to.have.element('ul > li#valid')
     expect(@body).to.have.element('ul > li#visible')
-    model.set(valid: "yes")
+    model.valid = "yes"
     expect(@body).not.to.have.element('ul > li#valid')
     expect(@body).to.have.element('ul > li#visible')
-    model.set(valid: "", visible: "Cool")
+    model.valid = ""
+    model.visible = "Cool"
     expect(@body).to.have.element('ul > li#valid')
     expect(@body).not.to.have.element('ul > li#visible')
-    model.set(valid: "Blah", visible: {})
+    model.valid = "Blah"
+    model.visible = {}
     expect(@body).not.to.have.element('ul > li#valid')
     expect(@body).not.to.have.element('ul > li#visible')
 
