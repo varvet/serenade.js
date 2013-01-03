@@ -1,12 +1,14 @@
 {Cache} = require './cache'
 {Properties} = require './properties'
 {Collection} = require './collection'
+{Events} = require './events'
 {AssociationCollection} = require './association_collection'
 {extend, capitalize, serializeObject} = require './helpers'
 
 idCounter = 1
 
 class Model
+  extend(@prototype, Events)
   extend(@prototype, Properties)
 
   @property: -> @prototype.property(arguments...)

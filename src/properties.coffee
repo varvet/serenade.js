@@ -1,6 +1,5 @@
 {Collection} = require './collection'
 {Property, defineProperty} = require("./property")
-{Events} = require './events'
 {pairToObject, serializeObject, extend} = require './helpers'
 
 Properties =
@@ -19,9 +18,5 @@ Properties =
       set: (value) ->
         @[name].update(value)
     @property name, options
-
-extend(Properties, Events)
-
-Associations =
 
 exports.Properties = Properties

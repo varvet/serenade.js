@@ -1,6 +1,7 @@
 require './spec_helper'
 {Serenade} = require '../src/serenade'
 {Collection} = require '../src/collection'
+{Events} = require '../src/events'
 {Properties} = require '../src/properties'
 {extend} = require '../src/helpers'
 {expect} = require('chai')
@@ -9,6 +10,7 @@ describe 'Properties', ->
   beforeEach ->
     @object = {}
     extend(@object, Properties)
+    extend(@object, Events)
 
   describe '.property', ->
     it 'will setup a setter method for that name', ->
