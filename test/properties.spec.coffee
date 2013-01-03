@@ -51,7 +51,8 @@ describe 'Properties', ->
       @ctor.prototype.property 'name', serialize: true
       @inst1.property 'age', serialize: true
       @inst2.property 'height', serialize: true
-      expect(Object.keys(@inst2.toJSON())).not.to.include('age')
+      expect(Object.keys(@inst1)).to.include('age')
+      expect(Object.keys(@inst2)).not.to.include('age')
     it 'can set up default value', ->
       @object.property 'name', default: "foobar"
       expect(@object.name).to.eql("foobar")
@@ -88,10 +89,6 @@ describe 'Properties', ->
       @object.collection 'numbers'
       collection = @object.numbers
       expect(-> collection.push(4)).to.triggerEvent(@object, 'change:numbers', with: [@object.numbers])
-    it 'passes on the serialize option', ->
-      @object.collection 'numbers', serialize: true
-      @object.numbers = [1,2,3]
-      expect(@object.toJSON()).to.eql(numbers: [1,2,3])
     it 'can reach into collections and observe changes to the entire collection', ->
       @object.property 'authorNames', dependsOn: ['authors', 'authors:name']
       @object.collection 'authors'
@@ -134,6 +131,8 @@ describe 'Properties', ->
       expect(-> oldAuthor.name = 'test').not.to.triggerEvent(@object, 'change:authorNames')
 
   describe '.set', ->
+    beforeEach ->
+      @object.property("foo")
     it 'sets that property', ->
       @object.foo = 23
       expect(@object.foo).to.eql(23)
@@ -146,9 +145,6 @@ describe 'Properties', ->
       @object.property 'foo', set: (value) -> setValue = value
       @object.foo = 42
       expect(setValue).to.eql(42)
-    it 'automatically sets up a property for an unkown key', ->
-      @object.foo = 42
-      expect(@object.foo).to.eql(42)
 
   describe '.get', ->
     it 'reads an existing property', ->
@@ -168,10 +164,8 @@ describe 'Properties', ->
       @object.property 'fullName',
         get: -> @first + " " + @last
         dependsOn: ['first', 'last']
-      fun = =>
-        @object.first = 'Peter'
-        @object.last = 'Pan'
-      expect(fun).to.triggerEvent(@object, 'change:fullName', with: ['Peter Pan'])
+      @object.last = 'Pan'
+      expect(=> @object.first = "Peter").to.triggerEvent(@object, 'change:fullName', with: ['Peter Pan'])
     it 'binds to single dependency', ->
       @object.property 'name'
       @object.property 'reverseName',

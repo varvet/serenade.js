@@ -11,13 +11,14 @@ Properties =
   collection: (name, options={}) ->
     extend options,
       get: ->
-        unless @attributes[name]
-          @attributes[name] = new Collection([])
-          @attributes[name].bind 'change', =>
-            triggerChangesTo(this, [name])
-        @attributes[name]
+        valueName = "_s_#{name}_val"
+        unless @[valueName]
+          @[valueName] = new Collection([])
+          @[valueName].bind 'change', =>
+            @[name + "_property"].triggerChanges(this)
+        @[valueName]
       set: (value) ->
-        @get(name).update(value)
+        @[name].update(value)
     @property name, options
 
 extend(Properties, Events)
@@ -26,10 +27,11 @@ Associations =
   belongsTo: (name, attributes={}) ->
     extend attributes,
       set: (model) ->
+        valueName = "_s_#{name}_val"
         if model and model.constructor is Object and attributes.as
           model = new (attributes.as())(model)
-        previous = @attributes[name]
-        @attributes[name] = model
+        previous = @[valueName]
+        @[valueName] = model
         if attributes.inverseOf and not model[attributes.inverseOf].includes(this)
           previous[attributes.inverseOf].delete(this) if previous
           model[attributes.inverseOf].push(this)
@@ -43,12 +45,14 @@ Associations =
   hasMany: (name, attributes={}) ->
     extend attributes,
       get: ->
-        unless @attributes[name]
-          @attributes[name] = new AssociationCollection(this, attributes, [])
-          @attributes[name].bind 'change', => triggerChangesTo(this, [name])
-        @attributes[name]
+        valueName = "_s_#{name}_val"
+        unless @[valueName]
+          @[valueName] = new AssociationCollection(this, attributes, [])
+          @[valueName].bind 'change', =>
+            @[name + "_property"].triggerChanges(this)
+        @[valueName]
       set: (value) ->
-        @get(name).update(value)
+        @[name].update(value)
     @property name, attributes
     @property name + 'Ids',
       get: -> new Collection(@get(name)).map((item) -> item?.id)
