@@ -1,4 +1,4 @@
-{extend} = require './helpers'
+{safePush} = require './helpers'
 
 globalDependencies = {}
 
@@ -83,15 +83,7 @@ defineProperty = (object, name, options={}) ->
   originalValue = object[name]
   property = new Property(name, options)
 
-  # defined on self
-  if object.hasOwnProperty("_s_properties")
-    object._s_properties.push(property)
-  # defined on prototype
-  else if object._s_properties
-    Object.defineProperty object, "_s_properties", value: [property].concat(object._s_properties)
-  # not defined yet
-  else
-    Object.defineProperty object, "_s_properties", value: [property]
+  safePush(object, "_s_properties", property)
 
   # adding properties busts the cache
   Object.defineProperty object, "_s_dependencyCache", value: {}, configurable: true

@@ -33,4 +33,16 @@ Helpers =
   capitalize: (word) ->
     word.slice(0,1).toUpperCase() + word.slice(1)
 
+  # Pushes item to a collection on object, interacts in a sane way with prototypes.
+  safePush: (object, collection, item) ->
+    # defined on self
+    if object.hasOwnProperty(collection)
+      object[collection].push(item)
+    # defined on prototype, clone collection from prototype
+    else if object[collection]
+      Object.defineProperty object, collection, value: [item].concat(object[collection])
+    # not defined yet, define a new property
+    else
+      Object.defineProperty object, collection, value: [item]
+
 Helpers.extend(exports, Helpers)
