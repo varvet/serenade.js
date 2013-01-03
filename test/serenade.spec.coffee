@@ -10,7 +10,7 @@ describe "Serenade", ->
     expect(object.name).to.eql("Jonas")
     object.set "name", "Peter"
     expect(object.get("name")).to.eql("Peter")
-    expect(-> object.set("name", "John")).to.triggerEvent(object, "change:name")
+    expect(-> object.name = "John").to.triggerEvent(object, "change:name")
 
   describe ".view", ->
     it "registers a view object", ->
@@ -54,16 +54,16 @@ describe "Serenade", ->
     it 'reads an existing property normally if it is declared without format', ->
       @object = Serenade({})
       @object.property('foo')
-      @object.set('foo', 23)
+      @object.foo = 23
       expect(Serenade.format(@object, 'foo')).to.eql(23)
     it 'converts a property through a given format function', ->
       @object = Serenade({})
       @object.property('foo', format: (x) -> x + 2)
-      @object.set('foo', 23)
+      @object.foo = 23
       expect(Serenade.format(@object, 'foo')).to.eql(25)
     it 'properly assigns the formatters scope', ->
       @object = Serenade({})
       @object.property('bar', get: -> 2)
       @object.property('foo', format: (x) -> x + @bar)
-      @object.set('foo', 23)
+      @object.foo = 23
       expect(Serenade.format(@object, 'foo')).to.eql(25)

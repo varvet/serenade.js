@@ -37,7 +37,7 @@ describe 'In', ->
           p[id=name]
     ''', model
     expect(@body).to.have.element('article > p#jonas')
-    model.set(author: { name: 'peter' })
+    model.author = { name: peter }
     expect(@body).to.have.element('article > p#peter')
     expect(@body).not.to.have.element('article > p#jonas')
 
@@ -50,6 +50,6 @@ describe 'In', ->
           p[id=name]
     ''', model
     expect(@body).to.have.element('article > p#jonas')
-    model.author.set(name: 'peter')
+    model.author.name = 'peter'
     expect(@body).to.have.element('article > p#peter')
     expect(@body).not.to.have.element('article > p#jonas')

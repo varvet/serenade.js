@@ -72,7 +72,7 @@ describe 'Two-way bindings', ->
       @property 'name'
     model = new MyModel({name: "My name"})
     @render 'input[type="text" binding:keyup=name]', model, {}
-    model.set("name", "Changed name")
+    model.name = "Changed name"
     input = @body.querySelector('input')
     expect(input.value).to.eql("Changed name")
 
@@ -103,7 +103,7 @@ describe 'Two-way bindings', ->
       @property 'active'
     model = new MyModel({active: false})
     @render 'input[type="checkbox" binding:change=active]', model, {}
-    model.set("active", true)
+    model.active = true
     input = @body.querySelector('input')
     expect(input.checked).to.eql(true)
 
@@ -127,7 +127,7 @@ describe 'Two-way bindings', ->
       @property 'size'
     model = new MyModel({size: "small"})
     @render 'input[type="radio" value="large" binding:change=size]', model, {}
-    model.set("size", "large")
+    model.size =  "large"
     input = @body.querySelector('input')
     expect(input.checked).to.eql(true)
 
@@ -136,6 +136,6 @@ describe 'Two-way bindings', ->
       @property 'size'
     model = new MyModel({size: "small"})
     @render 'input[type="radio" value="large" binding:change=size]', model, {}
-    model.set("size", "medium")
+    model.size = "medium"
     input = @body.querySelector('input')
     expect(input.checked).to.eql(false)

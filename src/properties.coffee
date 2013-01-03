@@ -1,4 +1,5 @@
 {Collection} = require './collection'
+{Property, defineProperty} = require("./property")
 {AssociationCollection} = require './association_collection'
 {Events} = require './events'
 {prefix, pairToObject, serializeObject, extend} = require './helpers'
@@ -60,14 +61,7 @@ triggerChangesTo = (object, names) ->
 
 Properties =
   property: (name, options={}) ->
-    @[prefix + name] = options
-    @[prefix + name].name = name
-    @set(name, @[name]) if @.hasOwnProperty(name)
-    addDependencies(this, name, options.dependsOn) if options.dependsOn
-    Object.defineProperty @, name,
-      get: -> Properties.get.call(this, name)
-      set: (value) -> Properties.set.call(this, name, value)
-      configurable: true
+    defineProperty(this, name, options)
     if typeof(options.serialize) is 'string'
       @property options.serialize,
         get: -> @get(name)
@@ -85,31 +79,6 @@ Properties =
       set: (value) ->
         @get(name).update(value)
     @property name, options
-
-  set: (attributes, value) ->
-    attributes = pairToObject(attributes, value) if typeof(attributes) is 'string'
-
-    names = []
-    for name, value of attributes
-      names.push(name)
-      @attributes or= {}
-      Properties.property.call(@, name) unless @[prefix + name]
-      if @[prefix + name]?.set
-        @[prefix + name].set.call(this, value)
-      else
-        @attributes[name] = value
-    triggerChangesTo(this, names)
-
-  get: (name) ->
-    if @[prefix + name]?.dependsOn
-      addGlobalDependencies(this, name, [].concat(@[prefix + name].dependsOn))
-    @attributes or= {}
-    if @[prefix + name]?.get
-      @[prefix + name].get.call(this)
-    else if @[prefix + name]?.hasOwnProperty("default") and not @attributes.hasOwnProperty(name)
-      @[prefix + name].default
-    else
-      @attributes[name]
 
   toJSON: ->
     serialized = {}

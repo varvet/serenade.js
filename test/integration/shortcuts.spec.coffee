@@ -48,11 +48,11 @@ describe 'Shortcuts', ->
     model = new Serenade.Model( names: ['jonas', 'peter'] )
     @render 'div.quack[class=names]', model
     expect(@body).to.have.element('div.quack.jonas.peter')
-    model.set('names', undefined)
+    model.names = undefined
     expect(@body).to.have.element('div.quack')
     expect(@body).not.to.have.element('div.jonas')
     expect(@body).not.to.have.element('div.peter')
-    model.set('names', 'jonas')
+    model.names = 'jonas'
     expect(@body).to.have.element('div.jonas')
-    model.set('names', ['harry', 'jonas'])
+    model.names = ['harry', 'jonas']
     expect(@body).to.have.element('div.harry.jonas')
