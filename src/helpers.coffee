@@ -1,7 +1,10 @@
 Helpers =
-  extend: (target, source) ->
+  extend: (target, source, enumerable=true) ->
     for own key, value of source
-      target[key] = value
+      if enumerable
+        target[key] = value
+      else
+        Object.defineProperty(target, key, value: value, configurable: true)
 
   format: (model, key) ->
     value = model[key]

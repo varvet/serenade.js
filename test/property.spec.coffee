@@ -9,7 +9,7 @@ require './spec_helper'
 describe 'Serenade.defineProperty', ->
   beforeEach ->
     @object = {}
-    extend(@object, Events)
+    extend(@object, Events, false)
 
   it 'does not bleed over between objects with same prototype', ->
     @inst1 = Object.create(@object)
@@ -77,6 +77,10 @@ describe 'Serenade.defineProperty', ->
     it 'can be set to true', ->
       defineProperty @object, 'foo', enumerable: true
       expect(Object.keys(@object)).to.include('foo')
+
+    it 'adds no other enumerable properties', ->
+      defineProperty @object, 'foo', enumerable: true
+      expect(Object.keys(@object)).to.eql(['foo'])
 
   describe 'serialize', ->
     it 'will setup a setter method for that name', ->
