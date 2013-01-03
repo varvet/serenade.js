@@ -2,7 +2,7 @@
 {Property, defineProperty} = require("./property")
 {AssociationCollection} = require './association_collection'
 {Events} = require './events'
-{prefix, pairToObject, serializeObject, extend} = require './helpers'
+{pairToObject, serializeObject, extend} = require './helpers'
 
 Properties =
   property: (name, options={}) ->

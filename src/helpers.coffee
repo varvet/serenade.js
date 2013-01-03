@@ -1,12 +1,11 @@
 Helpers =
-  prefix: "_prop_"
   extend: (target, source) ->
     for own key, value of source
       target[key] = value
 
   format: (model, key) ->
     value = model[key]
-    formatter = model[Helpers.prefix + key]?.format
+    formatter = model[key + "_property"]?.format
     if typeof(formatter) is 'function'
       formatter.call(model, value)
     else

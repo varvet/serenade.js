@@ -70,10 +70,10 @@ class Property
   triggerChanges: (object) ->
     changes = {}
     changes[name] = object[name] for name in @dependencies(object)
-    object.trigger("change", changes)
+    object.trigger?("change", changes)
     triggerGlobal(object, @dependencies(object))
     for own name, value of changes
-      object.trigger("change:#{name}", value)
+      object.trigger?("change:#{name}", value)
 
 defineProperty = (object, name, options={}) ->
   hasOriginal = name of object

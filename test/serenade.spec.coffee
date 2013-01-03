@@ -50,18 +50,17 @@ describe "Serenade", ->
       @object = Serenade(foo: 23)
       expect(Serenade.format(@object, 'foo')).to.eql(23)
     it 'reads an existing property normally if it is declared without format', ->
-      @object = Serenade({})
-      @object.property('foo')
+      @object = {}
+      Serenade.defineProperty(@object, "foo")
       @object.foo = 23
       expect(Serenade.format(@object, 'foo')).to.eql(23)
     it 'converts a property through a given format function', ->
-      @object = Serenade({})
-      @object.property('foo', format: (x) -> x + 2)
+      @object = {}
+      Serenade.defineProperty(@object, "foo", format: (x) -> x + 2)
       @object.foo = 23
       expect(Serenade.format(@object, 'foo')).to.eql(25)
     it 'properly assigns the formatters scope', ->
-      @object = Serenade({})
-      @object.property('bar', get: -> 2)
-      @object.property('foo', format: (x) -> x + @bar)
+      @object = Serenade({ bar: 2 })
+      Serenade.defineProperty(@object, "foo", format: (x) -> x + @bar)
       @object.foo = 23
       expect(Serenade.format(@object, 'foo')).to.eql(25)
