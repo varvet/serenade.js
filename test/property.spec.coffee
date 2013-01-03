@@ -50,6 +50,11 @@ describe 'Serenade.defineProperty', ->
       @object.foo = 42
       expect(setValue).to.eql(42)
 
+    it 'consumes assigned functions and makes them getters', ->
+      defineProperty @object, 'foo'
+      @object.foo = -> 42
+      expect(@object.foo).to.eql(42)
+
   describe 'get', ->
     it 'reads an existing property', ->
       @object.foo = 23

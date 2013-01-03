@@ -39,11 +39,14 @@ class Property
     @format = @options.format
 
   set: (object, value) ->
-    if @options.set
-      @options.set.call(object, value)
+    if typeof(value) is "function"
+      @options.get = value
     else
-      Object.defineProperty(object, @valueName, value: value, configurable: true)
-    @triggerChanges(object)
+      if @options.set
+        @options.set.call(object, value)
+      else
+        Object.defineProperty(object, @valueName, value: value, configurable: true)
+      @triggerChanges(object)
 
   get: (object) ->
     if @dependsOn.length
