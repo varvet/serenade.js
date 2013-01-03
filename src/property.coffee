@@ -97,7 +97,7 @@ defineProperty = (object, name, options={}) ->
     get: -> property.get(this)
     set: (value) -> property.set(this, value)
     configurable: true
-    enumerable: true
+    enumerable: if "enumerable" of options then options.enumerable else true
 
   Object.defineProperty object, name + "_property",
     get: -> property

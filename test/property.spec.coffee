@@ -65,6 +65,19 @@ describe 'Serenade.defineProperty', ->
       defineProperty @object, 'fullName', get: -> [@first, @last].join(' ')
       expect(@object.fullName).to.eql('Jonas Nicklas')
 
+  describe 'enumerable', ->
+    it 'defaults to true', ->
+      defineProperty @object, 'foo'
+      expect(Object.keys(@object)).to.include('foo')
+
+    it 'can be set to false', ->
+      defineProperty @object, 'foo', enumerable: false
+      expect(Object.keys(@object)).not.to.include('foo')
+
+    it 'can be set to true', ->
+      defineProperty @object, 'foo', enumerable: true
+      expect(Object.keys(@object)).to.include('foo')
+
   describe 'serialize', ->
     it 'will setup a setter method for that name', ->
       defineProperty @object, 'fooBar', serialize: 'foo_bar'
