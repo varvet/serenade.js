@@ -39,10 +39,10 @@ describe 'Serenade.defineProperty', ->
       expect(@object.foo).to.eql(23)
 
     it 'triggers a change event', ->
-      expect(=> @object.foo = 23).to.triggerEvent(@object, 'change')
+      expect(=> @object.foo = 23).to.triggerEvent(@object.change)
 
     it 'triggers a change event for this property', ->
-      expect(=> @object.foo = 23).to.triggerEvent(@object, 'change:foo', with: [23])
+      expect(=> @object.foo = 23).to.triggerEvent(@object.change_foo, with: [23])
 
     it 'uses a custom setter', ->
       setValue = null
@@ -102,37 +102,37 @@ describe 'Serenade.defineProperty', ->
         get: -> @first + " " + @last
         dependsOn: ['first', 'last']
       @object.last = 'Pan'
-      expect(=> @object.first = "Peter").to.triggerEvent(@object, 'change:fullName', with: ['Peter Pan'])
+      expect(=> @object.first = "Peter").to.triggerEvent(@object.change_fullName, with: ['Peter Pan'])
 
     it 'binds to single dependency', ->
       defineProperty @object, 'name'
       defineProperty @object, 'reverseName',
         get: -> @name.split("").reverse().join("")
         dependsOn: 'name'
-      expect(=> @object.name = 'Jonas').to.triggerEvent(@object, 'change:reverseName', with: ['sanoJ'])
+      expect(=> @object.name = 'Jonas').to.triggerEvent(@object.change_reverseName, with: ['sanoJ'])
 
     it 'can handle circular dependencies', ->
       defineProperty @object, 'foo', dependsOn: 'bar'
       defineProperty @object, 'bar', dependsOn: 'foo'
       fun = => @object.foo = 23
-      expect(fun).to.triggerEvent(@object, 'change:foo')
-      expect(fun).to.triggerEvent(@object, 'change:bar')
+      expect(fun).to.triggerEvent(@object.change_foo)
+      expect(fun).to.triggerEvent(@object.change_bar)
 
     it 'can handle secondary dependencies', ->
       defineProperty @object, 'foo', dependsOn: 'quox'
       defineProperty @object, 'bar', dependsOn: ['quox']
       defineProperty @object, 'quox', dependsOn: ['bar', 'foo']
       fun = => @object.foo = 23
-      expect(fun).to.triggerEvent(@object, 'change:foo', with: [23])
-      expect(fun).to.triggerEvent(@object, 'change:bar', with: [undefined])
-      expect(fun).to.triggerEvent(@object, 'change:quox', with: [undefined])
+      expect(fun).to.triggerEvent(@object.change_foo, with: [23])
+      expect(fun).to.triggerEvent(@object.change_bar, with: [undefined])
+      expect(fun).to.triggerEvent(@object.change_quox, with: [undefined])
 
     it 'can reach into properties and observe changes to them', ->
       defineProperty @object, 'name', dependsOn: 'author.name'
       defineProperty @object, 'author'
       @object.author = Serenade(name: "Jonas")
       @object.name
-      expect(=> @object.author.name = 'test').to.triggerEvent(@object, 'change:name')
+      expect(=> @object.author.name = 'test').to.triggerEvent(@object.change_name)
 
     it 'does not observe changes on objects which are no longer associated', ->
       defineProperty @object, 'name', dependsOn: 'author.name'
@@ -140,7 +140,7 @@ describe 'Serenade.defineProperty', ->
       @object.author = Serenade(name: "Jonas")
       oldAuthor = @object.author
       @object.author = Serenade(name: "Peter")
-      expect(-> oldAuthor.name = 'test').not.to.triggerEvent(@object, 'change:name')
+      expect(-> oldAuthor.name = 'test').not.to.triggerEvent(@object.change_name)
 
   describe "default", ->
     it 'can set up default value', ->

@@ -16,7 +16,9 @@ class Event
     safeDelete(@object, @prop, fun)
 
 defineEvent = (object, name, options={}) ->
-  Object.defineProperty object, name, get: ->
-    new Event(this, name, options)
+  Object.defineProperty object, name,
+    configurable: true
+    get: ->
+      new Event(this, name, options)
 
 exports.defineEvent = defineEvent

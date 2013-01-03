@@ -139,7 +139,7 @@ describe 'Serenade.Model', ->
       class Person extends Serenade.Model
         @property "name"
       john = new Person(name: "John")
-      expect(-> john.name = "Johnny").to.triggerEvent john, "change:name"
+      expect(-> john.name = "Johnny").to.triggerEvent john.change_name
 
     it 'makes property getters assignable', ->
       class Person extends Serenade.Model
@@ -155,8 +155,8 @@ describe 'Serenade.Model', ->
       class Person extends Serenade.Model
         @properties "firstName", "lastName"
       john = new Person(firstName: "John", lastName: "Smith")
-      expect(-> john.firstName = "Johnny").to.triggerEvent john, "change:firstName"
-      expect(-> john.lastName = "Smithy").to.triggerEvent john, "change:lastName"
+      expect(-> john.firstName = "Johnny").to.triggerEvent john.change_firstName
+      expect(-> john.lastName = "Smithy").to.triggerEvent john.change_lastName
 
     it 'makes property getters assignable', ->
       class Person extends Serenade.Model

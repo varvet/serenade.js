@@ -4,11 +4,12 @@
 {AssociationCollection} = require './association_collection'
 {extend, capitalize, serializeObject} = require './helpers'
 {defineProperty} = require './property'
+{defineEvent} = require './event2'
 
 idCounter = 1
 
 class Model
-  extend(@prototype, Events)
+  defineEvent(@prototype, "saved")
 
   @belongsTo: -> @prototype.belongsTo(arguments...)
   @hasMany: -> @prototype.hasMany(arguments...)
@@ -111,9 +112,9 @@ class Model
         else
           Cache.set(@constructor, attributes.id, this)
     if @constructor.localStorage
-      @bind('saved', => Cache.store(@constructor, @id, this))
+      @saved.bind => Cache.store(@constructor, @id, this)
       if @constructor.localStorage isnt 'save'
-        @bind('change', => Cache.store(@constructor, @id, this))
+        @change.bind => Cache.store(@constructor, @id, this)
     @set(attributes)
 
   set: (attributes) ->
@@ -122,7 +123,7 @@ class Model
       @[name] = value
 
   save: ->
-    @trigger('saved')
+    @saved.trigger()
 
   toJSON: ->
     serialized = {}

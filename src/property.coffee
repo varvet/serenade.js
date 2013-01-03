@@ -1,4 +1,5 @@
 {safePush} = require './helpers'
+{defineEvent} = require './event2'
 
 globalDependencies = {}
 
@@ -73,10 +74,10 @@ class Property
   triggerChanges: (object) ->
     changes = {}
     changes[name] = object[name] for name in @dependencies(object)
-    object.trigger?("change", changes)
+    object.change.trigger(changes)
     triggerGlobal(object, @dependencies(object))
     for own name, value of changes
-      object.trigger?("change:#{name}", value)
+      object["change_" + name].trigger(value)
 
 defineProperty = (object, name, options={}) ->
   hasOriginal = name of object
@@ -84,6 +85,9 @@ defineProperty = (object, name, options={}) ->
   property = new Property(name, options)
 
   safePush(object, "_s_properties", property)
+
+  defineEvent object, "change"
+  defineEvent object, "change_" + name
 
   # adding properties busts the cache
   Object.defineProperty object, "_s_dependencyCache", value: {}, configurable: true
