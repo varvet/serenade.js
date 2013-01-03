@@ -1,12 +1,13 @@
 {Cache} = require './cache'
-{Associations, Properties} = require './properties'
+{Properties} = require './properties'
+{Collection} = require './collection'
+{AssociationCollection} = require './association_collection'
 {extend, capitalize, serializeObject} = require './helpers'
 
 idCounter = 1
 
 class Model
   extend(@prototype, Properties)
-  extend(@prototype, Associations)
 
   @property: -> @prototype.property(arguments...)
   @collection: -> @prototype.collection(arguments...)
@@ -30,13 +31,51 @@ class Model
         return val if val
         ctor.apply(this, arguments) if ctor
 
-  @delegate = (names..., options) ->
+  @delegate: (names..., options) ->
     to = options.to
     names.forEach (name) =>
       propName = name
       propName = to + capitalize(name) if options.prefix
       propName = propName + capitalize(to) if options.suffix
       @property propName, dependsOn: "#{to}.#{name}", get: -> @[to]?[name]
+
+  @belongsTo: (name, attributes={}) ->
+    extend attributes,
+      set: (model) ->
+        valueName = "_s_#{name}_val"
+        if model and model.constructor is Object and attributes.as
+          model = new (attributes.as())(model)
+        previous = @[valueName]
+        @[valueName] = model
+        if attributes.inverseOf and not model[attributes.inverseOf].includes(this)
+          previous[attributes.inverseOf].delete(this) if previous
+          model[attributes.inverseOf].push(this)
+    @property name, attributes
+    @property name + 'Id',
+      get: -> @[name]?.id
+      set: (id) -> @[name] = attributes.as().find(id) if id?
+      dependsOn: name
+      serialize: attributes.serializeId
+
+  @hasMany: (name, attributes={}) ->
+    extend attributes,
+      get: ->
+        valueName = "_s_#{name}_val"
+        unless @[valueName]
+          @[valueName] = new AssociationCollection(this, attributes, [])
+          @[valueName].bind 'change', =>
+            @[name + "_property"].triggerChanges(this)
+        @[valueName]
+      set: (value) ->
+        @[name].update(value)
+    @property name, attributes
+    @property name + 'Ids',
+      get: -> new Collection(@[name]).map((item) -> item?.id)
+      set: (ids) ->
+        objects = (attributes.as().find(id) for id in ids)
+        @[name].update(objects)
+      dependsOn: name
+      serialize: attributes.serializeIds
 
   @uniqueId: ->
     unless @_uniqueId and @_uniqueGen is this
