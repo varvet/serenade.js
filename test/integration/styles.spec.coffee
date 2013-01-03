@@ -12,8 +12,7 @@ describe 'Styles', ->
     expect(@body.querySelector('div').style.color).to.eql('red')
 
   it 'changes bound style as they are changed', ->
-    model = new Serenade.Model
-    model.name = 'red'
+    model = new Serenade.Model(name: "red")
     @render 'div[style:color=name]', model
     expect(@body.querySelector('div').style.color).to.eql('red')
     model.name = 'blue'
