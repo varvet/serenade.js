@@ -3,7 +3,6 @@
 {Cache} = require '../src/cache'
 chai = require 'chai'
 chai.should()
-require('../src/properties')
 require('../src/model')
 sinon = require('sinon')
 

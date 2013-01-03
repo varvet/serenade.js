@@ -1,30 +1,19 @@
 {Cache} = require './cache'
-{Properties} = require './properties'
 {Collection} = require './collection'
 {Events} = require './events'
 {AssociationCollection} = require './association_collection'
 {extend, capitalize, serializeObject} = require './helpers'
+{defineProperty} = require './property'
 
 idCounter = 1
 
 class Model
   extend(@prototype, Events)
-  extend(@prototype, Properties)
 
-  @property: -> @prototype.property(arguments...)
-  @collection: -> @prototype.collection(arguments...)
   @belongsTo: -> @prototype.belongsTo(arguments...)
   @hasMany: -> @prototype.hasMany(arguments...)
 
   @find: (id) -> Cache.get(this, id) or new this(id: id)
-
-  @property 'id',
-    serialize: true,
-    set: (val) ->
-      Cache.unset(@constructor, @id)
-      Cache.set(@constructor, val, this)
-      Object.defineProperty @, "_s_id_val", value: val, configurable: true
-    get: -> @_s_id_val
 
   @extend: (ctor) ->
     class New extends this
@@ -32,6 +21,9 @@ class Model
         val = super
         return val if val
         ctor.apply(this, arguments) if ctor
+
+  @property: (name, options) ->
+    defineProperty(@prototype, name, options)
 
   @delegate: (names..., options) ->
     to = options.to
@@ -98,6 +90,14 @@ class Model
       @_uniqueGen = this
     @_uniqueId
 
+  @property 'id',
+    serialize: true,
+    set: (val) ->
+      Cache.unset(@constructor, @id)
+      Cache.set(@constructor, val, this)
+      Object.defineProperty @, "_s_id_val", value: val, configurable: true
+    get: -> @_s_id_val
+
   constructor: (attributes, bypassCache=false) ->
     unless bypassCache
       if attributes?.id
@@ -115,7 +115,7 @@ class Model
 
   set: (attributes) ->
     for own name, value of attributes
-      @property(name) unless name of this
+      defineProperty(this, name) unless name of this
       @[name] = value
 
   save: ->
