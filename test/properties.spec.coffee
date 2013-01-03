@@ -77,61 +77,6 @@ describe 'Properties', ->
       @object.property 'name', get: -> "bar"
       expect(@object.name).to.eql("bar")
 
-  describe '.collection', ->
-    it 'is initialized to a collection', ->
-      @object.collection 'numbers'
-      expect(@object.numbers[0]).to.not.exist
-      @object.numbers.push(5)
-      expect(@object.numbers[0]).to.eql(5)
-    it 'updates the collection on set', ->
-      @object.collection 'numbers'
-      @object.numbers = [1,2,3]
-      expect(@object.numbers[0]).to.eql(1)
-    it 'triggers a change event when collection is changed', ->
-      @object.collection 'numbers'
-      collection = @object.numbers
-      expect(-> collection.push(4)).to.triggerEvent(@object, 'change:numbers', with: [@object.numbers])
-    it 'can reach into collections and observe changes to the entire collection', ->
-      @object.property 'authorNames', dependsOn: ['authors', 'authors:name']
-      @object.collection 'authors'
-      newAuthor = Serenade(name: "Anders")
-      expect(=> @object.authors.push(newAuthor)).to.triggerEvent(@object, 'change:authorNames')
-    it 'can reach into collections and observe changes to each individual object', ->
-      @object.collection 'authors'
-      @object.authors.push(Serenade(name: "Bert"))
-      @object.property 'authorNames', dependsOn: ['authors', 'authors:name']
-      @object.authorNames
-      author = @object.authors[0]
-      expect(-> author.name = 'test').to.triggerEvent(@object, 'change:authorNames')
-    it 'can reach into collections and observe changes to each individual object when defined on prototype', ->
-      @object.collection 'authors'
-      @object.property 'authorNames', dependsOn: ['authors', 'authors:name']
-
-      @child = Object.create(@object)
-      @child.authors.push(Serenade(name: "Bert"))
-      @child.authorNames
-      author = @child.authors[0]
-      expect(-> author.name = 'test').to.triggerEvent(@child, 'change:authorNames')
-      expect(-> author.name = 'test').not.to.triggerEvent(@object, 'change:authorNames')
-    it 'does not trigger events multiple times when reaching and property is accessed multiple times', ->
-      @object.collection 'authors'
-      @object.property 'authorNames', dependsOn: ['authors', 'authors:name']
-      @object.authors.push(Serenade(name: "Bert"))
-      @object.authorNames
-      @object.authorNames
-
-      author = @object.authors[0]
-      expect(-> author.name = 'test').to.triggerEvent(@object, 'change:authorNames')
-    it 'does not observe changes to elements no longer in the collcection', ->
-      @object.property 'authorNames', dependsOn: 'authors:name'
-      @object.authorNames
-      @object.collection 'authors'
-      @object.authors.push(Serenade(name: "Bert"))
-      oldAuthor = @object.authors[0]
-      oldAuthor.schmoo = true
-      @object.authors.deleteAt(0)
-      expect(-> oldAuthor.name = 'test').not.to.triggerEvent(@object, 'change:authorNames')
-
   describe '.set', ->
     beforeEach ->
       @object.property("foo")
