@@ -19,6 +19,16 @@ describe "Serenade.defineEvent", ->
       @object.test.trigger("world")
       expect(result).to.eql("Hello world")
 
+    it "does not bind the same function twice", ->
+      result = 0
+      defineEvent(@object, "test")
+      fun = -> result += 1
+      @object.test.bind(fun)
+      @object.test.bind(fun)
+
+      @object.test.trigger("world")
+      expect(result).to.eql(1)
+
     it "does not bleed listeners to prototype", ->
       result = null
       defineEvent(@object, "test")
@@ -41,7 +51,52 @@ describe "Serenade.defineEvent", ->
       result = null
       defineEvent(@object, "test1")
       defineEvent(@object, "test2")
-      @child = Object.create(@object)
-      @child.test1.bind (val) -> result = @text + " " + val
+      @object.test1.bind (val) -> result = @text + " " + val
       @object.test2.trigger("world")
       expect(result).to.eql(null)
+
+  describe "unbind", ->
+    it "does nothing when the given function isn't bound", ->
+      defineEvent(@object, "test")
+      @object.test.unbind(->)
+      @object.test.trigger("world")
+
+    it "stops listening to the event", ->
+      result = null
+      defineEvent(@object, "test")
+      fun = (val) -> result = @text + " " + val
+      @object.test.bind(fun)
+      @object.test.unbind(fun)
+      @object.test.trigger("world")
+      expect(result).to.eql(null)
+
+    it "does not remove listeners from prototype", ->
+      result = null
+      defineEvent(@object, "test")
+      @child = Object.create(@object)
+      fun = (val) -> result = @text + " " + val
+      @object.test.bind(fun)
+      @child.test.unbind(fun)
+      @object.test.trigger("world")
+      expect(result).to.eql("Hello world")
+
+    it "stops listening when bound on prototype", ->
+      result = null
+      defineEvent(@object, "test")
+      @child = Object.create(@object)
+      fun = (val) -> result = @text + " " + val
+      @object.test.bind(fun)
+      @child.test.unbind(fun)
+      @child.test.trigger("world")
+      expect(result).to.eql(null)
+
+    it "does not bleed listeners between events", ->
+      result = null
+      defineEvent(@object, "test1")
+      defineEvent(@object, "test2")
+      fun = (val) -> result = @text + " " + val
+      @object.test1.bind(fun)
+      @object.test2.bind(fun)
+      @object.test1.unbind(fun)
+      @object.test2.trigger("world")
+      expect(result).to.eql("Hello world")

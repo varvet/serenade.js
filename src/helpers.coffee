@@ -35,14 +35,23 @@ Helpers =
 
   # Pushes item to a collection on object, interacts in a sane way with prototypes.
   safePush: (object, collection, item) ->
-    # defined on self
-    if object.hasOwnProperty(collection)
-      object[collection].push(item)
-    # defined on prototype, clone collection from prototype
-    else if object[collection]
-      Object.defineProperty object, collection, value: [item].concat(object[collection])
-    # not defined yet, define a new property
-    else
-      Object.defineProperty object, collection, value: [item]
+    if not object[collection] or object[collection].indexOf(item) is -1
+      # defined on self
+      if object.hasOwnProperty(collection)
+        object[collection].push(item)
+      # defined on prototype, clone collection from prototype
+      else if object[collection]
+        Object.defineProperty object, collection, value: [item].concat(object[collection])
+      # not defined yet, define a new property
+      else
+        Object.defineProperty object, collection, value: [item]
+
+  # Deletes an item from a collection on object, interacts in a sane way with prototypes.
+  safeDelete: (object, collection, item) ->
+    if object[collection] and (index = object[collection].indexOf(item)) isnt -1
+      # defined on prototype, clone collection from prototype
+      unless object.hasOwnProperty(collection)
+        Object.defineProperty object, collection, value: [].concat(object[collection])
+      object[collection].splice(index, 1)
 
 Helpers.extend(exports, Helpers)
