@@ -165,3 +165,14 @@ describe 'Serenade.Model', ->
           @firstName + " " + @lastName
       john = new Person(firstName: "John", lastName: "Smith")
       expect(john.name).to.eql("John Smith")
+
+  describe "#id", ->
+    it "updates identify map when changed", ->
+      class Person extends Serenade.Model
+        @property "name"
+      person = new Person(id: 5, name: "Nicklas")
+      person.id = 10
+      expect(person.id).to.eql(10)
+      expect(Person.find(5).name).to.eql(undefined)
+      expect(Person.find(10).name).to.eql("Nicklas")
+
