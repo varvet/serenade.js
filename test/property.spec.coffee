@@ -1,7 +1,6 @@
 require './spec_helper'
 {Serenade} = require '../src/serenade'
 {Collection} = require '../src/collection'
-{Events} = require '../src/events'
 {extend} = require '../src/helpers'
 {defineProperty} = require '../src/property'
 {expect} = require('chai')
@@ -9,7 +8,6 @@ require './spec_helper'
 describe 'Serenade.defineProperty', ->
   beforeEach ->
     @object = {}
-    extend(@object, Events, false)
 
   it 'does not bleed over between objects with same prototype', ->
     @inst1 = Object.create(@object)

@@ -1,6 +1,5 @@
 {Cache} = require './cache'
 {Collection} = require './collection'
-{Events} = require './events'
 {AssociationCollection} = require './association_collection'
 {extend, capitalize, serializeObject} = require './helpers'
 {defineProperty} = require './property'

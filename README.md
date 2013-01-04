@@ -813,7 +813,4 @@ Serenade.js is licensed under the MIT license, see the LICENSE file.
 Substantial parts of this codebase where taken from CoffeeScript, licensed
 under the MIT license, by Jeremy Ashkenas, see the LICENSE file.
 
-A small part of this codebase was taken from Spine.js, licensed under the MIT
-license, by Alex MacCaw, see the LICENSE file.
-
 [service]: https://github.com/elabs/serenade.service.js
