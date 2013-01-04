@@ -10,6 +10,11 @@ describe "Serenade", ->
     expect(object.name).to.eql("Jonas")
     expect(-> object.name = "John").to.triggerEvent(object.change_name)
 
+  it "can decorate an object which has an enumerable constructor property", ->
+    object = Serenade(constructor: "Jonas")
+    expect(object.constructor).to.eql("Jonas")
+    expect(-> object.constructor = "John").to.triggerEvent(object.change_constructor)
+
   describe ".view", ->
     it "registers a view object", ->
       Serenade.view("test", "h1#test")

@@ -5,7 +5,7 @@ globalDependencies = {}
 
 triggerGlobal = (target, names) ->
   for name in names
-    if globalDependencies[name]
+    if globalDependencies.hasOwnProperty(name)
       for { name, type, object, subname, dependency } in globalDependencies[name]
         if type is "singular"
           if target is object[name]
@@ -78,7 +78,7 @@ class Property
 
   # Find all properties which are dependent upon this one
   dependents: (object) ->
-    return object._s_dependencyCache[@name] if object._s_dependencyCache[@name]
+    return object._s_dependencyCache[@name] if object._s_dependencyCache.hasOwnProperty(@name)
     deps = []
     findDependencies = (name) ->
       for property in object._s_properties
