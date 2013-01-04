@@ -1,5 +1,5 @@
 {Serenade} = require './serenade'
-{defineEvent} = require './event2'
+{defineEvent} = require './event'
 {extend} = require './helpers'
 {Collection} = require './collection'
 

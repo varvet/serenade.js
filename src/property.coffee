@@ -1,5 +1,5 @@
 {safePush} = require './helpers'
-{defineEvent} = require './event2'
+{defineEvent} = require './event'
 
 globalDependencies = {}
 

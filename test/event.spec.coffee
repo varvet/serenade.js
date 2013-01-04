@@ -1,5 +1,5 @@
 require "./spec_helper"
-{defineEvent} = require '../src/event2'
+{defineEvent} = require '../src/event'
 {expect} = require('chai')
 
 describe "Serenade.defineEvent", ->

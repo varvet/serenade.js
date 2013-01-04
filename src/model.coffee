@@ -3,7 +3,7 @@
 {AssociationCollection} = require './association_collection'
 {extend, capitalize, serializeObject} = require './helpers'
 {defineProperty} = require './property'
-{defineEvent} = require './event2'
+{defineEvent} = require './event'
 
 idCounter = 1
 

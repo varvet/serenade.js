@@ -1,4 +1,4 @@
-{defineEvent} = require './event2'
+{defineEvent} = require './event'
 {extend, serializeObject} = require './helpers'
 
 isArrayIndex = (index) -> "#{index}".match(/^\d+$/)
