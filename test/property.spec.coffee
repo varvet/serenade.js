@@ -152,6 +152,13 @@ describe 'Serenade.defineProperty', ->
       @object.author = Serenade(name: "Jonas")
       expect(=> @object.author.name = 'test').to.triggerEvent(@object.change_name)
 
+    it 'can depend on properties which reach into other properties', ->
+      defineProperty @object, 'reverseName', dependsOn: 'name', get: -> @name.reverse() if @name
+      defineProperty @object, 'name', dependsOn: 'author.name'
+      defineProperty @object, 'author'
+      @object.author = Serenade(name: "Jonas")
+      expect(=> @object.author.name = 'test').to.triggerEvent(@object.change_reverseName)
+
     it 'does not observe changes on objects which are no longer associated', ->
       defineProperty @object, 'name', dependsOn: 'author.name'
       defineProperty @object, 'author'

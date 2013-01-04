@@ -3,39 +3,28 @@
 
 globalDependencies = {}
 
-addGlobalDependencies = (object, dependency, names) ->
-  if names.length and not object["_glb_" + dependency]
-    object["_glb_" + dependency] = true
-    for name in names
-      if name.match(/\./)
-        type = "singular"
-        [name, subname] = name.split(".")
-      else if name.match(/:/)
-        type = "collection"
-        [name, subname] = name.split(":")
-
-      if subname
-        globalDependencies[subname] or= []
-        globalDependencies[subname].push({ object, dependency, subname, name, type })
-
-triggerGlobal = (object, names) ->
+triggerGlobal = (target, names) ->
   for name in names
     if globalDependencies[name]
-      for dependency in globalDependencies[name]
-        if dependency.type is "singular"
-          if object is dependency.object[dependency.name]
-            dependency.object[dependency.dependency + "_property"]?.triggerChanges?(dependency.object)
-        else if dependency.type is "collection"
-          if object in dependency.object[dependency.name]
-            dependency.object[dependency.dependency + "_property"]?.triggerChanges?(dependency.object)
+      for { name, type, object, subname, dependency } in globalDependencies[name]
+        if type is "singular"
+          if target is object[name]
+            object[dependency + "_property"]?.triggerChanges?(object)
+        else if type is "collection"
+          if target in object[name]
+            object[dependency + "_property"]?.triggerChanges?(object)
 
 class Property
   constructor: (@name, @options) ->
     @valueName = "_s_#{@name}_val"
-    if typeof(@options.serialize) is 'string'
-      @serializeAlias = @options.serialize
 
-    @dependsOn = if @options.dependsOn then [].concat(@options.dependsOn) else []
+    @dependencies = []
+    @localDependencies = []
+    @globalDependencies = []
+
+    if @options.dependsOn
+      @addDependency(name) for name in [].concat(@options.dependsOn)
+
     @serialize = @options.serialize
     @format = @options.format
 
@@ -50,11 +39,11 @@ class Property
       @triggerChanges(object)
 
   get: (object) ->
+    @registerGlobal(object)
     if @options.get
       # add a listener which adds any dependencies that haven't been specified
       listener = (name) =>
-        if @dependsOn.indexOf(name) is -1
-          @dependsOn.push(name)
+        if @addDependency(name)
           # bust the cache
           Object.defineProperty object, "_s_dependencyCache", value: {}, configurable: true
 
@@ -69,13 +58,32 @@ class Property
     object._s_property_access.trigger(@name)
     value
 
-  dependencies: (object) ->
+  addDependency: (name) ->
+    if @dependencies.indexOf(name) is -1
+      @dependencies.push(name)
+
+      if name.match(/\./)
+        type = "singular"
+        [name, subname] = name.split(".")
+      else if name.match(/:/)
+        type = "collection"
+        [name, subname] = name.split(":")
+
+      @localDependencies.push(name)
+      @localDependencies.push(name) if @localDependencies.indexOf(name) is -1
+      @globalDependencies.push({ subname, name, type }) if type
+      true
+    else
+      false
+
+  # Find all properties which are dependent upon this one
+  dependents: (object) ->
     return object._s_dependencyCache[@name] if object._s_dependencyCache[@name]
     deps = []
     findDependencies = (name) ->
-      deps.push(name)
       for property in object._s_properties
-        if property.name not in deps and name in property.dependsOn
+        if property.name not in deps and name in property.localDependencies
+          deps.push(property.name)
           findDependencies(property.name)
     findDependencies(@name)
 
@@ -83,11 +91,18 @@ class Property
 
   triggerChanges: (object) ->
     changes = {}
-    changes[name] = object[name] for name in @dependencies(object)
+    changes[name] = object[name] for name in [@name].concat(@dependents(object))
     object.change.trigger(changes)
-    triggerGlobal(object, @dependencies(object))
+    triggerGlobal(object, [@name].concat(@dependents(object)))
     for own name, value of changes
       object["change_" + name].trigger(value)
+
+  registerGlobal: (object) ->
+    unless object["_glb_" + @name]
+      object["_glb_" + @name] = true
+      for { name, type, subname } in @globalDependencies
+        globalDependencies[subname] or= []
+        globalDependencies[subname].push({ object, subname, name, type, dependency: @name })
 
 defineProperty = (object, name, options={}) ->
   hasOriginal = name of object
@@ -99,9 +114,7 @@ defineProperty = (object, name, options={}) ->
   defineEvent object, "change"
   defineEvent object, "_s_property_access"
   defineEvent object, "change_" + name,
-    bind: ->
-      @[name] # make sure dependencies have been discovered
-      addGlobalDependencies(@, name, @[name + "_property"].dependsOn)
+    bind: -> @[name] # make sure dependencies have been discovered and registered
 
   # adding properties busts the cache
   Object.defineProperty object, "_s_dependencyCache", value: {}, configurable: true
@@ -116,8 +129,8 @@ defineProperty = (object, name, options={}) ->
     get: -> property
     configurable: true
 
-  if property.serializeAlias
-    defineProperty object, property.serializeAlias,
+  if typeof(options.serialize) is 'string'
+    defineProperty object, options.serialize,
       get: -> @[name]
       set: (v) -> @[name] = v
       configurable: true
