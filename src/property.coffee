@@ -52,12 +52,25 @@ class Property
   get: (object) ->
     if @dependsOn.length
       addGlobalDependencies(object, @name, @dependsOn)
+
     if @options.get
-      @options.get.call(object)
+      # add a listener which adds any dependencies that haven't been specified
+      listener = (name) =>
+        if @dependsOn.indexOf(name) is -1
+          @dependsOn.push(name)
+          # bust the cache
+          Object.defineProperty object, "_s_dependencyCache", value: {}, configurable: true
+
+      object._s_property_access.bind(listener) unless "dependsOn" of @options
+      value = @options.get.call(object)
+      object._s_property_access.unbind(listener) unless "dependsOn" of @options
     else if "default" of @options and @valueName not of object
-      @options.default
+      value = @options.default
     else
-      object[@valueName]
+      value = object[@valueName]
+
+    object._s_property_access.trigger(@name)
+    value
 
   dependencies: (object) ->
     return object._s_dependencyCache[@name] if object._s_dependencyCache[@name]
@@ -87,6 +100,7 @@ defineProperty = (object, name, options={}) ->
   safePush(object, "_s_properties", property)
 
   defineEvent object, "change"
+  defineEvent object, "_s_property_access"
   defineEvent object, "change_" + name
 
   # adding properties busts the cache

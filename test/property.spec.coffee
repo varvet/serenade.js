@@ -102,6 +102,28 @@ describe 'Serenade.defineProperty', ->
       @object.last = 'Pan'
       expect(=> @object.first = "Peter").to.triggerEvent(@object.change_fullName, with: ['Peter Pan'])
 
+    it 'does not bind to dependencies when none are given', ->
+      defineProperty @object, 'first'
+      defineProperty @object, 'last'
+      defineProperty @object, 'fullName',
+        get: -> @first + " " + @last
+        dependsOn: []
+      @object.last = 'Pan'
+      expect(=> @object.first = "Peter").not.to.triggerEvent(@object.change_fullName)
+
+    it 'automatically discovers dependencies with the same object', ->
+      defineProperty @object, 'first'
+      defineProperty @object, 'last'
+      defineProperty @object, 'initial', get: -> @first?[0]
+      defineProperty @object, 'fullName', get: -> @initial + " " + @last
+      @object.fullName
+      @object.last = 'Pan'
+
+      expect(=> @object.first = "Peter").to.triggerEvent(@object.change_fullName)
+      expect(=> @object.last = "Smith").to.triggerEvent(@object.change_fullName)
+      expect(=> @object.first = "Peter").to.triggerEvent(@object.change_initial)
+      expect(=> @object.last = "Smith").not.to.triggerEvent(@object.change_initial)
+
     it 'binds to single dependency', ->
       defineProperty @object, 'name'
       defineProperty @object, 'reverseName',
