@@ -116,7 +116,6 @@ describe 'Serenade.defineProperty', ->
       defineProperty @object, 'last'
       defineProperty @object, 'initial', get: -> @first?[0]
       defineProperty @object, 'fullName', get: -> @initial + " " + @last
-      @object.fullName
       @object.last = 'Pan'
 
       expect(=> @object.first = "Peter").to.triggerEvent(@object.change_fullName)
@@ -127,7 +126,7 @@ describe 'Serenade.defineProperty', ->
     it 'binds to single dependency', ->
       defineProperty @object, 'name'
       defineProperty @object, 'reverseName',
-        get: -> @name.split("").reverse().join("")
+        get: -> @name.split("").reverse().join("") if @name
         dependsOn: 'name'
       expect(=> @object.name = 'Jonas').to.triggerEvent(@object.change_reverseName, with: ['sanoJ'])
 
@@ -151,7 +150,6 @@ describe 'Serenade.defineProperty', ->
       defineProperty @object, 'name', dependsOn: 'author.name'
       defineProperty @object, 'author'
       @object.author = Serenade(name: "Jonas")
-      @object.name
       expect(=> @object.author.name = 'test').to.triggerEvent(@object.change_name)
 
     it 'does not observe changes on objects which are no longer associated', ->

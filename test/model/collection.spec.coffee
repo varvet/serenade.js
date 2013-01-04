@@ -31,28 +31,17 @@ describe "Sereande.Model.collection", ->
 
   it 'can reach into collections and observe changes to each individual object', ->
     @object.authors.push(Serenade(name: "Bert"))
-    @object.authorNames
     author = @object.authors[0]
     expect(-> author.name = 'test').to.triggerEvent(@object.change_authorNames)
 
   it 'can reach into collections and observe changes to each individual object when defined on prototype', ->
     @child = Object.create(@object)
     @child.authors.push(Serenade(name: "Bert"))
-    @child.authorNames
     author = @child.authors[0]
     expect(-> author.name = 'test').to.triggerEvent(@child.change_authorNames)
     expect(-> author.name = 'test').not.to.triggerEvent(@object.change_authorNames)
 
-  it 'does not trigger events multiple times when reaching and property is accessed multiple times', ->
-    @object.authors.push(Serenade(name: "Bert"))
-    @object.authorNames
-    @object.authorNames
-
-    author = @object.authors[0]
-    expect(-> author.name = 'test').to.triggerEvent(@object.change_authorNames)
-
   it 'does not observe changes to elements no longer in the collcection', ->
-    @object.authorNames
     @object.authors.push(Serenade(name: "Bert"))
     oldAuthor = @object.authors[0]
     oldAuthor.schmoo = true

@@ -4,7 +4,7 @@
 globalDependencies = {}
 
 addGlobalDependencies = (object, dependency, names) ->
-  unless object["_glb_" + dependency]
+  if names.length and not object["_glb_" + dependency]
     object["_glb_" + dependency] = true
     for name in names
       if name.match(/\./)
@@ -50,9 +50,6 @@ class Property
       @triggerChanges(object)
 
   get: (object) ->
-    if @dependsOn.length
-      addGlobalDependencies(object, @name, @dependsOn)
-
     if @options.get
       # add a listener which adds any dependencies that haven't been specified
       listener = (name) =>
@@ -101,7 +98,10 @@ defineProperty = (object, name, options={}) ->
 
   defineEvent object, "change"
   defineEvent object, "_s_property_access"
-  defineEvent object, "change_" + name
+  defineEvent object, "change_" + name,
+    bind: ->
+      @[name] # make sure dependencies have been discovered
+      addGlobalDependencies(@, name, @[name + "_property"].dependsOn)
 
   # adding properties busts the cache
   Object.defineProperty object, "_s_dependencyCache", value: {}, configurable: true
