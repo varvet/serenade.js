@@ -10,10 +10,12 @@ class Event
         fun.apply(@object, args)
 
   bind: (fun) ->
+    @options.bind.call(@object, fun) if @options.bind
     safePush(@object, @prop, fun)
 
   unbind: (fun) ->
     safeDelete(@object, @prop, fun)
+    @options.unbind.call(@object, fun) if @options.unbind
 
   Object.defineProperty @prototype, "listeners", get: ->
     @object[@prop]

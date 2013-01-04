@@ -11,7 +11,7 @@ describe "Serenade.defineEvent", ->
     expect(@object.test).not.to.be.undefined
     expect(Object.keys(@object)).not.to.include("test")
 
-  describe "bind", ->
+  describe "#bind", ->
     it "listens to the event", ->
       result = null
       defineEvent(@object, "test")
@@ -55,7 +55,7 @@ describe "Serenade.defineEvent", ->
       @object.test2.trigger("world")
       expect(result).to.eql(null)
 
-  describe "unbind", ->
+  describe "#unbind", ->
     it "does nothing when the given function isn't bound", ->
       defineEvent(@object, "test")
       @object.test.unbind(->)
@@ -100,3 +100,20 @@ describe "Serenade.defineEvent", ->
       @object.test1.unbind(fun)
       @object.test2.trigger("world")
       expect(result).to.eql("Hello world")
+
+  describe "with `bind` option", ->
+    it "calls bind option when new listener is bound", ->
+      defineEvent(@object, "test", bind: (fun) -> @result = fun()[0])
+      expect(@object.result).not.to.be.ok
+      @object.test.bind(-> "test")
+      expect(@object.result).to.eql("t")
+
+  describe "with `unbind` option", ->
+    it "calls bind option when listener is removed", ->
+      defineEvent(@object, "test", unbind: (fun) -> @result = fun()[0])
+      expect(@object.result).not.to.be.ok
+      fun = -> "test"
+      @object.test.bind(fun)
+      expect(@object.result).not.to.be.ok
+      @object.test.unbind(fun)
+      expect(@object.result).to.eql("t")
