@@ -17,7 +17,7 @@ Property =
     update = ->
       node.element.style[ast.name] = getValue(ast, model)
     update()
-    node.bindEvent(model, "change:#{ast.value}", update) if ast.bound
+    node.bindEvent(model["change_#{ast.value}"], update) if ast.bound
 
   event: (ast, node, model, controller) ->
     node.element.addEventListener ast.name, (e) ->
@@ -48,12 +48,12 @@ Property =
         element.value = val unless element.value is val
 
     modelUpdated()
-    node.bindEvent(model, "change:#{ast.value}", modelUpdated)
+    node.bindEvent(model["change_#{ast.value}"], modelUpdated)
     if ast.name is "binding"
       # we can't bind to the form directly since it doesn't exist yet
       handler = (e) -> domUpdated() if element.form is (e.target or e.srcElement)
       Serenade.document.addEventListener("submit", handler, true)
-      node.bind "unload", -> Serenade.document.removeEventListener("submit", handler, true)
+      node.unload.bind -> Serenade.document.removeEventListener("submit", handler, true)
     else
       element.addEventListener(ast.name, domUpdated)
 
@@ -80,12 +80,12 @@ Property =
         value = "0" if value is 0
         element.setAttribute(ast.name, value)
 
-    node.bindEvent(model, "change:#{ast.value}", update) if ast.bound
+    node.bindEvent(model["change_#{ast.value}"], update) if ast.bound
     update()
 
   on: (ast, node, model, controller) ->
     if ast.name in ["load", "unload"]
-      node.bind ast.name, ->
+      node[ast.name].bind ->
         controller[ast.value](model, node.element)
     else
       throw new SyntaxError("unkown lifecycle event '#{ast.name}'")
@@ -110,7 +110,7 @@ Compile =
       else
         throw SyntaxError "#{property.scope} is not a valid scope"
 
-    node.trigger("load")
+    node.load.trigger()
     node
 
   view: (ast, model, parent) ->
@@ -141,7 +141,7 @@ Compile =
       value or ""
     textNode = Serenade.document.createTextNode(getText())
     node = new Node(ast, textNode)
-    node.bindEvent(model, "change:#{ast.value}", -> textNode.nodeValue = getText()) if ast.bound
+    node.bindEvent(model["change_#{ast.value}"], -> textNode.nodeValue = getText()) if ast.bound
     node
 
   collection: (ast, model, controller) ->
@@ -151,12 +151,11 @@ Compile =
 
     dynamic = @bound(ast, model, controller, update)
     collection = model[ast.arguments[0]]
-    if typeof(collection.bind) is "function"
-      dynamic.bindEvent(collection, 'set', => dynamic.replace(compileItem(item) for item in collection))
-      dynamic.bindEvent(collection, 'update', => dynamic.replace(compileItem(item) for item in collection))
-      dynamic.bindEvent(collection, 'add', (item) => dynamic.appendNodeSet(compileItem(item)))
-      dynamic.bindEvent(collection, 'insert', (index, item) => dynamic.insertNodeSet(index, compileItem(item)))
-      dynamic.bindEvent(collection, 'delete', (index) => dynamic.deleteNodeSet(index))
+    dynamic.bindEvent(collection['change_set'], => dynamic.replace(compileItem(item) for item in collection))
+    dynamic.bindEvent(collection['change_update'], => dynamic.replace(compileItem(item) for item in collection))
+    dynamic.bindEvent(collection['change_add'], (item) => dynamic.appendNodeSet(compileItem(item)))
+    dynamic.bindEvent(collection['change_insert'], (index, item) => dynamic.insertNodeSet(index, compileItem(item)))
+    dynamic.bindEvent(collection['change_delete'], (index) => dynamic.deleteNodeSet(index))
     dynamic
 
   in: (ast, model, controller) ->
@@ -189,7 +188,7 @@ Compile =
       value = model[ast.arguments[0]]
       callback(dynamic, value)
     update()
-    dynamic.bindEvent model, "change:#{ast.arguments[0]}", update
+    dynamic.bindEvent(model["change_#{ast.arguments[0]}"], update)
     dynamic
 
 compile = (ast, model, controller) -> Compile[ast.type](ast, model, controller)

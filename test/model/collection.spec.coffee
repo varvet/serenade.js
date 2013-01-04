@@ -23,25 +23,25 @@ describe "Sereande.Model.collection", ->
 
   it 'triggers a change event when collection is changed', ->
     collection = @object.numbers
-    expect(-> collection.push(4)).to.triggerEvent(@object, 'change:numbers', with: [@object.numbers])
+    expect(-> collection.push(4)).to.triggerEvent(@object.change_numbers, with: [@object.numbers])
 
   it 'can reach into collections and observe changes to the entire collection', ->
     newAuthor = Serenade(name: "Anders")
-    expect(=> @object.authors.push(newAuthor)).to.triggerEvent(@object, 'change:authorNames')
+    expect(=> @object.authors.push(newAuthor)).to.triggerEvent(@object.change_authorNames)
 
   it 'can reach into collections and observe changes to each individual object', ->
     @object.authors.push(Serenade(name: "Bert"))
     @object.authorNames
     author = @object.authors[0]
-    expect(-> author.name = 'test').to.triggerEvent(@object, 'change:authorNames')
+    expect(-> author.name = 'test').to.triggerEvent(@object.change_authorNames)
 
   it 'can reach into collections and observe changes to each individual object when defined on prototype', ->
     @child = Object.create(@object)
     @child.authors.push(Serenade(name: "Bert"))
     @child.authorNames
     author = @child.authors[0]
-    expect(-> author.name = 'test').to.triggerEvent(@child, 'change:authorNames')
-    expect(-> author.name = 'test').not.to.triggerEvent(@object, 'change:authorNames')
+    expect(-> author.name = 'test').to.triggerEvent(@child.change_authorNames)
+    expect(-> author.name = 'test').not.to.triggerEvent(@object.change_authorNames)
 
   it 'does not trigger events multiple times when reaching and property is accessed multiple times', ->
     @object.authors.push(Serenade(name: "Bert"))
@@ -49,7 +49,7 @@ describe "Sereande.Model.collection", ->
     @object.authorNames
 
     author = @object.authors[0]
-    expect(-> author.name = 'test').to.triggerEvent(@object, 'change:authorNames')
+    expect(-> author.name = 'test').to.triggerEvent(@object.change_authorNames)
 
   it 'does not observe changes to elements no longer in the collcection', ->
     @object.authorNames
@@ -57,4 +57,4 @@ describe "Sereande.Model.collection", ->
     oldAuthor = @object.authors[0]
     oldAuthor.schmoo = true
     @object.authors.deleteAt(0)
-    expect(-> oldAuthor.name = 'test').not.to.triggerEvent(@object, 'change:authorNames')
+    expect(-> oldAuthor.name = 'test').not.to.triggerEvent(@object.change_authorNames)

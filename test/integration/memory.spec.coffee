@@ -16,7 +16,7 @@ describe 'Memory management', ->
               p "test"
     ''', model
     model.toggle = false
-    expect(model._callbacks["change:leaking"].length).to.eql(0)
+    expect(model.change_leaking.listeners.length).to.eql(0)
 
   it 'prevents memory leaks on unless statements', ->
     model = Serenade(leaking: true, toggle: true)
@@ -28,7 +28,7 @@ describe 'Memory management', ->
               p "test"
     ''', model
     model.toggle = false
-    expect(model._callbacks["change:leaking"].length).to.eql(0)
+    expect(model.change_leaking.listeners.length).to.eql(0)
 
   it 'prevents memory leaks on in statements', ->
     model = Serenade(leaking: true, toggle: true)
@@ -40,7 +40,7 @@ describe 'Memory management', ->
               p "test"
     ''', model
     model.toggle = false
-    expect(model._callbacks["change:leaking"].length).to.eql(0)
+    expect(model.change_leaking.listeners.length).to.eql(0)
 
   it 'prevents memory leaks on collection statements', ->
     model = Serenade(leaking: new Serenade.Collection([]), toggle: true)
@@ -63,7 +63,7 @@ describe 'Memory management', ->
           p @leaking
     ''', model
     model.toggle = false
-    expect(model._callbacks["change:leaking"].length).to.eql(0)
+    expect(model.change_leaking.listeners.length).to.eql(0)
 
   it 'prevents memory leaks on nodes in views', ->
     model = Serenade(leaking: "foobar", toggle: true)
@@ -74,7 +74,7 @@ describe 'Memory management', ->
           - view "test"
     """, model
     model.toggle = false
-    expect(model._callbacks["change:leaking"].length).to.eql(0)
+    expect(model.change_leaking.listeners.length).to.eql(0)
 
   it 'prevents memory leaks on attributes', ->
     model = Serenade(leaking: "foobar", toggle: true)
@@ -84,7 +84,7 @@ describe 'Memory management', ->
           p[id=@leaking]
     ''', model
     model.toggle = false
-    expect(model._callbacks["change:leaking"].length).to.eql(0)
+    expect(model.change_leaking.listeners.length).to.eql(0)
 
   it 'prevents memory leaks on two-way-bindings', ->
     model = Serenade(leaking: "foobar", toggle: true)
@@ -94,7 +94,7 @@ describe 'Memory management', ->
           input[binding:change=@leaking]
     ''', model
     model.toggle = false
-    expect(model._callbacks["change:leaking"].length).to.eql(0)
+    expect(model.change_leaking.listeners.length).to.eql(0)
 
   it 'prevents memory leaks on style bindings', ->
     model = Serenade(leaking: "foobar", toggle: true)
@@ -104,7 +104,7 @@ describe 'Memory management', ->
           input[style:color=@leaking]
     ''', model
     model.toggle = false
-    expect(model._callbacks["change:leaking"].length).to.eql(0)
+    expect(model.change_leaking.listeners.length).to.eql(0)
 
   it 'prevents global event bindings on submit from leaking', ->
     model = Serenade(leaking: "foobar", toggle: true)

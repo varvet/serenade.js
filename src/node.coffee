@@ -1,11 +1,13 @@
 {Serenade} = require './serenade'
-{Events, NodeEvents} = require './events'
+{defineEvent} = require './event2'
+{NodeEvents} = require './events'
 {extend} = require './helpers'
 {Collection} = require './collection'
 
 class Node
-  extend(@prototype, Events)
   extend(@prototype, NodeEvents)
+  defineEvent(@prototype, "load")
+  defineEvent(@prototype, "unload")
 
   constructor: (@ast, @element) ->
     @children = new Collection([])

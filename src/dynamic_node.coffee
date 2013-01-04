@@ -1,10 +1,13 @@
 {Serenade} = require './serenade'
 {Collection} = require './collection'
 {extend} = require './helpers'
+{defineEvent} = require './event2'
 {NodeEvents} = require './events'
 
 class DynamicNode
   extend(@prototype, NodeEvents)
+  defineEvent(@prototype, "load")
+  defineEvent(@prototype, "unload")
 
   constructor: (@ast) ->
     @anchor = Serenade.document.createTextNode('')

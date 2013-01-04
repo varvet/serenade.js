@@ -43,13 +43,16 @@ exports.Events =
     @
 
 exports.NodeEvents =
-  bindEvent: (to, name, fun) ->
-    if to?.bind
+  bindEvent: (event, fun) ->
+    if event
       @boundEvents or= []
-      @boundEvents.push({ to, name, fun })
-      to.bind(name, fun)
+      @boundEvents.push({ event, fun })
+      event.bind(fun)
 
   unbindEvents: ->
-    @trigger?("unload")
+    # trigger unload callbacks
+    @unload.trigger()
+    # recursively unbind events on children
     node.unbindEvents() for node in @nodes()
-    to.unbind(name, fun) for {to, name, fun} in @boundEvents if @boundEvents
+    # remove events
+    event.unbind(fun) for {event, fun} in @boundEvents if @boundEvents

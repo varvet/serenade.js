@@ -1,12 +1,10 @@
 {Cache} = require './cache'
 {extend, format} = require './helpers'
 {Property, defineProperty, globalDependencies} = require("./property")
-{Events} = require("./events")
 
 Serenade = (wrapped) ->
   object = Object.create(wrapped)
   defineProperty(object, key) for key in Object.keys(wrapped)
-  extend(object, Events)
   object
 
 extend Serenade,
@@ -42,7 +40,6 @@ extend Serenade,
     Serenade._views = {}
     Serenade._controllers = {}
 
-  Events: require('./events').Events
   Model: require('./model').Model
   Collection: require('./collection').Collection
   Helpers: {}

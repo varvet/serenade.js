@@ -87,7 +87,7 @@ describe 'Serenade.Model.hasMany', ->
     post.confirmedComments
     post.comments = [{ id: 5, body: 'Hello', confirmed: true }, { id: 8, body: 'Monkey', confirmed: false }]
     comment = post.comments[1]
-    expect(-> comment.confirmed = true).to.triggerEvent(post, 'change:confirmedComments')
+    expect(-> comment.confirmed = true).to.triggerEvent(post.change_confirmedComments)
   it 'can set itself on its inverse relation', ->
     class Comment extends Serenade.Model
       @belongsTo "post"
@@ -133,8 +133,8 @@ describe ".delegate", ->
     post = new Post(author: author)
     post.name
     post.email
-    expect(-> author.name = "peter").to.triggerEvent(post, "change:name", with: ["peter"])
-    expect(-> author.email = "peter@elabs.se").to.triggerEvent(post, "change:email", with: ["peter@elabs.se"])
+    expect(-> author.name = "peter").to.triggerEvent(post.change_name, with: ["peter"])
+    expect(-> author.email = "peter@elabs.se").to.triggerEvent(post.change_email, with: ["peter@elabs.se"])
   it "can set prefix", ->
     author = new Serenade.Model(name: "Jonas", email: "jonas@elabs.se")
     class Post extends Serenade.Model

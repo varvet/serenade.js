@@ -8,7 +8,7 @@ describe "Serenade", ->
   it "can decorate an object with properties", ->
     object = Serenade(name: "Jonas")
     expect(object.name).to.eql("Jonas")
-    expect(-> object.name = "John").to.triggerEvent(object, "change:name")
+    expect(-> object.name = "John").to.triggerEvent(object.change_name)
 
   describe ".view", ->
     it "registers a view object", ->
