@@ -13,6 +13,12 @@ class Event
     @options.bind.call(@object, fun) if @options.bind
     safePush(@object, @prop, fun)
 
+  one: (fun) ->
+    unbind = (fun) => @unbind(fun)
+    @bind ->
+      unbind(arguments.callee)
+      fun.apply(@, arguments)
+
   unbind: (fun) ->
     safeDelete(@object, @prop, fun)
     @options.unbind.call(@object, fun) if @options.unbind
