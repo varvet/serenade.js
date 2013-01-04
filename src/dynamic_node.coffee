@@ -1,14 +1,9 @@
 {Serenade} = require './serenade'
 {Collection} = require './collection'
 {extend} = require './helpers'
-{defineEvent} = require './event2'
-{NodeEvents} = require './events'
+{Node} = require './node'
 
-class DynamicNode
-  extend(@prototype, NodeEvents)
-  defineEvent(@prototype, "load")
-  defineEvent(@prototype, "unload")
-
+class DynamicNode extends Node
   constructor: (@ast) ->
     @anchor = Serenade.document.createTextNode('')
     @nodeSets = new Collection([])
