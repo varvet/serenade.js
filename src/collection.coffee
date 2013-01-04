@@ -1,10 +1,15 @@
-{Events} = require './events'
+{defineEvent} = require './event2'
 {extend, serializeObject} = require './helpers'
 
 isArrayIndex = (index) -> "#{index}".match(/^\d+$/)
 
 class exports.Collection
-  extend(@prototype, Events)
+  defineEvent @prototype, "change_set"
+  defineEvent @prototype, "change_add"
+  defineEvent @prototype, "change_update"
+  defineEvent @prototype, "change_insert"
+  defineEvent @prototype, "change_delete"
+  defineEvent @prototype, "change"
 
   constructor: (list=[]) ->
     @[index] = val for val, index in list
@@ -18,9 +23,8 @@ class exports.Collection
   set: (index, value) ->
     @[index] = value
     @length = Math.max(@length, index + 1) if isArrayIndex(index)
-    @trigger("change:#{index}", value)
-    @trigger("set", index, value)
-    @trigger("change", @)
+    @change_set.trigger(index, value)
+    @change.trigger(@)
     value
 
   update: (list) ->
@@ -28,8 +32,8 @@ class exports.Collection
     delete @[index] for index, _ of @ when isArrayIndex(index)
     @[index] = val for val, index in list
     @length = list?.length or 0
-    @trigger("update", old, @)
-    @trigger("change", @)
+    @change_update.trigger(old, @)
+    @change.trigger(@)
     list
 
   sortBy: (attribute) ->
@@ -43,15 +47,15 @@ class exports.Collection
 
   insertAt: (index, value) ->
     Array::splice.call(@, index, 0, value)
-    @trigger("insert", index, value)
-    @trigger("change", @)
+    @change_insert.trigger(index, value)
+    @change.trigger(@)
     value
 
   deleteAt: (index) ->
     value = @[index]
     Array::splice.call(@, index, 1)
-    @trigger("delete", index, value)
-    @trigger("change", @)
+    @change_delete.trigger(index, value)
+    @change.trigger(@)
     value
 
   delete: (item) ->
@@ -76,8 +80,8 @@ class exports.Collection
 
   push: (element) ->
     @[@length++] = element
-    @trigger("add", element)
-    @trigger("change", @)
+    @change_add.trigger(element)
+    @change.trigger(@)
     element
 
   pop: ->
@@ -92,22 +96,22 @@ class exports.Collection
   splice: (start, deleteCount, list...) ->
     old = @clone()
     deleted = Array::splice.apply(@, [start, deleteCount, list...])
-    @trigger("update", old, @)
-    @trigger("change", @)
+    @change_update.trigger(old, @)
+    @change.trigger(@)
     new Collection(deleted)
 
   sort: (fun) ->
     old = @clone()
     Array::sort.call(@, fun)
-    @trigger("update", old, @)
-    @trigger("change", @)
+    @change_update.trigger(old, @)
+    @change.trigger(@)
     @
 
   reverse: ->
     old = @clone()
     Array::reverse.call(@)
-    @trigger("update", old, @)
-    @trigger("change", @)
+    @change_update.trigger(old, @)
+    @change.trigger(@)
     @
 
   for fun in ["forEach", "indexOf", "lastIndexOf", "join", "every", "some", "reduce", "reduceRight"]
