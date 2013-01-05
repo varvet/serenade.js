@@ -138,5 +138,4 @@ defineProperty = (object, name, options={}) ->
   object[name] = originalValue if hasOriginal
 
 exports.defineProperty = defineProperty
-exports.Property = Property
 exports.globalDependencies = globalDependencies
