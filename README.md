@@ -175,7 +175,7 @@ change in the DOM, but not the other way around. Two way data binding exist so
 that a change in the DOM automatically updates the model, and vice versa.
 
 ``` javascript
-var model = { name: "Jonas" };
+var model = Serenade({ name: "Jonas" });
 var element = Serenade.view('input[type="text" binding=@name]').render(model, {});
 ```
 
@@ -215,14 +215,19 @@ Person.collection('sizes', { format: function(collection) { return collection.li
 
 ## Dependencies
 
-When a property is changed, Serenade.js automatically triggers an event called
-`change:propertyName`, as well as a generic `change` event. These events are
-what keeps the view up to date as the model changes. In the `fullName` property
-above, changes to either `firstName` or `lastName` could require the view to be
-changed, but this is not inferred automatically. You will need to explicitly
-state the dependencies of the `fullName` property. This will cause it to update
-it if any of the dependent properties change, just like it should. You can do
-this easily like this:
+You will often want to show data which is composed of other data. For example,
+a person's full name might be a combination of their first and last names. You
+can declare such a property like this:
+
+``` javascript
+Person.property('fullName', {
+  get: function() { return this.firstName + " " + this.lastName },
+});
+```
+
+Serenade will automatically figure out that `fullName` depends on the values of
+`firstName` and `lastName`, and will update `fullName` in your view whenever
+those change. You can be explicit about what those dependencies are as well:
 
 ``` javascript
 Person.property('fullName', {
@@ -231,15 +236,16 @@ Person.property('fullName', {
 });
 ```
 
-A property can specify that it depends upon the value of a property in another
-object, by "reaching" into that object, with the `object.property` syntax. For
-example:
+Some properties may depend on properties in other objects. Serenade cannot
+figure out these kinds of dependencies automatically, so you will have to
+specify them explicitly. For this, you can use the syntax `object.property`,
+like this:
 
 ``` javascript
 Book.property("author");
 Book.property("authorName", {
   get: function() { return this.author.name; },
-  dependsOn: "author.name")
+  dependsOn: "author.name"
 });
 ```
 
@@ -250,8 +256,8 @@ as in `object:property`. For example:
 ``` javascript
 Book.collection("authors");
 Book.property("authorNames", {
-  get: function() { return this.author.map(function(a) { return a.name }); },
-  dependsOn: "authors:name")
+  get: function() { return this.authors.map(function(a) { return a.name }); },
+  dependsOn: "authors:name"
 });
 ```
 
@@ -385,7 +391,7 @@ as a function. You could implement this as follows:
 
 ``` javascript
 var controller = {
-  like: function(model) { model.set('liked', true) }
+  like: function(model) { model.liked = true; }
 };
 ```
 
@@ -399,8 +405,8 @@ object is passed into the function call on the controller, so we can use the
 ``` javascript
 var controller = {
   like: function(model, element, event) {
-    model.set('liked', true)
-    event.preventDefault()
+    model.liked = true;
+    event.preventDefault():
   }
 };
 ```
@@ -629,8 +635,8 @@ var Person = Serenade.Model.extend();
 
 person1 = new Person({ id: 1, name: 'John'} );
 person2 = new Person({ id: 1, age: 23 });
-person2.get('name'); # => 'John'
-person2.get('age'); # => 23
+person2.name; # => 'John'
+person2.age; # => 23
 ```
 
 Here `person2` and `person1` are both variables which point to the same object,
@@ -661,7 +667,7 @@ Person.property('firstName', { serialize: 'first_name' });
 
 If you declare a property serializable like so, not only will the `serialize`
 function use the underscored form, an alias for the setter function will also
-be added, so that you can do `set('first_name', 'Jonas')`. This is especially
+be added, so that you can do `person.first_name = 'Jonas'`. This is especially
 useful when providing JSON data from the server, as it will allow you to use
 the correct naming conventions both on the server and client.
 
