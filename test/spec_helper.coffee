@@ -67,6 +67,18 @@ beforeEach ->
     @assert count is 1, "event #{event.name} was triggered #{count} times, expected 1"
     if options.with
       @assert compareArrays(args, options.with), "event arguments #{args} do not match expected arguments #{options.with}"
+  chai.Assertion::become = (value, done) ->
+    count = 0
+    test = =>
+      result = @obj()
+      if result is value
+        done()
+      else if count > 20
+        done(new Error("expected #{result} to equal #{value}"))
+      else
+        count += 1
+        setTimeout(test, 5)
+    setTimeout(test, 5)
 
   @sinon = sinon.sandbox.create()
 

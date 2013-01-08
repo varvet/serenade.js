@@ -135,3 +135,27 @@ describe "Serenade.defineEvent", ->
       expect(@object.result).not.to.be.ok
       @object.event.unbind(fun)
       expect(@object.result).to.eql("t")
+
+  describe "with `async` option", ->
+    it "eventually calls event", (done) ->
+      defineEvent(@object, "event", async: true)
+      @object.event.bind -> @result = true
+      @object.event.trigger()
+      expect(@object.result).not.to.be.ok
+      expect(=> @object.result).to.become(true, done)
+
+    it "dispatches multiple events in correct order", (done) ->
+      defineEvent(@object, "event", async: true)
+      @object.event.bind (val) -> @text += val
+      @object.event.trigger(" world")
+      @object.event.trigger(", yay!")
+      expect(@object.text).to.eql("Hello")
+      expect(=> @object.text).to.become("Hello world, yay!", done)
+
+    it "allows queue to be introspected between triggering and resolving event", (done) ->
+      defineEvent(@object, "event", async: true)
+      @object.event.bind (val) -> @num += val
+      @object.event.trigger("foo", "bar")
+      expect(@object.event.queue[0][0]).to.eql("foo")
+      expect(@object.event.queue[0][1]).to.eql("bar")
+      expect(=> @object.event.queue.length).to.become(0, done)

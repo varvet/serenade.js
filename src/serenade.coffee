@@ -16,6 +16,7 @@ extend Serenade,
   format: format
 
   defineProperty: defineProperty
+  asyncEvents: false
 
   view: (nameOrTemplate, template) ->
     {View} = require('./view')
