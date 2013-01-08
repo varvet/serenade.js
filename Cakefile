@@ -1,5 +1,4 @@
-{Build} = require './build'
-{Serenade} = require './src/serenade'
+{Build, Serenade} = require './src/build'
 fs = require 'fs'
 
 task 'build', 'build the whole thing', ->

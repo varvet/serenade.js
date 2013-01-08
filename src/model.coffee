@@ -1,10 +1,3 @@
-{Cache} = require './cache'
-{Collection} = require './collection'
-{AssociationCollection} = require './association_collection'
-{extend, capitalize, serializeObject} = require './helpers'
-{defineProperty} = require './property'
-{defineEvent} = require './event'
-
 idCounter = 1
 
 class Model
@@ -135,5 +128,3 @@ class Model
       else if property.serialize
         serialized[property.name] = serializeObject(@[property.name])
     serialized
-
-exports.Model = Model

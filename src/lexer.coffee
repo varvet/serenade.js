@@ -134,5 +134,3 @@ class Lexer
     num
 
   last: (array, back) -> array[array.length - (back or 0) - 1]
-
-exports.Lexer = Lexer

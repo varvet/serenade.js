@@ -1,9 +1,7 @@
 require './spec_helper'
-{Cache} = require '../src/cache'
-{Serenade} = require '../src/serenade'
-{expect} = require('chai')
+{Cache} = Serenade
 
-describe 'Cache', ->
+describe 'Serenade.Cache', ->
   beforeEach ->
     class CTOR extends Serenade.Model
       constructor: (@attributes) ->

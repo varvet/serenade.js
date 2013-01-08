@@ -1,5 +1,3 @@
-{serializeObject} = require './helpers'
-
 Cache =
   _storage: window?.localStorage
   _identityMap: {}
@@ -27,5 +25,3 @@ Cache =
     if name and id and ctor.localStorage and JSON?
       data = @_storage.getItem("#{name}_#{id}")
       new ctor(JSON.parse(data), true) if data
-
-exports.Cache = Cache

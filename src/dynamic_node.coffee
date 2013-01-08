@@ -1,8 +1,3 @@
-{Serenade} = require './serenade'
-{Collection} = require './collection'
-{extend} = require './helpers'
-{Node} = require './node'
-
 class DynamicNode extends Node
   constructor: (@ast) ->
     @anchor = Serenade.document.createTextNode('')
@@ -59,5 +54,3 @@ class DynamicNode extends Node
 
   lastElement: ->
     @nodeSets.last()?.last()?.lastElement() or @anchor
-
-exports.DynamicNode = DynamicNode

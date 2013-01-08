@@ -1,9 +1,7 @@
 require './spec_helper'
-{Serenade} = require '../src/serenade'
-{Collection} = require '../src/collection'
-{extend} = require '../src/helpers'
-{defineProperty} = require '../src/property'
-{expect} = require('chai')
+
+{extend, defineProperty} = Build
+{defineProperty} = Serenade
 
 describe 'Serenade.defineProperty', ->
   beforeEach ->

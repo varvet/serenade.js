@@ -1,7 +1,4 @@
 require './../spec_helper'
-{Serenade} = require '../../src/serenade'
-{Collection} = require '../../src/collection'
-{expect} = require('chai')
 
 describe 'Serenade.Model#toJSON', ->
   beforeEach ->
@@ -56,7 +53,7 @@ describe 'Serenade.Model#toJSON', ->
 
   it 'serializes a Serenade.Collection by virtue of it having a serialize method', ->
     @Person.property('foo', serialize: true)
-    collection = new Collection([{ toJSON: -> 'from serialize' }, {toJSON: -> 'another'}, "normal"])
+    collection = new Serenade.Collection([{ toJSON: -> 'from serialize' }, {toJSON: -> 'another'}, "normal"])
     @object = new @Person(foo: collection)
     serialized = @object.toJSON()
     expect(serialized.foo[0]).to.eql('from serialize')

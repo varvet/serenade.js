@@ -1,6 +1,5 @@
-{View} = require '../src/view'
-{Serenade} = require '../src/serenade'
-{expect} = require('chai')
+require './spec_helper'
+{View} = Serenade
 
 describe 'View', ->
   describe '#parse', ->

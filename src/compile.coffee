@@ -1,9 +1,3 @@
-{Serenade} = require './serenade'
-{Collection} = require './collection'
-{Node} = require './node'
-{DynamicNode} = require './dynamic_node'
-{format} = require './helpers'
-
 getValue = (ast, model) ->
   if ast.bound and ast.value
     format(model, ast.value)
@@ -193,5 +187,3 @@ Compile =
 
 compile = (ast, model, controller) -> Compile[ast.type](ast, model, controller)
 compileAll = (asts, model, controller) -> Compile[ast.type](ast, model, controller) for ast in asts
-
-exports.compile = compile

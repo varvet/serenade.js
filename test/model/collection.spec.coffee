@@ -1,11 +1,8 @@
 require './../spec_helper'
-{Serenade} = require '../../src/serenade'
-{Model} = require '../../src/model'
-{expect} = require('chai')
 
 describe "Sereande.Model.collection", ->
   beforeEach ->
-    class @Person extends Model
+    class @Person extends Serenade.Model
       @collection "numbers"
       @collection "authors"
 

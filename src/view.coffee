@@ -1,8 +1,3 @@
-{parser} = require './parser'
-{Lexer} = require './lexer'
-{compile} = require './compile'
-{Serenade} = require './serenade'
-
 parser.lexer =
   lex: ->
     [tag, @yytext, @yylineno] = @tokens[@pos++] or ['']
@@ -33,5 +28,3 @@ class View
     node = compile(@parse(), model, controller)
     controller.loaded?(model, node.element) unless skipCallback
     node
-
-exports.View = View

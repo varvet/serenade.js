@@ -1,7 +1,4 @@
 require './../spec_helper'
-{expect} = require('chai')
-{Serenade} = require '../../src/serenade'
-{Lexer} = require '../../src/lexer'
 
 describe 'Shortcuts', ->
   beforeEach ->

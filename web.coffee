@@ -5,7 +5,7 @@ CoffeeScript = require 'coffee-script'
 
 app = express.createServer(express.logger())
 
-app.register '.serenade', require('./src/serenade')
+app.register '.serenade', require('./src/build')
 
 app.get '/', (request, response) ->
   examples = fs.readdirSync('examples').map (dir) -> { name: dir, url: "/#{dir}" }
@@ -18,7 +18,7 @@ app.get '/:name', (request, response) ->
   response.render('show.serenade', model: { name, title, source }, layout: false)
 
 app.get '/src/serenade.js', (request, response) ->
-  require('./build.coffee').Build.minified (code) ->
+  require('./src/build.coffee').Build.minified (code) ->
     response.send(code)
 
 app.get '/src/:name.coffee', (request, response) ->

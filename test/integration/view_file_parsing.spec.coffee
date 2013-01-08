@@ -1,6 +1,4 @@
 require './../spec_helper'
-{expect} = require('chai')
-{Serenade} = require '../../src/serenade'
 fs = require 'fs'
 
 describe 'View file parsing', ->

@@ -1,9 +1,6 @@
-{defineEvent} = require './event'
-{extend, serializeObject} = require './helpers'
-
 isArrayIndex = (index) -> "#{index}".match(/^\d+$/)
 
-class exports.Collection
+class Collection
   defineEvent @prototype, "change_set"
   defineEvent @prototype, "change_add"
   defineEvent @prototype, "change_update"

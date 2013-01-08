@@ -1,6 +1,3 @@
-{safePush, extend} = require './helpers'
-{defineEvent} = require './event'
-
 globalDependencies = {}
 
 triggerGlobal = (target, names) ->
@@ -14,7 +11,7 @@ triggerGlobal = (target, names) ->
           if target in object[name]
             object[dependency + "_property"]?.triggerChanges?(object)
 
-class Property
+class SerenadeProperty
   constructor: (@name, @options) ->
     @valueName = "_s_#{@name}_val"
 
@@ -107,7 +104,7 @@ class Property
 defineProperty = (object, name, options={}) ->
   hasOriginal = name of object
   originalValue = object[name]
-  property = new Property(name, options)
+  property = new SerenadeProperty(name, options)
 
   safePush(object, "_s_properties", property)
 
@@ -143,6 +140,3 @@ defineProperty = (object, name, options={}) ->
       configurable: true
 
   object[name] = originalValue if hasOriginal
-
-exports.defineProperty = defineProperty
-exports.globalDependencies = globalDependencies

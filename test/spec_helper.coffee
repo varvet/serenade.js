@@ -1,9 +1,10 @@
-{Serenade} = require '../src/serenade'
-{View} = require '../src/view'
-{Cache} = require '../src/cache'
+# load globally so we don't have to load it again and again
+root.Build = require('../src/build')
+root.Serenade = Build.Serenade
+
 chai = require 'chai'
 chai.should()
-require('../src/model')
+root.expect = chai.expect
 sinon = require('sinon')
 
 isArray = (arr) -> arr and (Array.isArray(arr) or arr.constructor is Serenade.Collection)
@@ -18,7 +19,7 @@ compareArrays = (one, two) ->
 jsdom = require("jsdom")
 fs = require('fs')
 
-Cache._storage =
+Serenade.Cache._storage =
   _items: {}
   getItem: (id) -> @_items[id]
   setItem: (id, item) -> @_items[id] = item.toString()

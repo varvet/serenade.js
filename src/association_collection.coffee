@@ -1,5 +1,3 @@
-{Collection} = require './collection'
-
 class AssociationCollection extends Collection
   constructor: (@owner, @options, list) ->
     @_convert list..., (items...) =>
@@ -36,5 +34,3 @@ class AssociationCollection extends Collection
       if @options.inverseOf and item[@options.inverseOf] isnt @owner
         item[@options.inverseOf] = @owner
     returnValue
-
-exports.AssociationCollection = AssociationCollection

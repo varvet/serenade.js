@@ -1,6 +1,4 @@
 require './../spec_helper'
-{Serenade} = require '../../src/serenade'
-{expect} = require('chai')
 
 describe 'Serenade.Model.belongsTo', ->
   it 'allows model to be assigned and retrieved', ->

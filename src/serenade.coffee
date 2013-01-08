@@ -1,7 +1,3 @@
-{Cache} = require './cache'
-{extend, format} = require './helpers'
-{Property, defineProperty, globalDependencies} = require("./property")
-
 Serenade = (wrapped) ->
   object = Object.create(wrapped)
   defineProperty(object, key) for key in Object.keys(wrapped)
@@ -16,10 +12,10 @@ extend Serenade,
   format: format
 
   defineProperty: defineProperty
+  defineEvent: defineEvent
   asyncEvents: false
 
   view: (nameOrTemplate, template) ->
-    {View} = require('./view')
     if template
       @_views[nameOrTemplate] = new View(nameOrTemplate, template)
     else
@@ -41,25 +37,8 @@ extend Serenade,
     Serenade._views = {}
     Serenade._controllers = {}
 
-  Model: require('./model').Model
-  Collection: require('./collection').Collection
+  Model: Model
+  Collection: Collection
+  Cache: Cache
+  View: View
   Helpers: {}
-
-exports.Serenade = Serenade
-
-# Express.js support
-exports.compile = ->
-  document = require("jsdom").jsdom(null, null, {})
-  fs = require("fs")
-  window = document.createWindow()
-  Serenade.document = document
-
-  (env) ->
-    model = env.model
-    viewName = env.filename.split('/').reverse()[0].replace(/\.serenade$/, '')
-    Serenade.view(viewName, fs.readFileSync(env.filename).toString())
-    element = Serenade.render(viewName, model, {})
-    document.body.appendChild(element)
-    html = document.body.innerHTML
-    html = "<!DOCTYPE html>\n" + html unless env.doctype is false
-    html

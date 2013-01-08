@@ -1,5 +1,3 @@
-{safePush, safeDelete} = require './helpers'
-
 class Event
   constructor: (@object, @name, @options) ->
     @prop = "_s_#{@name}_listeners"
@@ -49,5 +47,3 @@ defineEvent = (object, name, options={}) ->
     configurable: true
     get: ->
       new Event(this, name, options)
-
-exports.defineEvent = defineEvent

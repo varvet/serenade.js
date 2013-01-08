@@ -1,7 +1,4 @@
 require './spec_helper'
-{Serenade} = require '../src/serenade'
-{Cache} = require '../src/cache'
-{expect} = require('chai')
 
 describe 'Serenade.Model', ->
   describe '#constructor', ->
@@ -46,7 +43,7 @@ describe 'Serenade.Model', ->
         @property 'test', serialize: 'testing'
 
       test = new Test(id: 5, test: 'foo')
-      expect(Cache.retrieve(Test, 5)).to.not.exist
+      expect(Serenade.Cache.retrieve(Test, 5)).to.not.exist
 
     it 'persists to cache on any changes if localStorage is true', ->
       class Test extends Serenade.Model
@@ -54,9 +51,9 @@ describe 'Serenade.Model', ->
         @localStorage = true
 
       test = new Test(id: 5, test: 'foo')
-      expect(Cache.retrieve(Test, 5).test).to.eql('foo')
+      expect(Serenade.Cache.retrieve(Test, 5).test).to.eql('foo')
       test.test = 'monkey'
-      expect(Cache.retrieve(Test, 5).test).to.eql('monkey')
+      expect(Serenade.Cache.retrieve(Test, 5).test).to.eql('monkey')
 
     it 'persists to cache when saved if localStorage is "save"', ->
       class Test extends Serenade.Model
@@ -64,11 +61,11 @@ describe 'Serenade.Model', ->
         @localStorage = 'save'
 
       test = new Test(id: 5, test: 'foo')
-      expect(Cache.retrieve(Test, 5)).to.not.exist
+      expect(Serenade.Cache.retrieve(Test, 5)).to.not.exist
       test.test = 'monkey'
-      expect(Cache.retrieve(Test, 5)).to.not.exist
+      expect(Serenade.Cache.retrieve(Test, 5)).to.not.exist
       test.save()
-      expect(Cache.retrieve(Test, 5).test).to.eql('monkey')
+      expect(Serenade.Cache.retrieve(Test, 5).test).to.eql('monkey')
 
     it 'persists to cache when saved if localStorage is true', ->
       class Test extends Serenade.Model
@@ -77,9 +74,9 @@ describe 'Serenade.Model', ->
 
       test = new Test(id: 5, names: [{ first: "Jonas" }])
       test.names[0].first = "Peter"
-      expect(Cache.retrieve(Test, 5).names[0].first).to.eql("Jonas")
+      expect(Serenade.Cache.retrieve(Test, 5).names[0].first).to.eql("Jonas")
       test.save()
-      expect(Cache.retrieve(Test, 5).names[0].first).to.eql("Peter")
+      expect(Serenade.Cache.retrieve(Test, 5).names[0].first).to.eql("Peter")
 
   describe '.extend', ->
     it 'sets up prototypes correctly', ->

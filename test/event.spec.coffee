@@ -1,6 +1,5 @@
 require "./spec_helper"
-{defineEvent} = require '../src/event'
-{expect} = require('chai')
+{defineEvent} = Serenade
 
 describe "Serenade.defineEvent", ->
   beforeEach ->
