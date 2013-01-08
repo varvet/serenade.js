@@ -1,4 +1,4 @@
-{safePush} = require './helpers'
+{safePush, extend} = require './helpers'
 {defineEvent} = require './event'
 
 globalDependencies = {}
@@ -111,10 +111,17 @@ defineProperty = (object, name, options={}) ->
 
   safePush(object, "_s_properties", property)
 
-  defineEvent object, "change"
   defineEvent object, "_s_property_access"
+  defineEvent object, "change",
+    async: options.async
+    optimize: (queue) ->
+      result = {}
+      extend(result, item[0]) for item in queue
+      [result]
   defineEvent object, "change_" + name,
+    async: options.async
     bind: -> @[name] # make sure dependencies have been discovered and registered
+    optimize: (queue) -> queue[queue.length - 1]
 
   # adding properties busts the cache
   Object.defineProperty object, "_s_dependencyCache", value: {}, configurable: true

@@ -183,3 +183,36 @@ describe 'Serenade.defineProperty', ->
     it 'ignores default when custom getter given', ->
       defineProperty @object, 'name', default: "bar", get: -> "foo"
       expect(@object.name).to.eql("foo")
+
+  describe "with `async` option", ->
+    it "dispatches change event asynchronously", (done) ->
+      defineProperty @object, "foo", async: true
+      @object.change.bind -> @result = true
+      @object.foo = 23
+      expect(@object.result).not.to.be.ok
+      expect(=> @object.result).to.become(true, done)
+
+    it "dispatches a change event for this property asynchronously", (done) ->
+      defineProperty @object, "foo", async: true
+      @object.change_foo.bind -> @result = true
+      @object.foo = 23
+      expect(@object.result).not.to.be.ok
+      expect(=> @object.result).to.become(true, done)
+
+    it "optimizes multiple change events into one", (done) ->
+      @object.result = 0
+      defineProperty @object, "foo", async: true
+      defineProperty @object, "bar", async: true
+      @object.change.bind (val) -> @result = val
+      @object.foo = 23
+      @object.bar = 12
+      @object.foo = 42
+      expect(=> @object.result.bar is 12 and @object.result.foo is 42).to.become(true, done)
+
+    it "optimizes multiple change events for a property into one", (done) ->
+      @object.num = 0
+      defineProperty @object, "foo", async: true
+      @object.change_foo.bind (val) -> @num += val
+      @object.foo = 23
+      @object.foo = 12
+      expect(=> @object.num).to.become(12, done)
