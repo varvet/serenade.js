@@ -73,12 +73,12 @@ beforeEach ->
       result = @obj()
       if result is value
         done()
-      else if count > 20
-        done(new Error("expected #{result} to equal #{value}"))
+      else if count > 3
+        done(new Error("expected #{result} to become equal to #{value}"))
       else
         count += 1
         setTimeout(test, 5)
-    setTimeout(test, 5)
+    test()
 
   @sinon = sinon.sandbox.create()
 

@@ -159,3 +159,18 @@ describe "Serenade.defineEvent", ->
       expect(@object.event.queue[0][0]).to.eql("foo")
       expect(@object.event.queue[0][1]).to.eql("bar")
       expect(=> @object.event.queue.length).to.become(0, done)
+
+  describe "with `optimize` option", ->
+    it "runs all events individually when synchronous", ->
+      defineEvent(@object, "event", optimize: (queue) -> queue[0] )
+      @object.event.bind (val) -> @text += val
+      @object.event.trigger(" world")
+      @object.event.trigger(", yay!")
+      expect(@object.text).to.eql("Hello world, yay!")
+
+    it "optimizes queue into a single call to bound functions", (done) ->
+      defineEvent(@object, "event", async: true, optimize: (queue) -> queue[0] )
+      @object.event.bind (val) -> @text += val
+      @object.event.trigger(" world")
+      @object.event.trigger(", yay!")
+      expect(=> @object.text).to.become("Hello world", done)

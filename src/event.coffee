@@ -3,16 +3,17 @@
 class Event
   constructor: (@object, @name, @options) ->
     @prop = "_s_#{@name}_listeners"
-    queue_name = "_s_#{name}_queue"
-    @queue = if @object.hasOwnProperty(queue_name)
-      @object[queue_name]
+    @queue_name = "_s_#{name}_queue"
+    @queue = if @object.hasOwnProperty(@queue_name)
+      @object[@queue_name]
     else
-      @object[queue_name] = []
+      @object[@queue_name] = []
 
   trigger: (args...) ->
     @queue.push(args)
     if @options.async
-      setTimeout((=> @resolve()), 0)
+      clearTimeout(@queue.timeout)
+      @queue.timeout = setTimeout((=> @resolve()), 0)
     else
       @resolve()
 
@@ -31,10 +32,15 @@ class Event
     @options.unbind.call(@object, fun) if @options.unbind
 
   resolve: ->
-    while args = @queue.shift()
+    perform = (args) =>
       if @object[@prop]
         @object[@prop].forEach (fun) =>
           fun.apply(@object, args)
+    if @options.optimize
+      perform(@options.optimize(@queue))
+    else
+      perform(args) for args in @queue
+    @queue = @object[@queue_name] = []
 
   Object.defineProperty @prototype, "listeners", get: ->
     @object[@prop]
