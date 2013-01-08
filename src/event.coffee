@@ -39,11 +39,11 @@ class Event
       perform(args) for args in @queue
     @queue = @object[@queue_name] = []
 
-  Object.defineProperty @prototype, "listeners", get: ->
+  def @prototype, "listeners", get: ->
     @object[@prop]
 
 defineEvent = (object, name, options={}) ->
-  Object.defineProperty object, name,
+  def object, name,
     configurable: true
     get: ->
       new Event(this, name, options)

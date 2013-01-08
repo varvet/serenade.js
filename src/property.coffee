@@ -32,7 +32,7 @@ class SerenadeProperty
       if @options.set
         @options.set.call(object, value)
       else
-        Object.defineProperty(object, @valueName, value: value, configurable: true)
+        def object, @valueName, value: value, configurable: true
       @triggerChanges(object)
 
   get: (object) ->
@@ -42,7 +42,7 @@ class SerenadeProperty
       listener = (name) =>
         if @addDependency(name)
           # bust the cache
-          Object.defineProperty object, "_s_dependencyCache", value: {}, configurable: true
+          def object, "_s_dependencyCache", value: {}, configurable: true
 
       object._s_property_access.bind(listener) unless "dependsOn" of @options
       value = @options.get.call(object)
@@ -121,15 +121,15 @@ defineProperty = (object, name, options={}) ->
     optimize: (queue) -> queue[queue.length - 1]
 
   # adding properties busts the cache
-  Object.defineProperty object, "_s_dependencyCache", value: {}, configurable: true
+  def object, "_s_dependencyCache", value: {}, configurable: true
 
-  Object.defineProperty object, name,
+  def object, name,
     get: -> property.get(this)
     set: (value) -> property.set(this, value)
     configurable: true
     enumerable: if "enumerable" of options then options.enumerable else true
 
-  Object.defineProperty object, name + "_property",
+  def object, name + "_property",
     get: -> property
     configurable: true
 

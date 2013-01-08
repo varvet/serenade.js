@@ -91,7 +91,7 @@ class Model
     set: (val) ->
       Cache.unset(@constructor, @id)
       Cache.set(@constructor, val, this)
-      Object.defineProperty @, "_s_id_val", value: val, configurable: true
+      def @, "_s_id_val", value: val, configurable: true
     get: -> @_s_id_val
 
   constructor: (attributes, bypassCache=false) ->

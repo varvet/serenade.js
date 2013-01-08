@@ -1,9 +1,11 @@
+def = Object.defineProperty
+
 extend = (target, source, enumerable=true) ->
   for own key, value of source
     if enumerable
       target[key] = value
     else
-      Object.defineProperty(target, key, value: value, configurable: true)
+      def target, key, value: value, configurable: true
 
 format = (model, key) ->
   value = model[key]
@@ -40,15 +42,15 @@ safePush = (object, collection, item) ->
       object[collection].push(item)
     # defined on prototype, clone collection from prototype
     else if object[collection]
-      Object.defineProperty object, collection, value: [item].concat(object[collection])
+      def object, collection, value: [item].concat(object[collection])
     # not defined yet, define a new property
     else
-      Object.defineProperty object, collection, value: [item]
+      def object, collection, value: [item]
 
 # Deletes an item from a collection on object, interacts in a sane way with prototypes.
 safeDelete = (object, collection, item) ->
   if object[collection] and (index = object[collection].indexOf(item)) isnt -1
     # defined on prototype, clone collection from prototype
     unless object.hasOwnProperty(collection)
-      Object.defineProperty object, collection, value: [].concat(object[collection])
+      def object, collection, value: [].concat(object[collection])
     object[collection].splice(index, 1)
