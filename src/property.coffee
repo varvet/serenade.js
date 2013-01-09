@@ -108,15 +108,17 @@ defineProperty = (object, name, options={}) ->
 
   safePush(object, "_s_properties", property)
 
+  async = if "async" of options then options.async else settings.async
+
   defineEvent object, "_s_property_access"
   defineEvent object, "change",
-    async: options.async
+    async: async
     optimize: (queue) ->
       result = {}
       extend(result, item[0]) for item in queue
       [result]
   defineEvent object, "change_" + name,
-    async: options.async
+    async: async
     bind: -> @[name] # make sure dependencies have been discovered and registered
     optimize: (queue) -> queue[queue.length - 1]
 

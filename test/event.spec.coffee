@@ -174,7 +174,7 @@ describe "Serenade.defineEvent", ->
       @object.event.trigger(", yay!")
       expect(=> @object.text).to.become("Hello world", done)
 
-  describe "when Sereande.async = true", ->
+  describe "when Serenade.async = true", ->
     beforeEach ->
       Serenade.async = true
 

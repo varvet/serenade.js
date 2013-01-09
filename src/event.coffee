@@ -7,10 +7,7 @@ class Event
     else
       @object[@queue_name] = []
 
-    @async = if "async" of @options
-      @options.async
-    else
-      settings.async
+    @async = if "async" of @options then @options.async else settings.async
 
   trigger: (args...) ->
     @queue.push(args)
