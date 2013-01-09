@@ -42,3 +42,7 @@ extend Serenade,
   Cache: Cache
   View: View
   Helpers: {}
+
+def Serenade, "async",
+  get: -> settings.async
+  set: (value) -> settings.async = value

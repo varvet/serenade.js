@@ -1,3 +1,6 @@
+settings =
+  async: true
+
 def = Object.defineProperty
 
 extend = (target, source, enumerable=true) ->

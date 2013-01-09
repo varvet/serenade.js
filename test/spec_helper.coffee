@@ -26,6 +26,7 @@ Serenade.Cache._storage =
   clear: -> @_items = {}
 
 beforeEach ->
+  Serenade.async = false
   Serenade.unregisterAll()
   Serenade.clearCache()
 

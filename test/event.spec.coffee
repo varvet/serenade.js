@@ -173,3 +173,27 @@ describe "Serenade.defineEvent", ->
       @object.event.trigger(" world")
       @object.event.trigger(", yay!")
       expect(=> @object.text).to.become("Hello world", done)
+
+  describe "when Sereande.async = true", ->
+    beforeEach ->
+      Serenade.async = true
+
+    it "calls event asynchronously by default", (done) ->
+      defineEvent(@object, "event")
+      @object.event.bind -> @result = true
+      @object.event.trigger()
+      expect(@object.result).not.to.be.ok
+      expect(=> @object.result).to.become(true, done)
+
+    it "stays async when async option is true", (done) ->
+      defineEvent(@object, "event", async: true)
+      @object.event.bind -> @result = true
+      @object.event.trigger()
+      expect(@object.result).not.to.be.ok
+      expect(=> @object.result).to.become(true, done)
+
+    it "can be made synchronous", ->
+      defineEvent(@object, "event", async: false)
+      @object.event.bind -> @result = true
+      @object.event.trigger()
+      expect(@object.result).to.be.ok

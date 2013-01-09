@@ -7,9 +7,14 @@ class Event
     else
       @object[@queue_name] = []
 
+    @async = if "async" of @options
+      @options.async
+    else
+      settings.async
+
   trigger: (args...) ->
     @queue.push(args)
-    if @options.async
+    if @async
       @queue.timeout or= setTimeout((=> @resolve()), 0)
     else
       @resolve()
