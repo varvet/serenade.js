@@ -47,7 +47,7 @@ Serenade.view 'result', '''
 
 class Post extends Serenade.Model
   @property 'active', format: (active) -> if active then "yes" else "no"
-  @properties 'title', 'active', 'length', 'category', 'body'
+  @properties 'title', 'length', 'category', 'body'
 
 window.onload = ->
   window.aPost = new Post()

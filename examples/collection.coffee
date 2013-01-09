@@ -35,11 +35,11 @@ class PostController
   constructor: (@post) ->
   postComment: ->
     @post.comments.push(body: @body) if @body
-  commentEdited: (post,element) ->
+  commentEdited: (element) ->
     @body = element.value
-  highlight: (comment) ->
+  highlight: (element, comment) ->
     comment.color = 'yellow'
-  remove: (comment) ->
+  remove: (element, comment) ->
     @post.comments.delete(comment)
 
 window.aPost = Post.find(5)
