@@ -86,6 +86,14 @@ class Model
       get: -> @[name].length
       dependsOn: name
 
+  @selection: (name, options={}) ->
+    @property name,
+      get: -> @[options.from].filter((item) -> item[options.filter])
+      dependsOn: "#{options.from}:#{options.filter}"
+    @property name + 'Count',
+      get: -> @[name].length
+      dependsOn: name
+
   @uniqueId: ->
     unless @_uniqueId and @_uniqueGen is this
       @_uniqueId = (idCounter += 1)
