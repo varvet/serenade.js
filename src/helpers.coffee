@@ -1,5 +1,5 @@
 settings =
-  async: true
+  async: false
 
 def = Object.defineProperty
 
