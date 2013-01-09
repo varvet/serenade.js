@@ -16,7 +16,7 @@ Property =
   event: (ast, node, model, controller) ->
     node.element.addEventListener ast.name, (e) ->
       e.preventDefault() if ast.preventDefault
-      controller[ast.value](model, node.element, e)
+      controller[ast.value](node.element, model, e)
 
   binding: (ast, node, model, controller) ->
     element = node.element

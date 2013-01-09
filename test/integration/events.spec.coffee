@@ -23,7 +23,7 @@ describe 'Events', ->
     nodeName = null
     name = null
     controller =
-      loaded: (model, view) ->
+      loaded: (view, model) ->
         nodeName = view.nodeName
         name = model.name
     @render 'div', { name: "Jonas" }, controller
@@ -35,7 +35,7 @@ describe 'Events', ->
     name = null
     eventType = null
     controller =
-      iWasClicked: (model, view, event) ->
+      iWasClicked: (view, model, event) ->
         nodeName = view.nodeName
         name = model.name
         eventType = event.type
@@ -48,7 +48,7 @@ describe 'Events', ->
   it 'sends in the element that the event was bound to, not where it was triggered', ->
     nodeName = null
     controller =
-      iWasClicked: (_, view) ->
+      iWasClicked: (view) ->
         nodeName = view.nodeName
     @render 'div[event:click=iWasClicked]\n\ta', {}, controller
     @fireEvent @body.querySelector('a'), 'click'

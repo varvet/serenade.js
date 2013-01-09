@@ -26,5 +26,5 @@ class View
       controller = new controller(model, parent)
 
     node = compile(@parse(), model, controller)
-    controller.loaded?(model, node.element) unless skipCallback
+    controller.loaded?(node.element, model) unless skipCallback
     node

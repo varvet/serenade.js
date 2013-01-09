@@ -66,7 +66,7 @@ always the first argument to `render`. We'll add a controller to receive
 events:
 
 ``` javascript
-var controller = { say: function(model) { alert("Hello " + model.name) } };
+var controller = { say: function(element, model) { alert("Hello " + model.name) } };
 var model = { name: "Jonas" };
 
 var element = Serenade.view('button[event:click=say] "Say hello"').render(model, controller)
@@ -334,13 +334,13 @@ constructor function. This gives you the opportunity of doing whatever you need
 before rendering happens.
 
 For both controllers passed as functions and as regular objects, if they
-implement a method called `loaded` then it is called with the model and root
-element of the view after the view has rendered:
+implement a method called `loaded` then it is called with the root element of
+the view and the model after the view has rendered:
 
 ``` javascript
 var PostController = function(post) {};
 
-PostController.prototype.loaded = function(model, view) {
+PostController.prototype.loaded = function(view, model) {
   new Datepicker(view.querySelector("#date"));
 };
 
@@ -355,7 +355,7 @@ If you're using CoffeeScript you can use classes for your controllers:
 ``` coffeescript
 class PostController
   constructor: (@post) ->
-  loaded: (post, view) -> new Datepicker(view.querySelector("#date"))
+  loaded: (view) -> new Datepicker(view.querySelector("#date"))
   favourite: -> @post.favourite = true
 
 Serenade.render("post", post, PostController)
@@ -367,14 +367,13 @@ Events are bound and given a name in the view. When the event is triggered,
 Serenade looks up the property with the name of the event on the controller and
 calls it as a function. Such a function is called an `action`.
 
-Actions receive as parameters the model, the element that the event was bound
-to, and the event object itself.
+Actions receive as parameters the element that the event was bound
+to, the model, and the event object itself.
 
-While you *can* access the view and thus dynamically change it from the
-controller through standard DOM manipulation, you should generally avoid doing
-this as much as possible. Ideally your controller should only change properties
-on models, and those changes should then be dynamically reflected in the view.
-This is the essence of the classical MVC pattern.
+Since the action has access to the DOM element, you can interact with the DOM
+from your controller actions. Be careful with modifying the DOM though. Ideally
+you would just update properties on model objects and have the view
+automatically reflect those changes.
 
 Events are bound by using the `event:name=binding` syntax for an element's
 attributes like so:
@@ -391,7 +390,7 @@ as a function. You could implement this as follows:
 
 ``` javascript
 var controller = {
-  like: function(model) { model.liked = true; }
+  like: function(element, model) { model.liked = true; }
 };
 ```
 
@@ -404,7 +403,7 @@ object is passed into the function call on the controller, so we can use the
 
 ``` javascript
 var controller = {
-  like: function(model, element, event) {
+  like: function(element, model, event) {
     model.liked = true;
     event.preventDefault():
   }
@@ -471,6 +470,17 @@ dynamically update this collection as comments are added, removed or changed:
 var post = {
   comments: new Serenade.Collection([{ body: 'Hello'}, {body: 'Awesome!'}])
 };
+```
+
+On `Serenade.Model` constructors, you can call `collection` to set up a
+collection instead of `property`:
+
+``` javascript
+var Post = Serenade.Model.extend();
+Post.collection("comments");
+
+post = new Post();
+post.comments.push({ body: "Hello" });
 ```
 
 ## Views
