@@ -44,3 +44,8 @@ describe "Sereande.Model.collection", ->
     oldAuthor.schmoo = true
     @object.authors.deleteAt(0)
     expect(-> oldAuthor.name = 'test').not.to.triggerEvent(@object.change_authorNames)
+
+  it 'adds a count property', ->
+    @object.authors = ["John", "Peter"]
+    expect(@object.authorsCount).to.eql(2)
+    expect(=> @object.authors.push("Harry")).to.triggerEvent(@object.change_authorsCount)

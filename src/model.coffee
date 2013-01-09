@@ -41,6 +41,9 @@ class Model
       set: (value) ->
         @[name].update(value)
     @property name, options
+    @property name + 'Count',
+      get: -> @[name].length
+      dependsOn: name
 
   @belongsTo: (name, attributes={}) ->
     extend attributes,
@@ -79,6 +82,9 @@ class Model
         @[name].update(objects)
       dependsOn: name
       serialize: attributes.serializeIds
+    @property name + 'Count',
+      get: -> @[name].length
+      dependsOn: name
 
   @uniqueId: ->
     unless @_uniqueId and @_uniqueGen is this

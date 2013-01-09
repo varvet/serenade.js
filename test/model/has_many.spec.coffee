@@ -119,3 +119,11 @@ describe 'Serenade.Model.hasMany', ->
     post.comments.push({})
     expect(post.comments[0].post).to.eql(post)
     expect(post.comments.length).to.eql(1)
+
+  it 'adds a count property', ->
+    class Post extends Serenade.Model
+      @hasMany 'comments'
+    post = new Post()
+    post.comments = [{ body: "Hello" }, { body: "World" }]
+    expect(post.commentsCount).to.eql(2)
+    expect(-> post.comments.push({ body: "Test" })).to.triggerEvent(post.change_commentsCount)
