@@ -15,7 +15,7 @@ describe "Lifecycle events", ->
         div
           - if @foo
             div[on:load=run id="thing"]
-      """, model, run: (model, element) -> ran = element.getAttribute("id")
+      """, model, run: (element, model) -> ran = element.getAttribute("id")
       expect(ran).to.eql(false)
       model.foo = true
       expect(ran).to.eql("thing")
@@ -29,7 +29,7 @@ describe "Lifecycle events", ->
           - if @foo
             div
               div[on:unload=run id="thing"]
-      """, model, run: (model, element) -> ran = element.getAttribute("id")
+      """, model, run: (element, model) -> ran = element.getAttribute("id")
       expect(ran).to.eql(false)
       model.foo = false
       expect(ran).to.eql("thing")

@@ -80,7 +80,7 @@ Property =
   on: (ast, node, model, controller) ->
     if ast.name in ["load", "unload"]
       node[ast.name].bind ->
-        controller[ast.value](model, node.element)
+        controller[ast.value](node.element, model)
     else
       throw new SyntaxError("unkown lifecycle event '#{ast.name}'")
 
