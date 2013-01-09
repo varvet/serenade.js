@@ -2,7 +2,7 @@ Serenade.view 'post', '''
   div#serenade
     h1 @title
     p @body
-    h3 "Comments (" @commentCount ")"
+    h3 "Comments (" @commentsCount ")"
     ul
       - collection @comments
         - view @comment
@@ -23,7 +23,6 @@ Serenade.view 'comment', '''
 '''
 
 class Post extends Serenade.Model
-  @property 'commentCount', dependsOn: 'comments', get: -> @comments.length
   @hasMany 'comments', as: (-> Comment), serialize: true
   @localStorage: true
 
