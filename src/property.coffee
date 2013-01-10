@@ -102,8 +102,6 @@ class SerenadeProperty
         globalDependencies[subname].push({ object, subname, name, type, dependency: @name })
 
 defineProperty = (object, name, options={}) ->
-  hasOriginal = name of object
-  originalValue = object[name]
   property = new SerenadeProperty(name, options)
 
   safePush(object, "_s_properties", property)
@@ -141,4 +139,4 @@ defineProperty = (object, name, options={}) ->
       set: (v) -> @[name] = v
       configurable: true
 
-  object[name] = originalValue if hasOriginal
+  object[name] = options.value if "value" of options

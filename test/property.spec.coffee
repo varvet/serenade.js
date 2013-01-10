@@ -16,9 +16,8 @@ describe 'Serenade.defineProperty', ->
     expect(Object.keys(@inst1)).to.include('age')
     expect(Object.keys(@inst2)).not.to.include('age')
 
-  it 'automatically sets up previous value as default', ->
-    @object.name = "Jonas"
-    defineProperty @object, 'name'
+  it 'can be given a value', ->
+    defineProperty @object, 'name', value: "Jonas"
     expect(@object.name).to.eql("Jonas")
 
   it 'can be redefined', ->

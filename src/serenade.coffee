@@ -1,6 +1,6 @@
 Serenade = (wrapped) ->
   object = Object.create(wrapped)
-  defineProperty(object, key) for key in Object.keys(wrapped)
+  defineProperty(object, key, value: value) for key, value of wrapped
   object
 
 extend Serenade,
