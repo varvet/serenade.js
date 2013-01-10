@@ -47,8 +47,6 @@ class SerenadeProperty
       object._s_property_access.bind(listener) unless "dependsOn" of @options
       value = @options.get.call(object)
       object._s_property_access.unbind(listener) unless "dependsOn" of @options
-    else if "default" of @options and @valueName not of object
-      value = @options.default
     else
       value = object[@valueName]
 

@@ -16,10 +16,6 @@ describe 'Serenade.defineProperty', ->
     expect(Object.keys(@inst1)).to.include('age')
     expect(Object.keys(@inst2)).not.to.include('age')
 
-  it 'can be given a value', ->
-    defineProperty @object, 'name', value: "Jonas"
-    expect(@object.name).to.eql("Jonas")
-
   it 'can be redefined', ->
     defineProperty @object, 'name', get: -> "foo"
     defineProperty @object, 'name', get: -> "bar"
@@ -164,9 +160,13 @@ describe 'Serenade.defineProperty', ->
       @object.author = Serenade(name: "Peter")
       expect(-> oldAuthor.name = 'test').not.to.triggerEvent(@object.change_name)
 
-  describe "default", ->
+  describe "with `value` option", ->
+    it 'can be given a value', ->
+      defineProperty @object, 'name', value: "Jonas"
+      expect(@object.name).to.eql("Jonas")
+
     it 'can set up default value', ->
-      defineProperty @object, 'name', default: "foobar"
+      defineProperty @object, 'name', value: "foobar"
       expect(@object.name).to.eql("foobar")
       @object.name = "baz"
       expect(@object.name).to.eql("baz")
@@ -174,11 +174,11 @@ describe 'Serenade.defineProperty', ->
       expect(@object.name).to.eql(undefined)
 
     it 'can set up falsy default values', ->
-      defineProperty @object, 'name', default: null
+      defineProperty @object, 'name', value: null
       expect(@object.name).to.equal(null)
 
     it 'ignores default when custom getter given', ->
-      defineProperty @object, 'name', default: "bar", get: -> "foo"
+      defineProperty @object, 'name', value: "bar", get: -> "foo"
       expect(@object.name).to.eql("foo")
 
   describe "with `async` option", ->
