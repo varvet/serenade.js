@@ -3,7 +3,7 @@ require "./../spec_helper"
 describe "Sereande.Model.selection", ->
   beforeEach ->
     class Comment extends Serenade.Model
-      @properties "isPublished", "deleted"
+      @property "isPublished", "deleted"
     class Post extends Serenade.Model
       @hasMany "comments", as: -> Comment
 

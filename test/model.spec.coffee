@@ -147,21 +147,18 @@ describe 'Serenade.Model', ->
       john = new Person(name: "John")
       expect(john.loudName).to.eql("JOHN")
 
-  describe '.properties', ->
     it 'adds multiple properties to the prototype', ->
       class Person extends Serenade.Model
-        @properties "firstName", "lastName"
+        @property "firstName", "lastName"
       john = new Person(firstName: "John", lastName: "Smith")
       expect(-> john.firstName = "Johnny").to.triggerEvent john.change_firstName
-      expect(-> john.lastName = "Smithy").to.triggerEvent john.change_lastName
 
-    it 'makes property getters assignable', ->
+    it 'adds multiple properties with options to the prototype', ->
       class Person extends Serenade.Model
-        @properties "firstName", "lastName", "name"
-        name: ->
-          @firstName + " " + @lastName
+        @property "firstName", "lastName", serialize: true
       john = new Person(firstName: "John", lastName: "Smith")
-      expect(john.name).to.eql("John Smith")
+      expect(-> john.firstName = "Johnny").to.triggerEvent john.change_firstName
+      expect(john.toJSON().lastName).to.eql("Smith")
 
   describe "#id", ->
     it "updates identify map when changed", ->

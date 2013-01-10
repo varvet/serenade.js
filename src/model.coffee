@@ -15,8 +15,11 @@ class Model
         return val if val
         ctor.apply(this, arguments) if ctor
 
-  @property: (name, options) ->
-    defineProperty(@prototype, name, options)
+  @property: (names..., options) ->
+    if typeof(options) is "string"
+      names.push(options)
+      options = {}
+    defineProperty(@prototype, name, options) for name in names
 
   @properties: (names...) ->
     @property(name) for name in names
