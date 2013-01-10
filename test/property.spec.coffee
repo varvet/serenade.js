@@ -1,6 +1,6 @@
 require './spec_helper'
 
-{extend, defineProperty} = Build
+{extend} = Build
 {defineProperty} = Serenade
 
 describe 'Serenade.defineProperty', ->
