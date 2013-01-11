@@ -18,6 +18,16 @@ Property =
       e.preventDefault() if ast.preventDefault
       controller[ast.value](node.element, model, e)
 
+  class: (ast, node, model, controller) ->
+    update = ->
+      if model[ast.value]
+        node.boundClasses.push(ast.name)
+      else
+        node.boundClasses.delete(ast.name)
+      node.updateClass()
+    update()
+    node.bindEvent(model["change_#{ast.value}"], update)
+
   binding: (ast, node, model, controller) ->
     element = node.element
     node.ast.name in ["input", "textarea", "select"] or throw SyntaxError "invalid node type #{node.ast.name} for two way binding"

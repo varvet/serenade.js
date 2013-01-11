@@ -4,6 +4,7 @@ class Node
 
   constructor: (@ast, @element) ->
     @children = new Collection([])
+    @boundClasses = new Collection([])
 
   append: (inside) ->
     inside.appendChild(@element)
@@ -38,6 +39,7 @@ class Node
   updateClass: ->
     classes = @ast.classes
     classes = classes.concat(@attributeClasses) if @attributeClasses
+    classes = classes.concat(@boundClasses) if @boundClasses.length
     if classes.length
       @element.className = classes.join(' ')
     else
