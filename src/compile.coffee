@@ -117,6 +117,7 @@ Compile =
     Serenade._views[ast.argument].node(model, controller, parent, skipCallback)
 
   helper: (ast, model, controller) ->
+    dynamic = new DynamicNode(ast)
     render = (model=model, controller=controller) ->
       fragment = Serenade.document.createDocumentFragment()
       for child in ast.children
@@ -125,8 +126,14 @@ Compile =
       fragment
     helperFunction = Serenade.Helpers[ast.command] or throw SyntaxError "no helper #{ast.command} defined"
     context = { render, model, controller }
-    element = helperFunction.apply(context, ast.arguments.map((a) -> a.value))
-    new Node(ast, element)
+    update = ->
+      args = ast.arguments.map((a) -> if a.bound then model[a.value] else a.value)
+      nodes = (new Node(ast, element) for element in normalize(helperFunction.apply(context, args)))
+      dynamic.replace [nodes]
+    for argument in ast.arguments when argument.bound is true
+      dynamic.bindEvent(model["change_#{argument.value}"], update)
+    update()
+    dynamic
 
   text: (ast, model, controller) ->
     getText = ->
@@ -184,6 +191,18 @@ Compile =
     update()
     dynamic.bindEvent(model["change_#{ast.argument}"], update)
     dynamic
+
+normalize = (val) ->
+  return [] unless val
+  reduction = (aggregate, element) ->
+    if typeof(element) is "string"
+      div = Serenade.document.createElement("div")
+      div.innerHTML = element
+      aggregate.push(child) for child in div.children
+    else
+      aggregate.push(element)
+    aggregate
+  [].concat(val).reduce(reduction, [])
 
 compile = (ast, model, controller) -> Compile[ast.type](ast, model, controller)
 compileAll = (asts, model, controller) -> compile(ast, model, controller) for ast in asts

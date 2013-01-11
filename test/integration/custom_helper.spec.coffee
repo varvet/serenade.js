@@ -11,6 +11,45 @@ describe 'Custom helpers', ->
     '''
     expect(@body).to.have.element('div > form')
 
+  it 'can return multiple elements', ->
+    Serenade.Helpers.funky = ->
+      [Serenade.document.createElement('form'), Serenade.document.createElement('article')]
+    @render '''
+      div
+        - funky
+    '''
+    expect(@body).to.have.element('div > form')
+    expect(@body).to.have.element('div > article')
+
+  it 'can return undefined', ->
+    Serenade.Helpers.funky = -> undefined
+    @render '''
+      div
+        - funky
+    '''
+    expect(@body).to.have.element('div')
+
+  it 'can return a string', ->
+    Serenade.Helpers.funky = ->
+      "<article>Hello</article>"
+    @render '''
+      div
+        - funky
+    '''
+    expect(@body).to.have.element('div > article')
+    expect(@body).to.have.text("Hello")
+
+  it 'can return a string with multiple children', ->
+    Serenade.Helpers.funky = ->
+      "<article>Hello</article><section></section>"
+    @render '''
+      div
+        - funky
+    '''
+    expect(@body).to.have.element('div > article')
+    expect(@body).to.have.element('div > section')
+    expect(@body).to.have.text("Hello")
+
   it 'provides access to model in helper', ->
     Serenade.Helpers.funky = ->
       element = Serenade.document.createElement('form')
@@ -158,3 +197,26 @@ describe 'Custom helpers', ->
       ''', model
       expect(@body).to.have.element('div > span')
 
+    it "binds to a model attribute", ->
+      model = Serenade(name: "Jonas")
+      Serenade.Helpers.upcase = (value) -> Serenade.document.createTextNode(value.toUpperCase())
+      @render """
+        div
+          - upcase @name
+      """, model
+      expect(@body).to.have.text("JONAS")
+      model.name = "Peter"
+      expect(@body).to.have.text("PETER")
+
+    it "binds to multiple arguments", ->
+      model = Serenade(firstName: "Jonas", lastName: "Nicklas")
+      Serenade.Helpers.upcase = (args...) -> Serenade.document.createTextNode(args.join("").toUpperCase())
+      @render """
+        div
+          - upcase @lastName ", " @firstName
+      """, model
+      expect(@body).to.have.text("NICKLAS, JONAS")
+      model.firstName = "Annika"
+      expect(@body).to.have.text("NICKLAS, ANNIKA")
+      model.lastName = "Lüchow"
+      expect(@body).to.have.text("LÜCHOW, ANNIKA")
