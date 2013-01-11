@@ -5,7 +5,7 @@ Serenade.view 'post', '''
     h3 "Comments (" @commentsCount ")"
     ul
       - collection @comments
-        - view @comment
+        - view "comment"
     form[event:submit=postComment!]
       p
         textarea[event:change=commentEdited]
