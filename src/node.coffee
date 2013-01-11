@@ -34,3 +34,11 @@ class Node
     node.unbindEvents() for node in @nodes()
     # remove events
     event.unbind(fun) for {event, fun} in @boundEvents if @boundEvents
+
+  updateClass: ->
+    classes = @ast.classes
+    classes = classes.concat(@attributeClasses) if @attributeClasses
+    if classes.length
+      @element.className = classes.join(' ')
+    else
+      @element.removeAttribute("class")

@@ -61,13 +61,8 @@ Property =
       else if node.ast.name is 'input' and ast.name is 'checked'
         element.checked = !!value
       else if ast.name is 'class'
-        classes = node.ast.classes
-        classes = classes.concat(value) unless value is undefined
-        if classes.length
-          element.className = classes.join(' ')
-        else
-          element.className = '' # IE7-compat
-          element.removeAttribute(ast.name)
+        node.attributeClasses = value
+        node.updateClass()
       else if value is undefined
         element.removeAttribute(ast.name)
       else
