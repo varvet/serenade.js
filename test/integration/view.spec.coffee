@@ -39,7 +39,7 @@ describe 'View', ->
 
     @render '''
       ul
-        - in "quox"
+        - in @quox
           - view "test"
     ''', model
     expect(funked).to.eql('foo')

@@ -108,13 +108,13 @@ Compile =
     node
 
   view: (ast, model, parent) ->
-    controller = Serenade.controllerFor(ast.arguments[0])
+    controller = Serenade.controllerFor(ast.argument)
     # If we cannot find a controller, we inherit the base view's controller,
     # in that case we don't want the `loaded` callback to be called
     unless controller
       skipCallback = true
       controller = parent
-    Serenade._views[ast.arguments[0]].node(model, controller, parent, skipCallback)
+    Serenade._views[ast.argument].node(model, controller, parent, skipCallback)
 
   helper: (ast, model, controller) ->
     render = (model=model, controller=controller) ->
@@ -125,7 +125,7 @@ Compile =
       fragment
     helperFunction = Serenade.Helpers[ast.command] or throw SyntaxError "no helper #{ast.command} defined"
     context = { render, model, controller }
-    element = helperFunction.apply(context, ast.arguments)
+    element = helperFunction.apply(context, ast.arguments.map((a) -> a.value))
     new Node(ast, element)
 
   text: (ast, model, controller) ->
@@ -144,7 +144,7 @@ Compile =
       dynamic.replace(compileItem(item) for item in collection)
 
     dynamic = @bound(ast, model, controller, update)
-    collection = model[ast.arguments[0]]
+    collection = model[ast.argument]
     dynamic.bindEvent(collection['change_set'], => dynamic.replace(compileItem(item) for item in collection))
     dynamic.bindEvent(collection['change_update'], => dynamic.replace(compileItem(item) for item in collection))
     dynamic.bindEvent(collection['change_add'], (item) => dynamic.appendNodeSet(compileItem(item)))
@@ -179,10 +179,10 @@ Compile =
   bound: (ast, model, controller, callback) ->
     dynamic = new DynamicNode(ast)
     update = ->
-      value = model[ast.arguments[0]]
+      value = model[ast.argument]
       callback(dynamic, value)
     update()
-    dynamic.bindEvent(model["change_#{ast.arguments[0]}"], update)
+    dynamic.bindEvent(model["change_#{ast.argument}"], update)
     dynamic
 
 compile = (ast, model, controller) -> Compile[ast.type](ast, model, controller)

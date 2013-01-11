@@ -9,7 +9,7 @@ describe 'Collection', ->
 
     @render '''
       ul
-        - collection "people"
+        - collection @people
           li[id=name]
     ''', model
     expect(@body).to.have.element('ul > li#jonas')
@@ -20,7 +20,7 @@ describe 'Collection', ->
 
     @render '''
       ul
-        - collection "people"
+        - collection @people
           li[id=@ style:color=@] @
     ''', model
     expect(@body).to.have.element('ul > li#jonas')
@@ -34,7 +34,7 @@ describe 'Collection', ->
 
     @render '''
       ul
-        - collection "people"
+        - collection @people
           li[id=name]
     ''', model
     expect(@body).to.have.element('ul > li#jonas')
@@ -45,7 +45,7 @@ describe 'Collection', ->
 
     @render '''
       ul
-        - collection "people"
+        - collection @people
           li[id=name]
     ''', model
     expect(@body).to.have.element('ul > li#jonas')
@@ -61,7 +61,7 @@ describe 'Collection', ->
 
     @render '''
       ul
-        - collection "people"
+        - collection @people
           li[id=name]
     ''', model
     expect(@body).to.have.element('ul > li#jonas')
@@ -75,7 +75,7 @@ describe 'Collection', ->
 
     @render '''
       ul
-        - collection "people"
+        - collection @people
           li[id=name]
     ''', model
     expect(@body).to.have.element('ul > li#jonas')
@@ -90,7 +90,7 @@ describe 'Collection', ->
 
     @render '''
       ul
-        - collection "people"
+        - collection @people
           li[id=name]
     ''', model
     model.people.insertAt(0, {name: "carry"})
