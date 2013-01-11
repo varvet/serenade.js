@@ -39,7 +39,7 @@ class Node
   updateClass: ->
     classes = @ast.classes
     classes = classes.concat(@attributeClasses) if @attributeClasses
-    classes = classes.concat(@boundClasses) if @boundClasses.length
+    classes = classes.concat(@boundClasses.toArray()) if @boundClasses.length
     if classes.length
       @element.className = classes.join(' ')
     else

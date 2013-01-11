@@ -5,9 +5,14 @@ describe 'Classes', ->
     @setupDom()
 
   it 'adds bound class when model value is true', ->
-    model = { active: true }
-    @render 'div[class:active=@active]', model
+    model = { isActive: true }
+    @render 'div[class:active=@isActive]', model
     expect(@body).to.have.element("div.active")
+
+  it 'adds multiple bindings', ->
+    model = { isActive: true, isSelected: true }
+    @render 'div[class:active=@isActive class:selected=@isSelected]', model
+    expect(@body.children[0].className).to.eql("active selected")
 
   it 'does not add bound class when model value is false', ->
     model = { active: false }
