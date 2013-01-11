@@ -441,6 +441,20 @@ Style names should be camelCased, like in JavaScript, not dash-cased, like in
 CSS. That means you should write `style:backgroundColor=color`, not
 `style:background-color=color`.
 
+## Binding classes
+
+Often you will want to toggle a particular class for an element based on a
+bolean value. The Serenade template language has a special syntax for this,
+so you don't need to do any additional works in the model layer:
+
+``` slim
+div[class:active=@isActive]
+```
+
+This will add the class `active` if the `isActive` property on the model is
+truthy. If `isActive` is a Serenade property, the class will of course be added
+and removed automatically when `isActive` is changed.
+
 ## Collections
 
 Oftentimes you will want to render a collection of objects in your views.
