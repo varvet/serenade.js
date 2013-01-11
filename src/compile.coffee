@@ -153,14 +153,14 @@ Compile =
     dynamic
 
   in: (ast, model, controller) ->
-    Compile.bound ast, model, controller, (dynamic, value) ->
+    @bound ast, model, controller, (dynamic, value) ->
       if value
         dynamic.replace([compileAll(ast.children, value, controller)])
       else
         dynamic.clear()
 
   if: (ast, model, controller) ->
-    Compile.bound ast, model, controller, (dynamic, value) ->
+    @bound ast, model, controller, (dynamic, value) ->
       if value
         dynamic.replace([compileAll(ast.children, model, controller)])
       else if ast.else
@@ -169,7 +169,7 @@ Compile =
         dynamic.clear()
 
   unless: (ast, model, controller) ->
-    Compile.bound ast, model, controller, (dynamic, value) ->
+    @bound ast, model, controller, (dynamic, value) ->
       if value
         dynamic.clear()
       else
@@ -186,4 +186,4 @@ Compile =
     dynamic
 
 compile = (ast, model, controller) -> Compile[ast.type](ast, model, controller)
-compileAll = (asts, model, controller) -> Compile[ast.type](ast, model, controller) for ast in asts
+compileAll = (asts, model, controller) -> compile(ast, model, controller) for ast in asts
