@@ -546,54 +546,41 @@ div
 
 There is no comma separating the arguments.
 
-You can use any library you want to generate the DOM element, but it must be an
-actual element, returning a string is not possible, neither is returning
-multiple elements or undefined.
+You can use any library you want to generate the DOM element, and you can
+return either a single element, an array of elements, a string or even
+undefined from a helper.
 
 Beware if you're using jQuery that you need to use the `get` function to
 extract the actual DOM element, for example:
 
 ``` javascript
 Serenade.Helpers.link = function(name, url) {
-  var a = $('<a></a>').attr('href', url).text(name);
-  return a.get(0);
+  $('<a></a>').attr('href', url).text(name).get(0);
 };
 ```
 
-Inside the helper, you have access to a couple of things through `this`. You can
-use `this.model` or `this.controller` to access the current model and controller.
-
-For example if you had a model like this:
+Helpers can also receive arguments from the model. Suppose we have a model like
+this:
 
 ``` javascript
-var model = {
-  web: 'http://www.google.com',
-  images: 'http://images.google.com/'
-};
+var model = Serenade({
+  text: 'Google',
+  url: 'http://google.com/'
+});
 ```
 
-You might want to create a function to link to these easily like so:
-
-``` javascript
-Serenade.Helpers.link = function(link) {
-  var a = document.createElement('a');
-  a.setAttribute('href', this.model[link]);
-  a.appendChild(document.createTextNode(link));
-  return a;
-};
-```
-
-And then use it in your view:
+Given the same helper we wrote above, we could have changed our view to:
 
 ```
 div
-  - link @web
-  - link @images
+  - link @text @url
 ```
 
-Both the `@web` and `"Google"` syntaxes produce strings as argument. It is
-convention to use the syntax with an `@` when the argument is meant to
-reference a model attribute.
+Now if either `text` or `url` in our model is changed, the link will also
+update.
+
+Inside the helper, you have access to a couple of things through `this`. You can
+use `this.model` or `this.controller` to access the current model and controller.
 
 Finally you have access to `this.render()` which is a function that renders any
 children of this instruction. For example if we wanted to create a block helper
@@ -617,7 +604,7 @@ Serenade.Helpers.link = function(url) {
 };
 ```
 
-The `render` takes the model as its second and the controller as its third
+`render` takes the model as its first and the controller as its second
 argument. You can call `render` multiple times, possibly sending in different
 models and/or controllers for each invocation. Render returns a document
 fragment, so like in the example above, it is no problem for a helper have
