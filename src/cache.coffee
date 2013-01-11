@@ -17,11 +17,17 @@ Cache =
       delete @_identityMap[name][id]
 
   store: (ctor, id, obj) ->
-    name = ctor.uniqueId()
-    if name and id and JSON?
-      @_storage.setItem("#{name}_#{id}", JSON.stringify(serializeObject(obj)))
+    if key = @key(ctor, id)
+      @_storage.setItem(key, JSON.stringify(serializeObject(obj)))
   retrieve: (ctor, id) ->
-    name = ctor.uniqueId()
-    if name and id and ctor.localStorage and JSON?
-      data = @_storage.getItem("#{name}_#{id}")
+    if key = @key(ctor, id)
+      data = @_storage.getItem(key)
       new ctor(JSON.parse(data), true) if data
+
+  key: (ctor, id) ->
+    name = ctor.uniqueId()
+    if name and id and ctor.localStorageOptions?.on
+      if ctor.localStorageOptions?.as
+        ctor.localStorageOptions?.as(id)
+      else
+        "#{name}_#{id}"

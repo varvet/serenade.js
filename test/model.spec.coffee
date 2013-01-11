@@ -38,46 +38,6 @@ describe 'Serenade.Model', ->
       expect(john2.age).to.eql(46)
       expect(john2.name).to.not.exist
 
-    it 'does not store in local storage if local storage is false', ->
-      class Test extends Serenade.Model
-        @property 'test', serialize: 'testing'
-
-      test = new Test(id: 5, test: 'foo')
-      expect(Serenade.Cache.retrieve(Test, 5)).to.not.exist
-
-    it 'persists to cache on any changes if localStorage is true', ->
-      class Test extends Serenade.Model
-        @property 'test', serialize: 'testing'
-        @localStorage = true
-
-      test = new Test(id: 5, test: 'foo')
-      expect(Serenade.Cache.retrieve(Test, 5).test).to.eql('foo')
-      test.test = 'monkey'
-      expect(Serenade.Cache.retrieve(Test, 5).test).to.eql('monkey')
-
-    it 'persists to cache when saved if localStorage is "save"', ->
-      class Test extends Serenade.Model
-        @property 'test', serialize: 'testing'
-        @localStorage = 'save'
-
-      test = new Test(id: 5, test: 'foo')
-      expect(Serenade.Cache.retrieve(Test, 5)).to.not.exist
-      test.test = 'monkey'
-      expect(Serenade.Cache.retrieve(Test, 5)).to.not.exist
-      test.save()
-      expect(Serenade.Cache.retrieve(Test, 5).test).to.eql('monkey')
-
-    it 'persists to cache when saved if localStorage is true', ->
-      class Test extends Serenade.Model
-        @collection "names", serialize: true
-        @localStorage = true
-
-      test = new Test(id: 5, names: [{ first: "Jonas" }])
-      test.names[0].first = "Peter"
-      expect(Serenade.Cache.retrieve(Test, 5).names[0].first).to.eql("Jonas")
-      test.save()
-      expect(Serenade.Cache.retrieve(Test, 5).names[0].first).to.eql("Peter")
-
   describe '.extend', ->
     it 'sets up prototypes correctly', ->
       Test = Serenade.Model.extend()

@@ -97,6 +97,10 @@ class Model
       get: -> @[name].length
       dependsOn: name
 
+  @localStorage: (options={}) ->
+    @localStorageOptions = options
+    @localStorageOptions.on = true unless "on" of options
+
   @uniqueId: ->
     unless @_uniqueId and @_uniqueGen is this
       @_uniqueId = (idCounter += 1)
@@ -120,9 +124,9 @@ class Model
           return fromCache
         else
           Cache.set(@constructor, attributes.id, this)
-    if @constructor.localStorage
+    if @constructor.localStorageOptions?.on
       @saved.bind => Cache.store(@constructor, @id, this)
-      if @constructor.localStorage isnt 'save'
+      if @constructor.localStorageOptions.on isnt 'save'
         @change.bind => Cache.store(@constructor, @id, this)
     @set(attributes)
 
