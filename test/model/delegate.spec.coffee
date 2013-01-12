@@ -8,6 +8,20 @@ describe "Serenade.Model.delegate", ->
     expect(post.name).to.eql("Jonas")
     expect(post.email).to.eql("jonas@elabs.se")
 
+  it "assigns value to delegated object when given", ->
+    class Post extends Serenade.Model
+      @delegate "name", "email", to: "author"
+    post = new Post(author: {})
+    post.name = "Jonas"
+    expect(post.author.name).to.eql("Jonas")
+
+  it "does nothign when delegated object does not exist", ->
+    class Post extends Serenade.Model
+      @delegate "name", "email", to: "author"
+    post = new Post()
+    post.name = "Jonas"
+    expect(post.author).to.be.undefined
+
   it "returns undefined when the attribute being delegated to is undefined", ->
     class Post extends Serenade.Model
       @delegate "name", "email", to: "author"

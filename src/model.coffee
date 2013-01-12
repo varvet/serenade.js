@@ -36,7 +36,10 @@ class Model
         propName = propName + capitalize(to)
       else if options.suffix
         propName = propName + options.suffix
-      @property propName, dependsOn: "#{to}.#{name}", get: -> @[to]?[name]
+      @property propName,
+        dependsOn: "#{to}.#{name}",
+        get: -> @[to]?[name]
+        set: (value) -> @[to]?[name] = value
 
   @collection: (name, options={}) ->
     extend options,
