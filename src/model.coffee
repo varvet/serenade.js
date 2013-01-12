@@ -28,8 +28,14 @@ class Model
     to = options.to
     names.forEach (name) =>
       propName = name
-      propName = to + capitalize(name) if options.prefix
-      propName = propName + capitalize(to) if options.suffix
+      if options.prefix is true
+        propName = to + capitalize(name)
+      else if options.prefix
+        propName = options.prefix + capitalize(name)
+      if options.suffix is true
+        propName = propName + capitalize(to)
+      else if options.suffix
+        propName = propName + options.suffix
       @property propName, dependsOn: "#{to}.#{name}", get: -> @[to]?[name]
 
   @collection: (name, options={}) ->

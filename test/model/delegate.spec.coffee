@@ -40,3 +40,19 @@ describe "Serenade.Model.delegate", ->
     post = new Post(author: { name: "Jonas", email: "jonas@elabs.se" })
     expect(post.nameAuthor).to.eql("Jonas")
     expect(post.emailAuthor).to.eql("jonas@elabs.se")
+
+  it "can set prefix as string", ->
+    author = new Serenade.Model(name: "Jonas", email: "jonas@elabs.se")
+    class Post extends Serenade.Model
+      @delegate "name", "email", to: "author", prefix: "quox"
+    post = new Post(author: { name: "Jonas", email: "jonas@elabs.se" })
+    expect(post.quoxName).to.eql("Jonas")
+    expect(post.quoxEmail).to.eql("jonas@elabs.se")
+
+  it "can set suffix as string", ->
+    author = new Serenade.Model(name: "Jonas", email: "jonas@elabs.se")
+    class Post extends Serenade.Model
+      @delegate "name", "email", to: "author", suffix: "Quox"
+    post = new Post(author: { name: "Jonas", email: "jonas@elabs.se" })
+    expect(post.nameQuox).to.eql("Jonas")
+    expect(post.emailQuox).to.eql("jonas@elabs.se")
