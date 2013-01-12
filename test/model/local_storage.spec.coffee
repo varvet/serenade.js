@@ -51,14 +51,12 @@ describe 'Serenade.Model.localStorage', ->
       expect(Serenade.Cache.retrieve(Test, 5)).to.not.exist
 
 
-  context.skip "with `as` option", ->
+  context "with `as` option", ->
     it 'persists to cache with ', ->
       class Test extends Serenade.Model
         @collection "names", serialize: true
-        @localStorage on: "save", as: (id) -> "some-test-#{id}"
+        @localStorage as: (id) -> "some-test-#{id}"
 
       test = new Test(id: 5, names: [{ first: "Jonas" }])
 
-      console.log Test.name
       expect(Serenade.Cache.retrieve(Test, 5).names[0].first).to.eql("Jonas")
-      expect(Serenade.Cache.retrieve(Test, 5).names[0].first).to.eql("Peter")
