@@ -39,11 +39,7 @@ class SerenadeProperty
     @registerGlobal(object)
     if @options.get
       # add a listener which adds any dependencies that haven't been specified
-      listener = (name) =>
-        if @addDependency(name)
-          # bust the cache
-          def object, "_s_dependencyCache", value: {}, configurable: true
-
+      listener = (name) => @addDependency(name)
       object._s_property_access.bind(listener) unless "dependsOn" of @options
       value = @options.get.call(object)
       object._s_property_access.unbind(listener) unless "dependsOn" of @options
@@ -73,7 +69,6 @@ class SerenadeProperty
 
   # Find all properties which are dependent upon this one
   dependents: (object) ->
-    return object._s_dependencyCache[@name] if object._s_dependencyCache.hasOwnProperty(@name)
     deps = []
     findDependencies = (name) ->
       for property in object._s_properties
@@ -81,8 +76,7 @@ class SerenadeProperty
           deps.push(property.name)
           findDependencies(property.name)
     findDependencies(@name)
-
-    object._s_dependencyCache[@name] = deps
+    deps
 
   triggerChanges: (object) ->
     changes = {}
@@ -117,9 +111,6 @@ defineProperty = (object, name, options={}) ->
     async: async
     bind: -> @[name] # make sure dependencies have been discovered and registered
     optimize: (queue) -> queue[queue.length - 1]
-
-  # adding properties busts the cache
-  def object, "_s_dependencyCache", value: {}, configurable: true
 
   def object, name,
     get: -> property.get(this)
