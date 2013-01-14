@@ -102,7 +102,7 @@ class PropertyAccessor
     names = [@name].concat(@dependents())
     changes = {}
     changes[name] = @object[name] for name in names
-    @object.change.trigger(changes)
+    @object.changed?.trigger?(changes)
     triggerGlobal(@object, names)
     for own name, value of changes
       @object[name + "_property"].event.trigger(value)
@@ -122,15 +122,8 @@ class PropertyAccessor
 defineProperty = (object, name, options={}) ->
   definition = new PropertyDefinition(name, options)
 
-  safePush(object, "_s_properties", definition)
-
+  safePush object, "_s_properties", definition
   defineEvent object, "_s_property_access"
-  defineEvent object, "change",
-    async: definition.async
-    optimize: (queue) ->
-      result = {}
-      extend(result, item[0]) for item in queue
-      [result]
 
   def object, name,
     get: -> @[name + "_property"].get()

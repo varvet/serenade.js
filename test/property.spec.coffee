@@ -29,8 +29,9 @@ describe 'Serenade.defineProperty', ->
       @object.foo = 23
       expect(@object.foo).to.eql(23)
 
-    it 'triggers a change event', ->
-      expect(=> @object.foo = 23).to.triggerEvent(@object.change)
+    it 'triggers a change event if it is defined', ->
+      Serenade.defineEvent(@object, "changed")
+      expect(=> @object.foo = 23).to.triggerEvent(@object.changed)
 
     it 'triggers a change event for this property', ->
       expect(=> @object.foo = 23).to.triggerEvent(@object.foo_property, with: [23])
@@ -196,29 +197,12 @@ describe 'Serenade.defineProperty', ->
       expect(@object.name).to.eql("foo")
 
   describe "with `async` option", ->
-    it "dispatches change event asynchronously", (done) ->
-      defineProperty @object, "foo", async: true
-      @object.change.bind -> @result = true
-      @object.foo = 23
-      expect(@object.result).not.to.be.ok
-      expect(=> @object.result).to.become(true, done)
-
     it "dispatches a change event for this property asynchronously", (done) ->
       defineProperty @object, "foo", async: true
       @object.foo_property.bind -> @result = true
       @object.foo = 23
       expect(@object.result).not.to.be.ok
       expect(=> @object.result).to.become(true, done)
-
-    it "optimizes multiple change events into one", (done) ->
-      @object.result = 0
-      defineProperty @object, "foo", async: true
-      defineProperty @object, "bar", async: true
-      @object.change.bind (val) -> @result = val
-      @object.foo = 23
-      @object.bar = 12
-      @object.foo = 42
-      expect(=> @object.result.bar is 12 and @object.result.foo is 42).to.become(true, done)
 
     it "optimizes multiple change events for a property into one", (done) ->
       @object.num = 0
@@ -234,20 +218,20 @@ describe 'Serenade.defineProperty', ->
 
     it "dispatches change event asynchronously", (done) ->
       defineProperty @object, "foo"
-      @object.change.bind -> @result = true
+      @object.foo_property.bind -> @result = true
       @object.foo = 23
       expect(@object.result).not.to.be.ok
       expect(=> @object.result).to.become(true, done)
 
     it "stays asynchronous when async option is true", (done) ->
       defineProperty @object, "foo", async: true
-      @object.change.bind -> @result = true
+      @object.foo_property.bind -> @result = true
       @object.foo = 23
       expect(@object.result).not.to.be.ok
       expect(=> @object.result).to.become(true, done)
 
     it "can be made synchronous", ->
       defineProperty @object, "foo", async: false
-      @object.change.bind -> @result = true
+      @object.foo_property.bind -> @result = true
       @object.foo = 23
       expect(@object.result).to.be.ok

@@ -1,7 +1,12 @@
 idCounter = 1
 
 class Model
-  defineEvent(@prototype, "saved")
+  defineEvent @prototype, "saved"
+  defineEvent @prototype, "changed",
+    optimize: (queue) ->
+      result = {}
+      extend(result, item[0]) for item in queue
+      [result]
 
   @belongsTo: -> @prototype.belongsTo(arguments...)
   @hasMany: -> @prototype.hasMany(arguments...)
@@ -136,7 +141,7 @@ class Model
     if @constructor.localStorageOptions?.on
       @saved.bind => Cache.store(@constructor, @id, this)
       if @constructor.localStorageOptions.on isnt 'save'
-        @change.bind => Cache.store(@constructor, @id, this)
+        @changed.bind => Cache.store(@constructor, @id, this)
     @set(attributes)
 
   set: (attributes) ->
