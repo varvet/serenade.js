@@ -1,11 +1,7 @@
 class Event
   constructor: (@object, @name, @options) ->
     @prop = "_s_#{@name}_listeners"
-    @queue_name = "_s_#{name}_queue"
-    @queue = if @object.hasOwnProperty(@queue_name)
-      @object[@queue_name]
-    else
-      @object[@queue_name] = []
+    @queueName = "_s_#{name}_queue"
 
     @async = if "async" of @options then @options.async else settings.async
 
@@ -39,10 +35,17 @@ class Event
       perform(@options.optimize(@queue))
     else
       perform(args) for args in @queue
-    @queue = @object[@queue_name] = []
+    @queue = []
 
   def @prototype, "listeners", get: ->
     @object[@prop]
+
+  def @prototype, "queue",
+    get: ->
+      @queue = [] unless @object.hasOwnProperty(@queueName)
+      @object[@queueName]
+    set: (val) ->
+      def @object, @queueName, value: val, configurable: true
 
 defineEvent = (object, name, options={}) ->
   def object, name,

@@ -92,8 +92,8 @@ class PropertyAccessor
     deps
 
   registerGlobal: ->
-    unless @object["_glb_" + @name]
-      @object["_glb_" + @name] = true
+    unless @object["_s_glb_" + @name]
+      def @object, "_s_glb_" + @name, value: true, configurable: true
       for { name, type, subname } in @definition.globalDependencies
         globalDependencies[subname] or= []
         globalDependencies[subname].push({ @object, subname, name, type, dependency: @name })
