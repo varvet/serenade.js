@@ -11,6 +11,8 @@ class Model
   @belongsTo: -> @prototype.belongsTo(arguments...)
   @hasMany: -> @prototype.hasMany(arguments...)
 
+  @identityMap: true
+
   @find: (id) -> Cache.get(this, id) or new this(id: id)
 
   @extend: (ctor) ->
@@ -126,7 +128,7 @@ class Model
     get: -> @_s_id_val
 
   constructor: (attributes) ->
-    if attributes?.id
+    if @constructor.identityMap and attributes?.id
       fromCache = Cache.get(@constructor, attributes.id)
       if fromCache
         fromCache.set(attributes)
