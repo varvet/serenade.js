@@ -154,3 +154,6 @@ class Model
       else if property.serialize
         serialized[property.name] = serializeObject(@[property.name])
     serialized
+
+  toString: ->
+    JSON.stringify(@toJSON())

@@ -130,3 +130,10 @@ describe 'Serenade.Model', ->
       expect(Person.find(5).name).to.eql(undefined)
       expect(Person.find(10).name).to.eql("Nicklas")
 
+  describe "#toString()", ->
+    it "returns the model serialized to JSON", ->
+      class Person extends Serenade.Model
+        @property "name", serialize: true
+      person = new Person(id: 5, name: "Nicklas")
+      expect(JSON.parse(person.toString()).name).to.eql("Nicklas")
+
