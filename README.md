@@ -124,8 +124,8 @@ Serenade.view('h1 "Hello " @name').render(model)
 ```
 
 While both of these options work well for simple scripts, when you're building
-a full application you likely want to define proper models.  Serenade provides
-a constructor, which provides a more fully featured starting point. It is
+a full application you likely want to define proper models. Serenade provides a
+constructor, which provides a more fully featured starting point. It is
 documented in more detail later in this README.
 
 You can derive your own constructor by calling `extend` on `Serenade.Model`:
@@ -141,8 +141,10 @@ on all instances:
 
 ``` javascript
 Person.property("name", { format: function(value) { return value.toUpperCase() }});
+
 model = new Person()
 model.name = "Jonas"
+
 Serenade.view('h1 "Hello " @name').render(model); // => <h1>Hello JONAS</h1>
 ```
 
@@ -160,7 +162,7 @@ in CoffeeScript, if you have a lot of property declarations:
 
 ``` coffeescript
 class Person extends Serenade.Model
-  @properties "firstName", "lastName", "name"
+  @property "firstName", "lastName", "name"
 
   name: ->
     @firstName + " " + @lastName
