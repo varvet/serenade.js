@@ -91,7 +91,7 @@ describe 'Serenade.Model.hasMany', ->
     post.confirmedComments
     post.comments = [{ id: 5, body: 'Hello', confirmed: true }, { id: 8, body: 'Monkey', confirmed: false }]
     comment = post.comments[1]
-    expect(-> comment.confirmed = true).to.triggerEvent(post.change_confirmedComments)
+    expect(-> comment.confirmed = true).to.triggerEvent(post.confirmedComments_property)
 
   it 'can set itself on its inverse relation', ->
     class Comment extends Serenade.Model
@@ -126,4 +126,4 @@ describe 'Serenade.Model.hasMany', ->
     post = new Post()
     post.comments = [{ body: "Hello" }, { body: "World" }]
     expect(post.commentsCount).to.eql(2)
-    expect(-> post.comments.push({ body: "Test" })).to.triggerEvent(post.change_commentsCount)
+    expect(-> post.comments.push({ body: "Test" })).to.triggerEvent(post.commentsCount_property)

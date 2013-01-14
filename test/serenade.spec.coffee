@@ -6,12 +6,12 @@ describe "Serenade", ->
   it "can decorate an object with properties", ->
     object = Serenade(name: "Jonas")
     expect(object.name).to.eql("Jonas")
-    expect(-> object.name = "John").to.triggerEvent(object.change_name)
+    expect(-> object.name = "John").to.triggerEvent(object.name_property)
 
   it "can decorate an object which has an enumerable constructor property", ->
     object = Serenade(constructor: "Jonas")
     expect(object.constructor).to.eql("Jonas")
-    expect(-> object.constructor = "John").to.triggerEvent(object.change_constructor)
+    expect(-> object.constructor = "John").to.triggerEvent(object.constructor_property)
 
   describe ".view", ->
     it "registers a view object", ->

@@ -6,10 +6,10 @@ triggerGlobal = (target, names) ->
       for { name, type, object, subname, dependency } in globalDependencies[name]
         if type is "singular"
           if target is object[name]
-            object[dependency + "_property"]?.triggerChanges?(object)
+            object[dependency + "_property"]?.trigger?(object)
         else if type is "collection"
           if target in object[name]
-            object[dependency + "_property"]?.triggerChanges?(object)
+            object[dependency + "_property"]?.trigger?(object)
 
 class PropertyDefinition
   constructor: (@name, options) ->
@@ -23,6 +23,11 @@ class PropertyDefinition
       @addDependency(name) for name in [].concat(@dependsOn)
 
     @async = if "async" of options then options.async else settings.async
+
+    @eventOptions =
+      async: @async
+      bind: -> @[name] # make sure dependencies have been discovered and registered
+      optimize: (queue) -> queue[queue.length - 1]
 
   addDependency: (name) ->
     if @dependencies.indexOf(name) is -1
@@ -43,6 +48,7 @@ class PropertyAccessor
   constructor: (@definition, @object) ->
     @name = @definition.name
     @valueName = "_s_#{@name}_val"
+    @event = new Event(@object, @name + "_change", @definition.eventOptions)
 
   set: (value) ->
     if typeof(value) is "function"
@@ -52,7 +58,7 @@ class PropertyAccessor
         @definition.set.call(@object, value)
       else
         def @object, @valueName, value: value, configurable: true
-      @triggerChanges()
+      @trigger()
 
   get: ->
     @registerGlobal()
@@ -85,21 +91,33 @@ class PropertyAccessor
     findDependencies(@name)
     deps
 
-  triggerChanges: ->
-    names = [@name].concat(@dependents())
-    changes = {}
-    changes[name] = @object[name] for name in names
-    @object.change.trigger(changes)
-    triggerGlobal(@object, names)
-    for own name, value of changes
-      @object["change_" + name].trigger(value)
-
   registerGlobal: ->
     unless @object["_glb_" + @name]
       @object["_glb_" + @name] = true
       for { name, type, subname } in @definition.globalDependencies
         globalDependencies[subname] or= []
         globalDependencies[subname].push({ @object, subname, name, type, dependency: @name })
+
+  trigger: ->
+    names = [@name].concat(@dependents())
+    changes = {}
+    changes[name] = @object[name] for name in names
+    @object.change.trigger(changes)
+    triggerGlobal(@object, names)
+    for own name, value of changes
+      @object[name + "_property"].event.trigger(value)
+
+  bind: (fun) ->
+    @event.bind(fun)
+
+  unbind: (fun) ->
+    @event.unbind(fun)
+
+  one: (fun) ->
+    @event.one(fun)
+
+  def @prototype, "listeners", get: ->
+    @event.listeners
 
 defineProperty = (object, name, options={}) ->
   definition = new PropertyDefinition(name, options)
@@ -113,10 +131,6 @@ defineProperty = (object, name, options={}) ->
       result = {}
       extend(result, item[0]) for item in queue
       [result]
-  defineEvent object, "change_" + name,
-    async: definition.async
-    bind: -> @[name] # make sure dependencies have been discovered and registered
-    optimize: (queue) -> queue[queue.length - 1]
 
   def object, name,
     get: -> @[name + "_property"].get()

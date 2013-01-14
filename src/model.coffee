@@ -48,7 +48,7 @@ class Model
         unless @[valueName]
           @[valueName] = new Collection([])
           @[valueName].change.bind =>
-            @[name + "_property"].triggerChanges(this)
+            @[name + "_property"].trigger()
         @[valueName]
       set: (value) ->
         @[name].update(value)
@@ -82,7 +82,7 @@ class Model
         unless @[valueName]
           @[valueName] = new AssociationCollection(this, attributes, [])
           @[valueName].change.bind =>
-            @[name + "_property"].triggerChanges(this)
+            @[name + "_property"].trigger()
         @[valueName]
       set: (value) ->
         @[name].update(value)

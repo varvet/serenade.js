@@ -96,7 +96,7 @@ describe 'Serenade.Model', ->
       class Person extends Serenade.Model
         @property "name"
       john = new Person(name: "John")
-      expect(-> john.name = "Johnny").to.triggerEvent john.change_name
+      expect(-> john.name = "Johnny").to.triggerEvent john.name_property
 
     it 'makes property getters assignable', ->
       class Person extends Serenade.Model
@@ -111,13 +111,13 @@ describe 'Serenade.Model', ->
       class Person extends Serenade.Model
         @property "firstName", "lastName"
       john = new Person(firstName: "John", lastName: "Smith")
-      expect(-> john.firstName = "Johnny").to.triggerEvent john.change_firstName
+      expect(-> john.firstName = "Johnny").to.triggerEvent john.firstName_property
 
     it 'adds multiple properties with options to the prototype', ->
       class Person extends Serenade.Model
         @property "firstName", "lastName", serialize: true
       john = new Person(firstName: "John", lastName: "Smith")
-      expect(-> john.firstName = "Johnny").to.triggerEvent john.change_firstName
+      expect(-> john.firstName = "Johnny").to.triggerEvent john.firstName_property
       expect(john.toJSON().lastName).to.eql("Smith")
 
   describe "#id", ->

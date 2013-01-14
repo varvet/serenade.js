@@ -11,7 +11,7 @@ Property =
     update = ->
       node.element.style[ast.name] = getValue(ast, model)
     update()
-    node.bindEvent(model["change_#{ast.value}"], update) if ast.bound
+    node.bindEvent(model["#{ast.value}_property"], update) if ast.bound
 
   event: (ast, node, model, controller) ->
     node.element.addEventListener ast.name, (e) ->
@@ -26,7 +26,7 @@ Property =
         node.boundClasses.delete(ast.name)
       node.updateClass()
     update()
-    node.bindEvent(model["change_#{ast.value}"], update)
+    node.bindEvent(model["#{ast.value}_property"], update)
 
   binding: (ast, node, model, controller) ->
     element = node.element
@@ -52,7 +52,7 @@ Property =
         element.value = val unless element.value is val
 
     modelUpdated()
-    node.bindEvent(model["change_#{ast.value}"], modelUpdated)
+    node.bindEvent(model["#{ast.value}_property"], modelUpdated)
     if ast.name is "binding"
       # we can't bind to the form directly since it doesn't exist yet
       handler = (e) -> domUpdated() if element.form is (e.target or e.srcElement)
@@ -79,7 +79,7 @@ Property =
         value = "0" if value is 0
         element.setAttribute(ast.name, value)
 
-    node.bindEvent(model["change_#{ast.value}"], update) if ast.bound
+    node.bindEvent(model["#{ast.value}_property"], update) if ast.bound
     update()
 
   on: (ast, node, model, controller) ->
@@ -136,7 +136,7 @@ Compile =
       nodes = (new Node(ast, element) for element in normalize(helperFunction.apply(context, args)))
       dynamic.replace [nodes]
     for argument in ast.arguments when argument.bound is true
-      dynamic.bindEvent(model["change_#{argument.value}"], update)
+      dynamic.bindEvent(model["#{argument.value}_property"], update)
     update()
     dynamic
 
@@ -147,7 +147,7 @@ Compile =
       value or ""
     textNode = Serenade.document.createTextNode(getText())
     node = new Node(ast, textNode)
-    node.bindEvent(model["change_#{ast.value}"], -> textNode.nodeValue = getText()) if ast.bound
+    node.bindEvent(model["#{ast.value}_property"], -> textNode.nodeValue = getText()) if ast.bound
     node
 
   collection: (ast, model, controller) ->
@@ -194,7 +194,7 @@ Compile =
       value = model[ast.argument]
       callback(dynamic, value)
     update()
-    dynamic.bindEvent(model["change_#{ast.argument}"], update)
+    dynamic.bindEvent(model["#{ast.argument}_property"], update)
     dynamic
 
 normalize = (val) ->

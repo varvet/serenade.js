@@ -36,8 +36,8 @@ describe "Serenade.Model.delegate", ->
     post = new Post(author: author)
     post.name
     post.email
-    expect(-> author.name = "peter").to.triggerEvent(post.change_name, with: ["peter"])
-    expect(-> author.email = "peter@elabs.se").to.triggerEvent(post.change_email, with: ["peter@elabs.se"])
+    expect(-> author.name = "peter").to.triggerEvent(post.name_property, with: ["peter"])
+    expect(-> author.email = "peter@elabs.se").to.triggerEvent(post.email_property, with: ["peter@elabs.se"])
 
   it "can set prefix", ->
     author = new Serenade.Model(name: "Jonas", email: "jonas@elabs.se")
