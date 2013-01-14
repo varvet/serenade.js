@@ -757,22 +757,6 @@ association is serialized under another name:
 Comment.belongsTo('post', { constructor: 'Post', serializeId: 'post_id' });
 ```
 
-## HTML5 Local Storage
-
-Serenade.Model can transparently cache objects in HTML5 local storage. Working
-with local storage is identical to working with the in-memory identity map. The
-only difference is that you can control when an individual document is cached
-in local storage. You can do this by calling `localStorage` on the model:
-
-``` javascript
-Post.localStorage(on: "save")
-```
-
-The possible values for `on` are `false` (the default), `true` and its alias
-`set`, which will cache the document to local storage as it is updated through
-setter functions, and finally `save` which will only cache the document if
-`save` is called explicitely.
-
 # Development
 
 In order to run Serenade.js locally and work on the code base, you will first

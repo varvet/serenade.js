@@ -111,10 +111,6 @@ class Model
       get: -> @[name].length
       dependsOn: name
 
-  @localStorage: (options={}) ->
-    @localStorageOptions = options
-    @localStorageOptions.on = true unless "on" of options
-
   @uniqueId: ->
     unless @_uniqueId and @_uniqueGen is this
       @_uniqueId = (idCounter += 1)
@@ -129,19 +125,14 @@ class Model
       def @, "_s_id_val", value: val, configurable: true
     get: -> @_s_id_val
 
-  constructor: (attributes, bypassCache=false) ->
-    unless bypassCache
-      if attributes?.id
-        fromCache = Cache.get(@constructor, attributes.id)
-        if fromCache
-          fromCache.set(attributes)
-          return fromCache
-        else
-          Cache.set(@constructor, attributes.id, this)
-    if @constructor.localStorageOptions?.on
-      @saved.bind => Cache.store(@constructor, @id, this)
-      if @constructor.localStorageOptions.on isnt 'save'
-        @changed.bind => Cache.store(@constructor, @id, this)
+  constructor: (attributes) ->
+    if attributes?.id
+      fromCache = Cache.get(@constructor, attributes.id)
+      if fromCache
+        fromCache.set(attributes)
+        return fromCache
+      else
+        Cache.set(@constructor, attributes.id, this)
     @set(attributes)
 
   set: (attributes) ->
