@@ -11,43 +11,18 @@ triggerGlobal = (target, names) ->
           if target in object[name]
             object[dependency + "_property"]?.triggerChanges?(object)
 
-class SerenadeProperty
-  constructor: (@name, @options) ->
-    @valueName = "_s_#{@name}_val"
+class PropertyDefinition
+  constructor: (@name, options) ->
+    extend(this, options)
 
     @dependencies = []
     @localDependencies = []
     @globalDependencies = []
 
-    if @options.dependsOn
-      @addDependency(name) for name in [].concat(@options.dependsOn)
+    if @dependsOn
+      @addDependency(name) for name in [].concat(@dependsOn)
 
-    @serialize = @options.serialize
-    @format = @options.format
-
-  set: (object, value) ->
-    if typeof(value) is "function"
-      @options.get = value
-    else
-      if @options.set
-        @options.set.call(object, value)
-      else
-        def object, @valueName, value: value, configurable: true
-      @triggerChanges(object)
-
-  get: (object) ->
-    @registerGlobal(object)
-    if @options.get
-      # add a listener which adds any dependencies that haven't been specified
-      listener = (name) => @addDependency(name)
-      object._s_property_access.bind(listener) unless "dependsOn" of @options
-      value = @options.get.call(object)
-      object._s_property_access.unbind(listener) unless "dependsOn" of @options
-    else
-      value = object[@valueName]
-
-    object._s_property_access.trigger(@name)
-    value
+    @async = if "async" of options then options.async else settings.async
 
   addDependency: (name) ->
     if @dependencies.indexOf(name) is -1
@@ -63,9 +38,35 @@ class SerenadeProperty
       @localDependencies.push(name)
       @localDependencies.push(name) if @localDependencies.indexOf(name) is -1
       @globalDependencies.push({ subname, name, type }) if type
-      true
+
+class PropertyAccessor
+  constructor: (@definition, @object) ->
+    @name = @definition.name
+    @valueName = "_s_#{@name}_val"
+
+  set: (object, value) ->
+    if typeof(value) is "function"
+      @definition.get = value
     else
-      false
+      if @definition.set
+        @definition.set.call(object, value)
+      else
+        def object, @valueName, value: value, configurable: true
+      @triggerChanges(object)
+
+  get: (object) ->
+    @registerGlobal(object)
+    if @definition.get
+      # add a listener which adds any dependencies that haven't been specified
+      listener = (name) => @definition.addDependency(name)
+      object._s_property_access.bind(listener) unless "dependsOn" of @definition
+      value = @definition.get.call(object)
+      object._s_property_access.unbind(listener) unless "dependsOn" of @definition
+    else
+      value = object[@valueName]
+
+    object._s_property_access.trigger(@name)
+    value
 
   # Find all properties which are dependent upon this one
   dependents: (object) ->
@@ -89,37 +90,35 @@ class SerenadeProperty
   registerGlobal: (object) ->
     unless object["_glb_" + @name]
       object["_glb_" + @name] = true
-      for { name, type, subname } in @globalDependencies
+      for { name, type, subname } in @definition.globalDependencies
         globalDependencies[subname] or= []
         globalDependencies[subname].push({ object, subname, name, type, dependency: @name })
 
 defineProperty = (object, name, options={}) ->
-  property = new SerenadeProperty(name, options)
+  definition = new PropertyDefinition(name, options)
 
-  safePush(object, "_s_properties", property)
-
-  async = if "async" of options then options.async else settings.async
+  safePush(object, "_s_properties", definition)
 
   defineEvent object, "_s_property_access"
   defineEvent object, "change",
-    async: async
+    async: definition.async
     optimize: (queue) ->
       result = {}
       extend(result, item[0]) for item in queue
       [result]
   defineEvent object, "change_" + name,
-    async: async
+    async: definition.async
     bind: -> @[name] # make sure dependencies have been discovered and registered
     optimize: (queue) -> queue[queue.length - 1]
 
   def object, name,
-    get: -> property.get(this)
-    set: (value) -> property.set(this, value)
+    get: -> @[name + "_property"].get(this)
+    set: (value) -> @[name + "_property"].set(this, value)
     configurable: true
     enumerable: if "enumerable" of options then options.enumerable else true
 
   def object, name + "_property",
-    get: -> property
+    get: -> new PropertyAccessor(definition, this)
     configurable: true
 
   if typeof(options.serialize) is 'string'
