@@ -80,17 +80,6 @@ class PropertyAccessor
     else
       @get()
 
-  # Find all properties which are dependent upon this one
-  dependents: ->
-    deps = []
-    findDependencies = (name) =>
-      for property in @object._s_properties
-        if property.name not in deps and name in property.localDependencies
-          deps.push(property.name)
-          findDependencies(property.name)
-    findDependencies(@name)
-    deps
-
   registerGlobal: ->
     unless @object["_s_glb_" + @name]
       def @object, "_s_glb_" + @name, value: true, configurable: true
@@ -99,7 +88,7 @@ class PropertyAccessor
         globalDependencies[subname].push({ @object, subname, name, type, dependency: @name })
 
   trigger: ->
-    names = [@name].concat(@dependents())
+    names = [@name].concat(@dependents)
     changes = {}
     changes[name] = @object[name] for name in names
     @object.changed?.trigger?(changes)
@@ -115,6 +104,17 @@ class PropertyAccessor
 
   one: (fun) ->
     @event.one(fun)
+
+  # Find all properties which are dependent upon this one
+  def @prototype, "dependents", get: ->
+    deps = []
+    findDependencies = (name) =>
+      for property in @object._s_properties
+        if property.name not in deps and name in property.localDependencies
+          deps.push(property.name)
+          findDependencies(property.name)
+    findDependencies(@name)
+    deps
 
   def @prototype, "listeners", get: ->
     @event.listeners
