@@ -44,55 +44,62 @@ class PropertyAccessor
     @name = @definition.name
     @valueName = "_s_#{@name}_val"
 
-  set: (object, value) ->
+  set: (value) ->
     if typeof(value) is "function"
       @definition.get = value
     else
       if @definition.set
-        @definition.set.call(object, value)
+        @definition.set.call(@object, value)
       else
-        def object, @valueName, value: value, configurable: true
-      @triggerChanges(object)
+        def @object, @valueName, value: value, configurable: true
+      @triggerChanges()
 
-  get: (object) ->
-    @registerGlobal(object)
+  get: ->
+    @registerGlobal()
     if @definition.get
       # add a listener which adds any dependencies that haven't been specified
       listener = (name) => @definition.addDependency(name)
-      object._s_property_access.bind(listener) unless "dependsOn" of @definition
-      value = @definition.get.call(object)
-      object._s_property_access.unbind(listener) unless "dependsOn" of @definition
+      @object._s_property_access.bind(listener) unless "dependsOn" of @definition
+      value = @definition.get.call(@object)
+      @object._s_property_access.unbind(listener) unless "dependsOn" of @definition
     else
-      value = object[@valueName]
+      value = @object[@valueName]
 
-    object._s_property_access.trigger(@name)
+    @object._s_property_access.trigger(@name)
     value
 
+  format: ->
+    if typeof(@definition.format) is "function"
+      @definition.format.call(@object, @get())
+    else
+      @get()
+
   # Find all properties which are dependent upon this one
-  dependents: (object) ->
+  dependents: ->
     deps = []
-    findDependencies = (name) ->
-      for property in object._s_properties
+    findDependencies = (name) =>
+      for property in @object._s_properties
         if property.name not in deps and name in property.localDependencies
           deps.push(property.name)
           findDependencies(property.name)
     findDependencies(@name)
     deps
 
-  triggerChanges: (object) ->
+  triggerChanges: ->
+    names = [@name].concat(@dependents())
     changes = {}
-    changes[name] = object[name] for name in [@name].concat(@dependents(object))
-    object.change.trigger(changes)
-    triggerGlobal(object, [@name].concat(@dependents(object)))
+    changes[name] = @object[name] for name in names
+    @object.change.trigger(changes)
+    triggerGlobal(@object, names)
     for own name, value of changes
-      object["change_" + name].trigger(value)
+      @object["change_" + name].trigger(value)
 
-  registerGlobal: (object) ->
-    unless object["_glb_" + @name]
-      object["_glb_" + @name] = true
+  registerGlobal: ->
+    unless @object["_glb_" + @name]
+      @object["_glb_" + @name] = true
       for { name, type, subname } in @definition.globalDependencies
         globalDependencies[subname] or= []
-        globalDependencies[subname].push({ object, subname, name, type, dependency: @name })
+        globalDependencies[subname].push({ @object, subname, name, type, dependency: @name })
 
 defineProperty = (object, name, options={}) ->
   definition = new PropertyDefinition(name, options)
@@ -112,8 +119,8 @@ defineProperty = (object, name, options={}) ->
     optimize: (queue) -> queue[queue.length - 1]
 
   def object, name,
-    get: -> @[name + "_property"].get(this)
-    set: (value) -> @[name + "_property"].set(this, value)
+    get: -> @[name + "_property"].get()
+    set: (value) -> @[name + "_property"].set(value)
     configurable: true
     enumerable: if "enumerable" of options then options.enumerable else true
 

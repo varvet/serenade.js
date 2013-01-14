@@ -21,7 +21,7 @@ describe 'Serenade.defineProperty', ->
     defineProperty @object, 'name', get: -> "bar"
     expect(@object.name).to.eql("bar")
 
-  describe 'set', ->
+  describe '#set', ->
     beforeEach ->
       defineProperty @object, ("foo")
 
@@ -46,7 +46,7 @@ describe 'Serenade.defineProperty', ->
       @object.foo = -> 42
       expect(@object.foo).to.eql(42)
 
-  describe 'get', ->
+  describe '#get', ->
     it 'reads an existing property', ->
       @object.foo = 23
       expect(@object.foo).to.eql(23)
@@ -60,6 +60,20 @@ describe 'Serenade.defineProperty', ->
       @object.last = 'Nicklas'
       defineProperty @object, 'fullName', get: -> [@first, @last].join(' ')
       expect(@object.fullName).to.eql('Jonas Nicklas')
+
+  describe '#format', ->
+    it 'defaults to value', ->
+      defineProperty @object, 'foo', value: 42
+      expect(@object.foo_property.format()).to.eql(42)
+
+    it 'uses a custom formatter', ->
+      defineProperty @object, 'foo', value: 12, format: (val) -> val + "px"
+      expect(@object.foo_property.format()).to.eql("12px")
+
+    it 'runs formatter in object context', ->
+      @object.unit = "em"
+      defineProperty @object, 'foo', value: 12, format: (val) -> val + @unit
+      expect(@object.foo_property.format()).to.eql("12em")
 
   describe 'enumerable', ->
     it 'defaults to true', ->

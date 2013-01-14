@@ -11,12 +11,10 @@ extend = (target, source, enumerable=true) ->
       def target, key, value: value, configurable: true
 
 format = (model, key) ->
-  value = model[key]
-  formatter = model[key + "_property"]?.format
-  if typeof(formatter) is 'function'
-    formatter.call(model, value)
+  if model[key + "_property"]
+    model[key + "_property"].format()
   else
-    value
+    model[key]
 
 isArray = (object) ->
   Object::toString.call(object) is "[object Array]"
