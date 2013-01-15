@@ -28,7 +28,7 @@ below are not supported.
 
 ## Download
 
-Download here: https://github.com/elabs/serenade.js/downloads
+[Download here](http://serenade-downloads.s3-website-us-east-1.amazonaws.com/).
 
 You can integrate Serenade into Ruby on Rails through the
 [serenade.rb](https://github.com/elabs/serenade.rb) gem.
