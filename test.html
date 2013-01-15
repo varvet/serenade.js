@@ -1,0 +1,44 @@
+
+<!doctype html>
+
+<html>
+  <head>
+    <title>Serenade.js</title>
+    <link href="css/app.css" rel="stylesheet"/>
+    <link href="css/bootstrap.min.css" rel="stylesheet"/>
+  </head>
+
+  <body>
+    <div class="container">
+      <h1>Serenade.js</h1>
+
+<h2>Introduction</h2>
+
+<p>The hello world example:</p>
+<div class="highlight"><pre><code class="text">#!javascript
+var element = Serenade.view(&#39;h1 &quot;Hello World&quot;&#39;).render();
+document.body.appendChild(element);
+</code></pre></div>
+
+<p>As you can see we are rendering a view, which returns a DOM element. We then
+insert this element into the body. Let&#39;s throw in some data:</p>
+
+<p>The hello world example:</p>
+<div class="highlight"><pre><code class="text">#!javascript
+var model = { name: "Kim" }
+var controller = { alert: function() { alert("hello") } }
+var element = Serenade.view(view).render(model, controller)
+document.body.appendChild(element);
+#!view
+h1[event:click=alert] "hello " @name
+</code></pre></div>
+
+    </div>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script src="js/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script src="js/serenade.js"></script>
+    <script src="js/coffee-script.js"></script>
+    <script src="js/app.coffee" type="text/coffeescript"></script>
+  </body>
+</html>
+

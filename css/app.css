@@ -1,0 +1,29 @@
+.ace_editor {
+  height: 200px;
+  width: 100%;
+  position: relative !important;
+}
+
+.highlight.interactive {
+  display: table;
+  width: 100%;
+  height: 200px;
+}
+
+.highlight.interactive .code {
+  display: table-cell;
+  vertical-align: top;
+  width: 50%;
+}
+
+.highlight.interactive .sandbox {
+  display: table-cell;
+  vertical-align: top;
+  width: 50%;
+  height: 200px;
+  border: none;
+}
+
+.highlight.interactive > pre {
+  display: none;
+}
