@@ -4,3 +4,4 @@ node_modules
 lib/*
 extras/*
 npm-debug.log
+_site
