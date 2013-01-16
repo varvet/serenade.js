@@ -28,10 +28,8 @@ extend Serenade,
     @_controllers[name] = klass
   controllerFor: (name) -> @_controllers[name]
   clearIdentityMap: -> Cache._identityMap = {}
-  clearLocalStorage: -> Cache._storage.clear()
   clearCache: ->
     Serenade.clearIdentityMap()
-    Serenade.clearLocalStorage()
     delete globalDependencies[key] for value, key in globalDependencies
   unregisterAll: ->
     Serenade._views = {}

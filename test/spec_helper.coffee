@@ -19,12 +19,6 @@ compareArrays = (one, two) ->
 jsdom = require("jsdom")
 fs = require('fs')
 
-Serenade.Cache._storage =
-  _items: {}
-  getItem: (id) -> @_items[id]
-  setItem: (id, item) -> @_items[id] = item.toString()
-  clear: -> @_items = {}
-
 beforeEach ->
   Serenade.async = false
   Serenade.unregisterAll()
