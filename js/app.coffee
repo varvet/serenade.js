@@ -8,37 +8,57 @@ $("div.highlight").each ->
 
   if node.text().trim().match(/^#!/)
     node.addClass "interactive"
-    blocks = node.text().trim().split(/^#!/mg).slice(1)
     editors = {}
+
+    menu = $("<ul class='menu'></ul>").appendTo(node)
 
     code = $("<div class='code'></div>").appendTo(node)
 
     iframe = $("<iframe class='sandbox' src='sandbox.html'/>").appendTo(node).get(0)
 
-    menu = $('ul').appendTo(code)
 
     run = ->
       for child in iframe.contentDocument.body.children
         iframe.contentDocument.body.removeChild(child)
-      iframe.contentWindow.view = editors["view"].getValue() if editors["view"]
+      view = Block.byMode("view")?.text
+      js = Block.byMode("javascript")?.text
       try
-        iframe.contentWindow.eval(editors["javascript"].getValue())
+        iframe.contentWindow.eval('"use strict"; var view = ' + JSON.stringify(view) + ';' + js)
       catch e
+        console.log "#{e}: #{e.message}"
         null
 
-    for block in blocks
-      mode = block.match(/^\w+/)[0]
-      text = block.match(/^\w+\s*([^$]+)$/)[1]
+    class Block
+      @all: []
+      @byMode: (mode) -> return block for block in @all when block.mode == mode
+      constructor: (block) ->
+        @mode = block.match(/^\w+/)[0]
+        @text = block.match(/^\w+\s*([^$]+)$/)[1]
 
-      element = $("<div></div>").text(text).appendTo(code)
+        @wrapper = $("<div></div>").appendTo(code)
 
-      editor = ace.edit(element.get(0))
-      if mode is "javascript"
-        editor.getSession().setMode("ace/mode/javascript")
+        @li = $("<li></li>").text(titles[@mode]).appendTo(menu)
+        @li.click => @show()
 
-      editor.on "change", run
-      editors[mode] = editor
+      show: ->
+        block.hide() for block in Block.all
+        @li.addClass("active")
+        element = $("<div></div>").text(@text).appendTo(@wrapper)
 
-      li = $("li").text(titles[mode]).appendTo(menu)
+        @editor = ace.edit(element.get(0))
+        if @mode is "javascript"
+          @editor.getSession().setMode("ace/mode/javascript")
+
+        @editor.on "change", =>
+          @text = @editor.getValue()
+          run()
+
+      hide: ->
+        @li.removeClass("active")
+        @wrapper.empty()
+        @editor = null
+
+    Block.all = node.text().trim().split(/^#!/mg).slice(1).map (block) -> new Block(block)
+    Block.all[0].show()
 
     iframe.addEventListener "load", run
