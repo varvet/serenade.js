@@ -24,12 +24,7 @@ document.body.appendChild(element);
 insert this element into the body. Let&#39;s throw in some data:</p>
 
 <p>The hello world example:</p>
-<div class="highlight"><pre><code class="text">#!javascript
-var model = { name: "Kim" }
-var controller = { alert: function() { alert("hello") } }
-var element = Serenade.view(view).render(model, controller)
-document.body.appendChild(element);
-#!view
+<div class="highlight"><pre><code class="text">#!view
 h1[event:click=alert] "hello " @name
 </code></pre></div>
 

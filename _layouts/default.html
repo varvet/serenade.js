@@ -5,14 +5,31 @@
     <title>Serenade.js</title>
     <link href="css/app.css" rel="stylesheet"/>
     <link href="css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="css/highlight.css" rel="stylesheet"/>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
   </head>
 
   <body>
     <div class="container">
-      <h1>Serenade.js</h1>
+      <div class="row">
+        <div class="span4">
+          <ul class="nav nav-tabs nav-stacked">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="introduction.html">Introduction</a></li>
+            <li><a href="binding_data.html">Binding data</a></li>
+            <li><a href="models.html">Models</a></li>
+            <li><a href="controllers.html">Controllers</a></li>
+            <li><a href="templates.html">Templates</a></li>
+            <li><a href="custom_helpers.html">Custom helpers</a></li>
+            <li><a href="development.html">Development</a></li>
+          </ul>
+        </div>
+        <div class="span8">
+          <h1>Serenade.js</h1>
 
-      {{ content }}
+          {{ content }}
+        </div>
+      </div>
     </div>
     <script src="js/ace.js" type="text/javascript" charset="utf-8"></script>
     <script src="js/serenade.js"></script>

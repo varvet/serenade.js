@@ -1,5 +1,4 @@
 .ace_editor {
-  height: 200px;
   width: 100%;
   position: relative !important;
 }
@@ -7,24 +6,26 @@
 .highlight.interactive {
   display: table;
   width: 100%;
-  height: 200px;
   overflow: hidden;
+  border-bottom: 1px solid #ccc
+  margin: 1em 0;
 }
 
 .highlight.interactive .code {
-  width: 50%;
-  padding-right: 10px;
+  width: 60%;
+  padding-right: 20px;
   box-sizing: border-box;
   float: left;
 }
 
 .highlight.interactive .sandbox {
-  width: 50%;
-  height: 200px;
+  width: 40%;
   border: none;
-  padding-left: 10px;
+  padding-left: 20px;
   box-sizing: border-box;
+  display: table-cell;
   float: left;
+  height: 100px;
 }
 
 .highlight.interactive > pre {

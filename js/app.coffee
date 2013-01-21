@@ -1,64 +1,59 @@
-titles =
-  javascript: "JavaScript"
-  coffeescript: "CoffeeScript"
-  view: "Serenade view"
+baseJs = """
+  var model = { name: "Kim" }
+  var controller = { alert: function() { alert("hello") } }
+  var element = Serenade.view(view).render(model, controller)
+  document.body.appendChild(element);
+"""
 
-$("div.highlight").each ->
+$("div.xhighlight").each ->
   node = $(this)
+  content = node.find("pre code")
 
-  if node.text().trim().match(/^#!/)
+  if content.prop("className") in ["javascript", "html"]
     node.addClass "interactive"
     editors = {}
-
-    menu = $("<ul class='menu'></ul>").appendTo(node)
 
     code = $("<div class='code'></div>").appendTo(node)
 
     iframe = $("<iframe class='sandbox' src='sandbox.html'/>").appendTo(node).get(0)
 
-
     run = ->
       for child in iframe.contentDocument.body.children
         iframe.contentDocument.body.removeChild(child)
-      view = Block.byMode("view")?.text
-      js = Block.byMode("javascript")?.text
+      text = editor.getValue()
       try
-        iframe.contentWindow.eval('"use strict"; var view = ' + JSON.stringify(view) + ';' + js)
+        switch mode
+          when "javascript"
+            iframe.contentWindow.eval('"use strict"; ' + text)
+          when "html"
+            iframe.contentWindow.eval('"use strict"; var view = ' + JSON.stringify(text) + ';' + baseJs)
       catch e
         console.log "#{e}: #{e.message}"
         null
 
-    class Block
-      @all: []
-      @byMode: (mode) -> return block for block in @all when block.mode == mode
-      constructor: (block) ->
-        @mode = block.match(/^\w+/)[0]
-        @text = block.match(/^\w+\s*([^$]+)$/)[1]
+    mode = content.prop("className")
+    text = content.text()
 
-        @wrapper = $("<div></div>").appendTo(code)
+    wrapper = $("<div></div>").appendTo(code)
+    element = $("<div></div>").text(text).appendTo(wrapper)
 
-        @li = $("<li></li>").text(titles[@mode]).appendTo(menu)
-        @li.click => @show()
+    editor = ace.edit(element.get(0))
+    editor.setHighlightActiveLine(false)
+    editor.setHighlightGutterLine(false)
 
-      show: ->
-        block.hide() for block in Block.all
-        @li.addClass("active")
-        element = $("<div></div>").text(@text).appendTo(@wrapper)
+    updateHeight = =>
+      newHeight = editor.getSession().getScreenLength() * editor.renderer.lineHeight + editor.renderer.scrollBar.getWidth()
+      newHeight = Math.max(100, newHeight)
+      $(element).height(newHeight.toString() + "px")
+      editor.resize()
 
-        @editor = ace.edit(element.get(0))
-        if @mode is "javascript"
-          @editor.getSession().setMode("ace/mode/javascript")
+    updateHeight()
 
-        @editor.on "change", =>
-          @text = @editor.getValue()
-          run()
+    if mode is "javascript"
+      editor.getSession().setMode("ace/mode/javascript")
 
-      hide: ->
-        @li.removeClass("active")
-        @wrapper.empty()
-        @editor = null
-
-    Block.all = node.text().trim().split(/^#!/mg).slice(1).map (block) -> new Block(block)
-    Block.all[0].show()
+    editor.on "change", =>
+      run()
+      updateHeight()
 
     iframe.addEventListener "load", run
