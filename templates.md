@@ -1,8 +1,7 @@
 ---
 layout: default
+title: Templates
 ---
-
-# Templates
 
 The Serenade.js template language is inspired by Slim, Jade and HAML, but not
 identical to any of these.

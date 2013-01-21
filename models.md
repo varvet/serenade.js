@@ -1,8 +1,7 @@
 ---
 layout: default
+title: Serenade.Model
 ---
-
-# Serenade.Model
 
 Serenade.Model provides a more fully featured starting point for creating
 feature rich model objects. You can of course bind to instances of

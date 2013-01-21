@@ -1,5 +1,6 @@
 ---
 layout: default
+title: Home
 ---
 
 Serenade.js is a framework for building rich client side JavaScript

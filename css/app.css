@@ -50,3 +50,25 @@
 .menu li.active {
   background: #eeeeff;
 }
+
+#footer {
+  margin: 1em 0 2em;
+}
+
+#footer .logo {
+  display: inline-block;
+  width: 115px;
+  margin-right: 20px;
+  vertical-align: middle;
+}
+
+#footer .logo img {
+  width: 115px;
+}
+
+#footer .copy {
+  display: inline-block;
+  width: 480px;
+  vertical-align: middle;
+  margin: 0;
+}

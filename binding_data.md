@@ -1,8 +1,7 @@
 ---
 layout: default
+title: Binding data
 ---
-
-# Binding data
 
 Unfortunately JavaScript does not make it possible to track changes to
 arbitrary properties, so in order to update the view automatically as the model

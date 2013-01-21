@@ -1,8 +1,7 @@
 ---
 layout: default
+title: Custom helpers
 ---
-
-# Custom helpers
 
 Sometimes you need to break out of the mould that Serenade has provided for
 you. In order to expose arbitrary functionality in views, Serenade has custom

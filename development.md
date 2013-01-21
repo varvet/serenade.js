@@ -1,8 +1,7 @@
 ---
 layout: default
+title: Development
 ---
-
-# Development
 
 In order to run Serenade.js locally and work on the code base, you will first
 need to grab the codebase via git:

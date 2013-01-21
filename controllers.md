@@ -1,8 +1,7 @@
 ---
 layout: default
+title: Controllers
 ---
-
-# Controllers
 
 Controllers may either be normal objects, or functions. If the controller is
 given as a function, it is called as a constructor (using the `new` operator)
