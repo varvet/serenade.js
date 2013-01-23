@@ -2,7 +2,7 @@
 
 <html>
   <head>
-    <title>Serenade.js</title>
+    <title>Serenade.js | {{ page.title }}</title>
     <link href="/css/app.css" rel="stylesheet"/>
     <link href="/css/bootstrap.min.css" rel="stylesheet"/>
     <link href="/css/highlight.css" rel="stylesheet"/>
@@ -50,7 +50,7 @@
           </ul>
         </div>
         <div class="span8">
-          <h1>{{title}}</h1>
+          <h1>{{page.title}}</h1>
 
           {{ content }}
 
@@ -70,9 +70,9 @@
         </div>
       </div>
     </div>
-    <script src="js/ace.js" type="text/javascript" charset="utf-8"></script>
-    <script src="js/serenade.js"></script>
-    <script src="js/coffee-script.js"></script>
-    <script src="js/app.coffee" type="text/coffeescript"></script>
+    <script src="/js/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script src="/js/serenade.js"></script>
+    <script src="/js/coffee-script.js"></script>
+    <script src="/js/app.coffee" type="text/coffeescript"></script>
   </body>
 </html>
