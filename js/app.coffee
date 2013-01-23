@@ -1,12 +1,33 @@
-baseJs = """
-  var model = { name: "Kim" }
-  var controller = { alert: function() { alert("hello") } }
-  var element = Serenade.view(view).render(model, controller)
-  document.body.appendChild(element);
-"""
+$(".examples").each ->
+  examples = $(this)
 
-$("div.xhighlight").each ->
-  node = $(this)
+  code = $("<div class='code'></div>").appendTo(examples)
+  preview = $("<div class='code'></div>").appendTo(examples)
+
+  open = (example) ->
+    code.empty()
+    preview.empty()
+    if example.js
+      $.ajax url: example.js, dataType: "text", complete: (response) ->
+        element = $("<div class='editor'></div>").text(response.responseText).appendTo(code)
+        editor = ace.edit(element.get(0))
+        editor.setHighlightActiveLine(false)
+        editor.setHighlightGutterLine(false)
+        editor.getSession().setMode("ace/mode/javascript")
+
+  $.get "/examples.json", (data) ->
+    ul = Serenade.view("""
+      ul
+        - collection @examples
+          li
+            a[href="#" event:click=open!] @name
+    """).render({ examples: data }, { open: (link, example) -> open(example) })
+    examples.prepend(ul)
+    open(data[0])
+
+  return
+
+
   content = node.find("pre code")
 
   if content.prop("className") in ["javascript", "html"]

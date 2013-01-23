@@ -8,6 +8,8 @@ applications. It's powerful enough to help you build complex single page
 applications, yet also beautifully simple and incredibly easy to get started
 with.
 
+<div class="examples"></div>
+
 ## Download
 
 [Download](http://serenade-downloads.s3-website-us-east-1.amazonaws.com/serenade.0.4.0.min.js.gz)

@@ -72,3 +72,11 @@
   vertical-align: middle;
   margin: 0;
 }
+
+.examples .editor {
+  height: 250px;
+}
+
+.ace_scrollbar {
+  display: none !important;
+}

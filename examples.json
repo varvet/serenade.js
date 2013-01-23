@@ -1,0 +1,20 @@
+[
+  {
+    "name": "hello",
+    "label": "Hello world",
+    "js": "/examples/hello.js"
+  },
+  {
+    "name": "counter",
+    "label": "Counter",
+    "js": "/examples/counter.js",
+    "views": {
+      "counter": "/examples/counter.serenade"
+    }
+  },
+  {
+    "name": "color",
+    "label": "Color picker",
+    "js": "/examples/color.js"
+  }
+]
