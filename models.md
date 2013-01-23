@@ -23,8 +23,8 @@ var Person = Serenade.Model.extend();
 
 person1 = new Person({ id: 1, name: 'John'} );
 person2 = new Person({ id: 1, age: 23 });
-person2.name; # => 'John'
-person2.age; # => 23
+person2.name; // => 'John'
+person2.age; // => 23
 ```
 
 Here `person2` and `person1` are both variables which point to the same object,

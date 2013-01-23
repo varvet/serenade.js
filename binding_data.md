@@ -20,6 +20,8 @@ Serenade.defineProperty(model, "name", { format: function(value) { return value.
 Serenade.view('h1 "Hello " @name').render(model); // => <h1>Hello JONAS</h1>
 ```
 
+For a complete list of options see [Serenade.defineProperty](/reference/define_property.html)
+
 ## Option 2: Serenade decorator
 
 If we don't need to specify any options, we can use `Serenade` as a decorator
@@ -65,6 +67,8 @@ class Person extends Serenade.Model
 ```
 
 Read more about models under [Models](models.html).
+
+For a complete list of methods see [Serenade.Model](/reference/model.html)
 
 ## Two way data binding
 

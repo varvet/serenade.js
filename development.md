@@ -3,6 +3,10 @@ layout: default
 title: Development
 ---
 
+Serenade's source code is hosted at Github:
+
+<https://github.com/elabs/serenade.js>
+
 In order to run Serenade.js locally and work on the code base, you will first
 need to grab the codebase via git:
 
