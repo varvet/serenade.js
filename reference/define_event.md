@@ -4,9 +4,9 @@ title: Serenade.defineEvent
 ---
 
 Events can be useful for any number of things. Serenade uses them internally to
-keep automatically update the DOM when your model data changes. Serenade
-provides `Serenade.defineEvent`, which can be used to declare that an object
-has an event:
+automatically update the DOM when your model data changes. Serenade provides
+`Serenade.defineEvent`, which can be used to declare that an object has an
+event:
 
 ``` javascript
 var object = {}
