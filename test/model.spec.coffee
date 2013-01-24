@@ -89,6 +89,15 @@ describe 'Serenade.Model', ->
       expect(-> john.firstName = "Johnny").to.triggerEvent john.firstName_property
       expect(john.toJSON().lastName).to.eql("Smith")
 
+  describe '.event', ->
+    it 'adds an event to the prototype', ->
+      class Person extends Serenade.Model
+        @event "fluctuate"
+      john = new Person(name: "John")
+      john.fluctuate.bind -> @fluctuated = true
+      john.fluctuate.trigger()
+      expect(john.fluctuated).to.be.ok
+
   describe "#id", ->
     it "updates identify map when changed", ->
       class Person extends Serenade.Model

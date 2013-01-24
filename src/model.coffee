@@ -1,13 +1,6 @@
 idCounter = 1
 
 class Model
-  defineEvent @prototype, "saved"
-  defineEvent @prototype, "changed",
-    optimize: (queue) ->
-      result = {}
-      extend(result, item[0]) for item in queue
-      [result]
-
   @belongsTo: -> @prototype.belongsTo(arguments...)
   @hasMany: -> @prototype.hasMany(arguments...)
 
@@ -27,6 +20,9 @@ class Model
       names.push(options)
       options = {}
     defineProperty(@prototype, name, options) for name in names
+
+  @event: (name, options) ->
+    defineEvent(@prototype, name, options)
 
   @properties: (names...) ->
     @property(name) for name in names
@@ -126,6 +122,13 @@ class Model
       Cache.set(@constructor, val, this)
       def @, "_s_id_val", value: val, configurable: true
     get: -> @_s_id_val
+
+  @event "saved"
+  @event "changed",
+    optimize: (queue) ->
+      result = {}
+      extend(result, item[0]) for item in queue
+      [result]
 
   constructor: (attributes) ->
     if @constructor.identityMap and attributes?.id
