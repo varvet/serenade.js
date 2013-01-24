@@ -86,14 +86,41 @@ Eventually, a single log message "foobar" will appear in the log.
 
 ### `bind(function(args...))`
 
+Attach a function as a listener to this event, it will be triggered when
+`trigger` is called and given whatever arguments were passed to `trigger`.
+
 ### `unbind(function(args...))`
+
+Detach a function from this event, it will no longer be called when `trigger`
+is called.
 
 ### `trigger(args...)`
 
+Trigger this event. Will loop through all listeners attached via `bind` or
+`one` and call them, passing in the given arguments. Listeners are called in
+the context of the object the event is attached to, so `this` points to the
+object within the callback function.
+
 ### `one(function(args...))`
+
+Attach a function as a listener to this event, the next time that `trigger` is
+called, the listener function is called and given whatever arguments were
+passed to `trigger`. After that, the function is detached from the event, and
+will no longer be called when `trigger` is called.
 
 ### `resolve()`
 
+When the event is asynchronous and has accumulated a queue of events, `resolve`
+immediately optimizes and executed that queue. `resolve` is synchronous and
+will block until all attached listeners have executed.
+
 ### `queue`
 
+Returns the current queue of invocations. An array of arrays, where each item
+is a list of arguments previously passed to `trigger`. Only relevant for
+asynchronous events.
+
 ### `listeners`
+
+Returns an array of all functions currently attached as listeners to this
+event.
