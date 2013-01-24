@@ -11,7 +11,7 @@ o = (patternString, action, options) ->
 grammar =
   Root: [
     o '', -> null
-    ['Element', 'return $$']
+    ['ChildList', 'return $$']
   ]
 
   ElementIdentifier: [

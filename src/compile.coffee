@@ -97,10 +97,8 @@ Compile =
     element.setAttribute('id', ast.id) if ast.id
     element.setAttribute('class', ast.classes.join(' ')) if ast.classes?.length
 
-    for child in ast.children
-      childNode = compile(child, model, controller)
-      childNode.append(element)
-      node.children.push childNode
+    node.children = compile(ast.children, model, controller)
+    child.append(element) for child in node.children
 
     for property in ast.properties
       action = Property[property.scope]
@@ -119,15 +117,16 @@ Compile =
     unless controller
       skipCallback = true
       controller = parent
-    Serenade._views[ast.argument].node(model, controller, parent, skipCallback)
+    dynamic = new DynamicNode(ast)
+    dynamic.replace([Serenade._views[ast.argument].nodes(model, controller, parent, skipCallback)])
+    dynamic
 
   helper: (ast, model, controller) ->
     dynamic = new DynamicNode(ast)
     render = (model=model, controller=controller) ->
       fragment = Serenade.document.createDocumentFragment()
-      for child in ast.children
-        node = compile(child, model, controller)
-        node.append(fragment)
+      children = compile(ast.children, model, controller)
+      child.append(fragment) for child in children
       fragment
     helperFunction = Serenade.Helpers[ast.command] or throw SyntaxError "no helper #{ast.command} defined"
     context = { render, model, controller }
@@ -151,7 +150,7 @@ Compile =
     node
 
   collection: (ast, model, controller) ->
-    compileItem = (item) -> compileAll(ast.children, item, controller)
+    compileItem = (item) -> compile(ast.children, item, controller)
     update = (dynamic, collection) ->
       dynamic.replace(compileItem(item) for item in collection)
 
@@ -167,16 +166,16 @@ Compile =
   in: (ast, model, controller) ->
     @bound ast, model, controller, (dynamic, value) ->
       if value
-        dynamic.replace([compileAll(ast.children, value, controller)])
+        dynamic.replace([compile(ast.children, value, controller)])
       else
         dynamic.clear()
 
   if: (ast, model, controller) ->
     @bound ast, model, controller, (dynamic, value) ->
       if value
-        dynamic.replace([compileAll(ast.children, model, controller)])
+        dynamic.replace([compile(ast.children, model, controller)])
       else if ast.else
-        dynamic.replace([compileAll(ast.else.children, model, controller)])
+        dynamic.replace([compile(ast.else.children, model, controller)])
       else
         dynamic.clear()
 
@@ -185,7 +184,7 @@ Compile =
       if value
         dynamic.clear()
       else
-        nodes = (compile(child, model, controller) for child in ast.children)
+        nodes = compile(ast.children, model, controller)
         dynamic.replace([nodes])
 
   bound: (ast, model, controller, callback) ->
@@ -209,5 +208,4 @@ normalize = (val) ->
     aggregate
   [].concat(val).reduce(reduction, [])
 
-compile = (ast, model, controller) -> Compile[ast.type](ast, model, controller)
-compileAll = (asts, model, controller) -> compile(ast, model, controller) for ast in asts
+compile = (asts, model, controller) -> Compile[ast.type](ast, model, controller) for ast in asts
