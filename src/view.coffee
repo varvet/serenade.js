@@ -9,6 +9,7 @@ parser.lexer =
 
 class View
   constructor: (@name, @view) ->
+
   parse: ->
     if typeof(@view) is 'string'
       try
@@ -18,13 +19,19 @@ class View
         throw e
     else
       @view
-  render: (args...) -> @node(args...).element
-  node: (model, controller, parent, skipCallback) ->
+
+  render: (args...) ->
+    fragment = Serenade.document.createDocumentFragment()
+    for node in @nodes(args...)
+      node.append(fragment)
+    fragment
+
+  nodes: (model, controller, parent, skipCallback) ->
     controller or= Serenade.controllerFor(@name, model) if @name
     controller or= {}
     if typeof(controller) is "function"
       controller = new controller(model, parent)
 
-    node = compile(@parse(), model, controller)
-    controller.loaded?(node.element, model) unless skipCallback
-    node
+    nodes = compile(@parse(), model, controller)
+    controller.loaded?(nodes.map((node) -> node.element)..., model) unless skipCallback
+    nodes

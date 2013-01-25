@@ -8,6 +8,16 @@ describe 'Basics', ->
     @render 'div'
     expect(@body).to.have.element('div')
 
+  it 'compiles multiple root nodes', ->
+    @render """
+      #foo
+      #bar
+      #baz
+    """
+    expect(@body).to.have.element('#foo')
+    expect(@body).to.have.element('#bar')
+    expect(@body).to.have.element('#baz')
+
   it 'compiles a simple element with an attribute', ->
     @render 'div[id="foo"]'
     expect(@body).to.have.element('div#foo')

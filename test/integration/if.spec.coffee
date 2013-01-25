@@ -108,3 +108,17 @@ describe 'If', ->
     model.show = true
     expect(@body).to.have.element('#test')
 
+  it 'can be a root node', ->
+    model = new Serenade.Model(valid: false)
+
+    @render '''
+      - if @valid
+        p[id="valid"]
+      - else
+        p[id="invalid"]
+    ''', model
+    expect(@body).not.to.have.element('p#valid')
+    expect(@body).to.have.element('p#invalid')
+    model.valid = true
+    expect(@body).to.have.element('p#valid')
+    expect(@body).not.to.have.element('p#invalid')

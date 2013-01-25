@@ -106,3 +106,16 @@ describe 'Collection', ->
     """, model
     model.things = ["world"]
     expect(@body).to.have.element('ul > li#world')
+
+  it 'can handle being a root node', ->
+    model = Serenade(things: ["hello"])
+
+    @render """
+      - collection @things
+        @
+    """, model
+    expect(@body).to.have.text("hello")
+    model.things = []
+    expect(@body).to.have.text("")
+    model.things = ["foo", "bar"]
+    expect(@body).to.have.text("foobar")

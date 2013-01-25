@@ -4,22 +4,19 @@ require './spec_helper'
 describe 'View', ->
   describe '#parse', ->
     parse = (view) ->
-      new View(undefined, view).parse()
+      new View(undefined, view).parse()[0]
 
     it 'parses a single tag', ->
       expect(parse('div').name).to.eql('div')
 
     it 'echoes back out a view which is passed as JSON', ->
-      expect(parse({ name: 'div' }).name).to.eql('div')
+      expect(parse([{ name: 'div' }]).name).to.eql('div')
 
     it 'parses a single tag with extra linebreaks', ->
       expect(parse('div\n\n').name).to.eql('div')
 
     it 'parses a single tag with extra whitespace before it', ->
       expect(parse('\n\tdiv').name).to.eql('div')
-
-    it 'raises a syntax error when multiple root nodes are given', ->
-      expect(-> parse('div\ndiv')).to.throw(Error)
 
     it 'raises a syntax error when unexpected token is encountered', ->
       expect(-> parse('div$')).to.throw("Unexpected token '$' on line 1")
@@ -228,5 +225,5 @@ describe 'View', ->
       expect(result.children[0].children[1].name).to.eql('p')
 
     it 'it adds view name to error message', ->
-      view = Serenade.view("someView", "div\ndiv")
-      expect(-> view.parse()).to.throw(Error, /In view 'someView':/)
+      view = Serenade.view("someView", "di'v")
+      expect(-> view.parse()).to.throw(SyntaxError, /In view 'someView':/)
