@@ -10,6 +10,13 @@ class ExampleGroup extends Serenade.Model
   @property "current"
 
   @property "isFirst", get: -> @current is @examples[0]
+  @property "isLast", get: -> @current is @examples[@examples.length-1]
+
+  next: ->
+    @current = @examples[@examples.indexOf(@current) + 1] or @examples.last()
+
+  previous: ->
+    @current = @examples[@examples.indexOf(@current) - 1] or @examples.first()
 
 class Editor
   Object.defineProperty @prototype, "text", get: -> @ace.getValue()
@@ -68,10 +75,20 @@ $(".examples").each ->
         null
 
   $.get "/examples.json", (data) ->
-    model = new ExampleGroup(examples: data, current: data[0])
+    window.model = new ExampleGroup(examples: data)
+    controller =
+      open: (link, example) ->
+        model.current = example
+        open(model.current)
+      next: ->
+        model.next()
+        open(model.current)
+      previous: ->
+        model.previous()
+        open(model.current)
     ul = Serenade.view("""
       div
-        button.btn[class:disabled=@isFirst] "Previous"
+        button.btn[event:click=previous class:disabled=@isFirst] "← Previous"
         div.btn-group
           a.btn.dropdown-toggle[href="#" data-toggle="dropdown"]
             - in @current
@@ -81,9 +98,8 @@ $(".examples").each ->
             - collection @examples
               li
                 a[href="#" event:click=open!] @label
-        button.btn "Next"
-    """).render model, open: (link, example) ->
-      model.open = example
-      open(example)
+        button.btn[event:click=next class:disabled=@isLast] "Next →"
+    """).render(model, controller)
     examples.prepend(ul)
-    open(data[0])
+    model.current = model.examples[0]
+    open(model.examples[0])
