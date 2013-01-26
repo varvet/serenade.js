@@ -1,4 +1,3 @@
 p
-  button[event:click=decrement] "-"
-  " " @current " "
+  @current " "
   button[event:click=increment] "+"

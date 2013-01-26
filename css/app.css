@@ -1,3 +1,11 @@
+* {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -o-box-sizing: border-box;
+  -ms-box-sizing: border-box;
+  sizing: border-box;
+}
+
 .menu {
   margin: 0;
   padding: 0;
@@ -39,11 +47,52 @@
   margin: 0;
 }
 
+.examples {
+  background: #f0f0f0;
+  border-radius: 3px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.examples .controls {
+  text-align: center;
+  height: 30px;
+  margin-top: 10px;
+}
+
+.examples .controls .btn {
+  margin-right: 10px;
+}
+
+.examples .controls .dropdown-menu {
+  text-align: left;
+}
+
+.examples .main {
+}
+
+.examples .code, .examples .preview {
+  float: left;
+  width: 50%;
+  padding: 10px;
+  position: relative;
+}
+
 .examples .editor {
   height: 250px;
 }
 
+.examples .error {
+  position: absolute;
+  top: 80px;
+  left: 20px;
+  right: 20px;
+  color: #c00;
+  font-weight: bold;
+}
+
 .examples .preview iframe {
+  border: none;
   height: 250px;
   width: 100%;
 }

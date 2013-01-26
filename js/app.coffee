@@ -20,26 +20,37 @@ class ExampleGroup extends Serenade.Model
 
 class Editor
   Object.defineProperty @prototype, "text", get: -> @ace.getValue()
-  constructor: (element, mode) ->
-    @ace = ace.edit(element)
+  constructor: (@element, @mode) ->
+    @ace = ace.edit(@element)
     @ace.setHighlightActiveLine(false)
     @ace.setHighlightGutterLine(false)
     @ace.setShowPrintMargin(false)
-    @ace.getSession().setMode("ace/mode/#{mode}") if mode
+    @ace.getSession().setMode("ace/mode/#{mode}") if @mode
+    @updateHeight()
+    @bind => @updateHeight()
+
+  updateHeight: ->
+    newHeight = @ace.getSession().getScreenLength() * @ace.renderer.lineHeight + @ace.renderer.scrollBar.getWidth()
+    newHeight = Math.max(100, newHeight)
+    $(@element).height(newHeight.toString() + "px")
+    @ace.resize()
 
   bind: (fn) ->
     @ace.on("change", fn)
 
 $(".examples").each ->
   examples = $(this)
-  editors = { views: {} }
 
-  code = $("<div class='code'></div>").appendTo(examples)
-  preview = $("<div class='preview'></div>").appendTo(examples)
+  main = $("<div class='main'></div>").appendTo(examples)
+  code = $("<div class='code'></div>").appendTo(main)
+  preview = $("<div class='preview'></div>").appendTo(main)
 
   open = (example) ->
+    editors = { views: {} }
     code.empty()
     preview.empty()
+    $("<h3 class='label'>Live preview</h3>").appendTo(preview)
+    error = $("<div class='error'></div>").appendTo(preview)
 
     frameLoaded = $.Deferred()
     iframe = $("<iframe class='sandbox' src='/sandbox.html'/>").appendTo(preview).get(0)
@@ -49,30 +60,31 @@ $(".examples").each ->
     if example.views
       for name, url of example.views
         request = $.ajax url: url, dataType: "text", complete: (response) ->
-          $("<h3 class='editor-label'></h3>").text("view: #{name}").appendTo(code)
+          $("<h3 class='label'></h3>").text("view: #{name}").appendTo(code)
           element = $("<div class='editor'></div>").text(response.responseText).appendTo(code)
           editors.views[name] = new Editor(element.get(0))
         requests.push(request)
     if example.js
       request = $.ajax url: example.js, dataType: "text", complete: (response) ->
-        $("<h3 class='editor-label'>javascript</h3>").appendTo(code)
+        $("<h3 class='label'>javascript</h3>").appendTo(code)
         element = $("<div class='editor'></div>").text(response.responseText).appendTo(code)
         editors.js = new Editor(element.get(0), "javascript")
       requests.push(request)
+
     $.when(frameLoaded, requests...).then ->
       editors.js.bind(run) if editors.js
       editor.bind(run) for name, editor of editors.views
       run()
 
     run = ->
+      error.hide()
       for child in iframe.contentDocument.body.children
         iframe.contentDocument.body.removeChild(child)
       try
         iframe.contentWindow.Serenade.view(name, editor.text) for name, editor of editors.views
         iframe.contentWindow.eval('"use strict"; ' + editors.js.text) if editors.js
       catch e
-        console.log "#{e}: #{e.message}"
-        null
+        error.text(e).show()
 
   $.get "/examples.json", (data) ->
     window.model = new ExampleGroup(examples: data)
@@ -87,13 +99,13 @@ $(".examples").each ->
         model.previous()
         open(model.current)
     ul = Serenade.view("""
-      div
+      div.controls
         button.btn[event:click=previous class:disabled=@isFirst] "← Previous"
         div.btn-group
           a.btn.dropdown-toggle[href="#" data-toggle="dropdown"]
             - in @current
-              @label
-            span.caret
+              @label " "
+              span.caret
           ul.dropdown-menu
             - collection @examples
               li
