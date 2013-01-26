@@ -7,5 +7,5 @@ var controller = {
     counter.current -= 1;
   }
 };
-element = Serenade.render("counter", counter, controller);
+var element = Serenade.render("counter", counter, controller);
 document.body.appendChild(element);
