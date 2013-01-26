@@ -20,7 +20,7 @@ class ExampleGroup extends Serenade.Model
 
 class Editor
   Object.defineProperty @prototype, "text", get: -> @ace.getValue()
-  constructor: (@element, @mode) ->
+  constructor: (@element, @mode, @name) ->
     @ace = ace.edit(@element)
     @ace.setHighlightActiveLine(false)
     @ace.setHighlightGutterLine(false)
@@ -61,35 +61,36 @@ $(".examples").each ->
         request = $.ajax(url: url, dataType: "text")
         request.label = "view: #{name}"
         request.mode = "view"
+        request.name = name
         requests.push(request)
     if example.js
       request = $.ajax(url: example.js, dataType: "text")
       request.label = "javascript"
-      editors.mode = "javascript"
+      request.mode = "javascript"
       requests.push(request)
 
     $.when(frameLoaded, requests...).then ->
-      editors = for request of requests
+      editors = for request in requests
         $("<h3 class='label'></h3>").text(request.label).appendTo(code)
         element = $("<div class='editor'></div>").text(request.responseText).appendTo(code)
-        editor = new Editor(element.get(0), request.mode)
+        editor = new Editor(element.get(0), request.mode, request.name)
         editor.bind(run)
         editor
-
-      editor.bind(run) for name, editor of editors.views
-      run()
 
       run = ->
         error.hide()
         for child in iframe.contentDocument.body.children
           iframe.contentDocument.body.removeChild(child)
         try
-          for editor of editors
+          for editor in editors
             if editor.mode is "javascript"
-            iframe.contentWindow.Serenade.view(name, editor.text)
-            iframe.contentWindow.eval('"use strict"; ' + editors.js.text) if editors.js
+              iframe.contentWindow.eval('"use strict"; ' + editor.text)
+            else
+              iframe.contentWindow.Serenade.view(editor.name, editor.text)
         catch e
           error.text(e).show()
+
+      run()
 
   $.get "/examples.json", (data) ->
     window.model = new ExampleGroup(examples: data)
