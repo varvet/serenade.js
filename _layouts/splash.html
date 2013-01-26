@@ -1,0 +1,51 @@
+<!doctype html>
+
+<html>
+  <head>
+    <title>Serenade.js | {{ page.title }}</title>
+    <link href="/css/app.css" rel="stylesheet"/>
+    <link href="/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="/css/highlight.css" rel="stylesheet"/>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <meta charset="utf-8">
+  </head>
+
+  <body>
+    <div class="container splash">
+      <h1><a href="/">Serenade.js</a></h1>
+
+      <p>
+        <a class="btn" href="http://serenade-downloads.s3-website-us-east-1.amazonaws.com/serenade.0.4.0.min.js.gz">Download</a>
+      </p>
+
+      <p>
+        or grab the <a href="http://serenade-downloads.s3-website-us-east-1.amazonaws.com/serenade.0.4.0.js">development version</a>
+      </p>
+
+      <p>
+        or use the <a href="http://rubygems.org/gems/serenade">Serenade.rb</a> gem
+      </p>
+
+      {{ content }}
+
+      <hr/>
+
+      <div id="footer">
+        <a class="logo" href="http://www.elabs.se">
+          <img id="elabs-logo" src="/images/elabs.png"/>
+        </a>
+
+        <p class="copy">
+          Serenade.js is sponsored by <a href="http://www.elabs.se">Elabs</a>.
+          Licensed under the MIT license.<br/>
+          © 2011-2013 Jonas Nicklas, Kim Burgestrand, Elabs AB
+        </p>
+      </div>
+    </div>
+    <script src="/js/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script src="/js/serenade.js"></script>
+    <script src="/js/coffee-script.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/app.coffee" type="text/coffeescript"></script>
+  </body>
+</html>
