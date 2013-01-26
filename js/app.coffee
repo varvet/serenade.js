@@ -25,7 +25,7 @@ class Editor
     @ace.setHighlightActiveLine(false)
     @ace.setHighlightGutterLine(false)
     @ace.setShowPrintMargin(false)
-    @ace.getSession().setMode("ace/mode/#{mode}") if @mode
+    @ace.getSession().setMode("ace/mode/javascript") if @mode is "javascript"
     @updateHeight()
     @bind => @updateHeight()
 
@@ -46,7 +46,6 @@ $(".examples").each ->
   preview = $("<div class='preview'></div>").appendTo(main)
 
   open = (example) ->
-    editors = { views: {} }
     code.empty()
     preview.empty()
     $("<h3 class='label'>Live preview</h3>").appendTo(preview)
@@ -59,32 +58,38 @@ $(".examples").each ->
     requests = []
     if example.views
       for name, url of example.views
-        request = $.ajax url: url, dataType: "text", complete: (response) ->
-          $("<h3 class='label'></h3>").text("view: #{name}").appendTo(code)
-          element = $("<div class='editor'></div>").text(response.responseText).appendTo(code)
-          editors.views[name] = new Editor(element.get(0))
+        request = $.ajax(url: url, dataType: "text")
+        request.label = "view: #{name}"
+        request.mode = "view"
         requests.push(request)
     if example.js
-      request = $.ajax url: example.js, dataType: "text", complete: (response) ->
-        $("<h3 class='label'>javascript</h3>").appendTo(code)
-        element = $("<div class='editor'></div>").text(response.responseText).appendTo(code)
-        editors.js = new Editor(element.get(0), "javascript")
+      request = $.ajax(url: example.js, dataType: "text")
+      request.label = "javascript"
+      editors.mode = "javascript"
       requests.push(request)
 
     $.when(frameLoaded, requests...).then ->
-      editors.js.bind(run) if editors.js
+      editors = for request of requests
+        $("<h3 class='label'></h3>").text(request.label).appendTo(code)
+        element = $("<div class='editor'></div>").text(request.responseText).appendTo(code)
+        editor = new Editor(element.get(0), request.mode)
+        editor.bind(run)
+        editor
+
       editor.bind(run) for name, editor of editors.views
       run()
 
-    run = ->
-      error.hide()
-      for child in iframe.contentDocument.body.children
-        iframe.contentDocument.body.removeChild(child)
-      try
-        iframe.contentWindow.Serenade.view(name, editor.text) for name, editor of editors.views
-        iframe.contentWindow.eval('"use strict"; ' + editors.js.text) if editors.js
-      catch e
-        error.text(e).show()
+      run = ->
+        error.hide()
+        for child in iframe.contentDocument.body.children
+          iframe.contentDocument.body.removeChild(child)
+        try
+          for editor of editors
+            if editor.mode is "javascript"
+            iframe.contentWindow.Serenade.view(name, editor.text)
+            iframe.contentWindow.eval('"use strict"; ' + editors.js.text) if editors.js
+        catch e
+          error.text(e).show()
 
   $.get "/examples.json", (data) ->
     window.model = new ExampleGroup(examples: data)
