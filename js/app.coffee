@@ -20,23 +20,23 @@ class ExampleGroup extends Serenade.Model
 
 class Editor
   Object.defineProperty @prototype, "text", get: -> @ace.getValue()
+  Serenade.defineEvent @prototype, "change"
+
   constructor: (@element, @mode, @name) ->
     @ace = ace.edit(@element)
     @ace.setHighlightActiveLine(false)
     @ace.setHighlightGutterLine(false)
     @ace.setShowPrintMargin(false)
     @ace.getSession().setMode("ace/mode/javascript") if @mode is "javascript"
+    @ace.on("change", => @change.trigger())
+    @change.bind => @updateHeight()
     @updateHeight()
-    @bind => @updateHeight()
 
   updateHeight: ->
     newHeight = @ace.getSession().getScreenLength() * @ace.renderer.lineHeight + @ace.renderer.scrollBar.getWidth()
     newHeight = Math.max(100, newHeight)
     $(@element).height(newHeight.toString() + "px")
     @ace.resize()
-
-  bind: (fn) ->
-    @ace.on("change", fn)
 
 $(".examples").each ->
   examples = $(this)
@@ -74,7 +74,7 @@ $(".examples").each ->
         $("<h3 class='label'></h3>").text(request.label).appendTo(code)
         element = $("<div class='editor'></div>").text(request.responseText).appendTo(code)
         editor = new Editor(element.get(0), request.mode, request.name)
-        editor.bind(run)
+        editor.change.bind -> run()
         editor
 
       run = ->
