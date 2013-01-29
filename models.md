@@ -132,6 +132,8 @@ association is serialized under another name:
 Comment.belongsTo('post', { constructor: 'Post', serializeId: 'post_id' });
 ```
 
+## Getter assignment
+
 If you assign a function to a property, that function will automatically be
 used as the getter function. This is especially useful for cleaning up classes
 in CoffeeScript, if you have a lot of property declarations:
