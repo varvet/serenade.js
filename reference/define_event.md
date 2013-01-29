@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Serenade.defineEvent
+reference: true
 ---
 
 Events can be useful for any number of things. Serenade uses them internally to

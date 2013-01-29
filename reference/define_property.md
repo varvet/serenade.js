@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Serenade.defineProperty
+reference: true
 ---
 
 The `Serenade.defineProperty` function is the cornerstone of Serenade.js. Declaring
@@ -109,7 +110,7 @@ object.name_property.bind(function() {
 });
 ```
 
-## Property accessor specification
+## Methods
 
 ### `get()`
 

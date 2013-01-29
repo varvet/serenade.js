@@ -103,3 +103,30 @@
 .ace_scrollbar {
   display: none !important;
 }
+
+ol.index {
+  display: table;
+  width: 100%;
+  border: 1px solid #ccc;
+  background: #f0f0f0;
+  border-radius: 5px;
+  padding: 10px;
+  margin: 0 0 1em;
+  table-layout: fixed;
+}
+
+ol.index > li {
+  list-style: none;
+  display: table-cell;
+  border-left: 1px solid #ccc;
+  padding-left: 10px;
+}
+
+ol.index > li:first-child {
+  border-left: none;
+  padding-left: 0;
+}
+
+ol.index ol.items {
+  margin-top: 1em;
+}

@@ -123,3 +123,36 @@ $(".examples").each ->
     examples.prepend(ul)
     model.current = model.examples[0]
     open(model.examples[0])
+
+
+$(".reference #content").each ->
+  content = $(this)
+
+  headers = content.find("h2, h3").get().reduce (agg, h) ->
+    id = h.textContent.replace(/[^a-z0-9-]/gi, "").toLowerCase()
+    if h.localName is "h2"
+      h.setAttribute("id", id)
+      h.link = "#"+id
+      agg.push({ group: h, items: [] })
+    else
+      id = agg[agg.length-1].group.getAttribute("id") + id
+      h.setAttribute("id", id)
+      h.link = "#"+id
+      agg[agg.length-1].items.push(h)
+    agg
+  , []
+  # remove all h2 headers without following h3 headers
+  headers = headers.filter((h) -> h.items.length)
+
+  content.find("h1").after Serenade.view("""
+    ol.index
+      - collection @headers
+        li
+          - in @group
+            a[href=@link] @textContent
+          ol.items
+            - collection @items
+              li
+                a[href=@link] @textContent
+
+  """).render(headers: headers)

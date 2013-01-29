@@ -10,7 +10,7 @@
     <meta charset="utf-8">
   </head>
 
-  <body>
+  <body {% if page.reference %}class="reference"{% endif %}>
     <div class="container">
       <div class="row">
         <div class="span4">
@@ -49,7 +49,7 @@
             {% endfor %}
           </ul>
         </div>
-        <div class="span8">
+        <div id="content" class="span8">
           <h1>{{page.title}}</h1>
 
           {{ content }}
