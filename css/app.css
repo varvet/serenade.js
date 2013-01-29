@@ -70,12 +70,10 @@
 }
 
 .examples .main {
+  padding: 10px;
 }
 
 .examples .code, .examples .preview {
-  float: left;
-  width: 50%;
-  padding: 10px;
   position: relative;
 }
 
@@ -94,7 +92,6 @@
 
 .examples .preview iframe {
   border: none;
-  height: 250px;
   width: 100%;
 }
 

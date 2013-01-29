@@ -1,5 +1,5 @@
 ---
-layout: splash
+layout: default
 title: Home
 ---
 
@@ -7,6 +7,8 @@ Serenade.js is a framework for building rich client side JavaScript
 applications. It's powerful enough to help you build complex single page
 applications, yet also beautifully simple and incredibly easy to get started
 with.
+
+## Try it now!
 
 <div class="examples"></div>
 

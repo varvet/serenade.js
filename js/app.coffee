@@ -78,6 +78,7 @@ $(".examples").each ->
         editor
 
       run = ->
+        $(iframe).css(height: 0)
         error.hide()
         for child in iframe.contentDocument.body.children
           iframe.contentDocument.body.removeChild(child)
@@ -89,6 +90,7 @@ $(".examples").each ->
               iframe.contentWindow.Serenade.view(editor.name, editor.text)
         catch e
           error.text(e).show()
+        $(iframe).css(height: iframe.contentDocument.body.scrollHeight)
 
       run()
 
