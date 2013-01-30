@@ -21,7 +21,7 @@ Property =
   class: (ast, node, model, controller) ->
     update = ->
       if model[ast.value]
-        node.boundClasses.push(ast.name)
+        node.boundClasses.push(ast.name) unless node.boundClasses.includes(ast.name)
       else
         node.boundClasses.delete(ast.name)
       node.updateClass()

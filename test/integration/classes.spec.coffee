@@ -36,3 +36,10 @@ describe 'Classes', ->
     expect(@body.children[0].className).to.eql("status pending active")
     model.active = false
     expect(@body.children[0].className).to.eql("status pending")
+
+  it 'does not add same class more than once', ->
+    model = Serenade({ active: false })
+    @render 'div[class:active=@active]', model
+    model.active = true
+    model.active = true
+    expect(@body.children[0].className).to.eql("active")
