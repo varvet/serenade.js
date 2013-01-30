@@ -203,6 +203,8 @@ normalize = (val) ->
       div = Serenade.document.createElement("div")
       div.innerHTML = element
       aggregate.push(child) for child in div.children
+    else if element.nodeName is "#document-fragment"
+      aggregate.push(child) for child in element.children
     else
       aggregate.push(element)
     aggregate

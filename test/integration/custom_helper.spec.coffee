@@ -21,6 +21,37 @@ describe 'Custom helpers', ->
     expect(@body).to.have.element('div > form')
     expect(@body).to.have.element('div > article')
 
+  it 'can return a document fragment', ->
+    Serenade.Helpers.funky = ->
+      frag = Serenade.document.createDocumentFragment()
+      frag.appendChild Serenade.document.createElement('form')
+      frag.appendChild Serenade.document.createElement('article')
+      frag
+
+    @render '''
+      div
+        - funky
+    '''
+
+    expect(@body).to.have.element('div > form')
+    expect(@body).to.have.element('div > article')
+
+  it 'can return a renderered Serenade view', ->
+    Serenade.Helpers.funky = ->
+      Serenade.view("""
+        #foo
+          #bar
+        #baz
+      """).render()
+
+    @render '''
+      div
+        - funky
+    '''
+
+    expect(@body).to.have.element('div > #foo > #bar')
+    expect(@body).to.have.element('div > #baz')
+
   it 'can return undefined', ->
     Serenade.Helpers.funky = -> undefined
     @render '''
@@ -107,6 +138,18 @@ describe 'Custom helpers', ->
     expect(@body).to.have.element('div > form#product')
     expect(@body).to.have.element('div > article#banana')
 
+  it "doesn't fail when called from a collection", ->
+    Serenade.Helpers.test = ->
+      Serenade.document.createElement("span")
+    model =
+      col: [1, 2]
+    @render '''
+      div
+        - collection @col
+          - test
+    ''', model
+    expect(@body).to.have.element('div > span')
+
   describe 'with block argument', ->
     it 'renders the block contents into an element', ->
       Serenade.Helpers.form = ->
@@ -185,18 +228,7 @@ describe 'Custom helpers', ->
       expect(@body).to.have.element('div > form > div#jonas')
       expect(@body).to.have.element('div > form > div#peter')
 
-    it "doesn't fail when called from a collection", ->
-      Serenade.Helpers.test = ->
-        Serenade.document.createElement("span")
-      model =
-        col: [1, 2]
-      @render '''
-        div
-          - collection @col
-            - test
-      ''', model
-      expect(@body).to.have.element('div > span')
-
+  describe 'with bound argument', ->
     it "binds to a model attribute", ->
       model = Serenade(name: "Jonas")
       Serenade.Helpers.upcase = (value) -> Serenade.document.createTextNode(value.toUpperCase())
@@ -220,3 +252,25 @@ describe 'Custom helpers', ->
       expect(@body).to.have.text("NICKLAS, ANNIKA")
       model.lastName = "Lüchow"
       expect(@body).to.have.text("LÜCHOW, ANNIKA")
+
+    it "update a rendered Serenade view", ->
+      model = Serenade(id: "test")
+      Serenade.Helpers.funky = (id) ->
+        Serenade.view("""
+          #foo
+          div[id=@id]
+        """).render(id: id)
+
+      @render '''
+        div
+          - funky @id
+      ''', model
+
+      expect(@body).to.have.element('div > #foo')
+      expect(@body).to.have.element('div > #test')
+
+      model.id = "quox"
+
+      expect(@body).to.have.element('div > #foo')
+      expect(@body).to.have.element('div > #quox')
+      expect(@body).not.to.have.element('div > #test')
