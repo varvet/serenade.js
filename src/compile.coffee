@@ -204,7 +204,7 @@ normalize = (val) ->
       div.innerHTML = element
       aggregate.push(child) for child in div.children
     else if element.nodeName is "#document-fragment"
-      aggregate.push(child) for child in element.children
+      aggregate.push(child) for child in element.childNodes
     else
       aggregate.push(element)
     aggregate
