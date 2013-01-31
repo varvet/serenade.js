@@ -93,10 +93,10 @@ class PropertyAccessor
     changes = {}
     changes[name] = @object[name] for name in names
     @object.changed?.trigger?(changes)
-    triggerGlobal(@object, names)
     for own name, value of changes
       @object[name + "_property"].clearCache()
       @object[name + "_property"].event.trigger(value)
+    triggerGlobal(@object, names)
 
   bind: (fun) ->
     @event.bind(fun)

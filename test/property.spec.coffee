@@ -228,6 +228,18 @@ describe 'Serenade.defineProperty', ->
       @object.hitCount_property.trigger()
       expect(@object.result).to.eql(2)
 
+    it "resets cache before attached global events are fired", ->
+      @object.foo = { _hitCount: 0 }
+      defineProperty @object.foo, "hitCount", cache: true, get: -> ++@_hitCount
+      defineProperty @object, "hitCount", dependsOn: "foo.hitCount", get: -> @foo.hitCount
+      @object.hitCount_property.bind -> @result = @hitCount
+
+      expect(@object.hitCount).to.eql(1)
+      expect(@object.hitCount).to.eql(1)
+
+      @object.foo.hitCount_property.trigger()
+      expect(@object.result).to.eql(2)
+
   describe "with `async` option", ->
     it "dispatches a change event for this property asynchronously", (done) ->
       defineProperty @object, "foo", async: true
