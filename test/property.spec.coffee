@@ -196,6 +196,38 @@ describe 'Serenade.defineProperty', ->
       defineProperty @object, 'name', value: "bar", get: -> "foo"
       expect(@object.name).to.eql("foo")
 
+  describe "with `cache` option", ->
+    it "returns values from cache", ->
+      hitCount = 0
+      defineProperty @object, "name", cache: true, get: -> hitCount++; "Jonas"
+
+      expect(@object.name).to.eql("Jonas")
+      expect(@object.name).to.eql("Jonas")
+      expect(hitCount).to.eql(1)
+
+    it "resets cache when change event triggered", ->
+      hitCount = 0
+      defineProperty @object, "name", cache: true, get: -> hitCount++; "Jonas"
+
+      expect(@object.name).to.eql("Jonas")
+      expect(@object.name).to.eql("Jonas")
+      expect(hitCount).to.eql(1)
+      @object.name_property.trigger()
+      expect(@object.name).to.eql("Jonas")
+      expect(@object.name).to.eql("Jonas")
+      expect(hitCount).to.eql(2)
+
+    it "resets cache before attached events are fired", ->
+      @object._hitCount = 0
+      defineProperty @object, "hitCount", cache: true, get: -> ++@_hitCount
+      @object.hitCount_property.bind -> @result = @hitCount
+
+      expect(@object.hitCount).to.eql(1)
+      expect(@object.hitCount).to.eql(1)
+
+      @object.hitCount_property.trigger()
+      expect(@object.result).to.eql(2)
+
   describe "with `async` option", ->
     it "dispatches a change event for this property asynchronously", (done) ->
       defineProperty @object, "foo", async: true

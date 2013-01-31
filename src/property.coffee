@@ -62,11 +62,12 @@ class PropertyAccessor
 
   get: ->
     @registerGlobal()
-    if @definition.get
+    if @definition.get and not (@definition.cache and @valueName of @object)
       # add a listener which adds any dependencies that haven't been specified
       listener = (name) => @definition.addDependency(name)
       @object._s_property_access.bind(listener) unless "dependsOn" of @definition
       value = @definition.get.call(@object)
+      def @object, @valueName, value: value, configurable: true if @definition.cache
       @object._s_property_access.unbind(listener) unless "dependsOn" of @definition
     else
       value = @object[@valueName]
@@ -94,6 +95,7 @@ class PropertyAccessor
     @object.changed?.trigger?(changes)
     triggerGlobal(@object, names)
     for own name, value of changes
+      @object[name + "_property"].clearCache()
       @object[name + "_property"].event.trigger(value)
 
   bind: (fun) ->
@@ -118,6 +120,10 @@ class PropertyAccessor
 
   def @prototype, "listeners", get: ->
     @event.listeners
+
+  clearCache: ->
+    if @definition.cache and @definition.get
+      delete @object[@valueName]
 
 defineProperty = (object, name, options={}) ->
   definition = new PropertyDefinition(name, options)
