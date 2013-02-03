@@ -131,16 +131,16 @@ ol.index ol.items {
   margin-top: 1em;
 }
 
-.reference h2 {
+.reference #content h2 {
   margin: 1.3em 0 0.3em;
   padding: 0;
 }
 
-.reference h2 + h3{
+.reference #content h2 + h3{
   border-top: none
 }
 
-.reference h3 {
+.reference #content h3 {
   border-top: 1px solid #eee;
   font-family: monospace;
   font-size: 14px;
@@ -149,17 +149,17 @@ ol.index ol.items {
   line-height: 1em;
 }
 
-.reference h4 {
+.reference #content h4 {
   font-size: 14px;
   font-family: monospace;
   margin-left: 30px;
 }
 
-.reference h4 + p {
+.reference #content h4 + p {
   margin-left: 30px;
 }
 
-.reference p {
+.reference #content p {
   font-size: 14px;
   margin: 0.3em 0;
 }
@@ -173,4 +173,3 @@ table.downloads td, table.downloads th {
   padding: 8px 10px 8px 0;
   border-top: 1px solid #ddd;
 }
-
