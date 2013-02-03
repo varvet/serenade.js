@@ -130,3 +130,21 @@ ol.index > li:first-child {
 ol.index ol.items {
   margin-top: 1em;
 }
+
+.reference h2 {
+  margin: 1.3em 0 0.3em;
+  padding: 0;
+}
+
+.reference h3 {
+  font-family: monospace;
+  font-size: 14px;
+  margin: 1.3em 0 0.3em;
+  padding: 0;
+  line-height: 1em;
+}
+
+.reference p {
+  font-size: 14px;
+  margin: 0.3em 0;
+}

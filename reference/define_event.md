@@ -34,24 +34,24 @@ Serenade.defineEvent(object, name, options)
 
 ## Options
 
-### `bind: function(fn)`
+### bind: function(fn)
 
 Takes a function which is called whenever a new listener is attached to this
 event. Takes the listener function as an argument.
 
-### `unbind: function(fn)`
+### unbind: function(fn)
 
 Takes a function which is called whenever a listener is detached from this
 event. Takes the listener function as an argument.
 
-### `async: true|false`
+### async: true|false
 
 When this option is `false` and `trigger` is called, all listeners attached to
 the event are executed immediately, and `trigger` blocks until this execution
 is finished. If the option is `true` then `trigger` returns immediately and is
 executed asynchronously.
 
-### `optimize: function(queue) { return args }`
+### optimize: function(queue) { return args }
 
 When an event is triggered and the `async` option is `true`, it is pushed onto
 a queue, this queue is an array of arrays, where each item in the array contains
@@ -85,43 +85,43 @@ Eventually, a single log message "foobar" will appear in the log.
 
 ## Methods
 
-### `bind(function(args...))`
+### bind(function(args...))
 
 Attach a function as a listener to this event, it will be triggered when
 `trigger` is called and given whatever arguments were passed to `trigger`.
 
-### `unbind(function(args...))`
+### unbind(function(args...))
 
 Detach a function from this event, it will no longer be called when `trigger`
 is called.
 
-### `trigger(args...)`
+### trigger(args...)
 
 Trigger this event. Will loop through all listeners attached via `bind` or
 `one` and call them, passing in the given arguments. Listeners are called in
 the context of the object the event is attached to, so `this` points to the
 object within the callback function.
 
-### `one(function(args...))`
+### one(function(args...))
 
 Attach a function as a listener to this event, the next time that `trigger` is
 called, the listener function is called and given whatever arguments were
 passed to `trigger`. After that, the function is detached from the event, and
 will no longer be called when `trigger` is called.
 
-### `resolve()`
+### resolve()
 
 When the event is asynchronous and has accumulated a queue of events, `resolve`
 immediately optimizes and executed that queue. `resolve` is synchronous and
 will block until all attached listeners have executed.
 
-### `queue`
+### queue
 
 Returns the current queue of invocations. An array of arrays, where each item
 is a list of arguments previously passed to `trigger`. Only relevant for
 asynchronous events.
 
-### `listeners`
+### listeners
 
 Returns an array of all functions currently attached as listeners to this
 event.
