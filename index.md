@@ -23,13 +23,8 @@ You can integrate Serenade into Ruby on Rails through the
 
 ## Simple
 
-Ever wished you didn't need to create several "classes" or intialize half a
-dozen components just to get your framework running? Get started in a single
-line:
-
-``` javascript
-document.body.appendChild(Serenade.view('h1 "Hello world"').render())
-```
+Get started in a single line of code. No need to create complicated graphs of
+objects, just start working.
 
 ## Plays nice
 
@@ -49,7 +44,6 @@ Serenade is just 11k gzipped.
 
 Serenade has absolutely zero dependencies. No jQuery, no special adapters, no
 nothing. Just drop a single JS file into your app and start working.
-
 
 **Need help?** Ask your question on our
 [mailing list](http://groups.google.com/group/serenadejs).
