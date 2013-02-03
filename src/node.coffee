@@ -16,7 +16,7 @@ class Node
     @unbindEvents()
     @element.parentNode?.removeChild(@element)
 
-  lastElement: ->
+  def @prototype, "lastElement", configurable: true, get: ->
     @element
 
   nodes: ->

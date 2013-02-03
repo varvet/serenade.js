@@ -14,7 +14,7 @@ class DynamicNode extends Node
       last = @anchor
       for node in @nodes()
         node.insertAfter(last)
-        last = node.lastElement()
+        last = node.lastElement
 
   replace: (sets) ->
     @clear()
@@ -29,10 +29,10 @@ class DynamicNode extends Node
     @nodeSets.deleteAt(index)
 
   insertNodeSet: (index, nodes) ->
-    last = @nodeSets[index-1]?.last()?.lastElement() or @anchor
+    last = @nodeSets[index-1]?.last?.lastElement or @anchor
     for node in nodes
       node.insertAfter(last)
-      last = node.lastElement()
+      last = node.lastElement
     @nodeSets.insertAt(index, new Collection(nodes))
 
   clear: ->
@@ -52,5 +52,5 @@ class DynamicNode extends Node
     after.parentNode.insertBefore(@anchor, after.nextSibling)
     @rebuild()
 
-  lastElement: ->
-    @nodeSets.last()?.last()?.lastElement() or @anchor
+  def @prototype, "lastElement", configurable: true, get: ->
+    @nodeSets.last?.last?.lastElement or @anchor

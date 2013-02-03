@@ -385,8 +385,8 @@ describe 'Serenade.Collection', ->
 
   describe "#first", ->
     it "returns the first element", ->
-      expect(@collection.first()).to.eql("a")
+      expect(@collection.first).to.eql("a")
 
   describe "#last", ->
     it "returns the last element", ->
-      expect(@collection.last()).to.eql("c")
+      expect(@collection.last).to.eql("c")

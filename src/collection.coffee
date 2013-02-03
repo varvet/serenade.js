@@ -59,10 +59,10 @@ class Collection
     index = @indexOf(item)
     @deleteAt(index) if index isnt -1
 
-  first: ->
+  def @prototype, "first", get: ->
     @[0]
 
-  last: ->
+  def @prototype, "last", get: ->
     @[@length-1]
 
   toArray: ->
