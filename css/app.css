@@ -163,3 +163,14 @@ ol.index ol.items {
   font-size: 14px;
   margin: 0.3em 0;
 }
+
+table.downloads {
+  width: 100%;
+}
+
+table.downloads td, table.downloads th {
+  text-align: left;
+  padding: 8px 10px 8px 0;
+  border-top: 1px solid #ddd;
+}
+

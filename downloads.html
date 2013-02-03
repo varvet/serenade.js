@@ -2,3 +2,19 @@
 layout: default
 title: Downloads
 ---
+
+<table class="downloads">
+  <tr>
+    <th>{{ site.version }}</th>
+    <td><a href="http://serenade-downloads.s3-website-us-east-1.amazonaws.com/serenade.{{ site.version }}.js">Development</a></td>
+    <td><a href="http://serenade-downloads.s3-website-us-east-1.amazonaws.com/serenade.{{ site.version }}.min.js.gz">Production (minified+gzipped)</a></td>
+  </tr>
+
+  {% for version in site.oldVersions %}
+    <tr>
+      <th>{{ version }}</th>
+      <td><a href="http://serenade-downloads.s3-website-us-east-1.amazonaws.com/serenade.{{ version }}.js">Development</a></td>
+      <td><a href="http://serenade-downloads.s3-website-us-east-1.amazonaws.com/serenade.{{ version }}.min.js.gz">Production (minified+gzipped)</a></td>
+    </tr>
+  {% endfor %}
+</table>
