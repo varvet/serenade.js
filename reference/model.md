@@ -10,7 +10,7 @@ Serenade.Model not only provides a few methods to instances derived from it,
 but it also provides powerful macros which can be used to define how instances
 behave.
 
-The most important is `@property`:
+The most important is `property`:
 
 ``` javascript
 var Person = Serenade.Model.extend();
