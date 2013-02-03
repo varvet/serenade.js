@@ -12,15 +12,6 @@ with.
 
 <div class="examples"></div>
 
-## Download
-
-[Download](http://serenade-downloads.s3-website-us-east-1.amazonaws.com/serenade.0.4.0.min.js.gz)
-
-[(development version)](http://serenade-downloads.s3-website-us-east-1.amazonaws.com/serenade.0.4.0.js)
-
-You can integrate Serenade into Ruby on Rails through the
-[serenade.rb](https://github.com/elabs/serenade.rb) gem.
-
 ## Simple
 
 Get started in a single line of code. No need to create complicated graphs of
