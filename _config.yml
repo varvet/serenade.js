@@ -23,3 +23,7 @@ reference:
     url: "/reference/model.html"
   - title: "Serenade.Collection"
     url: "/reference/collection.html"
+latestVersion:
+  - 0.4.0
+oldVersions:
+  - 0.3.0
