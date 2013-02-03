@@ -115,3 +115,10 @@ describe 'Memory management', ->
     model.toggle = false
     expect(Serenade.document.removeEventListener.calledWith("submit")).to.be.ok
 
+  it 'does not leak bindings when a view is properly disposed', ->
+    model = Serenade(leaking: "foobar")
+    view = Serenade.view("h1 @leaking").compile(model)
+    @body.appendChild(view.fragment)
+    view.remove()
+    expect(@body).not.to.have.element("h1")
+    expect(model.leaking_property.listeners.length).to.eql(0)
