@@ -1,9 +1,6 @@
 idCounter = 1
 
 class Model
-  @belongsTo: -> @prototype.belongsTo(arguments...)
-  @hasMany: -> @prototype.hasMany(arguments...)
-
   @identityMap: true
 
   @find: (id) -> Cache.get(this, id) or new this(id: id)
