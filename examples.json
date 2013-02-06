@@ -5,16 +5,33 @@
     "js": "/examples/hello.js"
   },
   {
+    "name": "view",
+    "label": "Extracting views",
+    "js": "/examples/view.js",
+    "views": { "hello": "/examples/view.serenade" }
+  },
+  {
+    "name": "data",
+    "label": "Showing data",
+    "js": "/examples/data.js",
+    "views": { "hello": "/examples/data.serenade" }
+  },
+  {
+    "name": "action",
+    "label": "Binding an event",
+    "js": "/examples/action.js",
+    "views": { "greet": "/examples/action.serenade" }
+  },
+  {
     "name": "counter",
     "label": "Counter",
     "js": "/examples/counter.js",
-    "views": {
-      "counter": "/examples/counter.serenade"
-    }
+    "views": { "counter": "/examples/counter.serenade" }
   },
   {
     "name": "color",
     "label": "Color picker",
-    "js": "/examples/color.js"
+    "js": "/examples/color.js",
+    "views": { "color": "/examples/color.serenade" }
   }
 ]

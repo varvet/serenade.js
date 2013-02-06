@@ -1,0 +1,2 @@
+// Events are bound right inside your views!
+button[event:click=greet] "Say hello"

@@ -1,0 +1,5 @@
+// In this example we've extracted the view and made it separate
+// try changing the view and seeing it update below!
+#greeting
+  h1 "Hello world"
+  p "This is an example how you can nest elements in views"

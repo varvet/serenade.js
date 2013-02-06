@@ -83,7 +83,7 @@
 
 .examples .error {
   position: absolute;
-  top: 80px;
+  top: 50px;
   left: 20px;
   right: 20px;
   color: #c00;
@@ -93,6 +93,7 @@
 .examples .preview iframe {
   border: none;
   width: 100%;
+  min-height: 60px;
 }
 
 .ace_editor {

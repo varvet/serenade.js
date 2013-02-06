@@ -1,3 +1,5 @@
+// Let's puss it all together!
+// Press the `+` button to increment the counter.
 var counter = Serenade({ current: 0 });
 var controller = {
   increment: function() {

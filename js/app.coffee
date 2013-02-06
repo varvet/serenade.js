@@ -28,6 +28,7 @@ class Editor
     @ace.setHighlightGutterLine(false)
     @ace.setShowPrintMargin(false)
     @ace.getSession().setMode("ace/mode/javascript") if @mode is "javascript"
+    @ace.getSession().setMode("ace/mode/serenade") if @mode is "view"
     @ace.on("change", => @change.trigger())
     @change.bind => @updateHeight()
     @updateHeight()
