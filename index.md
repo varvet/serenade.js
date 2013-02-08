@@ -3,7 +3,7 @@ layout: default
 title: Serenade.js
 ---
 
-## Leverage a simple, yet powerful framework to accelerate your front end development.
+## Serenede.js is a light and compact client-side framework for building living, breathing web pages
 
 Serenade.js is a client side framework built on the MVC pattern. It makes it
 simple to create rich client side applications by freeing you from having to
