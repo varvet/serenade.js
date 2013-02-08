@@ -257,11 +257,9 @@ describe 'Serenade.defineProperty', ->
       expect(=> @object.num).to.become(12, done)
 
   describe "when Serenade.async is true", ->
-    beforeEach ->
-      Serenade.async = true
-
     it "dispatches change event asynchronously", (done) ->
       defineProperty @object, "foo"
+      Serenade.async = true
       @object.foo_property.bind -> @result = true
       @object.foo = 23
       expect(@object.result).not.to.be.ok
@@ -269,6 +267,7 @@ describe 'Serenade.defineProperty', ->
 
     it "stays asynchronous when async option is true", (done) ->
       defineProperty @object, "foo", async: true
+      Serenade.async = true
       @object.foo_property.bind -> @result = true
       @object.foo = 23
       expect(@object.result).not.to.be.ok
@@ -276,6 +275,7 @@ describe 'Serenade.defineProperty', ->
 
     it "can be made synchronous", ->
       defineProperty @object, "foo", async: false
+      Serenade.async = true
       @object.foo_property.bind -> @result = true
       @object.foo = 23
       expect(@object.result).to.be.ok

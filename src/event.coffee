@@ -3,7 +3,8 @@ class Event
     @prop = "_s_#{@name}_listeners"
     @queueName = "_s_#{name}_queue"
 
-    @async = if "async" of @options then @options.async else settings.async
+  def @prototype, "async", get: ->
+    if "async" of @options then @options.async else settings.async
 
   trigger: (args...) ->
     @queue.push(args)

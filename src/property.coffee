@@ -22,12 +22,11 @@ class PropertyDefinition
     if @dependsOn
       @addDependency(name) for name in [].concat(@dependsOn)
 
-    @async = if "async" of options then options.async else settings.async
-
-    @eventOptions =
-      async: @async
-      bind: -> @[name] # make sure dependencies have been discovered and registered
-      optimize: (queue) -> queue[queue.length - 1]
+  def @prototype, "eventOptions", get: ->
+    name = @name
+    async: if @async? then @async else settings.async
+    bind: -> @[name] # make sure dependencies have been discovered and registered
+    optimize: (queue) -> queue[queue.length - 1]
 
   addDependency: (name) ->
     if @dependencies.indexOf(name) is -1
