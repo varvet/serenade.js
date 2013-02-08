@@ -119,6 +119,15 @@ describe 'Serenade.defineProperty', ->
       @object.last = 'Pan'
       expect(=> @object.first = "Peter").not.to.triggerEvent(@object.fullName_property)
 
+    it 'does not bind to dependencies when false given', ->
+      defineProperty @object, 'first'
+      defineProperty @object, 'last'
+      defineProperty @object, 'fullName',
+        get: -> @first + " " + @last
+        dependsOn: false
+      @object.last = 'Pan'
+      expect(=> @object.first = "Peter").not.to.triggerEvent(@object.fullName_property)
+
     it 'automatically discovers dependencies with the same object', ->
       defineProperty @object, 'first'
       defineProperty @object, 'last'
