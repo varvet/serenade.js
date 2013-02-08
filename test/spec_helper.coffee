@@ -49,7 +49,7 @@ beforeEach ->
     actual = @obj.textContent.trim().replace(/\s/g, ' ')
     @assert actual is text, "expected #{actual} to be #{text}"
   chai.Assertion::attribute = (name) ->
-    @assert @obj.hasAttribute(name)
+    @assert @obj.hasAttribute(name), "expected #{@obj} to have attribute #{name}"
   chai.Assertion::triggerEvent = (event, options={}) ->
     args = null
     count = 0
@@ -61,7 +61,7 @@ beforeEach ->
     @obj()
     event.unbind fun
 
-    @assert count is 1, "event #{event.name} was triggered #{count} times, expected 1"
+    @assert count is 1, "event #{event.name} was triggered #{count} times, expected 1", "event #{event.name} should not have been triggered"
     if options.with
       @assert compareArrays(args, options.with), "event arguments #{args} do not match expected arguments #{options.with}"
   chai.Assertion::become = (value, done) ->
