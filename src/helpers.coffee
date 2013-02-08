@@ -11,6 +11,9 @@ extend = (target, source, enumerable=true) ->
       def target, key, value: value, configurable: true
   target
 
+assignUnlessEqual = (object, prop, value) ->
+  object[prop] = value unless object[prop] is value
+
 merge = (target, source, enumerable=true) ->
   extend(extend({}, target, enumerable), source, enumerable)
 

@@ -40,7 +40,8 @@ class Node
     classes = @ast.classes
     classes = classes.concat(@attributeClasses) if @attributeClasses
     classes = classes.concat(@boundClasses.toArray()) if @boundClasses.length
+    classes.sort()
     if classes.length
-      @element.className = classes.join(' ')
+      assignUnlessEqual(@element, "className", classes.join(' '))
     else
       @element.removeAttribute("class")

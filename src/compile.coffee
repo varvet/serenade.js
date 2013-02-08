@@ -9,7 +9,7 @@ getValue = (ast, model) ->
 Property =
   style: (ast, node, model, controller) ->
     update = ->
-      node.element.style[ast.name] = getValue(ast, model)
+      assignUnlessEqual(node.element.style, ast.name, getValue(ast, model))
     update()
     node.bindEvent(model["#{ast.value}_property"], update) if ast.bound
 
@@ -49,7 +49,7 @@ Property =
         element.checked = true if val is element.getAttribute("value")
       else
         val = "" if val == undefined
-        element.value = val unless element.value is val
+        assignUnlessEqual(element, "value", val)
 
     modelUpdated()
     node.bindEvent(model["#{ast.value}_property"], modelUpdated)
@@ -67,17 +67,18 @@ Property =
     update = ->
       value = getValue(ast, model)
       if ast.name is 'value'
-        element.value = value or ''
+        assignUnlessEqual(element, "value", value or '')
       else if node.ast.name is 'input' and ast.name is 'checked'
-        element.checked = !!value
+        assignUnlessEqual(element, "checked", !!value)
       else if ast.name is 'class'
         node.attributeClasses = value
         node.updateClass()
       else if value is undefined
-        element.removeAttribute(ast.name)
+        element.removeAttribute(ast.name) if element.hasAttribute(ast.name)
       else
         value = "0" if value is 0
-        element.setAttribute(ast.name, value)
+        unless element.getAttribute(ast.name) is value
+          element.setAttribute(ast.name, value)
 
     node.bindEvent(model["#{ast.value}_property"], update) if ast.bound
     update()
@@ -146,7 +147,7 @@ Compile =
       value or ""
     textNode = Serenade.document.createTextNode(getText())
     node = new Node(ast, textNode)
-    node.bindEvent(model["#{ast.value}_property"], -> textNode.nodeValue = getText()) if ast.bound
+    node.bindEvent(model["#{ast.value}_property"], -> assignUnlessEqual(textNode, "nodeValue", getText())) if ast.bound
     node
 
   collection: (ast, model, controller) ->
