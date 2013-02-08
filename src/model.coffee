@@ -97,9 +97,10 @@ class Model
       dependsOn: name
 
   @selection: (name, options={}) ->
-    @property name,
+    propOptions = merge options,
       get: -> @[options.from].filter((item) -> item[options.filter])
       dependsOn: "#{options.from}:#{options.filter}"
+    @property name, propOptions
     @property name + 'Count',
       get: -> @[name].length
       dependsOn: name

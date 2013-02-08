@@ -8,7 +8,7 @@ describe "Sereande.Model.selection", ->
       @hasMany "comments", as: -> Comment
 
       @selection "publishedComments", from: "comments", filter: "isPublished"
-      @selection "deletedComments", from: "comments", filter: "deleted"
+      @selection "deletedComments", from: "comments", filter: "deleted", serialize: true
 
     @comment1 = new Comment(isPublished: true, deleted: true)
     @comment2 = new Comment(isPublished: true, deleted: false)
@@ -19,6 +19,9 @@ describe "Sereande.Model.selection", ->
   it "filters an existing collection", ->
     expect(@post.publishedComments.toArray()).to.eql([@comment1, @comment2])
     expect(@post.deletedComments.toArray()).to.eql([@comment1, @comment3])
+
+  it "allows other options to be forwarded", ->
+    expect(@post.toJSON().deletedComments).to.be.ok
 
   it "updates selection when collection is updated", ->
     expect(=> @post.comments.push({})).to.triggerEvent(@post.publishedComments_property)
