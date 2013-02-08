@@ -174,3 +174,24 @@ table.downloads td, table.downloads th {
   padding: 8px 10px 8px 0;
   border-top: 1px solid #ddd;
 }
+
+#content .usps {
+  margin: 0;
+  list-style: none;
+  overflow: hidden;
+}
+
+#content .usps li {
+  float: left;
+  width: 50%;
+  padding: 5px 20px 5px 0;
+  border-top: 1px solid #ccc;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+}
+
+#content .usps li:nth-child(2n+1) {
+  clear: both;
+}
+
