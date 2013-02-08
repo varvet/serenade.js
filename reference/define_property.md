@@ -89,14 +89,23 @@ triggered asynchronously. This has the advantage that Serenade can optimize
 multiple updates to the same property into triggering only a single change
 event.
 
+If this option is not given, the value is taken from `Serenade.async`.
+
 ### changed: true|false|function(old, new) { return Boolean }
 
 This property controls when change events are triggered for a given property.
 If the option is set to `false` change events are never triggered for this
-property. The default is `true` which always triggers a change event. If a
-function is given the function receives the value of the property the last time
-a change event was triggered, as well as the current value. If the function
-returns a truthy value, the change event will be triggered.
+property. The default is `true` which always triggers a change event.
+
+If a function is given, the function receives the value of the property the
+last time a change event was triggered, as well as the current value. If the
+function returns a truthy value, the change event will be triggered.
+
+### cache: true|false
+
+When `true` and the `get` option is given, the value of the property is cached.
+This is useful if the computation done by `get` is expensive. The cache is
+expired whenever a change event for this property is triggered.
 
 ## The property accessor
 

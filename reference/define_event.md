@@ -51,6 +51,8 @@ the event are executed immediately, and `trigger` blocks until this execution
 is finished. If the option is `true` then `trigger` returns immediately and is
 executed asynchronously.
 
+If this option is not given, the value is taken from `Serenade.async`.
+
 ### optimize: function(queue) { return args }
 
 When an event is triggered and the `async` option is `true`, it is pushed onto
