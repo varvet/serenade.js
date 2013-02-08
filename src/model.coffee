@@ -21,9 +21,6 @@ class Model
   @event: (name, options) ->
     defineEvent(@prototype, name, options)
 
-  @properties: (names...) ->
-    @property(name) for name in names
-
   @delegate: (names..., options) ->
     to = options.to
     names.forEach (name) =>
@@ -36,13 +33,14 @@ class Model
         propName = propName + capitalize(to)
       else if options.suffix
         propName = propName + options.suffix
-      @property propName,
-        dependsOn: "#{to}.#{name}",
+      propOptions = merge options,
+        dependsOn: options.dependsOn or "#{to}.#{name}"
         get: -> @[to]?[name]
         set: (value) -> @[to]?[name] = value
+      @property propName, propOptions
 
   @collection: (name, options={}) ->
-    extend options,
+    propOptions = merge options,
       get: ->
         valueName = "_s_#{name}_val"
         unless @[valueName]
@@ -52,48 +50,48 @@ class Model
         @[valueName]
       set: (value) ->
         @[name].update(value)
-    @property name, options
+    @property name, propOptions
     @property name + 'Count',
       get: -> @[name].length
       dependsOn: name
 
-  @belongsTo: (name, attributes={}) ->
-    extend attributes,
+  @belongsTo: (name, options={}) ->
+    propOptions = merge options,
       set: (model) ->
         valueName = "_s_#{name}_val"
-        if model and model.constructor is Object and attributes.as
-          model = new (attributes.as())(model)
+        if model and model.constructor is Object and options.as
+          model = new (options.as())(model)
         previous = @[valueName]
         @[valueName] = model
-        if attributes.inverseOf and not model[attributes.inverseOf].includes(this)
-          previous[attributes.inverseOf].delete(this) if previous
-          model[attributes.inverseOf].push(this)
-    @property name, attributes
+        if options.inverseOf and not model[options.inverseOf].includes(this)
+          previous[options.inverseOf].delete(this) if previous
+          model[options.inverseOf].push(this)
+    @property name, propOptions
     @property name + 'Id',
       get: -> @[name]?.id
-      set: (id) -> @[name] = attributes.as().find(id) if id?
+      set: (id) -> @[name] = options.as().find(id) if id?
       dependsOn: name
-      serialize: attributes.serializeId
+      serialize: options.serializeId
 
-  @hasMany: (name, attributes={}) ->
-    extend attributes,
+  @hasMany: (name, options={}) ->
+    propOptions = merge options,
       get: ->
         valueName = "_s_#{name}_val"
         unless @[valueName]
-          @[valueName] = new AssociationCollection(this, attributes, [])
+          @[valueName] = new AssociationCollection(this, options, [])
           @[valueName].change.bind =>
             @[name + "_property"].trigger()
         @[valueName]
       set: (value) ->
         @[name].update(value)
-    @property name, attributes
+    @property name, propOptions
     @property name + 'Ids',
       get: -> new Collection(@[name]).map((item) -> item?.id)
       set: (ids) ->
-        objects = (attributes.as().find(id) for id in ids)
+        objects = (options.as().find(id) for id in ids)
         @[name].update(objects)
       dependsOn: name
-      serialize: attributes.serializeIds
+      serialize: options.serializeIds
     @property name + 'Count',
       get: -> @[name].length
       dependsOn: name

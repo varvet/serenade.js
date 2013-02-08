@@ -9,6 +9,10 @@ extend = (target, source, enumerable=true) ->
       target[key] = value
     else
       def target, key, value: value, configurable: true
+  target
+
+merge = (target, source, enumerable=true) ->
+  extend(extend({}, target, enumerable), source, enumerable)
 
 format = (model, key) ->
   if model[key + "_property"]

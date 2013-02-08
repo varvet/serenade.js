@@ -8,6 +8,12 @@ describe "Serenade.Model.delegate", ->
     expect(post.name).to.eql("Jonas")
     expect(post.email).to.eql("jonas@elabs.se")
 
+  it "forwards other options", ->
+    class Post extends Serenade.Model
+      @delegate "name", "email", to: "author", serialize: true
+    post = new Post(author: { name: "Jonas", email: "jonas@elabs.se" })
+    expect(post.toJSON().name).to.eql("Jonas")
+
   it "assigns value to delegated object when given", ->
     class Post extends Serenade.Model
       @delegate "name", "email", to: "author"
@@ -34,10 +40,15 @@ describe "Serenade.Model.delegate", ->
     class Post extends Serenade.Model
       @delegate "name", "email", to: "author"
     post = new Post(author: author)
-    post.name
-    post.email
     expect(-> author.name = "peter").to.triggerEvent(post.name_property, with: ["peter"])
     expect(-> author.email = "peter@elabs.se").to.triggerEvent(post.email_property, with: ["peter@elabs.se"])
+
+  it "allows dependencies to be overwritten", ->
+    author = new Serenade.Model(name: "Jonas", email: "jonas@elabs.se")
+    class Post extends Serenade.Model
+      @delegate "name", "email", to: "author", dependsOn: []
+    post = new Post(author: author)
+    expect(-> author.name = "peter").not.to.triggerEvent(post.name_property)
 
   it "can set prefix", ->
     author = new Serenade.Model(name: "Jonas", email: "jonas@elabs.se")
