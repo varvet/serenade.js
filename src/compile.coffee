@@ -190,9 +190,11 @@ Compile =
 
   bound: (ast, model, controller, callback) ->
     dynamic = new DynamicNode(ast)
+    lastValue = {}
     update = ->
       value = model[ast.argument]
-      callback(dynamic, value)
+      callback(dynamic, value) unless value is lastValue
+      lastValue = value
     update()
     dynamic.bindEvent(model["#{ast.argument}_property"], update)
     dynamic
