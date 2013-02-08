@@ -249,6 +249,40 @@ describe 'Serenade.defineProperty', ->
       @object.foo.hitCount_property.trigger()
       expect(@object.result).to.eql(2)
 
+  describe "with `changed` option", ->
+    it "triggers a change event if changed option evaluates to true", ->
+      defineProperty @object, "name", changed: (oldVal, newVal) -> oldVal isnt newVal
+
+      expect(=> @object.name = "jonas").to.triggerEvent(@object.name_property)
+      expect(=> @object.name = "jonas").not.to.triggerEvent(@object.name_property)
+      expect(=> @object.name = "kim").to.triggerEvent(@object.name_property)
+
+    it "does not trigger dependencies when not changed", ->
+      defineProperty @object, "name", changed: (oldVal, newVal) -> oldVal isnt newVal
+      defineProperty @object, "bigName", dependsOn: "name", get: -> @name?.toUpperCase()
+
+      expect(=> @object.name = "jonas").to.triggerEvent(@object.bigName_property)
+      expect(=> @object.name = "jonas").not.to.triggerEvent(@object.bigName_property)
+      expect(=> @object.name = "kim").to.triggerEvent(@object.bigName_property)
+
+    it "does not trigger when computed property has not changed", ->
+      defineProperty @object, "name"
+      defineProperty @object, "bigName",
+        dependsOn: "name"
+        get: -> @name?.toUpperCase()
+        changed: (oldVal, newVal) -> oldVal isnt newVal
+
+      expect(=> @object.name = "jonas").to.triggerEvent(@object.bigName_property)
+      expect(=> @object.name = "jonas").not.to.triggerEvent(@object.bigName_property)
+      expect(=> @object.name = "kim").to.triggerEvent(@object.bigName_property)
+
+    it "never triggers a change event when option is false", ->
+      defineProperty @object, "name", changed: false
+
+      expect(=> @object.name = "jonas").not.to.triggerEvent(@object.name_property)
+      expect(=> @object.name = "jonas").not.to.triggerEvent(@object.name_property)
+      expect(=> @object.name = "kim").not.to.triggerEvent(@object.name_property)
+
   describe "with `async` option", ->
     it "dispatches a change event for this property asynchronously", (done) ->
       defineProperty @object, "foo", async: true

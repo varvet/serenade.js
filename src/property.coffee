@@ -53,6 +53,7 @@ class PropertyAccessor
     if typeof(value) is "function"
       @definition.get = value
     else
+      val = @get() if @definition.changed
       if @definition.set
         @definition.set.call(@object, value)
       else
@@ -88,14 +89,23 @@ class PropertyAccessor
         globalDependencies[subname].push({ @object, subname, name, type, dependency: @name })
 
   trigger: ->
-    names = [@name].concat(@dependents)
-    changes = {}
-    changes[name] = @object[name] for name in names
-    @object.changed?.trigger?(changes)
-    for own name, value of changes
-      @object[name + "_property"].clearCache()
-      @object[name + "_property"].event.trigger(value)
-    triggerGlobal(@object, names)
+    @clearCache()
+    if @hasChanged()
+      value = @get()
+
+      changes = {}
+      changes[name] = @object[name] for name in @dependents when name isnt @name
+
+      @event.trigger(value)
+      for own name, value of changes
+        prop = @object[name + "_property"]
+        prop.clearCache()
+        prop.event.trigger(value) if prop.hasChanged()
+
+      changes[@name] = value
+      @object.changed?.trigger?(changes)
+
+      triggerGlobal(@object, Object.keys(changes))
 
   bind: (fun) ->
     @event.bind(fun)
@@ -123,6 +133,21 @@ class PropertyAccessor
   clearCache: ->
     if @definition.cache and @definition.get
       delete @object._s[@valueName]
+
+  hasChanged: ->
+    if @definition.changed is false
+      false
+    else if @definition.changed
+      value = @get()
+      oldValueName = "old_val_" + @name
+      changed = if @object._s.hasOwnProperty(oldValueName)
+        @definition.changed.call(@object, @object._s[oldValueName], value)
+      else
+        true
+      @object._s[oldValueName] = value
+      changed
+    else
+      true
 
 defineProperty = (object, name, options={}) ->
   definition = new PropertyDefinition(name, options)
