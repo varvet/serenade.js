@@ -1,7 +1,5 @@
 class Event
   constructor: (@object, @name, @options) ->
-    @prop = "_s_#{@name}_listeners"
-    @queueName = "_s_#{name}_queue"
 
   def @prototype, "async", get: ->
     if "async" of @options then @options.async else settings.async
@@ -15,7 +13,7 @@ class Event
 
   bind: (fun) ->
     @options.bind.call(@object, fun) if @options.bind
-    safePush(@object, @prop, fun)
+    safePush(@object._s, "listeners_#{@name}", fun)
 
   one: (fun) ->
     unbind = (fun) => @unbind(fun)
@@ -24,14 +22,14 @@ class Event
       fun.apply(@, arguments)
 
   unbind: (fun) ->
-    safeDelete(@object, @prop, fun)
+    safeDelete(@object._s, "listeners_#{@name}", fun)
     @options.unbind.call(@object, fun) if @options.unbind
 
   resolve: ->
     perform = (args) =>
-      if @object[@prop]
-        @object[@prop].forEach (fun) =>
-          fun.apply(@object, args)
+      if @listeners
+        @listeners.forEach (listener) =>
+          listener.apply(@object, args)
     if @options.optimize
       perform(@options.optimize(@queue))
     else
@@ -39,16 +37,17 @@ class Event
     @queue = []
 
   def @prototype, "listeners", get: ->
-    @object[@prop]
+    @object._s["listeners_#{@name}"]
 
   def @prototype, "queue",
     get: ->
-      @queue = [] unless @object.hasOwnProperty(@queueName)
-      @object[@queueName]
+      @queue = [] unless @object._s.hasOwnProperty("queue_#{@name}")
+      @object._s["queue_#{@name}"]
     set: (val) ->
-      def @object, @queueName, value: val, configurable: true
+      @object._s["queue_#{@name}"] = val
 
 defineEvent = (object, name, options={}) ->
+  defineOptions(object, "_s") unless "_s" of object
   def object, name,
     configurable: true
     get: ->

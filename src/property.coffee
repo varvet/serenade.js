@@ -46,7 +46,7 @@ class PropertyDefinition
 class PropertyAccessor
   constructor: (@definition, @object) ->
     @name = @definition.name
-    @valueName = "_s_#{@name}_val"
+    @valueName = "val_#{@name}"
     @event = new Event(@object, @name + "_change", @definition.eventOptions)
 
   set: (value) ->
@@ -56,22 +56,22 @@ class PropertyAccessor
       if @definition.set
         @definition.set.call(@object, value)
       else
-        def @object, @valueName, value: value, configurable: true
+        def @object._s, @valueName, value: value, configurable: true
       @trigger()
 
   get: ->
     @registerGlobal()
-    if @definition.get and not (@definition.cache and @valueName of @object)
+    if @definition.get and not (@definition.cache and @valueName of @object._s)
       # add a listener which adds any dependencies that haven't been specified
       listener = (name) => @definition.addDependency(name)
-      @object._s_property_access.bind(listener) unless "dependsOn" of @definition
+      @object._s.property_access.bind(listener) unless "dependsOn" of @definition
       value = @definition.get.call(@object)
-      def @object, @valueName, value: value, configurable: true if @definition.cache
-      @object._s_property_access.unbind(listener) unless "dependsOn" of @definition
+      @object._s[@valueName] = value if @definition.cache
+      @object._s.property_access.unbind(listener) unless "dependsOn" of @definition
     else
-      value = @object[@valueName]
+      value = @object._s[@valueName]
 
-    @object._s_property_access.trigger(@name)
+    @object._s.property_access.trigger(@name)
     value
 
   format: ->
@@ -81,8 +81,8 @@ class PropertyAccessor
       @get()
 
   registerGlobal: ->
-    unless @object["_s_glb_" + @name]
-      def @object, "_s_glb_" + @name, value: true, configurable: true
+    unless @object._s["glb_" + @name]
+      @object._s["glb_" + @name] = true
       for { name, type, subname } in @definition.globalDependencies
         globalDependencies[subname] or= []
         globalDependencies[subname].push({ @object, subname, name, type, dependency: @name })
@@ -110,7 +110,7 @@ class PropertyAccessor
   def @prototype, "dependents", get: ->
     deps = []
     findDependencies = (name) =>
-      for property in @object._s_properties
+      for property in @object._s.properties
         if property.name not in deps and name in property.localDependencies
           deps.push(property.name)
           findDependencies(property.name)
@@ -122,13 +122,15 @@ class PropertyAccessor
 
   clearCache: ->
     if @definition.cache and @definition.get
-      delete @object[@valueName]
+      delete @object._s[@valueName]
 
 defineProperty = (object, name, options={}) ->
   definition = new PropertyDefinition(name, options)
 
-  safePush object, "_s_properties", definition
-  defineEvent object, "_s_property_access"
+  defineOptions(object, "_s") unless "_s" of object
+
+  safePush object._s, "properties", definition
+  defineEvent object._s, "property_access"
 
   def object, name,
     get: -> @[name + "_property"].get()

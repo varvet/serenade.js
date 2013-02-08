@@ -3,6 +3,17 @@ settings =
 
 def = Object.defineProperty
 
+defineOptions = (object, name) ->
+  def object, name,
+    get: ->
+      unless @hasOwnProperty("_" + name)
+        options = if name of Object.getPrototypeOf(this)
+          Object.create(Object.getPrototypeOf(this)[name])
+        else
+          {}
+        def(this, "_" + name, configurable: true, writable: true, value: options)
+      @["_" + name]
+
 extend = (target, source, enumerable=true) ->
   for own key, value of source
     if enumerable

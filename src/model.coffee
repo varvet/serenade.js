@@ -42,12 +42,12 @@ class Model
   @collection: (name, options={}) ->
     propOptions = merge options,
       get: ->
-        valueName = "_s_#{name}_val"
-        unless @[valueName]
-          @[valueName] = new Collection([])
-          @[valueName].change.bind =>
+        valueName = "val_#{name}"
+        unless @_s[valueName]
+          @_s[valueName] = new Collection([])
+          @_s[valueName].change.bind =>
             @[name + "_property"].trigger()
-        @[valueName]
+        @_s[valueName]
       set: (value) ->
         @[name].update(value)
     @property name, propOptions
@@ -58,11 +58,11 @@ class Model
   @belongsTo: (name, options={}) ->
     propOptions = merge options,
       set: (model) ->
-        valueName = "_s_#{name}_val"
+        valueName = "val_#{name}"
         if model and model.constructor is Object and options.as
           model = new (options.as())(model)
-        previous = @[valueName]
-        @[valueName] = model
+        previous = @_s[valueName]
+        @_s[valueName] = model
         if options.inverseOf and not model[options.inverseOf].includes(this)
           previous[options.inverseOf].delete(this) if previous
           model[options.inverseOf].push(this)
@@ -76,12 +76,12 @@ class Model
   @hasMany: (name, options={}) ->
     propOptions = merge options,
       get: ->
-        valueName = "_s_#{name}_val"
-        unless @[valueName]
-          @[valueName] = new AssociationCollection(this, options, [])
-          @[valueName].change.bind =>
+        valueName = "val_#{name}"
+        unless @_s[valueName]
+          @_s[valueName] = new AssociationCollection(this, options, [])
+          @_s[valueName].change.bind =>
             @[name + "_property"].trigger()
-        @[valueName]
+        @_s[valueName]
       set: (value) ->
         @[name].update(value)
     @property name, propOptions
@@ -116,8 +116,8 @@ class Model
     set: (val) ->
       Cache.unset(@constructor, @id)
       Cache.set(@constructor, val, this)
-      def @, "_s_id_val", value: val, configurable: true
-    get: -> @_s_id_val
+      @_s.val_id = val
+    get: -> @_s.val_id
 
   @event "saved"
   @event "changed",
@@ -146,7 +146,7 @@ class Model
 
   toJSON: ->
     serialized = {}
-    for property in @_s_properties
+    for property in @_s.properties
       if typeof(property.serialize) is 'string'
         serialized[property.serialize] = serializeObject(@[property.name])
       else if typeof(property.serialize) is 'function'
