@@ -1,3 +1,5 @@
+// Let's make this a bit more OO!
+
 // Define our person, we extend Serenade.Model
 var Person = Serenade.Model.extend();
 Person.property("name");

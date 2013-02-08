@@ -23,16 +23,16 @@
     "views": { "greet": "/examples/action.serenade" }
   },
   {
+    "name": "counter",
+    "label": "Data bindings",
+    "js": "/examples/counter.js",
+    "views": { "counter": "/examples/counter.serenade" }
+  },
+  {
     "name": "oo",
     "label": "Object Oriented",
     "js": "/examples/oo.js",
     "views": { "greet": "/examples/oo.serenade" }
-  },
-  {
-    "name": "counter",
-    "label": "Counter",
-    "js": "/examples/counter.js",
-    "views": { "counter": "/examples/counter.serenade" }
   },
   {
     "name": "color",
