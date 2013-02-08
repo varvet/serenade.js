@@ -1,0 +1,6 @@
+#div
+  p "What's your name?"
+  p
+    input[binding:keyup=@name]
+  p
+    button[event:click=greet!] "Greet " @name

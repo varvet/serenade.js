@@ -23,6 +23,12 @@
     "views": { "greet": "/examples/action.serenade" }
   },
   {
+    "name": "oo",
+    "label": "Object Oriented",
+    "js": "/examples/oo.js",
+    "views": { "greet": "/examples/oo.serenade" }
+  },
+  {
     "name": "counter",
     "label": "Counter",
     "js": "/examples/counter.js",

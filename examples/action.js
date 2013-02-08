@@ -1,4 +1,4 @@
-var model = {}
+var model = {};
 var controller = { greet: function() { alert("Hello!") } };
 
 // Our controller too, is just regular ol' JavaScript.
