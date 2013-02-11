@@ -112,7 +112,9 @@ Format functions also works for collections. The entire collection object will
 be passed as an argument.
 
 ``` javascript
-Person.collection('sizes', { format: function(collection) { return collection.list.join(", ") } });
+Person.collection('sizes', {
+  format: function(collection) { return collection.list.join(", ") }
+});
 ```
 
 ## Dependencies
