@@ -78,7 +78,7 @@ that a change in the DOM automatically updates the model, and vice versa.
 
 ``` javascript
 var model = Serenade({ name: "Jonas" });
-var element = Serenade.view('input[type="text" binding=@name]').render(model, {});
+var element = Serenade.view('input[type="text" binding=@name]').render(model);
 ```
 
 When the form is submitted, the model is updated with the values from the form
@@ -87,7 +87,7 @@ form elements, such as a `change` or `keyup` event:
 
 ``` javascript
 var model = { name: "Jonas" };
-var element = Serenade.view('input[type="text" binding:keyup=@name]').render(model, {});
+var element = Serenade.view('input[type="text" binding:keyup=@name]').render(model);
 ```
 
 Currently Serenade supports binding to text fields, text areas, checkboxes,
