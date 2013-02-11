@@ -53,7 +53,7 @@ Adds one or more properties with the given options. See
 ### event(name, options)
 
 Adds an event with the given options. See
-[defineProperty](/reference/define_event.html) for a list of options.
+[defineEvent](/reference/define_event.html) for a list of options.
 
 ### delegate(names..., options)
 
