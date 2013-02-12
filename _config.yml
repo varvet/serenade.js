@@ -1,4 +1,7 @@
 markdown: redcarpet
+safe: true
+lsi: false
+pygments: true
 menu:
   - title: "Introduction"
     url: "/introduction.html"
@@ -14,6 +17,8 @@ menu:
     url: "/custom_helpers.html"
   - title: "Development"
     url: "/development.html"
+  - title: "HTML to Serenade converter"
+    url: "/convert.html"
 reference:
   - title: "Serenade.defineProperty"
     url: "/reference/define_property.html"

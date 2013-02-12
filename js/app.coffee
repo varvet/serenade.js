@@ -19,19 +19,27 @@ class ExampleGroup extends Serenade.Model
     @current = @examples[@examples.indexOf(@current) - 1] or @examples.first()
 
 class Editor
-  Object.defineProperty @prototype, "text", get: -> @ace.getValue()
+  Object.defineProperty @prototype, "text",
+    get: -> @ace.getValue()
+    set: (val) ->
+      @ace.setValue(val)
+      @ace.clearSelection()
   Serenade.defineEvent @prototype, "change"
 
-  constructor: (@element, @mode, @name) ->
+  constructor: (@element, @mode, @name, @options={}) ->
     @ace = ace.edit(@element)
     @ace.setHighlightActiveLine(false)
     @ace.setHighlightGutterLine(false)
     @ace.setShowPrintMargin(false)
     @ace.getSession().setMode("ace/mode/javascript") if @mode is "javascript"
     @ace.getSession().setMode("ace/mode/serenade") if @mode is "view"
+    @ace.getSession().setMode("ace/mode/html") if @mode is "html"
     @ace.on("change", => @change.trigger())
-    @change.bind => @updateHeight()
-    @updateHeight()
+    if @options.adjustHeight
+      @change.bind => @updateHeight()
+      @updateHeight()
+
+    @ace.setReadOnly(true) if @options.readOnly
 
   updateHeight: ->
     newHeight = @ace.getSession().getScreenLength() * @ace.renderer.lineHeight + @ace.renderer.scrollBar.getWidth()
@@ -74,7 +82,7 @@ $(".examples").each ->
       editors = for request in requests
         $("<h3 class='label'></h3>").text(request.label).appendTo(code)
         element = $("<div class='editor'></div>").text(request.responseText).appendTo(code)
-        editor = new Editor(element.get(0), request.mode, request.name)
+        editor = new Editor(element.get(0), request.mode, request.name, adjustHeight: true)
         editor.change.bind -> run()
         editor
 
@@ -147,7 +155,7 @@ $(".reference #content").each ->
   headers = headers.filter((h) -> h.items.length)
 
   content.find("h1").after Serenade.view("""
-    ol.index
+  ol.index
       - collection @headers
         li
           - in @group
@@ -158,3 +166,47 @@ $(".reference #content").each ->
                 a[href=@link] @text
 
   """).render(headers: headers)
+
+$("#convert").each ->
+  container = $(this)
+  source = new Editor(container.find(".source").get(0), "html", "source")
+  target = new Editor(container.find(".target").get(0), "view", "target", readOnly: true)
+
+  convert = ->
+    div = document.createElement("div")
+    div.innerHTML = source.text
+
+    walkChildren = (children) ->
+      tokens = []
+      for child in children
+        switch child.nodeName
+          when "#text"
+            if child.nodeValue.match(/\S/)
+              tokens.push('"' + child.nodeValue.replace(/\s+/m, " ").trim() + '"')
+          when "#comment"
+            tokens.push("// " + child.nodeValue)
+          else
+            tokens = tokens.concat(walk(child))
+      tokens
+
+    walk = (node) ->
+      tokens = walkChildren(node.childNodes)
+      tokens = ("  " + token for token in tokens)
+      name = node.localName
+      attributes = []
+      for attribute in node.attributes
+        switch attribute.name
+          when "class"
+            name += "." + attribute.value.split(/\s+/).join(".")
+          when "id"
+            name += "#" + attribute.value
+          else
+            attributes.push("#{attribute.name}=\"#{attribute.value}\"")
+      name = "#{name}[#{attributes.join(" ")}]" if attributes.length
+      tokens.unshift(name)
+      tokens
+
+    target.text = walkChildren(div.childNodes).join("\n")
+
+  source.change.bind(convert)
+  convert()
