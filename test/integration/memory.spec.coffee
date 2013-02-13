@@ -53,6 +53,17 @@ describe 'Memory management', ->
     for callback, list of model.leaking._callbacks
       expect(list.length).to.eql(0)
 
+  it 'prevents memory leaks on collections when entire collection is swapped', ->
+    leaking = new Serenade.Collection()
+    model = Serenade(leaking: leaking)
+    @render '''
+      div
+        - collection @leaking
+          p "test"
+    ''', model
+    model.leaking = new Serenade.Collection()
+    expect(leaking.change.listeners.length).to.eql(0)
+
   it 'prevents memory leaks on text nodes', ->
     model = Serenade(leaking: "foobar", toggle: true)
     @render '''

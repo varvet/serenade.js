@@ -5,6 +5,7 @@ class Node
   constructor: (@ast, @element) ->
     @children = new Collection([])
     @boundClasses = new Collection([])
+    @boundEvents = new Collection([])
 
   append: (inside) ->
     inside.appendChild(@element)
@@ -24,9 +25,13 @@ class Node
 
   bindEvent: (event, fun) ->
     if event
-      @boundEvents or= []
       @boundEvents.push({ event, fun })
       event.bind(fun)
+
+  unbindEvent: (event, fun) ->
+    if event
+      @boundEvents.delete(fun)
+      event.unbind(fun)
 
   unbindEvents: ->
     # trigger unload callbacks

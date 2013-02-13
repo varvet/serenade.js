@@ -151,14 +151,15 @@ Compile =
     node
 
   collection: (ast, model, controller) ->
-    compileItem = (item) -> compile(ast.children, item, controller)
-    update = (dynamic, collection) ->
-      dynamic.replace(compileItem(item) for item in collection)
-
-    dynamic = @bound(ast, model, controller, update)
     collection = model[ast.argument]
-    dynamic.bindEvent(collection['change'], => dynamic.replace(compileItem(item) for item in collection))
-    dynamic
+    compileItem = (item) -> compile(ast.children, item, controller)
+    updateCollection = (before, after) -> update(dynamic, after)
+    update = (dynamic, newCollection) ->
+      dynamic.unbindEvent(collection.change, updateCollection)
+      dynamic.replace(compileItem(item) for item in newCollection)
+      dynamic.bindEvent(newCollection.change, updateCollection)
+      collection = newCollection
+    dynamic = @bound(ast, model, controller, update)
 
   in: (ast, model, controller) ->
     @bound ast, model, controller, (dynamic, value) ->
