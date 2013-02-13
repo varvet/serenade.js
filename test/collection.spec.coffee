@@ -4,6 +4,7 @@ require './spec_helper'
 describe 'Serenade.Collection', ->
   beforeEach ->
     @collection = new Serenade.Collection(['a', 'b', 'c'])
+    @original = @collection.clone()
 
   it "is compatible with CoffeeScript's array comprehensions", ->
     letters = (letter.toUpperCase() for letter in @collection)
@@ -40,9 +41,7 @@ describe 'Serenade.Collection', ->
       @collection.set(0, 'foo')
       expect(@collection.get(0)).to.eql('foo')
     it 'triggers a change event', ->
-      expect(=> @collection.set(0, 'foo')).to.triggerEvent(@collection.change)
-    it 'triggers a set event', ->
-      expect(=> @collection.set(1, 'foo')).to.triggerEvent(@collection.change_set, with: [1, 'foo'])
+      expect(=> @collection.set(0, 'foo')).to.triggerEvent(@collection.change, with: [@original, @collection])
     it 'returns the item', ->
       expect(@collection.set(0, 'foo')).to.eql('foo')
     it 'allows direct property access', ->
@@ -61,9 +60,7 @@ describe 'Serenade.Collection', ->
       expect(@collection[1]).to.eql("x")
       expect(@collection[2]).to.eql(undefined)
     it 'triggers a change event', ->
-      expect(=> @collection.update(["q", "x"])).to.triggerEvent(@collection.change, with: [@collection])
-    it 'triggers an update event', ->
-      expect(=> @collection.update(["q", "x"])).to.triggerEvent(@collection.change_update, with: [["a", "b", "c"], ["q", "x"]])
+      expect(=> @collection.update(["q", "x"])).to.triggerEvent(@collection.change, with: [@original, @collection])
     it 'updates length', ->
       @collection.update(["q", "x"])
       expect(@collection.length).to.eql(2)
@@ -83,12 +80,8 @@ describe 'Serenade.Collection', ->
       expect(@collection[0]).to.eql("c")
       expect(@collection[1]).to.eql("b")
       expect(@collection[2]).to.eql("a")
-
-    it 'triggers an update event', ->
-      @collection.push('a')
-      expect(=> @collection.sort()).to.triggerEvent(@collection.change_update, with: [["a", "b", "c", "a"], ["a", "a", "b", "c"]])
     it 'triggers a change event', ->
-      expect(=> @collection.sort()).to.triggerEvent(@collection.change, with: [@collection])
+      expect(=> @collection.sort()).to.triggerEvent(@collection.change, with: [@original, @collection])
 
   describe '#sortBy', ->
     it 'updates the order of the items in the collection', ->
@@ -118,11 +111,9 @@ describe 'Serenade.Collection', ->
       @collection.push('g')
       expect(@collection.get(3)).to.eql('g')
     it 'triggers a change event', ->
-      expect(=> @collection.push("g")).to.triggerEvent(@collection.change)
-    it 'triggers an add event', ->
-      expect(=> @collection.push("g")).to.triggerEvent(@collection.change_add, with: ['g'])
+      expect(=> @collection.push("g")).to.triggerEvent(@collection.change, with: [@original, @collection])
     it 'returns the item', ->
-      expect(@collection.push('g')).to.eql('g')
+      expect(@collection.push('g')).to.eql(4)
     it 'makes is accessible as a property', ->
       @collection.push('g')
       expect(@collection[3]).to.eql("g")
@@ -139,9 +130,7 @@ describe 'Serenade.Collection', ->
     it 'returns the item', ->
       expect(@collection.pop()).to.eql('c')
     it 'triggers a change event', ->
-      expect(=> @collection.pop()).to.triggerEvent(@collection.change)
-    it 'triggers a delete event', ->
-      expect(=> @collection.pop()).to.triggerEvent(@collection.change_delete, with: [2, 'c'])
+      expect(=> @collection.pop()).to.triggerEvent(@collection.change, with: [@original, @collection])
     it 'updates the length', ->
       @collection.pop()
       expect(@collection.length).to.eql(2)
@@ -154,12 +143,9 @@ describe 'Serenade.Collection', ->
       expect(@collection.get(2)).to.eql('b')
       expect(@collection.get(3)).to.eql('c')
     it 'triggers a change event', ->
-      expect(=> @collection.unshift("g")).to.triggerEvent(@collection.change)
-    it 'triggers an add event', ->
-      @collection.unshift('g')
-      expect(=> @collection.unshift("g")).to.triggerEvent(@collection.change_insert, with: [0, 'g'])
+      expect(=> @collection.unshift("g")).to.triggerEvent(@collection.change, with: [@original, @collection])
     it 'returns the item', ->
-      expect(@collection.unshift('g')).to.eql('g')
+      expect(@collection.unshift('g')).to.eql(4)
     it 'updates the length', ->
       @collection.unshift('g')
       expect(@collection.length).to.eql(4)
@@ -173,9 +159,7 @@ describe 'Serenade.Collection', ->
     it 'returns the item', ->
       expect(@collection.shift()).to.eql('a')
     it 'triggers a change event', ->
-      expect(=> @collection.shift()).to.triggerEvent(@collection.change)
-    it 'triggers a delete event', ->
-      expect(=> @collection.shift()).to.triggerEvent(@collection.change_delete, with: [0, 'a'])
+      expect(=> @collection.shift()).to.triggerEvent(@collection.change, with: [@original, @collection])
     it 'updates the length', ->
       @collection.shift()
       expect(@collection.length).to.eql(2)
@@ -216,9 +200,7 @@ describe 'Serenade.Collection', ->
       expect(@collection.get(2)).to.eql("b")
       expect(@collection.get(3)).to.eql("c")
     it 'triggers a change event', ->
-      expect(=> @collection.insertAt(1, "d")).to.triggerEvent(@collection.change)
-    it 'triggers an insert event', ->
-      expect(=> @collection.insertAt(1, "d")).to.triggerEvent(@collection.change_insert, with: [1, 'd'])
+      expect(=> @collection.insertAt(1, "d")).to.triggerEvent(@collection.change, with: [@original, @collection])
     it 'returns the item', ->
       expect(@collection.insertAt(1, "d")).to.eql('d')
 
@@ -234,9 +216,7 @@ describe 'Serenade.Collection', ->
       expect(@collection[1]).to.eql('c')
       expect(@collection[2]).to.eql(undefined)
     it 'triggers a change event', ->
-      expect(=> @collection.deleteAt(1)).to.triggerEvent(@collection.change)
-    it 'triggers a delete event', ->
-      expect(=> @collection.deleteAt(1)).to.triggerEvent(@collection.change_delete, with: [1, 'b'])
+      expect(=> @collection.deleteAt(1)).to.triggerEvent(@collection.change, with: [@original, @collection])
     it 'returns the item', ->
       expect(@collection.deleteAt(1)).to.eql('b')
 
@@ -300,10 +280,8 @@ describe 'Serenade.Collection', ->
       expect(@collection[2]).to.eql("a")
     it "returns self", ->
       expect(@collection.reverse()).to.eql(@collection)
-    it "triggers an update event", ->
-      expect(=> @collection.reverse()).to.triggerEvent(@collection.change_update, with: [["a", "b", "c"], ["c", "b", "a"]])
     it "triggers a change event", ->
-      expect(=> @collection.reverse()).to.triggerEvent(@collection.change, with: [@collection])
+      expect(=> @collection.reverse()).to.triggerEvent(@collection.change, with: [@original, @collection])
 
   describe "#toString", ->
     it "joins the array with commas", ->
@@ -346,10 +324,8 @@ describe 'Serenade.Collection', ->
       deleted = @collection.splice(1, 1, "q", "x")
       expect(deleted.length).to.eql(1)
       expect(deleted.get(0)).to.eql("b")
-    it 'triggers an update event', ->
-      expect(=> @collection.splice(1, 1, "q", "x")).to.triggerEvent(@collection.change_update, with: [["a", "b", "c"], ["a", "q", "x", "c"]])
     it 'triggers a change event', ->
-      expect(=> @collection.splice(1, 1, "q", "x")).to.triggerEvent(@collection.change, with: [@collection])
+      expect(=> @collection.splice(1, 1, "q", "x")).to.triggerEvent(@collection.change, with: [@original, @collection])
 
   describe "#every", ->
     it "returns whether every item matches the given function", ->

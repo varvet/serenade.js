@@ -157,11 +157,7 @@ Compile =
 
     dynamic = @bound(ast, model, controller, update)
     collection = model[ast.argument]
-    dynamic.bindEvent(collection['change_set'], => dynamic.replace(compileItem(item) for item in collection))
-    dynamic.bindEvent(collection['change_update'], => dynamic.replace(compileItem(item) for item in collection))
-    dynamic.bindEvent(collection['change_add'], (item) => dynamic.appendNodeSet(compileItem(item)))
-    dynamic.bindEvent(collection['change_insert'], (index, item) => dynamic.insertNodeSet(index, compileItem(item)))
-    dynamic.bindEvent(collection['change_delete'], (index) => dynamic.deleteNodeSet(index))
+    dynamic.bindEvent(collection['change'], => dynamic.replace(compileItem(item) for item in collection))
     dynamic
 
   in: (ast, model, controller) ->
