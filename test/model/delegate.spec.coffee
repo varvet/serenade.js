@@ -40,8 +40,8 @@ describe "Serenade.Model.delegate", ->
     class Post extends Serenade.Model
       @delegate "name", "email", to: "author"
     post = new Post(author: author)
-    expect(-> author.name = "peter").to.triggerEvent(post.name_property, with: ["peter"])
-    expect(-> author.email = "peter@elabs.se").to.triggerEvent(post.email_property, with: ["peter@elabs.se"])
+    expect(-> author.name = "peter").to.triggerEvent(post.name_property, with: ["Jonas", "peter"])
+    expect(-> author.email = "peter@elabs.se").to.triggerEvent(post.email_property, with: ["jonas@elabs.se", "peter@elabs.se"])
 
   it "allows dependencies to be overwritten", ->
     author = new Serenade.Model(name: "Jonas", email: "jonas@elabs.se")

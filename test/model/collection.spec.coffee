@@ -20,7 +20,7 @@ describe "Sereande.Model.collection", ->
 
   it 'triggers a change event when collection is changed', ->
     collection = @object.numbers
-    expect(-> collection.push(4)).to.triggerEvent(@object.numbers_property, with: [@object.numbers])
+    expect(-> collection.push(4)).to.triggerEvent(@object.numbers_property, with: [@object.numbers, @object.numbers])
 
   it 'adds a count property', ->
     @object.authors = ["John", "Peter"]

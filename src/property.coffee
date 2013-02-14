@@ -95,6 +95,9 @@ class PropertyAccessor
             @object[name + "_property"]?.rebind(updateCollectionBindings)
             updateCollectionBindings(undefined, @object[name])
 
+    for dependency in @definition.localDependencies
+      @object[dependency + "_property"].registerGlobal()
+
   trigger: =>
     @clearCache()
     if @hasChanged()
@@ -116,17 +119,11 @@ class PropertyAccessor
       @_oldValue = value
 
   bind: (fun) ->
-    for dependency in @definition.localDependencies
-      @object[dependency + "_property"].registerGlobal()
     @registerGlobal()
-
     @event.bind(fun)
 
   rebind: (fun) ->
-    for dependency in @definition.localDependencies
-      @object[dependency + "_property"].registerGlobal()
     @registerGlobal()
-
     @event.rebind(fun)
 
   unbind: (fun) ->
@@ -157,8 +154,8 @@ class PropertyAccessor
       delete @object._s[@valueName]
 
   hasChanged: ->
-    if @definition.changed is false
-      false
+    if @definition.changed in [true, false]
+      @definition.changed
     else
       if "_oldValue" of this
         if @definition.changed
