@@ -80,22 +80,21 @@ class PropertyAccessor
             before?[subname + "_property"]?.unbind(@trigger)
             after?[subname + "_property"]?.rebind(@trigger)
         when "collection"
-          if @object[name] and @object[name].length?
-            updateItemBindings = (before, after) =>
-              before?.forEach? (item) =>
-                item[subname + "_property"]?.unbind(@trigger)
-              after?.forEach? (item) =>
-                item[subname + "_property"]?.rebind(@trigger)
+          updateItemBindings = (before, after) =>
+            before?.forEach? (item) =>
+              item[subname + "_property"]?.unbind(@trigger)
+            after?.forEach? (item) =>
+              item[subname + "_property"]?.rebind(@trigger)
 
-            updateCollectionBindings = (before, after) =>
-              updateItemBindings(before, after)
-              before?.change?.unbind(@trigger)
-              after?.change?.rebind(@trigger)
-              before?.change?.unbind(updateItemBindings)
-              after?.change?.rebind(updateItemBindings)
+          updateCollectionBindings = (before, after) =>
+            updateItemBindings(before, after)
+            before?.change?.unbind(@trigger)
+            after?.change?.rebind(@trigger)
+            before?.change?.unbind(updateItemBindings)
+            after?.change?.rebind(updateItemBindings)
 
-            @object[name + "_property"]?.rebind(updateCollectionBindings)
-            updateCollectionBindings(undefined, @object[name])
+          @object[name + "_property"]?.rebind(updateCollectionBindings)
+          updateCollectionBindings(undefined, @object[name])
 
     for dependency in @definition.localDependencies
       @object[dependency + "_property"].registerGlobal()
