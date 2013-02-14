@@ -15,6 +15,9 @@ class Event
     @options.bind.call(@object, fun) if @options.bind
     safePush(@object._s, "listeners_#{@name}", fun)
 
+  rebind: (fun) ->
+    @bind(fun) if @listeners.indexOf(fun) is -1
+
   one: (fun) ->
     unbind = (fun) => @unbind(fun)
     @bind ->
@@ -37,7 +40,7 @@ class Event
     @queue = []
 
   def @prototype, "listeners", get: ->
-    @object._s["listeners_#{@name}"]
+    @object._s["listeners_#{@name}"] or []
 
   def @prototype, "queue",
     get: ->

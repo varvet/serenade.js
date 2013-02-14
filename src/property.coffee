@@ -40,7 +40,6 @@ class PropertyAccessor
     if typeof(value) is "function"
       @definition.get = value
     else
-      val = @get() if @definition.changed
       if @definition.set
         @definition.set.call(@object, value)
       else
@@ -68,18 +67,23 @@ class PropertyAccessor
       @get()
 
   registerGlobal: ->
+    return if @_isRegistered
+    @_isRegistered = true
     for { name, type, subname } in @definition.globalDependencies
       switch type
         when "singular"
           if @object[name]
-            @object[name][subname + "_property"]?.bind => @trigger()
+            @object[name][subname + "_property"]?.rebind(@trigger)
+          @bind (before, after) =>
+            before?.unbind?(@trigger)
+            after?.rebind?(@trigger)
         when "collection"
           if @object[name]
-            @object[name].change.bind => @trigger()
+            @object[name].change.rebind(@trigger)
             for item in @object[name]
-              item[subname + "_property"]?.bind => @trigger()
+              item[subname + "_property"]?.rebind(@trigger)
 
-  trigger: ->
+  trigger: =>
     @clearCache()
     if @hasChanged()
       value = @get()
@@ -96,14 +100,19 @@ class PropertyAccessor
       changes[@name] = value
       @object.changed?.trigger?(changes)
 
-      #triggerGlobal(@object, Object.keys(changes))
-
   bind: (fun) ->
     for dependency in @definition.localDependencies
       @object[dependency + "_property"].registerGlobal()
     @registerGlobal()
 
     @event.bind(fun)
+
+  rebind: (fun) ->
+    for dependency in @definition.localDependencies
+      @object[dependency + "_property"].registerGlobal()
+    @registerGlobal()
+
+    @event.rebind(fun)
 
   unbind: (fun) ->
     @event.unbind(fun)
@@ -132,17 +141,18 @@ class PropertyAccessor
   hasChanged: ->
     if @definition.changed is false
       false
-    else if @definition.changed
+    else
       value = @get()
       oldValueName = "old_val_" + @name
       changed = if @object._s.hasOwnProperty(oldValueName)
-        @definition.changed.call(@object, @object._s[oldValueName], value)
+        if @definition.changed
+          @definition.changed.call(@object, @object._s[oldValueName], value)
+        else
+          @object._s[oldValueName] isnt value
       else
         true
       @object._s[oldValueName] = value
       changed
-    else
-      true
 
 defineProperty = (object, name, options={}) ->
   definition = new PropertyDefinition(name, options)
@@ -158,8 +168,12 @@ defineProperty = (object, name, options={}) ->
     configurable: true
     enumerable: if "enumerable" of options then options.enumerable else true
 
-  def object, name + "_property",
-    get: -> new PropertyAccessor(definition, this)
+  accessorName = name + "_property"
+  def object, accessorName,
+    get: ->
+      unless @_s.hasOwnProperty(accessorName)
+        @_s[accessorName] = new PropertyAccessor(definition, this)
+      @_s[accessorName]
     configurable: true
 
   if typeof(options.serialize) is 'string'

@@ -137,8 +137,8 @@ describe 'Serenade.defineProperty', ->
 
       expect(=> @object.first = "Peter").to.triggerEvent(@object.fullName_property)
       expect(=> @object.last = "Smith").to.triggerEvent(@object.fullName_property)
-      expect(=> @object.first = "Peter").to.triggerEvent(@object.initial_property)
-      expect(=> @object.last = "Smith").not.to.triggerEvent(@object.initial_property)
+      expect(=> @object.first = "John").to.triggerEvent(@object.initial_property)
+      expect(=> @object.last = "Doe").not.to.triggerEvent(@object.initial_property)
 
     it 'binds to single dependency', ->
       defineProperty @object, 'name'
@@ -149,41 +149,49 @@ describe 'Serenade.defineProperty', ->
 
     it 'can handle circular dependencies', ->
       defineProperty @object, 'foo', dependsOn: 'bar'
-      defineProperty @object, 'bar', dependsOn: 'foo'
-      fun = => @object.foo = 23
-      expect(fun).to.triggerEvent(@object.foo_property)
-      expect(fun).to.triggerEvent(@object.bar_property)
+      defineProperty @object, 'bar', dependsOn: 'foo', get: -> @foo
+      expect(=> @object.foo = 21).to.triggerEvent(@object.foo_property)
+      expect(=> @object.foo = 22).to.triggerEvent(@object.bar_property)
 
     it 'can handle secondary dependencies', ->
       defineProperty @object, 'foo', dependsOn: 'quox'
-      defineProperty @object, 'bar', dependsOn: ['quox']
-      defineProperty @object, 'quox', dependsOn: ['bar', 'foo']
-      fun = => @object.foo = 23
-      expect(fun).to.triggerEvent(@object.foo_property, with: [23])
-      expect(fun).to.triggerEvent(@object.bar_property, with: [undefined])
-      expect(fun).to.triggerEvent(@object.quox_property, with: [undefined])
+      defineProperty @object, 'bar', dependsOn: ['quox'], get: -> @quox
+      defineProperty @object, 'quox', dependsOn: ['bar', 'foo'], get: -> @foo
+      expect(=> @object.foo = 21).to.triggerEvent(@object.foo_property, with: [21])
+      expect(=> @object.foo = 22).to.triggerEvent(@object.bar_property, with: [22])
+      expect(=> @object.foo = 23).to.triggerEvent(@object.quox_property, with: [23])
 
     context "reaching into an object", ->
       it "observes changes to the property", ->
-        defineProperty @object, 'name', dependsOn: 'author.name'
+        defineProperty @object, 'name', dependsOn: 'author.name', get: -> @author.name
         defineProperty @object, 'author'
         @object.author = Serenade(name: "Jonas")
         expect(=> @object.author.name = 'test').to.triggerEvent(@object.name_property)
 
       it "can depend on properties which reach into other properties", ->
-        defineProperty @object, 'reverseName', dependsOn: 'name', get: -> @name.reverse() if @name
-        defineProperty @object, 'name', dependsOn: 'author.name'
+        defineProperty @object, 'uppityName', dependsOn: 'name', get: -> @name.toUpperCase() if @name
+        defineProperty @object, 'name', dependsOn: 'author.name', get: -> @author.name
         defineProperty @object, 'author'
         @object.author = Serenade(name: "Jonas")
-        expect(=> @object.author.name = 'test').to.triggerEvent(@object.reverseName_property)
+        expect(=> @object.author.name = 'test').to.triggerEvent(@object.uppityName_property)
+
+      it "triggers changes when object is assigned after event is bound", ->
+        defineProperty @object, 'name', dependsOn: 'author.name', get: -> @author?.name
+        defineProperty @object, 'author'
+        expect =>
+          @object.author = Serenade(name: "Jonas")
+          @object.author.name = "Kim"
+        .to.triggerEvent(@object.name_property, count: 2)
 
       it "does not observe changes on objects which are no longer associated", ->
-        defineProperty @object, 'name', dependsOn: 'author.name'
+        defineProperty @object, 'name', dependsOn: 'author.name', get: -> @author?.name
         defineProperty @object, 'author'
-        @object.author = Serenade(name: "Jonas")
-        oldAuthor = @object.author
-        @object.author = Serenade(name: "Peter")
-        expect(-> oldAuthor.name = 'test').not.to.triggerEvent(@object.name_property)
+        expect =>
+          @object.author = Serenade(name: "Jonas")
+          oldAuthor = @object.author
+          oldAuthor.name = "Kim"
+          @object.author = Serenade(name: "Peter")
+        .to.triggerEvent(@object.name_property, count: 2)
 
     context "reaching into a collection", ->
       beforeEach ->
@@ -199,10 +207,14 @@ describe 'Serenade.defineProperty', ->
         author = @object.authors[0]
         expect(-> author.name = 'test').to.triggerEvent(@object.authorNames_property)
 
+      it "is not affected by additional event listeners", ->
+        @object.authorNames_property.bind -> @wasTriggered = true
+        expect(=> @object.authors.push({ name: "Bert" })).to.triggerEvent(@object.authorNames_property)
+        expect(@object.wasTriggered).to.be.ok
+
       it "does not observe changes to elements no longer in the collcection", ->
         @object.authors.push(Serenade(name: "Bert"))
         oldAuthor = @object.authors[0]
-        oldAuthor.schmoo = true
         @object.authors.deleteAt(0)
         expect(-> oldAuthor.name = 'test').not.to.triggerEvent(@object.authorNames_property)
 

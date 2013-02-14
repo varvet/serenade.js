@@ -61,7 +61,11 @@ beforeEach ->
     @obj()
     event.unbind fun
 
-    @assert count is 1, "event #{event.name} was triggered #{count} times, expected 1", "event #{event.name} should not have been triggered"
+    if @negate
+      @assert count isnt 0, "", "event #{event.name} should not have been triggered (was triggered #{count} times)"
+    else
+      expectedCount = options.count ? 1
+      @assert count is expectedCount, "event #{event.name} was triggered #{count} times, expected #{expectedCount}"
     if options.with
       @assert compareArrays(args, options.with), "event arguments #{args} do not match expected arguments #{options.with}"
   chai.Assertion::become = (value, done) ->
