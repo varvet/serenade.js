@@ -98,7 +98,7 @@ class PropertyAccessor
           updateCollectionBindings(undefined, @object[name])
 
     for dependency in @definition.localDependencies
-      @object[dependency + "_property"].registerGlobal()
+      @object[dependency + "_property"]?.registerGlobal()
 
   trigger: =>
     @clearCache()
