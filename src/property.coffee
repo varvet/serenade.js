@@ -12,7 +12,9 @@ class PropertyDefinition
   def @prototype, "eventOptions", get: ->
     name = @name
     async: if @async? then @async else settings.async
-    bind: -> @[name] # make sure dependencies have been discovered and registered
+    bind: ->
+      @[name] # make sure dependencies have been discovered and registered
+      @[name + "_property"].registerGlobal()
     optimize: (queue) -> [queue[0]?[0], queue[queue.length - 1]?[1]]
 
   addDependency: (name) ->
@@ -118,22 +120,8 @@ class PropertyAccessor
       @object.changed?.trigger?(changes)
       @_oldValue = value
 
-  bind: (fun) ->
-    @registerGlobal()
-    @event.bind(fun)
-
-  rebind: (fun) ->
-    @registerGlobal()
-    @event.rebind(fun)
-
-  unbind: (fun) ->
-    @event.unbind(fun)
-
-  one: (fun) ->
-    @event.one(fun)
-
-  resolve: ->
-    @event.resolve()
+  ["bind", "rebind", "unbind", "one", "resolve"].forEach (fn) =>
+    this::[fn] = -> @event[fn](arguments...)
 
   # Find all properties which are dependent upon this one
   def @prototype, "dependents", get: ->
