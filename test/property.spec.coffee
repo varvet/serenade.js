@@ -213,11 +213,40 @@ describe 'Serenade.defineProperty', ->
         expect(=> @object.authors.push({ name: "Bert" })).to.triggerEvent(@object.authorNames_property)
         expect(@object.wasTriggered).to.be.ok
 
+      it "observes changes to elements added after event is bound", ->
+        expect =>
+          @object.authors.push(Serenade(name: "Bert"))
+          @object.authors[0].name = "Kim"
+        .to.triggerEvent(@object.authorNames_property, count: 2)
+
       it "does not observe changes to elements no longer in the collcection", ->
         @object.authors.push(Serenade(name: "Bert"))
-        oldAuthor = @object.authors[0]
-        @object.authors.deleteAt(0)
-        expect(-> oldAuthor.name = 'test').not.to.triggerEvent(@object.authorNames_property)
+        expect =>
+          oldAuthor = @object.authors[0]
+          @object.authors.deleteAt(0)
+          oldAuthor.name = 'test'
+        .to.triggerEvent(@object.authorNames_property, count: 1)
+
+      it "observes changes to newly assigned collections", ->
+        expect =>
+          @object.authors = new Serenade.Collection([Serenade(name: "Jonas")])
+          @object.authors.push(Serenade(name: "Kim"))
+        .to.triggerEvent(@object.authorNames_property, count: 2)
+
+      it "no longer observes changes to old collections", ->
+        oldAuthors = @object.authors
+        expect =>
+          @object.authors = new Serenade.Collection([Serenade(name: "Jonas")])
+          oldAuthors.push(Serenade(name: "Kim"))
+        .to.triggerEvent(@object.authorNames_property, count: 1)
+
+      it "no longer observes changes to items in old collections", ->
+        oldAuthors = @object.authors
+        oldAuthors.push(Serenade(name: "Peter"))
+        expect =>
+          @object.authors = new Serenade.Collection([Serenade(name: "Jonas")])
+          oldAuthors[0].name = "Kim"
+        .to.triggerEvent(@object.authorNames_property, count: 1)
 
   describe "with `value` option", ->
     it 'can be given a value', ->

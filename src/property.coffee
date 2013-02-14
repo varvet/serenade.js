@@ -78,29 +78,42 @@ class PropertyAccessor
             before?[subname + "_property"]?.unbind(@trigger)
             after?[subname + "_property"]?.rebind(@trigger)
         when "collection"
-          if @object[name]
-            @object[name].change.rebind(@trigger)
-            for item in @object[name]
-              item[subname + "_property"]?.rebind(@trigger)
+          if @object[name] and @object[name].length?
+            updateItemBindings = (before, after) =>
+              before?.forEach? (item) =>
+                item[subname + "_property"]?.unbind(@trigger)
+              after?.forEach? (item) =>
+                item[subname + "_property"]?.rebind(@trigger)
+
+            updateCollectionBindings = (before, after) =>
+              updateItemBindings(before, after)
+              before?.change?.unbind(@trigger)
+              after?.change?.rebind(@trigger)
+              before?.change?.unbind(updateItemBindings)
+              after?.change?.rebind(updateItemBindings)
+
+            @object[name + "_property"]?.rebind(updateCollectionBindings)
+            updateCollectionBindings(undefined, @object[name])
 
   trigger: =>
     @clearCache()
-    oldValue = @object._s["old_val_" + @name]
     if @hasChanged()
       value = @get()
 
       changes = {}
       changes[name] = @object[name] for name in @dependents when name isnt @name
 
-      @event.trigger(oldValue, value)
+      @event.trigger(@_oldValue, value)
       for own name, value of changes
         prop = @object[name + "_property"]
         prop.clearCache()
-        oldValue = @object._s["old_val_" + name]
-        prop.event.trigger(oldValue, value) if prop.hasChanged()
+        if prop.hasChanged()
+          prop.event.trigger(prop._oldValue, value)
+          prop._oldValue = value
 
       changes[@name] = value
       @object.changed?.trigger?(changes)
+      @_oldValue = value
 
   bind: (fun) ->
     for dependency in @definition.localDependencies
@@ -147,17 +160,13 @@ class PropertyAccessor
     if @definition.changed is false
       false
     else
-      value = @get()
-      oldValueName = "old_val_" + @name
-      changed = if @object._s.hasOwnProperty(oldValueName)
+      if "_oldValue" of this
         if @definition.changed
-          @definition.changed.call(@object, @object._s[oldValueName], value)
+          @definition.changed.call(@object, @_oldValue, @get())
         else
-          @object._s[oldValueName] isnt value
+          @_oldValue isnt @get()
       else
         true
-      @object._s[oldValueName] = value
-      changed
 
 defineProperty = (object, name, options={}) ->
   definition = new PropertyDefinition(name, options)
