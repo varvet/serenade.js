@@ -24,8 +24,8 @@ describe "Sereande.Model.selection", ->
     expect(@post.toJSON().deletedComments).to.be.ok
 
   it "updates selection when collection is updated", ->
-    expect(=> @post.comments.push({})).to.triggerEvent(@post.publishedComments_property)
-    expect(=> @post.comments.push({})).to.triggerEvent(@post.deletedComments_property)
+    expect(=> @post.comments.push({})).to.triggerEvent(@post.publishedComments_property, count: 2)
+    expect(=> @post.comments.push({})).to.triggerEvent(@post.deletedComments_property, count: 2)
 
   it "updates selection when item in collection is updated", ->
     expect(=> @comment2.isPublished = false).to.triggerEvent(@post.publishedComments_property)
@@ -36,8 +36,8 @@ describe "Sereande.Model.selection", ->
     expect(@post.deletedCommentsCount).to.eql(2)
 
   it "updates count when collection is updated", ->
-    expect(=> @post.comments.push({})).to.triggerEvent(@post.publishedCommentsCount_property)
-    expect(=> @post.comments.push({})).to.triggerEvent(@post.deletedCommentsCount_property)
+    expect(=> @post.comments.push({ isPublished: true })).to.triggerEvent(@post.publishedCommentsCount_property)
+    expect(=> @post.comments.push({ deleted: true })).to.triggerEvent(@post.deletedCommentsCount_property)
 
   it "updates count when item in collection is updated", ->
     expect(=> @comment2.isPublished = false).to.triggerEvent(@post.publishedCommentsCount_property)

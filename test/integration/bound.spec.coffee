@@ -82,8 +82,8 @@ describe 'Bound attributes and text nodes', ->
     expect(@body.querySelector('div').textContent).to.eql("0")
 
   it 'uses model formatter', ->
-    model = Serenade({ name: "Jonas" })
-    Serenade.defineProperty(model, "name", format: (val) -> val.toUpperCase())
+    model = {}
+    Serenade.defineProperty(model, "name", value: "Jonas", format: (val) -> val.toUpperCase())
     @render 'div[data-name=@name style:color=@name] @name', model
     expect(@body.querySelector('div').getAttribute('data-name')).to.eql("JONAS")
     expect(@body.querySelector('div').style.color).to.eql("JONAS")
