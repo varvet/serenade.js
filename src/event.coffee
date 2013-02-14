@@ -29,14 +29,16 @@ class Event
     @options.unbind.call(@object, fun) if @options.unbind
 
   resolve: ->
-    perform = (args) =>
-      if @listeners
-        @listeners.forEach (listener) =>
-          listener.apply(@object, args)
-    if @options.optimize
-      perform(@options.optimize(@queue))
-    else
-      perform(args) for args in @queue
+    clearTimeout(@queue.timeout)
+    if @queue.length
+      perform = (args) =>
+        if @listeners
+          @listeners.forEach (listener) =>
+            listener.apply(@object, args)
+      if @options.optimize
+        perform(@options.optimize(@queue))
+      else
+        perform(args) for args in @queue
     @queue = []
 
   def @prototype, "listeners", get: ->

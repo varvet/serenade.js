@@ -57,7 +57,7 @@ Build =
 
   load: ->
     # unfortunately because vm is pretty broken we need to declare every single object/function we refer to here
-    sandbox = { parser: require('./grammar').Parser, console, Object, SyntaxError, setTimeout: -> setTimeout(arguments...) }
+    sandbox = { parser: require('./grammar').Parser, console, Object, SyntaxError, clearTimeout, setTimeout: -> setTimeout(arguments...) }
 
     context = vm.createContext(sandbox)
     for name in @sourceFiles
