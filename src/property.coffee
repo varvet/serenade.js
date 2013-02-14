@@ -74,9 +74,9 @@ class PropertyAccessor
         when "singular"
           if @object[name]
             @object[name][subname + "_property"]?.rebind(@trigger)
-          @bind (before, after) =>
-            before?.unbind?(@trigger)
-            after?.rebind?(@trigger)
+          @object[name + "_property"]?.bind (before, after) =>
+            before?[subname + "_property"]?.unbind(@trigger)
+            after?[subname + "_property"]?.rebind(@trigger)
         when "collection"
           if @object[name]
             @object[name].change.rebind(@trigger)

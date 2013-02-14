@@ -184,22 +184,14 @@ describe 'Serenade.defineProperty', ->
           @object.author.name = "Kim"
         .to.triggerEvent(@object.name_property, count: 2)
 
-      it "triggers changes when object is assigned after event is bound", ->
-        defineProperty @object, 'name', dependsOn: 'author.name'
-        defineProperty @object, 'author'
-        expect =>
-          @object.author = Serenade(name: "Jonas")
-          @object.author.name = "Kim"
-        .to.triggerEvent(@object.name_property, count: 2)
-
       it "does not observe changes on objects which are no longer associated", ->
         defineProperty @object, 'name', dependsOn: 'author.name', get: -> @author?.name
         defineProperty @object, 'author'
         expect =>
           @object.author = Serenade(name: "Jonas")
           oldAuthor = @object.author
-          oldAuthor.name = "Kim"
           @object.author = Serenade(name: "Peter")
+          oldAuthor.name = "Kim"
         .to.triggerEvent(@object.name_property, count: 2)
 
     context "reaching into a collection", ->
