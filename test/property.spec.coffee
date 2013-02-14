@@ -34,7 +34,8 @@ describe 'Serenade.defineProperty', ->
       expect(=> @object.foo = 23).to.triggerEvent(@object.changed)
 
     it 'triggers a change event for this property', ->
-      expect(=> @object.foo = 23).to.triggerEvent(@object.foo_property, with: [23])
+      expect(=> @object.foo = 23).to.triggerEvent(@object.foo_property, with: [undefined, 23])
+      expect(=> @object.foo = 32).to.triggerEvent(@object.foo_property, with: [23, 32])
 
     it 'uses a custom setter', ->
       setValue = null
@@ -108,7 +109,7 @@ describe 'Serenade.defineProperty', ->
         get: -> @first + " " + @last
         dependsOn: ['first', 'last']
       @object.last = 'Pan'
-      expect(=> @object.first = "Peter").to.triggerEvent(@object.fullName_property, with: ['Peter Pan'])
+      expect(=> @object.first = "Peter").to.triggerEvent(@object.fullName_property, with: ['undefined Pan', 'Peter Pan'])
 
     it 'does not bind to dependencies when none are given', ->
       defineProperty @object, 'first'
@@ -145,7 +146,7 @@ describe 'Serenade.defineProperty', ->
       defineProperty @object, 'reverseName',
         get: -> @name.split("").reverse().join("") if @name
         dependsOn: 'name'
-      expect(=> @object.name = 'Jonas').to.triggerEvent(@object.reverseName_property, with: ['sanoJ'])
+      expect(=> @object.name = 'Jonas').to.triggerEvent(@object.reverseName_property, with: [undefined, 'sanoJ'])
 
     it 'can handle circular dependencies', ->
       defineProperty @object, 'foo', dependsOn: 'bar'
@@ -157,9 +158,9 @@ describe 'Serenade.defineProperty', ->
       defineProperty @object, 'foo', dependsOn: 'quox'
       defineProperty @object, 'bar', dependsOn: ['quox'], get: -> @quox
       defineProperty @object, 'quox', dependsOn: ['bar', 'foo'], get: -> @foo
-      expect(=> @object.foo = 21).to.triggerEvent(@object.foo_property, with: [21])
-      expect(=> @object.foo = 22).to.triggerEvent(@object.bar_property, with: [22])
-      expect(=> @object.foo = 23).to.triggerEvent(@object.quox_property, with: [23])
+      expect(=> @object.foo = 21).to.triggerEvent(@object.foo_property, with: [undefined, 21])
+      expect(=> @object.foo = 22).to.triggerEvent(@object.bar_property, with: [21, 22])
+      expect(=> @object.foo = 23).to.triggerEvent(@object.quox_property, with: [22, 23])
 
     context "reaching into an object", ->
       it "observes changes to the property", ->
@@ -177,6 +178,14 @@ describe 'Serenade.defineProperty', ->
 
       it "triggers changes when object is assigned after event is bound", ->
         defineProperty @object, 'name', dependsOn: 'author.name', get: -> @author?.name
+        defineProperty @object, 'author'
+        expect =>
+          @object.author = Serenade(name: "Jonas")
+          @object.author.name = "Kim"
+        .to.triggerEvent(@object.name_property, count: 2)
+
+      it "triggers changes when object is assigned after event is bound", ->
+        defineProperty @object, 'name', dependsOn: 'author.name'
         defineProperty @object, 'author'
         expect =>
           @object.author = Serenade(name: "Jonas")
@@ -327,11 +336,13 @@ describe 'Serenade.defineProperty', ->
 
     it "optimizes multiple change events for a property into one", (done) ->
       @object.num = 0
-      defineProperty @object, "foo", async: true
-      @object.foo_property.bind (val) -> @num += val
+      defineProperty @object, "foo", value: 12, async: true
+      @object.foo_property.resolve()
+      @object.foo_property.bind (before, after) -> @result = "#{before}:#{after}"
       @object.foo = 23
-      @object.foo = 12
-      expect(=> @object.num).to.become(12, done)
+      @object.foo = 15
+      @object.foo = 45
+      expect(=> @object.result).to.become("12:45", done)
 
   describe "when Serenade.async is true", ->
     it "dispatches change event asynchronously", (done) ->

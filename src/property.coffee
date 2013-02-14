@@ -13,7 +13,7 @@ class PropertyDefinition
     name = @name
     async: if @async? then @async else settings.async
     bind: -> @[name] # make sure dependencies have been discovered and registered
-    optimize: (queue) -> queue[queue.length - 1]
+    optimize: (queue) -> [queue[0]?[0], queue[queue.length - 1]?[1]]
 
   addDependency: (name) ->
     if @dependencies.indexOf(name) is -1
@@ -85,17 +85,19 @@ class PropertyAccessor
 
   trigger: =>
     @clearCache()
+    oldValue = @object._s["old_val_" + @name]
     if @hasChanged()
       value = @get()
 
       changes = {}
       changes[name] = @object[name] for name in @dependents when name isnt @name
 
-      @event.trigger(value)
+      @event.trigger(oldValue, value)
       for own name, value of changes
         prop = @object[name + "_property"]
         prop.clearCache()
-        prop.event.trigger(value) if prop.hasChanged()
+        oldValue = @object._s["old_val_" + name]
+        prop.event.trigger(oldValue, value) if prop.hasChanged()
 
       changes[@name] = value
       @object.changed?.trigger?(changes)
@@ -119,6 +121,9 @@ class PropertyAccessor
 
   one: (fun) ->
     @event.one(fun)
+
+  resolve: ->
+    @event.resolve()
 
   # Find all properties which are dependent upon this one
   def @prototype, "dependents", get: ->
