@@ -71,7 +71,8 @@ class PropertyAccessor
   registerGlobal: ->
     return if @_isRegistered
     @_isRegistered = true
-    for { name, type, subname } in @definition.globalDependencies
+    @definition.globalDependencies.forEach (dep) =>
+      { name, type, subname } = dep
       switch type
         when "singular"
           if @object[name]
@@ -102,12 +103,12 @@ class PropertyAccessor
   trigger: =>
     @clearCache()
     if @hasChanged()
-      value = @get()
+      newValue = @get()
 
       changes = {}
       changes[name] = @object[name] for name in @dependents when name isnt @name
 
-      @event.trigger(@_oldValue, value)
+      @event.trigger(@_oldValue, newValue)
       for own name, value of changes
         prop = @object[name + "_property"]
         prop.clearCache()
@@ -115,9 +116,9 @@ class PropertyAccessor
           prop.event.trigger(prop._oldValue, value)
           prop._oldValue = value
 
-      changes[@name] = value
+      changes[@name] = newValue
       @object.changed?.trigger?(changes)
-      @_oldValue = value
+      @_oldValue = newValue
 
   ["bind", "rebind", "unbind", "one", "resolve"].forEach (fn) =>
     this::[fn] = -> @event[fn](arguments...)
