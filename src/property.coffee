@@ -1,16 +1,3 @@
-globalDependencies = {}
-
-triggerGlobal = (target, names) ->
-  for name in names
-    if globalDependencies.hasOwnProperty(name)
-      for { name, type, object, subname, dependency } in globalDependencies[name]
-        if type is "singular"
-          if target is object[name]
-            object[dependency + "_property"]?.trigger?(object)
-        else if type is "collection"
-          if target in object[name]
-            object[dependency + "_property"]?.trigger?(object)
-
 class PropertyDefinition
   constructor: (@name, options) ->
     extend(this, options)
@@ -61,7 +48,6 @@ class PropertyAccessor
       @trigger()
 
   get: ->
-    @registerGlobal()
     if @definition.get and not (@definition.cache and @valueName of @object._s)
       # add a listener which adds any dependencies that haven't been specified
       listener = (name) => @definition.addDependency(name)
@@ -82,11 +68,16 @@ class PropertyAccessor
       @get()
 
   registerGlobal: ->
-    unless @object._s["glb_" + @name]
-      @object._s["glb_" + @name] = true
-      for { name, type, subname } in @definition.globalDependencies
-        globalDependencies[subname] or= []
-        globalDependencies[subname].push({ @object, subname, name, type, dependency: @name })
+    for { name, type, subname } in @definition.globalDependencies
+      switch type
+        when "singular"
+          if @object[name]
+            @object[name][subname + "_property"]?.bind => @trigger()
+        when "collection"
+          if @object[name]
+            @object[name].change.bind => @trigger()
+            for item in @object[name]
+              item[subname + "_property"]?.bind => @trigger()
 
   trigger: ->
     @clearCache()
@@ -105,9 +96,13 @@ class PropertyAccessor
       changes[@name] = value
       @object.changed?.trigger?(changes)
 
-      triggerGlobal(@object, Object.keys(changes))
+      #triggerGlobal(@object, Object.keys(changes))
 
   bind: (fun) ->
+    for dependency in @definition.localDependencies
+      @object[dependency + "_property"].registerGlobal()
+    @registerGlobal()
+
     @event.bind(fun)
 
   unbind: (fun) ->

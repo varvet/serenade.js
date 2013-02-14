@@ -33,7 +33,6 @@ extend Serenade,
   clearIdentityMap: -> Cache._identityMap = {}
   clearCache: ->
     Serenade.clearIdentityMap()
-    delete globalDependencies[key] for value, key in globalDependencies
   unregisterAll: ->
     Serenade._views = {}
     Serenade._controllers = {}
