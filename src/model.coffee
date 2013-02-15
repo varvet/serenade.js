@@ -46,7 +46,7 @@ class Model
         valueName = "val_#{name}"
         unless @_s[valueName]
           @_s[valueName] = new Collection([])
-          @_s[valueName].change.rebind(@[name + "_property"].trigger)
+          @_s[valueName].change.bind(@[name + "_property"].trigger)
         @_s[valueName]
       set: (value) ->
         @[name].update(value)
@@ -80,7 +80,7 @@ class Model
         valueName = "val_#{name}"
         unless @_s[valueName]
           @_s[valueName] = new AssociationCollection(this, options, [])
-          @_s[valueName].change.rebind(@[name + "_property"].trigger)
+          @_s[valueName].change.bind(@[name + "_property"].trigger)
         @_s[valueName]
       set: (value) ->
         @[name].update(value)

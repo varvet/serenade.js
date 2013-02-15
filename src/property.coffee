@@ -76,25 +76,25 @@ class PropertyAccessor
       switch type
         when "singular"
           if @object[name]
-            @object[name][subname + "_property"]?.rebind(@trigger)
+            @object[name][subname + "_property"]?.bind(@trigger)
           @object[name + "_property"]?.bind (before, after) =>
             before?[subname + "_property"]?.unbind(@trigger)
-            after?[subname + "_property"]?.rebind(@trigger)
+            after?[subname + "_property"]?.bind(@trigger)
         when "collection"
           updateItemBindings = (before, after) =>
             before?.forEach? (item) =>
               item[subname + "_property"]?.unbind(@trigger)
             after?.forEach? (item) =>
-              item[subname + "_property"]?.rebind(@trigger)
+              item[subname + "_property"]?.bind(@trigger)
 
           updateCollectionBindings = (before, after) =>
             updateItemBindings(before, after)
             before?.change?.unbind(@trigger)
-            after?.change?.rebind(@trigger)
+            after?.change?.bind(@trigger)
             before?.change?.unbind(updateItemBindings)
-            after?.change?.rebind(updateItemBindings)
+            after?.change?.bind(updateItemBindings)
 
-          @object[name + "_property"]?.rebind(updateCollectionBindings)
+          @object[name + "_property"]?.bind(updateCollectionBindings)
           updateCollectionBindings(undefined, @object[name])
 
     for dependency in @definition.localDependencies
@@ -120,7 +120,7 @@ class PropertyAccessor
       @object.changed?.trigger?(changes)
       @_oldValue = newValue
 
-  ["bind", "rebind", "unbind", "one", "resolve"].forEach (fn) =>
+  ["bind", "unbind", "one", "resolve"].forEach (fn) =>
     this::[fn] = -> @event[fn](arguments...)
 
   # Find all properties which are dependent upon this one

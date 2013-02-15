@@ -5,7 +5,7 @@ describe "Serenade.defineEvent", ->
   beforeEach ->
     @object = { text: "Hello", num: 0 }
     @increment = -> @num += 1
-    @append = (val) -> @text += val
+    @append = (val) -> console.log(val); @text += val
 
   it "adds an event property which is not enumerable", ->
     defineEvent(@object, "event")
@@ -59,6 +59,14 @@ describe "Serenade.defineEvent", ->
       @object.event1.bind (val) -> result = @text + " " + val
       @object.event2.trigger("world")
       expect(result).to.eql(null)
+
+    it.only "doesn't listen to the event more than once", ->
+      defineEvent(@object, "event")
+      @object.event.bind(@append)
+      @object.event.bind(@append)
+      @object.event.trigger(" world")
+      console.log @object.text
+      expect(@object.text).to.eql("Hello world")
 
   describe "#unbind", ->
     it "does nothing when the given function isn't bound", ->
