@@ -314,12 +314,24 @@ describe 'Serenade.defineProperty', ->
       expect(@object.result).to.eql(2)
 
   describe "with `changed` option", ->
-    it "triggers a change event if changed option evaluates to true", ->
-      defineProperty @object, "name", changed: (oldVal, newVal) -> oldVal isnt newVal
+    it "triggers a change event if value of property has changed if option not given", ->
+      defineProperty @object, "name"
 
       expect(=> @object.name = "jonas").to.triggerEvent(@object.name_property)
       expect(=> @object.name = "jonas").not.to.triggerEvent(@object.name_property)
       expect(=> @object.name = "kim").to.triggerEvent(@object.name_property)
+
+    it "triggers a change event if changed option evaluates to true", ->
+      defineProperty @object, "name", value: "jonas", changed: (oldVal, newVal) -> oldVal is newVal
+
+      expect(=> @object.name = "jonas").to.triggerEvent(@object.name_property)
+      expect(=> @object.name = "jonas").to.triggerEvent(@object.name_property)
+      expect(=> @object.name = "kim").not.to.triggerEvent(@object.name_property)
+
+    it "always triggers a change event the first time a property is changed when a function is given since we don't know the initial value", ->
+      defineProperty @object, "name", changed: -> false
+      expect(=> @object.name = "jonas").to.triggerEvent(@object.name_property)
+      expect(=> @object.name = "kim").not.to.triggerEvent(@object.name_property)
 
     it "does not trigger dependencies when not changed", ->
       defineProperty @object, "name", changed: (oldVal, newVal) -> oldVal isnt newVal
