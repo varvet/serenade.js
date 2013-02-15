@@ -347,6 +347,13 @@ describe 'Serenade.defineProperty', ->
       expect(=> @object.name = "jonas").not.to.triggerEvent(@object.name_property)
       expect(=> @object.name = "kim").not.to.triggerEvent(@object.name_property)
 
+    it "always triggers a change event when option is true", ->
+      defineProperty @object, "name", changed: true
+
+      expect(=> @object.name = "jonas").to.triggerEvent(@object.name_property)
+      expect(=> @object.name = "jonas").to.triggerEvent(@object.name_property)
+      expect(=> @object.name = "kim").to.triggerEvent(@object.name_property)
+
   describe "with `async` option", ->
     it "dispatches a change event for this property asynchronously", (done) ->
       defineProperty @object, "foo", async: true
