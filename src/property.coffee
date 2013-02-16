@@ -100,6 +100,9 @@ class PropertyAccessor
 
           @object[name + "_property"]?.bind(updateCollectionBindings)
           updateCollectionBindings(undefined, @object[name])
+          @_gcQueue.push =>
+            updateCollectionBindings(@object[name], undefined)
+            @object[name + "_property"]?.unbind(updateCollectionBindings)
 
     for dependency in @definition.localDependencies
       @object[dependency + "_property"]?.registerGlobal()

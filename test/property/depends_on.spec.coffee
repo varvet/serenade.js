@@ -128,6 +128,7 @@ describe 'Serenade.defineProperty', ->
       beforeEach ->
         defineProperty @object, 'authors', value: new Serenade.Collection()
         defineProperty @object, 'authorNames', dependsOn: "authors:name", get: -> @authors.map (a) -> a.name
+        defineProperty @object, 'attribution', dependsOn: "authorNames", get: -> @authorNames.join(", ")
 
       it "observes changes to the entire collection", ->
         newAuthor = Serenade(name: "Anders")
@@ -178,3 +179,54 @@ describe 'Serenade.defineProperty', ->
           oldAuthors[0].name = "Kim"
         .to.triggerEvent(@object.authorNames_property, count: 1)
 
+      it "unbinds global listeners when property no longer has any listeners", ->
+        @object.authors = new Serenade.Collection([Serenade(name: "Jonas"), Serenade(name: "Kim")])
+        foo = ->
+        bar = ->
+        @object.authorNames_property.bind(foo)
+        @object.authorNames_property.bind(bar)
+        expect(@object.authors[0].name_property.listeners.length).to.eql(1)
+        expect(@object.authors[1].name_property.listeners.length).to.eql(1)
+        expect(@object.authors.change.listeners.length).to.eql(2)
+        expect(@object.authors_property.listeners.length).to.eql(1)
+        @object.authorNames_property.unbind(foo)
+        expect(@object.authors[0].name_property.listeners.length).to.eql(1)
+        expect(@object.authors[1].name_property.listeners.length).to.eql(1)
+        expect(@object.authors.change.listeners.length).to.eql(2)
+        expect(@object.authors_property.listeners.length).to.eql(1)
+        @object.authorNames_property.unbind(bar)
+        expect(@object.authors[0].name_property.listeners.length).to.eql(0)
+        expect(@object.authors[1].name_property.listeners.length).to.eql(0)
+        expect(@object.authors.change.listeners.length).to.eql(0)
+        expect(@object.authors_property.listeners.length).to.eql(0)
+        @object.authorNames_property.bind(bar)
+        expect(@object.authors[0].name_property.listeners.length).to.eql(1)
+        expect(@object.authors[1].name_property.listeners.length).to.eql(1)
+        expect(@object.authors.change.listeners.length).to.eql(2)
+        expect(@object.authors_property.listeners.length).to.eql(1)
+
+      it "unbinds global listeners when dependent property no longer has any listeners", ->
+        @object.authors = new Serenade.Collection([Serenade(name: "Jonas"), Serenade(name: "Kim")])
+        foo = ->
+        bar = ->
+        @object.authorNames_property.bind(foo)
+        @object.attribution_property.bind(bar)
+        expect(@object.authors[0].name_property.listeners.length).to.eql(1)
+        expect(@object.authors[1].name_property.listeners.length).to.eql(1)
+        expect(@object.authors.change.listeners.length).to.eql(2)
+        expect(@object.authors_property.listeners.length).to.eql(1)
+        @object.authorNames_property.unbind(foo)
+        expect(@object.authors[0].name_property.listeners.length).to.eql(1)
+        expect(@object.authors[1].name_property.listeners.length).to.eql(1)
+        expect(@object.authors.change.listeners.length).to.eql(2)
+        expect(@object.authors_property.listeners.length).to.eql(1)
+        @object.attribution_property.unbind(bar)
+        expect(@object.authors[0].name_property.listeners.length).to.eql(0)
+        expect(@object.authors[1].name_property.listeners.length).to.eql(0)
+        expect(@object.authors.change.listeners.length).to.eql(0)
+        expect(@object.authors_property.listeners.length).to.eql(0)
+        @object.attribution_property.bind(bar)
+        expect(@object.authors[0].name_property.listeners.length).to.eql(1)
+        expect(@object.authors[1].name_property.listeners.length).to.eql(1)
+        expect(@object.authors.change.listeners.length).to.eql(2)
+        expect(@object.authors_property.listeners.length).to.eql(1)
