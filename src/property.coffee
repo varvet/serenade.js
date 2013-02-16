@@ -105,19 +105,14 @@ class PropertyAccessor
     if @hasChanged()
       newValue = @get()
 
-      changes = {}
-      changes[name] = @object[name] for name in @dependents when name isnt @name
-
       @event.trigger(@_oldValue, newValue)
-      for own name, value of changes
-        prop = @object[name + "_property"]
-        prop.clearCache()
-        if prop.hasChanged()
-          prop.event.trigger(prop._oldValue, value)
-          prop._oldValue = value
 
+      changes = {}
       changes[@name] = newValue
       @object.changed?.trigger?(changes)
+
+      @object[name + "_property"].trigger() for name in @dependents
+
       @_oldValue = newValue
 
   ["bind", "unbind", "one", "resolve"].forEach (fn) =>

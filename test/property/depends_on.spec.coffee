@@ -53,20 +53,6 @@ describe 'Serenade.defineProperty', ->
         dependsOn: 'name'
       expect(=> @object.name = 'Jonas').to.triggerEvent(@object.reverseName_property, with: [undefined, 'sanoJ'])
 
-    it 'can handle circular dependencies', ->
-      defineProperty @object, 'foo', dependsOn: 'bar'
-      defineProperty @object, 'bar', dependsOn: 'foo', get: -> @foo
-      expect(=> @object.foo = 21).to.triggerEvent(@object.foo_property)
-      expect(=> @object.foo = 22).to.triggerEvent(@object.bar_property)
-
-    it 'can handle secondary dependencies', ->
-      defineProperty @object, 'foo', dependsOn: 'quox'
-      defineProperty @object, 'bar', dependsOn: ['quox'], get: -> @quox
-      defineProperty @object, 'quox', dependsOn: ['bar', 'foo'], get: -> @foo
-      expect(=> @object.foo = 21).to.triggerEvent(@object.foo_property, with: [undefined, 21])
-      expect(=> @object.foo = 22).to.triggerEvent(@object.bar_property, with: [21, 22])
-      expect(=> @object.foo = 23).to.triggerEvent(@object.quox_property, with: [22, 23])
-
     context "reaching into an object", ->
       it "observes changes to the property", ->
         defineProperty @object, 'name', dependsOn: 'author.name', get: -> @author.name
