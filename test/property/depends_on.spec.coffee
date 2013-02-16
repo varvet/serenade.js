@@ -85,6 +85,45 @@ describe 'Serenade.defineProperty', ->
           oldAuthor.name = "Kim"
         .to.triggerEvent(@object.name_property, count: 2)
 
+      it "unbinds global listeners when property no longer has any listeners", ->
+        defineProperty @object, 'author', value: Serenade(name: "Jonas")
+        defineProperty @object, 'name', dependsOn: 'author.name', get: -> @author?.name
+        foo = ->
+        bar = ->
+        @object.name_property.bind(foo)
+        @object.name_property.bind(bar)
+        expect(@object.author.name_property.listeners.length).to.eql(1)
+        expect(@object.author_property.listeners.length).to.eql(1)
+        @object.name_property.unbind(foo)
+        expect(@object.author.name_property.listeners.length).to.eql(1)
+        expect(@object.author_property.listeners.length).to.eql(1)
+        @object.name_property.unbind(bar)
+        expect(@object.author.name_property.listeners.length).to.eql(0)
+        expect(@object.author_property.listeners.length).to.eql(0)
+        @object.name_property.bind(bar)
+        expect(@object.author.name_property.listeners.length).to.eql(1)
+        expect(@object.author_property.listeners.length).to.eql(1)
+
+      it "unbinds global listeners when dependent property no longer has any listeners", ->
+        defineProperty @object, 'author', value: Serenade(name: "Jonas")
+        defineProperty @object, 'name', dependsOn: 'author.name', get: -> @author?.name
+        defineProperty @object, 'bigName', dependsOn: 'name', get: -> @name?.toUpperCase()
+        foo = ->
+        bar = ->
+        @object.name_property.bind(foo)
+        @object.bigName_property.bind(bar)
+        expect(@object.author.name_property.listeners.length).to.eql(1)
+        expect(@object.author_property.listeners.length).to.eql(1)
+        @object.name_property.unbind(foo)
+        expect(@object.author.name_property.listeners.length).to.eql(1)
+        expect(@object.author_property.listeners.length).to.eql(1)
+        @object.bigName_property.unbind(bar)
+        expect(@object.author.name_property.listeners.length).to.eql(0)
+        expect(@object.author_property.listeners.length).to.eql(0)
+        @object.bigName_property.bind(bar)
+        expect(@object.author.name_property.listeners.length).to.eql(1)
+        expect(@object.author_property.listeners.length).to.eql(1)
+
     context "reaching into a collection", ->
       beforeEach ->
         defineProperty @object, 'authors', value: new Serenade.Collection()

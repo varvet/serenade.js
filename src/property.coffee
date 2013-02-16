@@ -37,6 +37,7 @@ class PropertyAccessor
     @name = @definition.name
     @valueName = "val_#{@name}"
     @event = new Event(@object, @name + "_change", @definition.eventOptions)
+    @_gcQueue = []
 
   set: (value) ->
     if typeof(value) is "function"
@@ -75,11 +76,14 @@ class PropertyAccessor
       { name, type, subname } = dep
       switch type
         when "singular"
-          if @object[name]
-            @object[name][subname + "_property"]?.bind(@trigger)
-          @object[name + "_property"]?.bind (before, after) =>
+          updateItemBinding = (before, after) =>
             before?[subname + "_property"]?.unbind(@trigger)
             after?[subname + "_property"]?.bind(@trigger)
+          @object[name + "_property"]?.bind(updateItemBinding)
+          updateItemBinding(undefined, @object[name])
+          @_gcQueue.push =>
+            updateItemBinding(@object[name], undefined)
+            @object[name + "_property"]?.unbind(updateItemBinding)
         when "collection"
           updateItemBindings = (before, after) =>
             before?.forEach? (item) =>
@@ -100,6 +104,14 @@ class PropertyAccessor
     for dependency in @definition.localDependencies
       @object[dependency + "_property"]?.registerGlobal()
 
+  gc: ->
+    if @listeners.length is 0 and not @dependentProperties.find((prop) => prop.listeners.length isnt 0)
+      fn() for fn in @_gcQueue
+      @_isRegistered = false
+
+    for dependency in @definition.localDependencies
+      @object[dependency + "_property"]?.gc()
+
   trigger: =>
     @clearCache()
     if @hasChanged()
@@ -115,8 +127,12 @@ class PropertyAccessor
 
       @_oldValue = newValue
 
-  ["bind", "unbind", "one", "resolve"].forEach (fn) =>
+  ["bind", "one", "resolve"].forEach (fn) =>
     this::[fn] = -> @event[fn](arguments...)
+
+  unbind: (fn) ->
+    @event.unbind(fn)
+    @gc()
 
   # Find all properties which are dependent upon this one
   def @prototype, "dependents", get: ->
@@ -147,6 +163,9 @@ class PropertyAccessor
           @_oldValue isnt @get()
       else
         true
+
+  def @prototype, "dependentProperties", get: ->
+    new Serenade.Collection(@object[name + "_property"] for name in @dependents)
 
 defineProperty = (object, name, options={}) ->
   definition = new PropertyDefinition(name, options)
