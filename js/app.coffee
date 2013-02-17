@@ -192,7 +192,7 @@ $("#convert").each ->
     walk = (node) ->
       tokens = walkChildren(node.childNodes)
       tokens = ("  " + token for token in tokens)
-      name = node.localName
+      name = if node.localName is "div" then "" else node.localName
       attributes = []
       for attribute in node.attributes
         switch attribute.name
