@@ -7,7 +7,8 @@ class Event
   trigger: (args...) ->
     @queue.push(args)
     if @async
-      @queue.timeout or= setTimeout((=> @resolve()), 0)
+      clearTimeout(@queue.timeout)
+      @queue.timeout = setTimeout((=> @resolve()), @options.timeout or 0)
     else
       @resolve()
 

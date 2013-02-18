@@ -12,6 +12,7 @@ class PropertyDefinition
   def @prototype, "eventOptions", get: ->
     name = @name
     async: if @async? then @async else settings.async
+    timeout: @timeout
     bind: ->
       @[name] # make sure dependencies have been discovered and registered
       @[name + "_property"].registerGlobal()
