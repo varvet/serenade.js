@@ -5,12 +5,13 @@ class Event
     if "async" of @options then @options.async else settings.async
 
   trigger: (args...) ->
-    @queue.push(args)
-    if @async
-      clearTimeout(@queue.timeout)
-      @queue.timeout = setTimeout((=> @resolve()), @options.timeout or 0)
-    else
-      @resolve()
+    if @listeners.length
+      @queue.push(args)
+      if @async
+        clearTimeout(@queue.timeout)
+        @queue.timeout = setTimeout((=> @resolve()), @options.timeout or 0)
+      else
+        @resolve()
 
   bind: (fun) ->
     @options.bind.call(@object, fun) if @options.bind
