@@ -56,8 +56,13 @@ class PropertyAccessor
       listener = (name) => @definition.addDependency(name)
       @object._s.property_access.bind(listener) unless "dependsOn" of @definition
       value = @definition.get.call(@object)
-      @object._s[@valueName] = value if @definition.cache
       @object._s.property_access.unbind(listener) unless "dependsOn" of @definition
+      if @definition.cache
+        @object._s[@valueName] = value
+        # make sure global listeners are attached and stay attached
+        unless @_isCached
+          @_isCached = true
+          @bind(->)
     else
       value = @object._s[@valueName]
 

@@ -54,30 +54,26 @@ describe 'Serenade.defineProperty', ->
       expect(=> @object.name = 'Jonas').to.triggerEvent(@object.reverseName_property, with: [undefined, 'sanoJ'])
 
     context "reaching into an object", ->
-      it "observes changes to the property", ->
+      beforeEach ->
+        defineProperty @object, 'bigName', dependsOn: 'name', get: -> @name.toUpperCase() if @name
         defineProperty @object, 'name', dependsOn: 'author.name', get: -> @author.name
-        defineProperty @object, 'author'
+        defineProperty @object, 'author', value: Serenade(name: "Peter")
+
+      it "observes changes to the property", ->
         @object.author = Serenade(name: "Jonas")
         expect(=> @object.author.name = 'test').to.triggerEvent(@object.name_property)
 
       it "can depend on properties which reach into other properties", ->
-        defineProperty @object, 'uppityName', dependsOn: 'name', get: -> @name.toUpperCase() if @name
-        defineProperty @object, 'name', dependsOn: 'author.name', get: -> @author.name
-        defineProperty @object, 'author'
         @object.author = Serenade(name: "Jonas")
-        expect(=> @object.author.name = 'test').to.triggerEvent(@object.uppityName_property)
+        expect(=> @object.author.name = 'test').to.triggerEvent(@object.bigName_property)
 
       it "triggers changes when object is assigned after event is bound", ->
-        defineProperty @object, 'name', dependsOn: 'author.name', get: -> @author?.name
-        defineProperty @object, 'author'
         expect =>
           @object.author = Serenade(name: "Jonas")
           @object.author.name = "Kim"
         .to.triggerEvent(@object.name_property, count: 2)
 
       it "does not observe changes on objects which are no longer associated", ->
-        defineProperty @object, 'name', dependsOn: 'author.name', get: -> @author?.name
-        defineProperty @object, 'author'
         expect =>
           @object.author = Serenade(name: "Jonas")
           oldAuthor = @object.author
@@ -85,9 +81,13 @@ describe 'Serenade.defineProperty', ->
           oldAuthor.name = "Kim"
         .to.triggerEvent(@object.name_property, count: 2)
 
+      it "observes changes to cached properties", ->
+        defineProperty @object, 'cachedName', cache: true, dependsOn: "name", get: -> @name
+        expect(@object.cachedName).to.eql("Peter")
+        @object.author.name = "John"
+        expect(@object.cachedName).to.eql("John")
+
       it "unbinds global listeners when property no longer has any listeners", ->
-        defineProperty @object, 'author', value: Serenade(name: "Jonas")
-        defineProperty @object, 'name', dependsOn: 'author.name', get: -> @author?.name
         foo = ->
         bar = ->
         @object.name_property.bind(foo)
@@ -105,9 +105,6 @@ describe 'Serenade.defineProperty', ->
         expect(@object.author_property.listeners.length).to.eql(1)
 
       it "unbinds global listeners when dependent property no longer has any listeners", ->
-        defineProperty @object, 'author', value: Serenade(name: "Jonas")
-        defineProperty @object, 'name', dependsOn: 'author.name', get: -> @author?.name
-        defineProperty @object, 'bigName', dependsOn: 'name', get: -> @name?.toUpperCase()
         foo = ->
         bar = ->
         @object.name_property.bind(foo)
