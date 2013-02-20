@@ -1,6 +1,6 @@
 class Node
-  defineEvent(@prototype, "load")
-  defineEvent(@prototype, "unload")
+  defineEvent(@prototype, "load", async: false)
+  defineEvent(@prototype, "unload", async: false)
 
   constructor: (@ast, @element) ->
     @children = new Collection([])
