@@ -119,3 +119,15 @@ describe 'Collection', ->
     expect(@body).to.have.text("")
     model.things = ["foo", "bar"]
     expect(@body).to.have.text("foobar")
+
+  it 'passes collection item into controller', ->
+    model = { things: [{ name: "foo" }, { name: "baz" }, {name: "bar"}] }
+    controller = { mark: (_, item) -> item.marked = true }
+
+    @render """
+      ul
+        - collection @things
+          li[event:click=mark id=@name]
+    """, model, controller
+    @fireEvent @body.querySelector('#baz'), 'click'
+    expect(model.things[1].marked).to.be.ok
