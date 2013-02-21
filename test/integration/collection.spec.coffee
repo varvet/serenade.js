@@ -131,3 +131,40 @@ describe 'Collection', ->
     """, model, controller
     @fireEvent @body.querySelector('#baz'), 'click'
     expect(model.things[1].marked).to.be.ok
+
+  it.only 'can render same collection multiple times', ->
+    model = { people: new Serenade.Collection(["jonas"]) }
+
+    @render '''
+      ul#one
+        - collection @people
+          li.one[class=@]
+      ul#two
+        - collection @people
+          li.two[class=@]
+      ul#three
+        - collection @people
+          li.three[class=@]
+    ''', model
+    model.people.push("peter")
+    model.people.push("kim")
+    expect(@body).to.have.element('#one > .jonas')
+    expect(@body).to.have.element('#one > .kim')
+    expect(@body).to.have.element('#one > .peter')
+    expect(@body).to.have.element('#two > .jonas')
+    expect(@body).to.have.element('#two > .kim')
+    expect(@body).to.have.element('#one > .peter')
+    expect(@body).to.have.element('#three > .jonas')
+    expect(@body).to.have.element('#three > .kim')
+    model.people.delete("peter")
+    expect(@body).to.have.element('#one > .jonas')
+    expect(@body).to.have.element('#one > .kim')
+    expect(@body).not.to.have.element('#one > .peter')
+    expect(@body).to.have.element('#two > .jonas')
+    expect(@body).to.have.element('#two > .kim')
+    expect(@body).not.to.have.element('#one > .peter')
+    expect(@body).to.have.element('#three > .jonas')
+    expect(@body).to.have.element('#three > .kim')
+    expect(@body.querySelector('#one').children.length).to.eql(2)
+    expect(@body.querySelector('#two').children.length).to.eql(2)
+    expect(@body.querySelector('#three').children.length).to.eql(2)

@@ -32,7 +32,7 @@ class Event
     if @queue.length
       perform = (args) =>
         if @listeners
-          @listeners.forEach (listener) =>
+          ([].concat(@listeners)).forEach (listener) =>
             listener.apply(@object, args)
       if @options.optimize
         perform(@options.optimize(@queue))
