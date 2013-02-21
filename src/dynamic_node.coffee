@@ -41,7 +41,7 @@ class DynamicNode extends Node
     @nodeSets.update([])
 
   remove: ->
-    @unbindEvents()
+    @detach()
     @clear()
     @anchor.parentNode.removeChild(@anchor)
 

@@ -14,7 +14,7 @@ class Node
     after.parentNode.insertBefore(@element, after.nextSibling)
 
   remove: ->
-    @unbindEvents()
+    @detach()
     @element.parentNode?.removeChild(@element)
 
   def @prototype, "lastElement", configurable: true, get: ->
@@ -33,11 +33,11 @@ class Node
       @boundEvents.delete(fun)
       event.unbind(fun)
 
-  unbindEvents: ->
+  detach: ->
     # trigger unload callbacks
     @unload.trigger()
     # recursively unbind events on children
-    node.unbindEvents() for node in @nodes()
+    node.detach() for node in @nodes()
     # remove events
     event.unbind(fun) for {event, fun} in @boundEvents if @boundEvents
 
