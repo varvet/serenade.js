@@ -132,7 +132,7 @@ describe 'Collection', ->
     @fireEvent @body.querySelector('#baz'), 'click'
     expect(model.things[1].marked).to.be.ok
 
-  it.only 'can render same collection multiple times', ->
+  it 'can render same collection multiple times', ->
     model = { people: new Serenade.Collection(["jonas"]) }
 
     @render '''
