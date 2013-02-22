@@ -82,7 +82,7 @@ describe "Serenade.Model.delegate", ->
     expect(post.nameQuox).to.eql("Jonas")
     expect(post.emailQuox).to.eql("jonas@elabs.se")
 
-  it.only "forwards formatters", ->
+  it "forwards formatters", ->
     class Author extends Serenade.Model
       @property "email"
         format: (email) ->
