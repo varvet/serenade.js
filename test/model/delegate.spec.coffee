@@ -81,3 +81,18 @@ describe "Serenade.Model.delegate", ->
     post = new Post(author: { name: "Jonas", email: "jonas@elabs.se" })
     expect(post.nameQuox).to.eql("Jonas")
     expect(post.emailQuox).to.eql("jonas@elabs.se")
+
+  it "forwards formatters", ->
+    class Author extends Serenade.Model
+      @property "email"
+        format: (email) ->
+          email.replace(/@/, "[at]")
+
+    class Post extends Serenade.Model
+      @delegate "email", to: "author", prefix: true
+
+    author = new Author({ email: "jonas@elabs.se" })
+    post = new Post(author: author)
+
+    expect(post.authorEmail).to.eql("jonas@elabs.se")
+    expect(Serenade.format(post, "authorEmail")).to.eql("jonas[at]elabs.se")
