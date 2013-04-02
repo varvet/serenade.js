@@ -64,8 +64,8 @@ reflected in the `commentsIds` property.
 Post.hasMany('comments', { as: function() { return Comment } });
 ```
 
-If the `constructor` property is omitted from either declaration, then the
-associated documents will be plain objects instead.
+If the `as` property is omitted from either declaration, then the associated
+documents will be plain objects instead.
 
 You can declare that an association has a property on the other side, this
 will automatically set the inverse association.
@@ -121,15 +121,15 @@ want to only serialize the id or ids of the associated document(s). In that
 case, you can declare the associations like this:
 
 ``` javascript
-Post.hasMany('comments', { constructor: 'Comment', serializeIds: true });
-Comment.belongsTo('post', { constructor: 'Post', serializeId: true });
+Post.hasMany('comments', { serializeIds: true });
+Comment.belongsTo('post', { serializeId: true });
 ```
 
 All of these declarations can of course also take a string so that the
 association is serialized under another name:
 
 ``` javascript
-Comment.belongsTo('post', { constructor: 'Post', serializeId: 'post_id' });
+Comment.belongsTo('post', { serializeId: 'post_id' });
 ```
 
 ## Getter assignment
