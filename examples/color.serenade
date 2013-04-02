@@ -1,4 +1,4 @@
 #color[style:backgroundColor=@rgb]
-  input[binding:change=@r type="range" min="0" max="255" step="1"]
-  input[binding:change=@g type="range" min="0" max="255" step="1"]
-  input[binding:change=@b type="range" min="0" max="255" step="1"]
+  input[type="range" min="0" max="255" step="1" binding:change=@r]
+  input[type="range" min="0" max="255" step="1" binding:change=@g]
+  input[type="range" min="0" max="255" step="1" binding:change=@b]
