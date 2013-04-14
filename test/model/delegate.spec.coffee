@@ -84,7 +84,7 @@ describe "Serenade.Model.delegate", ->
 
   it "forwards formatters", ->
     class Author extends Serenade.Model
-      @property "email"
+      @property "email",
         format: (email) ->
           email.replace(/@/, "[at]")
 
