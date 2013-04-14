@@ -27,6 +27,7 @@ Build =
 
   sourceFiles: [
     "helpers"
+    "promise"
     "event"
     "cache"
     "collection"

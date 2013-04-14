@@ -37,6 +37,7 @@ extend Serenade,
     Serenade._views = {}
     Serenade._controllers = {}
 
+  Promise: Promise
   Model: Model
   Collection: Collection
   Cache: Cache
