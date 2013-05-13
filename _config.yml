@@ -29,8 +29,9 @@ reference:
   - title: "Serenade.Collection"
     url: "/reference/collection.html"
 version:
-  - 0.4.1
+  - 0.4.2
 oldVersions:
+  - 0.4.1
   - 0.4.0
   - 0.3.0
   - 0.2.1
