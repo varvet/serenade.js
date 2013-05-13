@@ -4,7 +4,7 @@ Serenade = (wrapped) ->
   object
 
 extend Serenade,
-  VERSION: '0.4.1'
+  VERSION: '0.4.2'
   _views: {}
   _controllers: {}
 

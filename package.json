@@ -1,7 +1,7 @@
 {
    "name": "serenade",
    "main": "src/build",
-   "version": "0.4.1",
+   "version": "0.4.2",
    "description": "JavaScript client side MVC framework",
    "keywords": [ "MVC", "data bingings", "client-side" ],
    "maintainers": [
