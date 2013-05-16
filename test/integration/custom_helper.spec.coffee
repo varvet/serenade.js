@@ -60,7 +60,17 @@ describe 'Custom helpers', ->
     '''
     expect(@body).to.have.element('div')
 
-  it 'can return a string', ->
+  it 'can return a string of text', ->
+    Serenade.Helpers.funky = ->
+      "Hello"
+    @render '''
+      div
+        - funky
+    '''
+    expect(@body).to.have.element('div')
+    expect(@body).to.have.text("Hello")
+
+  it 'can return a string of html', ->
     Serenade.Helpers.funky = ->
       "<article>Hello</article>"
     @render '''
