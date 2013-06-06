@@ -155,9 +155,9 @@ Compile =
     compileItem = (item) -> compile(ast.children, item, controller)
     updateCollection = (before, after) -> update(dynamic, after)
     update = (dynamic, newCollection) ->
-      dynamic.unbindEvent(collection.change, updateCollection)
-      dynamic.replace(compileItem(item) for item in newCollection)
-      dynamic.bindEvent(newCollection.change, updateCollection)
+      dynamic.unbindEvent(collection?.change, updateCollection)
+      dynamic.replace(compileItem(item) for item in newCollection or [])
+      dynamic.bindEvent(newCollection?.change, updateCollection)
       collection = newCollection
     dynamic = @bound(ast, model, controller, update)
 

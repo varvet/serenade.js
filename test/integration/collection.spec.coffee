@@ -15,6 +15,16 @@ describe 'Collection', ->
     expect(@body).to.have.element('ul > li#jonas')
     expect(@body).to.have.element('ul > li#peter')
 
+  it 'renders nothing if collection is not defined', ->
+    model = {}
+
+    @render '''
+      ul
+        - collection @people
+          li[id=name]
+    ''', model
+    expect(@body).to.have.element('ul')
+
   it 'can reference the items itself', ->
     model = { people: ['jonas', 'peter'] }
 
