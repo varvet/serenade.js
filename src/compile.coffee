@@ -154,12 +154,12 @@ Compile =
     dynamic = null
     compileItem = (item) -> compile(ast.children, item, controller)
     updateCollection = (before, after) ->
-      operations = new Transform(after or []).calculate(before or [])
+      operations = Transform(before, after)
       for operation in operations
         switch operation.type
           when "insert"
             dynamic.insertNodeSet(operation.index, compileItem(operation.value))
-          when "delete"
+          when "remove"
             dynamic.deleteNodeSet(operation.index)
           when "swap"
             dynamic.swapNodeSet(operation.index, operation.with)

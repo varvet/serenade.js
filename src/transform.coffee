@@ -13,39 +13,34 @@ class Map
   put: (index, element) ->
     @map[hash(element)] = [index, element]
 
-class Transform
-  constructor: (target) ->
-    @target = target.map((e) -> e)
-    @targetMap = new Map(@target)
+Transform = (from=[], to=[]) ->
+  operations = []
+  to = to.map((e) -> e)
+  targetMap = new Map(to)
 
-  calculate: (origin) ->
-    @operations = []
-    @swap(@insert(@delete(origin)))
-    @operations
-
-  delete: (origin) ->
+  remove = ->
     result = []
-    for element in origin
-      if @targetMap.isMember(element)
+    for element in from
+      if targetMap.isMember(element)
         result.push(element)
       else
-        @operations.push(type: "delete", index: result.length)
+        operations.push(type: "remove", index: result.length)
     result
 
-  insert: (cleaned) ->
+  insert = (cleaned) ->
     result = cleaned.map((e) -> e)
     cleanedMap = new Map(cleaned)
 
-    for element, index in @target
+    for element, index in to
       unless cleanedMap.isMember(element)
-        @operations.push(type: "insert", index: index, value: element)
+        operations.push(type: "insert", index: index, value: element)
         result.splice(index, 0, element)
     result
 
-  swap: (complete) ->
+  swap = (complete) ->
     completeMap = new Map(complete)
     for actual, indexActual in complete
-      wanted = @target[indexActual]
+      wanted = to[indexActual]
 
       if actual isnt wanted
         indexWanted = completeMap.indexOf(wanted)
@@ -53,4 +48,7 @@ class Transform
         completeMap.put(indexWanted, actual)
         complete[indexActual] = wanted
         complete[indexWanted] = actual
-        @operations.push(type: "swap", index: indexActual, with: indexWanted)
+        operations.push(type: "swap", index: indexActual, with: indexWanted)
+
+  swap(insert(remove()))
+  operations

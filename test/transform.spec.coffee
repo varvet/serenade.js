@@ -15,7 +15,7 @@ replay = (array, operations) ->
     switch operation.type
       when "insert"
         array.splice(operation.index, 0, operation.value)
-      when "delete"
+      when "remove"
         array.splice(operation.index, 1)
       when "swap"
         from = operation.index
@@ -38,5 +38,5 @@ describe 'Serenade.Transform', ->
         origin = random_array(length).uniq()
         target = random_array(length).uniq()
 
-        operations = new Transform(target).calculate(origin)
+        operations = Transform(origin, target)
         expect(replay(origin, operations)).to.eql(target)
