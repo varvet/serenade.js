@@ -32,7 +32,7 @@ Transform = (from=[], to=[]) ->
       operations.push(type: "remove", index: cleaned.length)
     targetMap.remove(element)
 
-  complete = cleaned.map((e) -> e)
+  complete = [].concat(cleaned)
   cleanedMap = new Map(cleaned)
 
   for element, index in to

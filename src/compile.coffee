@@ -154,8 +154,7 @@ Compile =
     dynamic = null
     compileItem = (item) -> compile(ast.children, item, controller)
     updateCollection = (before, after) ->
-      operations = Transform(before, after)
-      for operation in operations
+      for operation in Transform(before, after)
         switch operation.type
           when "insert"
             dynamic.insertNodeSet(operation.index, compileItem(operation.value))
