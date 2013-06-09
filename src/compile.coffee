@@ -151,25 +151,33 @@ Compile =
     node
 
   collection: (ast, model, controller) ->
-    collection = model[ast.argument]
+    dynamic = null
     compileItem = (item) -> compile(ast.children, item, controller)
-    updateCollection = (before, after) -> update(dynamic, after)
-    update = (dynamic, newCollection) ->
-      dynamic.unbindEvent(collection?.change, updateCollection)
-      dynamic.replace(compileItem(item) for item in newCollection or [])
-      dynamic.bindEvent(newCollection?.change, updateCollection)
-      collection = newCollection
-    dynamic = @bound(ast, model, controller, update)
+    updateCollection = (before, after) ->
+      for operation in Transform(before, after)
+        switch operation.type
+          when "insert"
+            dynamic.insertNodeSet(operation.index, compileItem(operation.value))
+          when "remove"
+            dynamic.deleteNodeSet(operation.index)
+          when "swap"
+            dynamic.swapNodeSet(operation.index, operation.with)
+    update = (dyn, before, after) ->
+      dynamic = dyn
+      dynamic.unbindEvent(before?.change, updateCollection)
+      dynamic.bindEvent(after?.change, updateCollection)
+      updateCollection(before, after)
+    @bound(ast, model, controller, update)
 
   in: (ast, model, controller) ->
-    @bound ast, model, controller, (dynamic, value) ->
+    @bound ast, model, controller, (dynamic, _, value) ->
       if value
         dynamic.replace([compile(ast.children, value, controller)])
       else
         dynamic.clear()
 
   if: (ast, model, controller) ->
-    @bound ast, model, controller, (dynamic, value) ->
+    @bound ast, model, controller, (dynamic, _, value) ->
       if value
         dynamic.replace([compile(ast.children, model, controller)])
       else if ast.else
@@ -178,7 +186,7 @@ Compile =
         dynamic.clear()
 
   unless: (ast, model, controller) ->
-    @bound ast, model, controller, (dynamic, value) ->
+    @bound ast, model, controller, (dynamic, _, value) ->
       if value
         dynamic.clear()
       else
@@ -187,12 +195,9 @@ Compile =
 
   bound: (ast, model, controller, callback) ->
     dynamic = new DynamicNode(ast)
-    lastValue = {}
-    update = ->
-      value = model[ast.argument]
-      callback(dynamic, value) unless value is lastValue
-      lastValue = value
-    update()
+    update = (before, after) ->
+      callback(dynamic, before, after) unless before is after
+    update({}, model[ast.argument])
     dynamic.bindEvent(model["#{ast.argument}_property"], update)
     dynamic
 

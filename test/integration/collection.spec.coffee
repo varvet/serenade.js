@@ -142,6 +142,37 @@ describe 'Collection', ->
     @fireEvent @body.querySelector('#baz'), 'click'
     expect(model.things[1].marked).to.be.ok
 
+  it 'does not rerender collection items which have not changed', ->
+    model = { things: new Serenade.Collection([{ name: "foo" }, {name: "bar"}]) }
+    @render """
+      ul
+        - collection @things
+          li[id=@name]
+    """, model
+    @body.querySelector("#foo").setAttribute("thing", "true")
+    model.things.push(name: "quox")
+    expect(@body).to.have.element('ul > li#foo[thing]')
+    expect(@body).to.have.element('ul > li#quox')
+
+  it 'correctly transforms any diff in collections', ->
+    iterations = 100
+    rand = (from, to) -> from + Math.floor(Math.random() * (to - from))
+    letters = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
+    random_array = (length) ->
+      for i in [0...rand(1, length)]
+        letters[rand(0, letters.length)]
+
+    model = Serenade(things: [])
+    @render """
+      ul
+        - collection @things
+          li @
+    """, model
+
+    for i in [0...iterations]
+      model.things = random_array(rand(1, 10))
+      expect(li.textContent for li in @body.querySelectorAll("li")).to.eql(model.things)
+
   it 'can render same collection multiple times', ->
     model = { people: new Serenade.Collection(["jonas"]) }
 

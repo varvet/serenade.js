@@ -27,6 +27,7 @@ Build =
 
   sourceFiles: [
     "helpers"
+    "transform"
     "event"
     "cache"
     "collection"
