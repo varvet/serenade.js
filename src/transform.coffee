@@ -1,27 +1,22 @@
 class Map
   constructor: (array) ->
     @map = {}
-    @putIn(index, element) for element, index in array
-    @map
+    @put(index, element) for element, index in array
 
   isMember: (element) ->
-    if @map[hash(element)]?[0].length > 0
-      @map[hash(element)][0].shift()
-      true
-    else
-      false
+    @map[hash(element)]?[0].length > 0
 
   indexOf: (element) ->
     @map[hash(element)]?[0]?[0]
 
-  putIn: (index, element) ->
+  put: (index, element) ->
     existing = @map[hash(element)]
     @map[hash(element)] = if existing
-      [[index].concat(existing[0]).sort((a, b) -> a - b), element]
+      [existing[0].concat(index).sort((a, b) -> a - b), element]
     else
       [[index], element]
 
-  putAway: (element) ->
+  remove: (element) ->
     @map[hash(element)]?[0].shift?()
 
 Transform = (from=[], to=[]) ->
@@ -36,6 +31,7 @@ Transform = (from=[], to=[]) ->
         result.push(element)
       else
         operations.push(type: "remove", index: result.length)
+      targetMap.remove(element)
     result
 
   insert = (cleaned) ->
@@ -46,6 +42,7 @@ Transform = (from=[], to=[]) ->
       unless cleanedMap.isMember(element)
         operations.push(type: "insert", index: index, value: element)
         result.splice(index, 0, element)
+      cleanedMap.remove(element)
     result
 
   swap = (complete) ->
@@ -55,14 +52,14 @@ Transform = (from=[], to=[]) ->
 
       if actual isnt wanted
         indexWanted = completeMap.indexOf(wanted)
-        completeMap.putAway(actual)
-        completeMap.putAway(wanted)
-        completeMap.putIn(indexWanted, actual)
+        completeMap.remove(actual)
+        completeMap.remove(wanted)
+        completeMap.put(indexWanted, actual)
         complete[indexActual] = wanted
         complete[indexWanted] = actual
         operations.push(type: "swap", index: indexActual, with: indexWanted)
       else
-        completeMap.putAway(actual)
+        completeMap.remove(actual)
 
   swap(insert(remove()))
   operations
