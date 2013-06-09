@@ -24,42 +24,37 @@ Transform = (from=[], to=[]) ->
   to = to.map((e) -> e)
   targetMap = new Map(to)
 
-  remove = ->
-    result = []
-    for element in from
-      if targetMap.isMember(element)
-        result.push(element)
-      else
-        operations.push(type: "remove", index: result.length)
-      targetMap.remove(element)
-    result
+  cleaned = []
+  for element in from
+    if targetMap.isMember(element)
+      cleaned.push(element)
+    else
+      operations.push(type: "remove", index: cleaned.length)
+    targetMap.remove(element)
 
-  insert = (cleaned) ->
-    result = cleaned.map((e) -> e)
-    cleanedMap = new Map(cleaned)
+  complete = cleaned.map((e) -> e)
+  cleanedMap = new Map(cleaned)
 
-    for element, index in to
-      unless cleanedMap.isMember(element)
-        operations.push(type: "insert", index: index, value: element)
-        result.splice(index, 0, element)
-      cleanedMap.remove(element)
-    result
+  for element, index in to
+    unless cleanedMap.isMember(element)
+      operations.push(type: "insert", index: index, value: element)
+      complete.splice(index, 0, element)
+    cleanedMap.remove(element)
 
-  swap = (complete) ->
-    completeMap = new Map(complete)
-    for actual, indexActual in complete
-      wanted = to[indexActual]
+  completeMap = new Map(complete)
 
-      if actual isnt wanted
-        indexWanted = completeMap.indexOf(wanted)
-        completeMap.remove(actual)
-        completeMap.remove(wanted)
-        completeMap.put(indexWanted, actual)
-        complete[indexActual] = wanted
-        complete[indexWanted] = actual
-        operations.push(type: "swap", index: indexActual, with: indexWanted)
-      else
-        completeMap.remove(actual)
+  for actual, indexActual in complete
+    wanted = to[indexActual]
 
-  swap(insert(remove()))
+    if actual isnt wanted
+      indexWanted = completeMap.indexOf(wanted)
+      completeMap.remove(actual)
+      completeMap.remove(wanted)
+      completeMap.put(indexWanted, actual)
+      complete[indexActual] = wanted
+      complete[indexWanted] = actual
+      operations.push(type: "swap", index: indexActual, with: indexWanted)
+    else
+      completeMap.remove(actual)
+
   operations
