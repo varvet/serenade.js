@@ -1,13 +1,5 @@
 require './../spec_helper'
 
-Array::uniq = ->
-  u = {}
-  a = []
-  for val in this
-    continue if(u.hasOwnProperty(val))
-    u[val] = 1
-    val
-
 describe 'Collection', ->
   beforeEach ->
     @setupDom()
@@ -178,7 +170,7 @@ describe 'Collection', ->
     """, model
 
     for i in [0...iterations]
-      model.things = random_array(rand(1, 10)).uniq()
+      model.things = random_array(rand(1, 10))
       expect(li.textContent for li in @body.querySelectorAll("li")).to.eql(model.things)
 
   it 'can render same collection multiple times', ->

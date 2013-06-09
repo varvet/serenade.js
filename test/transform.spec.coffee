@@ -1,14 +1,6 @@
 require './spec_helper'
 {Transform} = Build
 
-Array::uniq = ->
-  u = {}
-  a = []
-  for val in this
-    continue if(u.hasOwnProperty(val))
-    u[val] = 1
-    val
-
 replay = (array, operations) ->
   array = [].concat(array)
   for operation in operations
@@ -35,8 +27,8 @@ describe 'Serenade.Transform', ->
 
     for length in [1...max_length]
       for i in [0...iterations]
-        origin = random_array(length).uniq()
-        target = random_array(length).uniq()
+        origin = random_array(length)
+        target = random_array(length)
 
         operations = Transform(origin, target)
         expect(replay(origin, operations)).to.eql(target)

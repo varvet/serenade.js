@@ -1,17 +1,28 @@
 class Map
   constructor: (array) ->
     @map = {}
-    @map[hash(element)] = [index, element] for element, index in array
+    @putIn(index, element) for element, index in array
     @map
 
   isMember: (element) ->
-    @map[hash(element)]?
+    if @map[hash(element)]?[0].length > 0
+      @map[hash(element)][0].shift()
+      true
+    else
+      false
 
   indexOf: (element) ->
-    @map[hash(element)]?[0]
+    @map[hash(element)]?[0]?[0]
 
-  put: (index, element) ->
-    @map[hash(element)] = [index, element]
+  putIn: (index, element) ->
+    existing = @map[hash(element)]
+    @map[hash(element)] = if existing
+      [[index].concat(existing[0]).sort((a, b) -> a - b), element]
+    else
+      [[index], element]
+
+  putAway: (element) ->
+    @map[hash(element)]?[0].shift?()
 
 Transform = (from=[], to=[]) ->
   operations = []
@@ -44,11 +55,14 @@ Transform = (from=[], to=[]) ->
 
       if actual isnt wanted
         indexWanted = completeMap.indexOf(wanted)
-        completeMap.put(indexActual, wanted)
-        completeMap.put(indexWanted, actual)
+        completeMap.putAway(actual)
+        completeMap.putAway(wanted)
+        completeMap.putIn(indexWanted, actual)
         complete[indexActual] = wanted
         complete[indexWanted] = actual
         operations.push(type: "swap", index: indexActual, with: indexWanted)
+      else
+        completeMap.putAway(actual)
 
   swap(insert(remove()))
   operations

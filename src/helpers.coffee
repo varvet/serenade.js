@@ -59,7 +59,7 @@ hash = (value) ->
       def value, "_s_hash", value: ++arguments.callee.current
     value._s_hash
   else
-    value.toString()
+    value
   return (typeof value) + ' ' + key
 
 hash.current = 0
