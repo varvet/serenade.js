@@ -22,9 +22,6 @@ class DynamicNode extends Node
     @nodeSets.update(new Collection(set) for set in sets)
     @rebuild()
 
-  appendNodeSet: (nodes) ->
-    @insertNodeSet(@nodeSets.length, nodes)
-
   deleteNodeSet: (index) ->
     node.remove() for node in @nodeSets[index]
     @nodeSets.deleteAt(index)
@@ -32,9 +29,22 @@ class DynamicNode extends Node
   insertNodeSet: (index, nodes) ->
     last = @nodeSets[index-1]?.last?.lastElement or @anchor
     for node in nodes
-      node.insertAfter(last)
+      node.insertAfter(last) if @anchor.parentNode
       last = node.lastElement
     @nodeSets.insertAt(index, new Collection(nodes))
+
+  swapNodeSet: (fromIndex, toIndex) ->
+    last = @nodeSets[fromIndex-1]?.last?.lastElement or @anchor
+    for node in @nodeSets[toIndex]
+      node.insertAfter(last) if @anchor.parentNode
+      last = node.lastElement
+
+    last = @nodeSets[toIndex-1]?.last?.lastElement or @anchor
+    for node in @nodeSets[fromIndex]
+      node.insertAfter(last) if @anchor.parentNode
+      last = node.lastElement
+
+    [@nodeSets[fromIndex], @nodeSets[toIndex]] = [@nodeSets[toIndex], @nodeSets[fromIndex]]
 
   clear: ->
     node.remove() for node in @nodes()
@@ -43,7 +53,7 @@ class DynamicNode extends Node
   remove: ->
     @detach()
     @clear()
-    @anchor.parentNode.removeChild(@anchor)
+    @anchor.parentNode.removeChild(@anchor) if @anchor.parentNode
 
   append: (inside) ->
     inside.appendChild(@anchor)

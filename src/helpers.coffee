@@ -53,6 +53,17 @@ serializeObject = (object) ->
 capitalize = (word) ->
   word.slice(0,1).toUpperCase() + word.slice(1)
 
+hash = (value) ->
+  key = if value instanceof Object
+    unless "_s_hash" of value
+      def value, "_s_hash", value: ++arguments.callee.current
+    value._s_hash
+  else
+    value
+  return (typeof value) + ' ' + key
+
+hash.current = 0
+
 # Pushes item to a collection on object, interacts in a sane way with prototypes.
 safePush = (object, collection, item) ->
   if not object[collection] or object[collection].indexOf(item) is -1
