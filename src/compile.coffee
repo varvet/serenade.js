@@ -153,8 +153,9 @@ Compile =
   collection: (ast, model, controller) ->
     dynamic = null
     compileItem = (item) -> compile(ast.children, item, controller)
-    updateCollection = (before, after) ->
-      for operation in Transform(before, after)
+    renderedCollection = []
+    updateCollection = (_, after) ->
+      for operation in Transform(renderedCollection, after)
         switch operation.type
           when "insert"
             dynamic.insertNodeSet(operation.index, compileItem(operation.value))
@@ -162,6 +163,7 @@ Compile =
             dynamic.deleteNodeSet(operation.index)
           when "swap"
             dynamic.swapNodeSet(operation.index, operation.with)
+      renderedCollection = after?.map((a) -> a) or []
     update = (dyn, before, after) ->
       dynamic = dyn
       dynamic.unbindEvent(before?.change, updateCollection)

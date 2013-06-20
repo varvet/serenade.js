@@ -173,6 +173,21 @@ describe 'Collection', ->
       model.things = random_array(rand(1, 10))
       expect(li.textContent for li in @body.querySelectorAll("li")).to.eql(model.things)
 
+  it 'does not apply transform multiple times if event is async', ->
+    model = {}
+    Serenade.defineProperty(model, "things", async: true)
+    model.things_property.bind(->)
+    model.things = ["a", "b", "c"]
+
+    @render """
+      ul#things
+        - collection @things
+          li[class=@]
+    """, model
+    model.things_property.resolve()
+
+    expect(n.className for n in @body.querySelectorAll("#things li")).to.eql(["a", "b", "c"])
+
   it 'can render same collection multiple times', ->
     model = { people: new Serenade.Collection(["jonas"]) }
 
