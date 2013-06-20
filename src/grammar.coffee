@@ -69,6 +69,7 @@ grammar =
 
   Instruction: [
     o '- WHITESPACE VIEW WHITESPACE STRING_LITERAL', -> { children: [], type: 'view', argument: $5 }
+    o '- WHITESPACE VIEW WHITESPACE Bound', -> { children: [], type: 'view', argument: $5, bound: true }
     o '- WHITESPACE COLLECTION WHITESPACE Bound', -> { children: [], type: 'collection', argument: $5 }
     o '- WHITESPACE UNLESS WHITESPACE Bound', -> { children: [], type: 'unless', argument: $5 }
     o '- WHITESPACE IN WHITESPACE Bound', -> { children: [], type: 'in', argument: $5 }

@@ -100,3 +100,26 @@ describe 'View', ->
         - view "test"
     ''', {}, TestCon
     expect(funked).to.eql(1)
+
+  it 'compiles a dynamic view instruction and updates it', ->
+    model = Serenade(name: "foo")
+    Serenade.view('foo', 'li#foo')
+    Serenade.view('bar', 'li#bar')
+    @render '''
+      ul
+        - view @name
+    ''', model
+    expect(@body).to.have.element('ul > li#foo')
+    model.name = "bar"
+    expect(@body).to.have.element('ul > li#bar')
+
+  it 'does not leak memory when view is changed', ->
+    model = Serenade(name: "foo", body: "hello")
+    Serenade.view('foo', 'li#foo @body')
+    Serenade.view('bar', 'li#bar')
+    @render '''
+      ul
+        - view @name
+    ''', model
+    model.name = "bar"
+    expect(model.body_property.listeners.length).to.eql(0)

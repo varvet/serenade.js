@@ -118,9 +118,16 @@ Compile =
     unless controller
       skipCallback = true
       controller = parent
-    dynamic = new DynamicNode(ast)
-    dynamic.replace([Serenade._views[ast.argument].nodes(model, controller, parent, skipCallback)])
-    dynamic
+
+    compileView = (dynamic, before, after) ->
+      view = Serenade._views[after].compile(model, controller, parent, skipCallback)
+      dynamic.replace([view.nodes])
+      dynamic
+
+    if ast.bound
+      @bound(ast, model, controller, compileView)
+    else
+      compileView(new DynamicNode(ast), undefined, ast.argument)
 
   helper: (ast, model, controller) ->
     dynamic = new DynamicNode(ast)
