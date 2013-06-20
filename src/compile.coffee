@@ -124,7 +124,6 @@ Compile =
 
   helper: (ast, model, controller) ->
     dynamic = new DynamicNode(ast)
-    renderedViews = []
     render = (model=model, controller=controller) ->
       fragment = Serenade.document.createDocumentFragment()
       children = compile(ast.children, model, controller)
@@ -133,10 +132,8 @@ Compile =
     helperFunction = Serenade.Helpers[ast.command] or throw SyntaxError "no helper #{ast.command} defined"
     context = { render, model, controller }
     update = ->
-      view.remove() for view in renderedViews
       args = ast.arguments.map((a) -> if a.bound then model[a.value] else a.value)
-      renderedViews = normalize(helperFunction.apply(context, args))
-      dynamic.replace [new Node(ast, element) for { fragment: element } in renderedViews]
+      dynamic.replace([normalize(ast, helperFunction.apply(context, args))])
     for argument in ast.arguments when argument.bound is true
       dynamic.bindEvent(model["#{argument.value}_property"], update)
     update()
@@ -206,21 +203,20 @@ Compile =
     dynamic
 
 # turn a single element, document fragment, compiled view or string, or an
-# array of any of these into objects which conform to the interface of a
-# compiled view.
-normalize = (val) ->
+# array of any of these into Nodes.
+normalize = (ast, val) ->
   return [] unless val
   reduction = (aggregate, element) ->
     if typeof(element) is "string"
       div = Serenade.document.createElement("div")
       div.innerHTML = element
-      aggregate.push({ fragment: child, remove: -> }) for child in div.childNodes
+      aggregate.push(new Node(ast, child)) for child in div.childNodes
     else if element.nodeName is "#document-fragment"
-      aggregate.push({ fragment: child, remove: -> }) for child in element.childNodes
+      aggregate.push(new Node(ast, child)) for child in element.childNodes
     else if element instanceof CompiledView
-      aggregate.push(element)
+      aggregate = aggregate.concat(element.nodes)
     else
-      aggregate.push({ fragment: element, remove: -> })
+      aggregate.push(new Node(ast, element))
     aggregate
   [].concat(val).reduce(reduction, [])
 
