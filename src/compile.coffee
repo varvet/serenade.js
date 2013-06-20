@@ -131,13 +131,12 @@ Compile =
 
   helper: (ast, model, controller) ->
     dynamic = new DynamicNode(ast)
-    render = (model=model, controller=controller) ->
-      fragment = Serenade.document.createDocumentFragment()
-      children = compile(ast.children, model, controller)
-      child.append(fragment) for child in children
-      fragment
+    compileBlock = (model=model, controller=controller) ->
+      new CompiledView(compile(ast.children, model, controller))
+    renderBlock = (model=model, controller=controller) ->
+      compileBlock(model, controller).fragment
     helperFunction = Serenade.Helpers[ast.command] or throw SyntaxError "no helper #{ast.command} defined"
-    context = { render, model, controller }
+    context = { model, controller, render: renderBlock, compile: compileBlock }
     update = ->
       args = ast.arguments.map((a) -> if a.bound then model[a.value] else a.value)
       dynamic.replace([normalize(ast, helperFunction.apply(context, args))])

@@ -261,6 +261,25 @@ describe 'Custom helpers', ->
       expect(@body).to.have.element('div > form > div#jonas')
       expect(@body).to.have.element('div > form > div#peter')
 
+    it 'allows block content to be compiled into a compiled view', ->
+      model = Serenade(name: "jonas")
+      Serenade.Helpers.form = ->
+        element = Serenade.document.createElement('form')
+        view = @compile(model)
+        element.appendChild(view.fragment)
+        element.addEventListener("submit", -> view.remove())
+        element
+      @render '''
+        div
+          - form
+            div[id=name]
+      '''
+      expect(@body).to.have.element('div > form > div#jonas')
+      @fireEvent(@body.querySelector("form"), "submit")
+
+      expect(@body).not.to.have.element('div > form > div#jonas')
+      expect(model.name_property.listeners.length).to.eql(0)
+
   describe 'with bound argument', ->
     it "binds to a model attribute", ->
       model = Serenade(name: "Jonas")
