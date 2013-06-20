@@ -52,6 +52,29 @@ describe 'Custom helpers', ->
     expect(@body).to.have.element('div > #foo > #bar')
     expect(@body).to.have.element('div > #baz')
 
+  it 'can return a compiled Serenade view', ->
+    model = Serenade(name: "Jonas", active: true)
+    Serenade.Helpers.funky = (active) ->
+      if active
+        Serenade.view("""
+          #foo
+            #bar @name
+          #baz
+        """).compile(@model)
+      else
+        undefined
+
+    @render '''
+      div
+        - funky @active
+    ''', model
+
+    expect(@body).to.have.element('div > #foo > #bar')
+    expect(@body).to.have.element('div > #baz')
+    model.active = false
+    expect(@body).not.to.have.element('div > #baz')
+    expect(model.name_property.listeners.length).to.eql(0)
+
   it 'can return undefined', ->
     Serenade.Helpers.funky = -> undefined
     @render '''
