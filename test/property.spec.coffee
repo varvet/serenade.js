@@ -194,6 +194,11 @@ describe 'Serenade.defineProperty', ->
       expect(=> @object.name = "jonas").not.to.triggerEvent(@object.bigName_property)
       expect(=> @object.name = "kim").to.triggerEvent(@object.bigName_property)
 
+    it "always triggers a change event when mutable object is assigned", ->
+      obj = {}
+      defineProperty @object, "name", value: obj
+      expect(=> @object.name = {}).to.triggerEvent(@object.name_property)
+
     it "does not trigger when computed property has not changed", ->
       defineProperty @object, "name"
       defineProperty @object, "bigName",

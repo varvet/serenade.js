@@ -3,6 +3,8 @@ settings =
 
 def = Object.defineProperty
 
+primitiveTypes = ["undefined", "boolean", "number", "string"]
+
 defineOptions = (object, name) ->
   def object, name,
     get: ->

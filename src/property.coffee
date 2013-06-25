@@ -169,7 +169,10 @@ class PropertyAccessor
         if @definition.changed
           @definition.changed.call(@object, @_oldValue, @get())
         else
-          @_oldValue isnt @get()
+          if typeof(@_oldValue) in primitiveTypes
+            @_oldValue isnt @get()
+          else
+            true
       else
         true
 

@@ -25,3 +25,10 @@ describe "Sereande.Model.collection", ->
     @object.authors = ["John", "Peter"]
     expect(@object.authorsCount).to.eql(2)
     expect(=> @object.authors.push("Harry")).to.triggerEvent(@object.authorsCount_property)
+
+  it 'triggers a change event in other object when collection is changed', ->
+    class Page extends Serenade.Model
+      @property "book"
+      @property "authors", dependsOn: "book.authors", get: -> @book.authors
+    @page = new Page(name: "45", book: @object)
+    expect(=> @object.authors.push(4)).to.triggerEvent(@page.authors_property)
