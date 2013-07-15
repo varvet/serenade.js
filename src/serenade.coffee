@@ -13,7 +13,6 @@ extend Serenade,
 
   defineProperty: defineProperty
   defineEvent: defineEvent
-  asyncEvents: false
 
   view: (nameOrTemplate, template) ->
     if template
