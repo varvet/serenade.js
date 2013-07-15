@@ -144,8 +144,8 @@ describe 'Serenade.defineProperty', ->
       expect(hitCount).to.eql(2)
 
     it "resets cache before attached events are fired", ->
-      @object._hitCount = 0
-      defineProperty @object, "hitCount", cache: true, get: -> ++@_hitCount
+      @object.__hitCount = 0
+      defineProperty @object, "hitCount", cache: true, get: -> ++@__hitCount
       @object.hitCount_property.bind -> @result = @hitCount
 
       expect(@object.hitCount).to.eql(1)
@@ -155,8 +155,8 @@ describe 'Serenade.defineProperty', ->
       expect(@object.result).to.eql(2)
 
     it "resets cache before attached global events are fired", ->
-      defineProperty @object, "foo", value: { _hitCount: 0 }
-      defineProperty @object.foo, "hitCount", cache: true, get: -> ++@_hitCount
+      defineProperty @object, "foo", value: { __hitCount: 0 }
+      defineProperty @object.foo, "hitCount", cache: true, get: -> ++@__hitCount
       defineProperty @object, "hitCount", dependsOn: "foo.hitCount", get: -> @foo.hitCount
       @object.hitCount_property.bind -> @result = @hitCount
 

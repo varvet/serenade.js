@@ -36,7 +36,7 @@ class PropertyDefinition
 class PropertyAccessor
   constructor: (@definition, @object) ->
     @name = @definition.name
-    @valueName = "val_#{@name}"
+    @valueName = "_" + @name
     @event = new Event(@object, @name + "_change", @definition.eventOptions)
     @_gcQueue = []
 
@@ -47,24 +47,24 @@ class PropertyAccessor
       if @definition.set
         @definition.set.call(@object, value)
       else
-        def @object._s, @valueName, value: value, configurable: true
+        def @object, @valueName, value: value, configurable: true
       @trigger()
 
   get: ->
-    if @definition.get and not (@definition.cache and @valueName of @object._s)
+    if @definition.get and not (@definition.cache and @valueName of @object)
       # add a listener which adds any dependencies that haven't been specified
       listener = (name) => @definition.addDependency(name)
       @object._s.property_access.bind(listener) unless "dependsOn" of @definition
       value = @definition.get.call(@object)
       @object._s.property_access.unbind(listener) unless "dependsOn" of @definition
       if @definition.cache
-        @object._s[@valueName] = value
+        @object[@valueName] = value
         # make sure global listeners are attached and stay attached
         unless @_isCached
           @_isCached = true
           @bind(->)
     else
-      value = @object._s[@valueName]
+      value = @object[@valueName]
 
     @object._s.property_access.trigger(@name)
     value
@@ -159,7 +159,7 @@ class PropertyAccessor
 
   clearCache: ->
     if @definition.cache and @definition.get
-      delete @object._s[@valueName]
+      delete @object[@valueName]
 
   hasChanged: ->
     if @definition.changed in [true, false]

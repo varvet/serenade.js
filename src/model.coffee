@@ -44,11 +44,11 @@ class Model
     propOptions = merge options,
       changed: true
       get: ->
-        valueName = "val_#{name}"
-        unless @_s[valueName]
-          @_s[valueName] = new Collection([])
-          @_s[valueName].change.bind(@[name + "_property"].trigger)
-        @_s[valueName]
+        valueName = "_" + name
+        unless @[valueName]
+          @[valueName] = new Collection([])
+          @[valueName].change.bind(@[name + "_property"].trigger)
+        @[valueName]
       set: (value) ->
         @[name].update(value)
     @property name, propOptions
@@ -59,11 +59,11 @@ class Model
   @belongsTo: (name, options={}) ->
     propOptions = merge options,
       set: (model) ->
-        valueName = "val_#{name}"
+        valueName = "_" + name
         if model and model.constructor is Object and options.as
           model = new (options.as())(model)
-        previous = @_s[valueName]
-        @_s[valueName] = model
+        previous = @[valueName]
+        @[valueName] = model
         if options.inverseOf and not model[options.inverseOf].includes(this)
           previous[options.inverseOf].delete(this) if previous
           model[options.inverseOf].push(this)
@@ -78,11 +78,11 @@ class Model
     propOptions = merge options,
       changed: true
       get: ->
-        valueName = "val_#{name}"
-        unless @_s[valueName]
-          @_s[valueName] = new AssociationCollection(this, options, [])
-          @_s[valueName].change.bind(@[name + "_property"].trigger)
-        @_s[valueName]
+        valueName = "_" + name
+        unless @[valueName]
+          @[valueName] = new AssociationCollection(this, options, [])
+          @[valueName].change.bind(@[name + "_property"].trigger)
+        @[valueName]
       set: (value) ->
         @[name].update(value)
     @property name, propOptions
