@@ -11,12 +11,16 @@ class PropertyDefinition
 
   def @prototype, "eventOptions", get: ->
     name = @name
-    async: if @async? then @async else settings.async
-    timeout: @timeout
-    bind: ->
-      @[name] # make sure dependencies have been discovered and registered
-      @[name + "_property"].registerGlobal()
-    optimize: (queue) -> [queue[0]?[0], queue[queue.length - 1]?[1]]
+    options =
+      timeout: @timeout
+      buffer: @buffer
+      animate: @animate
+      bind: ->
+        @[name] # make sure dependencies have been discovered and registered
+        @[name + "_property"].registerGlobal()
+      optimize: (queue) -> [queue[0]?[0], queue[queue.length - 1]?[1]]
+    options.async = @async if @async?
+    options
 
   addDependency: (name) ->
     if @dependencies.indexOf(name) is -1
