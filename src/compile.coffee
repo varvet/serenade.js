@@ -112,7 +112,7 @@ Compile =
     node
 
   view: (ast, model, parent) ->
-    controller = Serenade.controllerFor(ast.argument)
+    controller = Serenade.controllers[ast.argument]
     # If we cannot find a controller, we inherit the base view's controller,
     # in that case we don't want the `loaded` callback to be called
     unless controller
@@ -120,7 +120,7 @@ Compile =
       controller = parent
 
     compileView = (dynamic, before, after) ->
-      view = Serenade._views[after].render(model, controller, parent, skipCallback)
+      view = Serenade.views[after].render(model, controller, parent, skipCallback)
       dynamic.replace([view.nodes])
       dynamic
 

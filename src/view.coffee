@@ -21,8 +21,7 @@ class View
       @view
 
   render: (model, controller, parent, skipCallback) ->
-    controller or= Serenade.controllerFor(@name, model) if @name
-    controller or= {}
+    controller or= Serenade.controllers[@name] or {}
     if typeof(controller) is "function"
       controller = new controller(model, parent)
 
