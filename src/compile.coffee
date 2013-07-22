@@ -120,7 +120,7 @@ Compile =
       controller = parent
 
     compileView = (dynamic, before, after) ->
-      view = Serenade._views[after].compile(model, controller, parent, skipCallback)
+      view = Serenade._views[after].render(model, controller, parent, skipCallback)
       dynamic.replace([view.nodes])
       dynamic
 

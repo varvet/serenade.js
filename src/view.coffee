@@ -7,18 +7,6 @@ parser.lexer =
   upcomingInput: ->
     ""
 
-class CompiledView
-  constructor: (@nodes) ->
-
-  remove: ->
-    node.remove() for node in @nodes
-
-  def @prototype, "fragment", enumerable: true, get: ->
-    fragment = Serenade.document.createDocumentFragment()
-    for node in @nodes
-      node.append(fragment)
-    fragment
-
 class View
   constructor: (@name, @view) ->
 
@@ -32,14 +20,7 @@ class View
     else
       @view
 
-  render: (args...) ->
-    view = @compile(args...)
-    fragment = view.fragment
-    fragment.nodes = view.nodes
-    fragment.remove = -> view.remove()
-    fragment
-
-  nodes: (model, controller, parent, skipCallback) ->
+  render: (model, controller, parent, skipCallback) ->
     controller or= Serenade.controllerFor(@name, model) if @name
     controller or= {}
     if typeof(controller) is "function"
@@ -47,8 +28,11 @@ class View
 
     nodes = compile(@parse(), model, controller)
     controller.loaded?(nodes.map((node) -> node.element)..., model) unless skipCallback
-    nodes
 
-  compile: (args...) ->
-    new CompiledView(@nodes(args...))
-
+    fragment = Serenade.document.createDocumentFragment()
+    for node in nodes
+      node.append(fragment)
+    fragment.nodes = nodes
+    fragment.remove = ->
+      node.remove() for node in @nodes
+    fragment
