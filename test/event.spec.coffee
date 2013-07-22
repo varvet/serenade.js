@@ -218,3 +218,40 @@ describe "Serenade.defineEvent", ->
       @object.event.bind -> @result = true
       @object.event.trigger()
       expect(@object.result).to.be.ok
+
+    describe "with `timeout` option", ->
+      it "resolves after the given amount of ms", (done) ->
+        now = new Date()
+        defineEvent(@object, "event", timeout: 50, optimize: (q) -> q[0])
+        @object.event.bind ->
+          expect((new Date()) - now).to.be.within(45,55)
+          done()
+
+        @object.event.trigger()
+        setTimeout((=> @object.event.trigger()), 25)
+
+    describe "with `buffer` option", ->
+      it "buffers changes until there are no more changes within the given timeout", (done) ->
+        now = new Date()
+        defineEvent(@object, "event", buffer: true, timeout: 50, optimize: (q) -> q[0])
+        @object.event.bind ->
+          expect((new Date()) - now).to.be.within(70,80)
+          done()
+
+        @object.event.trigger()
+        setTimeout((=> @object.event.trigger()), 25)
+
+    describe "with `animate` option", ->
+      it "animates with requestAnimationFrame", (done) ->
+        # requestAnimationFrame doesn't exist on node,
+        # so we've faked this out with a setTimeout of
+        # 17 ms (ca 60fps).
+
+        now = new Date()
+        defineEvent(@object, "event", animate: true, optimize: (q) -> q[0])
+        @object.event.bind ->
+          expect((new Date()) - now).to.be.within(12,22)
+          done()
+
+        @object.event.trigger()
+        setTimeout((=> @object.event.trigger()), 10)

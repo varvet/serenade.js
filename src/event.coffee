@@ -8,8 +8,12 @@ class Event
     if @listeners.length
       @queue.push(args)
       if @async
-        clearTimeout(@queue.timeout)
-        @queue.timeout = setTimeout((=> @resolve()), @options.timeout or 0)
+        if @options.animate
+          @queue.frame or= requestAnimationFrame((=> @resolve()), @options.timeout or 0)
+        else
+          return if @queue.timeout and not @options.buffer
+          clearTimeout(@queue.timeout)
+          @queue.timeout = setTimeout((=> @resolve()), @options.timeout or 0)
       else
         @resolve()
 
@@ -28,6 +32,7 @@ class Event
     @options.unbind.call(@object, fun) if @options.unbind
 
   resolve: ->
+    cancelAnimationFrame(@queue.frame) if @queue.frame
     clearTimeout(@queue.timeout)
     if @queue.length
       perform = (args) =>
