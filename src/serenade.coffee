@@ -23,9 +23,6 @@ extend Serenade,
   render: (name, model, controller, parent, skipCallback) ->
     @_views[name].render(model, controller, parent, skipCallback)
 
-  compile: (name, model, controller, parent, skipCallback) ->
-    @_views[name].compile(model, controller, parent, skipCallback)
-
   controller: (name, klass) ->
     @_controllers[name] = klass
   controllerFor: (name) -> @_controllers[name]

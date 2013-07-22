@@ -128,8 +128,8 @@ describe 'Memory management', ->
 
   it 'does not leak bindings when a view is properly disposed', ->
     model = Serenade(leaking: "foobar")
-    view = Serenade.view("h1 @leaking").compile(model)
-    @body.appendChild(view.fragment)
+    view = Serenade.view("h1 @leaking").render(model)
+    @body.appendChild(view)
     view.remove()
     expect(@body).not.to.have.element("h1")
     expect(model.leaking_property.listeners.length).to.eql(0)

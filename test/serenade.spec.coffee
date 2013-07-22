@@ -45,15 +45,6 @@ describe "Serenade", ->
       @fireEvent @body.querySelector('a'), 'click'
       expect(tested).to.be.ok
 
-  describe ".compile", ->
-    it "returns a compiled view", ->
-      Serenade.view("test", "h1#test")
-      view = Serenade.compile("test", {}, {})
-      @body.appendChild(view.fragment)
-      expect(@body).to.have.element("h1#test")
-      view.remove()
-      expect(@body).not.to.have.element("h1#test")
-
   describe ".format", ->
     it 'reads an existing property normally on a normal object', ->
       @object = { foo: 23 }

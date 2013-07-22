@@ -131,12 +131,10 @@ Compile =
 
   helper: (ast, model, controller) ->
     dynamic = new DynamicNode(ast)
-    compileBlock = (model=model, controller=controller) ->
-      new CompiledView(compile(ast.children, model, controller))
     renderBlock = (model=model, controller=controller) ->
-      compileBlock(model, controller).fragment
+      new View(null, ast.children).render(model, controller)
     helperFunction = Serenade.Helpers[ast.command] or throw SyntaxError "no helper #{ast.command} defined"
-    context = { model, controller, render: renderBlock, compile: compileBlock }
+    context = { model, controller, render: renderBlock }
     update = ->
       args = ast.arguments.map((a) -> if a.bound then model[a.value] else a.value)
       dynamic.replace([normalize(ast, helperFunction.apply(context, args))])
@@ -218,9 +216,10 @@ normalize = (ast, val) ->
       div.innerHTML = element
       aggregate.push(new Node(ast, child)) for child in div.childNodes
     else if element.nodeName is "#document-fragment"
-      aggregate.push(new Node(ast, child)) for child in element.childNodes
-    else if element instanceof CompiledView
-      aggregate = aggregate.concat(element.nodes)
+      if element.nodes # rendered Serenade view, clean up listeners!
+        aggregate = aggregate.concat(element.nodes)
+      else
+        aggregate.push(new Node(ast, child)) for child in element.childNodes
     else
       aggregate.push(new Node(ast, element))
     aggregate

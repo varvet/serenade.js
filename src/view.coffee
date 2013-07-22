@@ -33,7 +33,11 @@ class View
       @view
 
   render: (args...) ->
-    @compile(args...).fragment
+    view = @compile(args...)
+    fragment = view.fragment
+    fragment.nodes = view.nodes
+    fragment.remove = -> view.remove()
+    fragment
 
   nodes: (model, controller, parent, skipCallback) ->
     controller or= Serenade.controllerFor(@name, model) if @name

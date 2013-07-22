@@ -52,15 +52,13 @@ describe 'Custom helpers', ->
     expect(@body).to.have.element('div > #foo > #bar')
     expect(@body).to.have.element('div > #baz')
 
-  it 'can return a compiled Serenade view', ->
+  it 'cleans up listeners from rendered serenade view', ->
     model = Serenade(name: "Jonas", active: true)
     Serenade.Helpers.funky = (active) ->
       if active
         Serenade.view("""
-          #foo
-            #bar @name
-          #baz
-        """).compile(@model)
+          #bar @name
+        """).render(@model)
       else
         undefined
 
@@ -69,10 +67,10 @@ describe 'Custom helpers', ->
         - funky @active
     ''', model
 
-    expect(@body).to.have.element('div > #foo > #bar')
-    expect(@body).to.have.element('div > #baz')
+    expect(@body).to.have.element('#bar')
+    expect(model.name_property.listeners.length).to.eql(1)
     model.active = false
-    expect(@body).not.to.have.element('div > #baz')
+    expect(@body).not.to.have.element('#bar')
     expect(model.name_property.listeners.length).to.eql(0)
 
   it 'can return undefined', ->
@@ -261,12 +259,12 @@ describe 'Custom helpers', ->
       expect(@body).to.have.element('div > form > div#jonas')
       expect(@body).to.have.element('div > form > div#peter')
 
-    it 'allows block content to be compiled into a compiled view', ->
+    it 'allows rendered block contents to be manually cleaned up', ->
       model = Serenade(name: "jonas")
       Serenade.Helpers.form = ->
         element = Serenade.document.createElement('form')
-        view = @compile(model)
-        element.appendChild(view.fragment)
+        view = @render(model)
+        element.appendChild(view)
         element.addEventListener("submit", -> view.remove())
         element
       @render '''
