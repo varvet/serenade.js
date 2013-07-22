@@ -135,7 +135,7 @@ unnecessary. Serenade allows you to configure when a change event is triggered:
 Serenade.defineProperty(model, "randomNumber", {
   change: function(before, after) { return before.value === after.value },
   get: function() { return { value: Math.round(Math.random() * 3) } }
-}
+});
 ```
 
 The random number will often be the same number, but since we've (for whatever
@@ -144,9 +144,28 @@ change event anyway, since two objects will never be equal. This could of
 course trigger an expensive DOM operation. By defining the `change` option, we
 can make sure this does not happen.
 
-## Buffering change events of properties
+In other cases, changes do occur frequently, but perhaps more frequently than
+desired. Sometimes more frequently than the human eye could perceive. Serenade
+gives you control over how frequently events are triggered. For example if you
+want events to be fired at most once every 250ms, you could define a property
+like this:
 
-Sometimes a property might receive many change events in a short period of time,
-in that case, it might not be desirable for each of these changes to trigger
-a separate change event, but rather we'd like to wait for these changes to stop
-and only then issue a change event. `timeout` allows you to just that.
+``` javascript
+Serenade.defineProperty(model, "updatesFrequently", { timeout: 250 });
+```
+
+Serenade also allows you to hook into `requestAnimationFrame`, so that frequent
+changes to a property can be animated smoothly.
+
+Before you can do this though, you'll need to shim `requestAnimationFrame`
+since it isn't available in any browsers without a vendor prefix yet. See the
+MDN docs for [requestAnimationFrame][1] and [cancelAnimationFrame][2].
+
+Once you've done this, you can now specify the `animate` option like this:
+
+``` javascript
+Serenade.defineProperty(model, "updatesFrequently", { animate: true });
+```
+
+[1]: https://developer.mozilla.org/en-US/docs/Web/API/window.requestAnimationFrame
+[2]: https://developer.mozilla.org/en-US/docs/Web/API/window.cancelAnimationFrame
