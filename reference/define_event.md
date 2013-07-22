@@ -53,6 +53,44 @@ executed asynchronously.
 
 If this option is not given, the value is taken from `Serenade.async`.
 
+### timeout: Number
+
+If `async` is true, this option causes all listeners to be called
+the given amount of milliseconds after `trigger` is called.
+
+If this option is set to 50 and the event is triggered, and then triggered
+again after 30ms, both triggers will resolve in the order they were triggered
+50ms after the *first* trigger occured. You will probably want to use the
+`optimize` option to optimize both of these triggers into a single invocation.
+This way, you can rate limit at what rate the event is triggered.
+
+See also the `buffer` option.
+
+### buffer: true|false
+
+If the `timeout` option is set to 50, and this option is set to `true`, and the
+event is triggered, and then triggered again after 30ms, both triggers will
+resolve in the order they were triggered 50ms after the *last* trigger occured.
+This means that subsequent triggering of the event will reset the timeout.
+This is useful for events which are usually idle, but when triggered occur
+often in quick succession.
+
+Think for example of resizing some element via dragging the mouse, such an
+event might occur very often, but you might not want other things which are
+dependent on the interaction to only be affected after the dragging stops.
+
+Again, you will probably want to use the `optimize` option to optimize both of
+these triggers into a single invocation.
+
+### animate: true
+
+When true, this option causes behaviour similar to the `timeout` option, except
+that it uses `requestAnimationFrame`.
+
+Note that this option requires the unprefixed versions of
+`requestAnimationFrame` and `cancelAnimationFrame`.  These are currently not
+supported by any browser, so you will need to shim them.
+
 ### optimize: function(queue) { return args }
 
 When an event is triggered and the `async` option is `true`, it is pushed onto

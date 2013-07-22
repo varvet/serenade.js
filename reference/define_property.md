@@ -91,6 +91,36 @@ event.
 
 If this option is not given, the value is taken from `Serenade.async`.
 
+### timeout: Number
+
+If `async` is true, this option causes changes to this property to be triggered
+the given amount of milliseconds after the change occurred. If the option is
+changed again within this space of time, all changes are optimized into a
+single change event. This way you can limit at what rate changes to a property
+cause changes in views and other properties.
+
+See also the `buffer` option.
+
+### buffer: true|false
+
+If `async` and `timeout` are set, this option causes changes within the timeout
+to reset the timer. This way a change event occurs only if changes have not
+occured within the timeout. This is useful for events which are usually idle,
+but when triggered occur often in quick succession.
+
+Think for example of resizing some element via dragging the mouse, such an
+event might occur very often, but you might not want other things which are
+dependent on the interaction to only be affected after the dragging stops.
+
+### animate: true
+
+When true, this option causes behaviour similar to the `timeout` option, except
+that it uses `requestAnimationFrame`.
+
+Note that this option requires the unprefixed versions of
+`requestAnimationFrame` and `cancelAnimationFrame`.  These are currently not
+supported by any browser, so you will need to shim them.
+
 ### changed: true|false|function(old, new) { return Boolean }
 
 This property controls when change events are triggered for a given property.
