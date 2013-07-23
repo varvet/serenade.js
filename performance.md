@@ -8,98 +8,53 @@ a few things you can keep in mind, primarily when building larger applications,
 which can greatly improve the performance of your applications and prevent
 pesky memory leaks.
 
-## Memory safe model listeners
+## Removing views
 
-Serenade works extensively with event listeners under the hood. When a model
-changes, it automatically propagates its changes to the view. In order to be
-able to do this, the view adds event listeners to the model. Let's illustrate
-this with an example:
+When you render a view, Serenade adds listener functions to your model which
+keep the view in sync if the model changes. Unfortunately, if these listeners
+are not removed properly, they might keep any DOM elements which they reference
+from being garbage collected. This leads to memory leaks. Serenade has your
+back and in most cases you don't have to worry about this, because Serenade
+will do the right thing.
 
-``` javascript
-jonas = Serenade(name: "Jonas")
-Serenade.view('h1 "Hello " @name').render(jonas)
-```
+There is however one situation where you have to be a bit careful. If you want
+to remove a view you have inserted into the DOM yourself, you must remove it
+explicitly, rather than manipulating the DOM manually.
 
-This will create a DOM element which reacts to changes to the `jonas` model.
-Serenade adds a listener to the jonas model, in effect, it's going to do
-something like the following pseudo code:
-
-``` javascript
-jonas.name_property.bind(function(value) {
-  textNode.nodeValue = value;
-});
-```
-
-What happens when the `textNode` element that this references no longer exists
-on the page? Nothing actually. Unfortunately, there's a more insidious problem
-here. Since the listener we added references the textNode, your brower's
-garbade collector can never collect it. The garbage collector can only collect
-objects which no longer have any references to it. Since JavaScript lacks a
-feature called "weak references" we have no other way than to clean it up by
-hand.
-
-The good news is that Serenade does this for you in almost all cases. There are
-however a few places where you need to watch out!
-
-## Inserting views into the DOM directly.
-
-Serenade assumes that you are not going to remove any views you have inserted
-into the DOM yourself. If you ever need to remove a view you've inserted into
-the DOM, Serenade has a special way of doing this which also cleans up any event
-handlers:
+For example, this is bad:
 
 ``` javascript
-jonas = Serenade(name: "Jonas");
-view = Serenade.view('h1 "Hello " @name').compile(jonas);
-document.body.appendChild(view.fragment); // append it
-view.remove(); // remove it
+target = document.querySelector("#something")
+view = Serenade.view('h1 "Hello " @name').render({ name: "Jonas" })
+target.appendChild(view)
+// ... later ...
+target.innerHTML = "" // don't do this!
+$(target).empty() // or something like this with jQuery
 ```
 
-Note that we called `compile` instead of `render` on the view, and we got back
-a special object, which has a property called `fragment` which returns a
-document fragment and also a method called `remove`, which safely disposes of
-the view.
-
-## Custom helpers which render views
-
-Some custom helpers might want to render view, for example, this contrived
-example:
+You may have noticed that `render` actually returns a [DocumentFragment][frag].
+This DocumentFragment has been extended with a non-standard method called
+`remove`. Calling this method safely removes the view from the DOM without
+causing memory leaks.
 
 ``` javascript
-Serenade.Helpers.greeting = function() {
-  // don't do this!!!
-  Serenade.view('h1 "Hello " @name').render(this.model, this.controller)
-};
+target = document.querySelector("#something")
+view = Serenade.view('h1 "Hello " @name').render({ name: "Jonas" })
+target.appendChild(view)
+// ... later ...
+view.remove() // this is correct!
 ```
 
-This too can cause memory leaks, because the returned view might have to be
-removed at some point. Consider for example that `greeting` would have been
-used in the following view:
-
-```
-- if @doGreeting
-  - greeting
-- else
-  "no greeting for you!"
-```
-
-Whenever `@doGreeting` changes from `true` to `false`, a model listener
-leaks.
-
-This problem is easily fixed like this:
-
-``` javascript
-Serenade.Helpers.greeting = function() {
-  Serenade.view('h1 "Hello " @name').compile(this.model, this.controller)
-};
-```
-
-Again, using `compile` fixes the memory leak.
+In general you should be very careful about manually manipulating any of the
+DOM elements rendered by Serenade.
 
 ## Cleaning up model custom bindings
 
-If you have bound listeners to models, you need to make sure that they are
-removed properly.
+In some cases you might add listeners to model properties manually. If you do
+this, make sure to remove them when you no longer need them, especially if this
+property or any property which depends on depends on values in other objects.
+Failing to remove listeners you have added might keep objects from being
+garbage collected and thus cause memory leaks.
 
 ## Caching properties
 
@@ -159,7 +114,8 @@ changes to a property can be animated smoothly.
 
 Before you can do this though, you'll need to shim `requestAnimationFrame`
 since it isn't available in any browsers without a vendor prefix yet. See the
-MDN docs for [requestAnimationFrame][1] and [cancelAnimationFrame][2].
+MDN docs for [requestAnimationFrame][request] and
+[cancelAnimationFrame][cancel].
 
 Once you've done this, you can now specify the `animate` option like this:
 
@@ -167,5 +123,6 @@ Once you've done this, you can now specify the `animate` option like this:
 Serenade.defineProperty(model, "updatesFrequently", { animate: true });
 ```
 
-[1]: https://developer.mozilla.org/en-US/docs/Web/API/window.requestAnimationFrame
-[2]: https://developer.mozilla.org/en-US/docs/Web/API/window.cancelAnimationFrame
+[frag]: https://developer.mozilla.org/en-US/docs/Web/API/DocumentFragment
+[request]: https://developer.mozilla.org/en-US/docs/Web/API/window.requestAnimationFrame
+[cancel]: https://developer.mozilla.org/en-US/docs/Web/API/window.cancelAnimationFrame
