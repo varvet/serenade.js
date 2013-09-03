@@ -88,6 +88,10 @@ describe 'Bound attributes and text nodes', ->
     expect(@body.querySelector('div').getAttribute('data-name')).to.eql("JONAS")
     expect(@body.querySelector('div').style.color).to.eql("JONAS")
     expect(@body.querySelector('div').textContent).to.eql("JONAS")
+    model.name = "peter"
+    expect(@body.querySelector('div').getAttribute('data-name')).to.eql("PETER")
+    expect(@body.querySelector('div').style.color).to.eql("PETER")
+    expect(@body.querySelector('div').textContent).to.eql("PETER")
 
   it 'can handle bound text as root nodes', ->
     model = new Serenade.Model(first: "Jonas", last: "Nicklas")
