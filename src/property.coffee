@@ -7,7 +7,20 @@ class PropertyDefinition
     @globalDependencies = []
 
     if @dependsOn
-      @addDependency(name) for name in [].concat(@dependsOn)
+      for name in [].concat(@dependsOn)
+        if @dependencies.indexOf(name) is -1
+          @dependencies.push(name)
+
+          if name.match(/\./)
+            type = "singular"
+            [name, subname] = name.split(".")
+          else if name.match(/:/)
+            type = "collection"
+            [name, subname] = name.split(":")
+
+          @localDependencies.push(name)
+          @localDependencies.push(name) if @localDependencies.indexOf(name) is -1
+          @globalDependencies.push({ subname, name, type }) if type
 
   def @prototype, "eventOptions", get: ->
     name = @name
@@ -16,26 +29,10 @@ class PropertyDefinition
       buffer: @buffer
       animate: @animate
       bind: ->
-        @[name] # make sure dependencies have been discovered and registered
         @[name + "_property"].registerGlobal()
       optimize: (queue) -> [queue[0]?[0], queue[queue.length - 1]?[1]]
     options.async = @async if @async?
     options
-
-  addDependency: (name) ->
-    if @dependencies.indexOf(name) is -1
-      @dependencies.push(name)
-
-      if name.match(/\./)
-        type = "singular"
-        [name, subname] = name.split(".")
-      else if name.match(/:/)
-        type = "collection"
-        [name, subname] = name.split(":")
-
-      @localDependencies.push(name)
-      @localDependencies.push(name) if @localDependencies.indexOf(name) is -1
-      @globalDependencies.push({ subname, name, type }) if type
 
 class PropertyAccessor
   constructor: (@definition, @object) ->
@@ -56,11 +53,7 @@ class PropertyAccessor
 
   get: ->
     if @definition.get and not (@definition.cache and @valueName of @object)
-      # add a listener which adds any dependencies that haven't been specified
-      listener = (name) => @definition.addDependency(name)
-      @object._s.property_access.bind(listener) unless "dependsOn" of @definition
       value = @definition.get.call(@object)
-      @object._s.property_access.unbind(listener) unless "dependsOn" of @definition
       if @definition.cache
         @object[@valueName] = value
         # make sure global listeners are attached and stay attached

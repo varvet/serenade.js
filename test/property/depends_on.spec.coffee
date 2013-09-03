@@ -34,18 +34,6 @@ describe 'Serenade.defineProperty', ->
       @object.last = 'Pan'
       expect(=> @object.first = "Peter").not.to.triggerEvent(@object.fullName_property)
 
-    it 'automatically discovers dependencies within the same object', ->
-      defineProperty @object, 'first'
-      defineProperty @object, 'last'
-      defineProperty @object, 'initial', get: -> @first?[0]
-      defineProperty @object, 'fullName', get: -> @initial + " " + @last
-      @object.last = 'Pan'
-
-      expect(=> @object.first = "Peter").to.triggerEvent(@object.fullName_property)
-      expect(=> @object.last = "Smith").to.triggerEvent(@object.fullName_property)
-      expect(=> @object.first = "John").to.triggerEvent(@object.initial_property)
-      expect(=> @object.last = "Doe").not.to.triggerEvent(@object.initial_property)
-
     it 'binds to single dependency', ->
       defineProperty @object, 'name'
       defineProperty @object, 'reverseName',
