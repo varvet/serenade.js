@@ -1,10 +1,8 @@
-getValue = (ast, model) ->
-  if ast.bound and ast.value
-    format(model, ast.value)
-  else if ast.value?
-    ast.value
+formatValue = (ast, model, value) ->
+  if formatter = model[ast.value + "_property"]
+    formatter.format(value)
   else
-    model
+    value
 
 formatTextValue = (value) ->
   value = "0" if value is 0
@@ -12,10 +10,13 @@ formatTextValue = (value) ->
 
 Property =
   style: (ast, node, model, controller) ->
-    update = ->
-      assignUnlessEqual(node.element.style, ast.name, getValue(ast, model))
-    update()
-    node.bindEvent(model["#{ast.value}_property"], update) if ast.bound
+    if ast.bound and ast.value
+      set = (value) ->
+        assignUnlessEqual(node.element.style, ast.name, formatValue(ast, model, value))
+      node.bindEvent(model["#{ast.value}_property"], (_, value) -> set(value))
+      set(model[ast.value])
+    else
+      node.element.style[ast.name] = ast.value ? model
 
   event: (ast, node, model, controller) ->
     node.element.addEventListener ast.name, (e) ->
@@ -67,25 +68,27 @@ Property =
 
   attribute: (ast, node, model, controller) ->
     return Property.binding(ast, node, model, controller) if ast.name is "binding"
-    element = node.element
-    update = ->
-      value = getValue(ast, model)
+
+    set = (value) ->
       if ast.name is 'value'
-        assignUnlessEqual(element, "value", value or '')
+        assignUnlessEqual(node.element, "value", value or '')
       else if node.ast.name is 'input' and ast.name is 'checked'
-        assignUnlessEqual(element, "checked", !!value)
+        assignUnlessEqual(node.element, "checked", !!value)
       else if ast.name is 'class'
         node.attributeClasses = value
         node.updateClass()
       else if value is undefined
-        element.removeAttribute(ast.name) if element.hasAttribute(ast.name)
+        node.element.removeAttribute(ast.name) if node.element.hasAttribute(ast.name)
       else
         value = "0" if value is 0
-        unless element.getAttribute(ast.name) is value
-          element.setAttribute(ast.name, value)
+        unless node.element.getAttribute(ast.name) is value
+          node.element.setAttribute(ast.name, value)
 
-    node.bindEvent(model["#{ast.value}_property"], update) if ast.bound
-    update()
+    if ast.bound and ast.value
+      node.bindEvent(model["#{ast.value}_property"], (_, value) -> set(formatValue(ast, model, value)))
+      set(formatValue(ast, model, model[ast.value]))
+    else
+      set(ast.value ? model)
 
   on: (ast, node, model, controller) ->
     if ast.name in ["load", "unload"]
@@ -148,12 +151,14 @@ Compile =
     dynamic
 
   text: (ast, model, controller) ->
-    textNode = Serenade.document.createTextNode(formatTextValue(getValue(ast, model)))
-    node = new Node(ast, textNode)
-    if ast.bound
+    if ast.bound and ast.value
+      textNode = Serenade.document.createTextNode(formatTextValue(formatValue(ast, model, model[ast.value])))
+      node = new Node(ast, textNode)
       node.bindEvent model["#{ast.value}_property"], (_, value) ->
-        assignUnlessEqual textNode, "nodeValue", formatTextValue(getValue(ast, model))
-    node
+        assignUnlessEqual textNode, "nodeValue", formatTextValue(formatValue(ast, model, value))
+      node
+    else
+      new Node(ast, Serenade.document.createTextNode(ast.value ? model))
 
   collection: (ast, model, controller) ->
     dynamic = null

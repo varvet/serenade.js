@@ -103,3 +103,12 @@ describe 'Bound attributes and text nodes', ->
     expect(@body).to.have.text("Jonas Nicklas")
     model.first = "Petter"
     expect(@body).to.have.text("Petter Nicklas")
+
+  it 'does not access getter more than once when updating dom nodes', ->
+    model = {}
+    counter = 0
+    Serenade.defineProperty(model, "counter", get: -> counter += 1)
+    @render "h1 @counter", model
+    expect(counter).to.eql(1)
+    model.counter_property.trigger()
+    expect(counter).to.eql(2)

@@ -66,11 +66,12 @@ class PropertyAccessor
     @object._s.property_access.trigger(@name)
     value
 
-  format: ->
+  format: (val) ->
+    val = @get() if arguments.length is 0
     if typeof(@definition.format) is "function"
-      @definition.format.call(@object, @get())
+      @definition.format.call(@object, val)
     else
-      @get()
+      val
 
   registerGlobal: ->
     return if @_isRegistered
