@@ -6,6 +6,10 @@ getValue = (ast, model) ->
   else
     model
 
+formatTextValue = (value) ->
+  value = "0" if value is 0
+  value or ""
+
 Property =
   style: (ast, node, model, controller) ->
     update = ->
@@ -144,13 +148,11 @@ Compile =
     dynamic
 
   text: (ast, model, controller) ->
-    getText = ->
-      value = getValue(ast, model)
-      value = "0" if value is 0
-      value or ""
-    textNode = Serenade.document.createTextNode(getText())
+    textNode = Serenade.document.createTextNode(formatTextValue(getValue(ast, model)))
     node = new Node(ast, textNode)
-    node.bindEvent(model["#{ast.value}_property"], -> assignUnlessEqual(textNode, "nodeValue", getText())) if ast.bound
+    if ast.bound
+      node.bindEvent model["#{ast.value}_property"], (_, value) ->
+        assignUnlessEqual textNode, "nodeValue", formatTextValue(getValue(ast, model))
     node
 
   collection: (ast, model, controller) ->
