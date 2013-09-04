@@ -110,5 +110,7 @@ describe 'Bound attributes and text nodes', ->
     Serenade.defineProperty(model, "counter", get: -> counter += 1)
     @render "h1 @counter", model
     expect(counter).to.eql(1)
-    model.counter_property.trigger()
+    model.counter = "foo"
     expect(counter).to.eql(2)
+    model.counter = "blah"
+    expect(counter).to.eql(3)

@@ -63,7 +63,6 @@ class PropertyAccessor
     else
       value = @object[@valueName]
 
-    @object._s.property_access.trigger(@name)
     value
 
   format: (val) ->
@@ -121,18 +120,32 @@ class PropertyAccessor
 
   trigger: =>
     @clearCache()
-    if @hasChanged()
-      newValue = @get()
 
-      @event.trigger(@_oldValue, newValue)
+    if @definition.changed in [true, false]
+      return unless @definition.changed
+    else
+      if "_oldValue" of this
+        if @definition.changed
+          retrievedNewValue = true
+          newValue = @get()
+          return unless @definition.changed.call(@object, @_oldValue, newValue)
+        else
+          retrievedNewValue = true
+          newValue = @get()
+          if typeof(@_oldValue) in primitiveTypes
+            return if @_oldValue is newValue
 
-      changes = {}
-      changes[@name] = newValue
-      @object.changed?.trigger?(changes)
+    newValue = @get() unless retrievedNewValue
 
-      @object[name + "_property"].trigger() for name in @dependents
+    @event.trigger(@_oldValue, newValue)
 
-      @_oldValue = newValue
+    changes = {}
+    changes[@name] = newValue
+    @object.changed?.trigger?(changes)
+
+    @object[name + "_property"].trigger() for name in @dependents
+
+    @_oldValue = newValue
 
   ["bind", "one", "resolve"].forEach (fn) =>
     this::[fn] = -> @event[fn](arguments...)
@@ -159,21 +172,6 @@ class PropertyAccessor
     if @definition.cache and @definition.get
       delete @object[@valueName]
 
-  hasChanged: ->
-    if @definition.changed in [true, false]
-      @definition.changed
-    else
-      if "_oldValue" of this
-        if @definition.changed
-          @definition.changed.call(@object, @_oldValue, @get())
-        else
-          if typeof(@_oldValue) in primitiveTypes
-            @_oldValue isnt @get()
-          else
-            true
-      else
-        true
-
   def @prototype, "dependentProperties", get: ->
     new Serenade.Collection(@object[name + "_property"] for name in @dependents)
 
@@ -183,7 +181,6 @@ defineProperty = (object, name, options={}) ->
   defineOptions(object, "_s") unless "_s" of object
 
   safePush object._s, "properties", definition
-  defineEvent object._s, "property_access"
 
   def object, name,
     get: -> @[name + "_property"].get()
