@@ -1,5 +1,3 @@
-isArrayIndex = (index) -> "#{index}".match(/^\d+$/)
-
 class Collection
   defineEvent @prototype, "change"
 
@@ -17,15 +15,12 @@ class Collection
     @[index]
 
   set: (index, value) ->
-    @[index] = value
-    @length = Math.max(@length, index + 1) if isArrayIndex(index)
+    Array::splice.call(this, index, 0, value)
     value
 
   update: (list) ->
-    delete @[index] for index, _ of @ when isArrayIndex(index)
-    @[index] = val for val, index in list
-    @length = list?.length or 0
-    list
+    Array::splice.apply(this, [0, @length].concat(Array::slice.call(list)))
+    this
 
   sortBy: (attribute) ->
     @sort((a, b) -> if a[attribute] < b[attribute] then -1 else 1)

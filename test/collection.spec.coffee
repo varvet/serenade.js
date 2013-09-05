@@ -65,7 +65,12 @@ describe 'Serenade.Collection', ->
       @collection.update(["q", "x"])
       expect(@collection.length).to.eql(2)
     it 'returns self', ->
-      expect(@collection.update([1,2])).to.eql([1,2])
+      expect(@collection.update([1,2])).to.eql(@collection)
+    it 'can update to collection', ->
+      @collection.update(new Serenade.Collection(["q", "x"]))
+      expect(@collection.get(0)).to.eql("q")
+      expect(@collection.get(1)).to.eql("x")
+      expect(@collection.get(2)).to.eql(undefined)
 
   describe '#sort', ->
     it 'updates the order of the items in the collection', ->
