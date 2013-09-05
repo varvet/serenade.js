@@ -24,14 +24,14 @@ Property =
       controller[ast.value](node.element, model, e)
 
   class: (ast, node, model, controller) ->
-    update = ->
-      if model[ast.value]
+    set = (value) ->
+      if value
         node.boundClasses.push(ast.name) unless node.boundClasses.includes(ast.name)
       else
         node.boundClasses.delete(ast.name)
       node.updateClass()
-    update()
-    node.bindEvent(model["#{ast.value}_property"], update)
+    set(model[ast.value])
+    node.bindEvent(model["#{ast.value}_property"], (_, value) -> set(value))
 
   binding: (ast, node, model, controller) ->
     element = node.element
