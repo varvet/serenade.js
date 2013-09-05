@@ -46,18 +46,17 @@ Property =
       else
         element.value
 
-    modelUpdated = ->
-      val = model[ast.value]
+    set = (value) ->
       if element.type is "checkbox"
-        element.checked = !!val
+        element.checked = !!value
       else if element.type is "radio"
-        element.checked = true if val is element.getAttribute("value")
+        element.checked = true if value is element.getAttribute("value")
       else
-        val = "" if val == undefined
-        assignUnlessEqual(element, "value", val)
+        value = "" if value == undefined
+        assignUnlessEqual(element, "value", value)
 
-    modelUpdated()
-    node.bindEvent(model["#{ast.value}_property"], modelUpdated)
+    node.bindEvent(model["#{ast.value}_property"], (_, value) -> set(value))
+    set(model[ast.value])
     if ast.name is "binding"
       # we can't bind to the form directly since it doesn't exist yet
       handler = (e) -> domUpdated() if element.form is (e.target or e.srcElement)
