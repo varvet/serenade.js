@@ -55,9 +55,7 @@ class Collection
     new Collection(@toArray().concat(args...))
 
   toArray: ->
-    array = []
-    array[index] = val for index, val of @ when isArrayIndex(index)
-    array
+    Array::slice.call(this)
 
   clone: ->
     new Collection(@toArray())
