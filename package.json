@@ -40,7 +40,7 @@
        "sinon": "1.x.x",
        "uglify-js": "1.x.x",
        "express": "2.x.x",
-       "gzip": ">= 0.1"
+       "gzip-js": ">= 0.1"
    },
    "scripts": {
        "build": "cake build",

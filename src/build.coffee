@@ -4,7 +4,7 @@
 CoffeeScript = require 'coffee-script'
 fs = require 'fs'
 path = require 'path'
-gzip = require 'gzip'
+gzip = require 'gzip-js'
 
 vm = require("vm")
 fs = require("fs")
@@ -90,8 +90,7 @@ Build =
 
   gzipped: (callback) ->
     Build.minified (minified) ->
-      gzip (minified), (err, data) ->
-        callback(data)
+      callback(gzip.zip(minified))
 
 build = Build.load()
 build.Build = Build
