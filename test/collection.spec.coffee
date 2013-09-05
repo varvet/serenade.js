@@ -47,6 +47,11 @@ describe 'Serenade.Collection', ->
     it 'allows direct property access', ->
       @collection.set(0, 'foo')
       expect(@collection[0]).to.eql('foo')
+    it 'sets length when needed (avoiding sparse collections)', ->
+      @collection.set(0, 'foo')
+      expect(@collection.length).to.eql(3)
+      @collection.set(100, 'foo')
+      expect(@collection.length).to.eql(4)
 
   describe '#update', ->
     it 'sets the given properties', ->

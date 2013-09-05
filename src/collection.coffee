@@ -15,7 +15,7 @@ class Collection
     @[index]
 
   set: (index, value) ->
-    Array::splice.call(this, index, 0, value)
+    Array::splice.call(this, index, 1, value)
     value
 
   update: (list) ->
