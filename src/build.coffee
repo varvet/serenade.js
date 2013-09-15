@@ -45,7 +45,7 @@ Build =
   source: ->
     files = {}
 
-    js = require('./grammar').Parser.generate()
+    js = require('./grammar').Parser.generate({ moduleType: "js" })
     coffee = ""
     coffee += fs.readFileSync("./src/#{name}.coffee").toString() for name in @sourceFiles
     js += CoffeeScript.compile(coffee, bare: true)
