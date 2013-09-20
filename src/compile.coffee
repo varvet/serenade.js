@@ -137,8 +137,8 @@ Compile =
 
   helper: (ast, model, controller) ->
     dynamic = new DynamicNode(ast)
-    renderBlock = (model=model, controller=controller) ->
-      new View(null, ast.children).render(model, controller)
+    renderBlock = (model=model, blockController=controller) ->
+      new View(null, ast.children).render(model, blockController, controller, controller is blockController)
     helperFunction = Serenade.Helpers[ast.command] or throw SyntaxError "no helper #{ast.command} defined"
     context = { model, controller, render: renderBlock }
     update = ->
