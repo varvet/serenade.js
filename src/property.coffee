@@ -75,8 +75,8 @@ class PropertyAccessor
   registerGlobal: ->
     return if @_isRegistered
     @_isRegistered = true
-    @definition.globalDependencies.forEach (dep) =>
-      { name, type, subname } = dep
+
+    @definition.globalDependencies.forEach ({ name, type, subname }) =>
       switch type
         when "singular"
           updateItemBinding = (before, after) =>
