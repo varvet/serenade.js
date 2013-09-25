@@ -110,10 +110,14 @@ class PropertyAccessor
     for dependency in @definition.localDependencies
       @object[dependency + "_property"]?.registerGlobal()
 
+  def @prototype, "hasListeners", get: ->
+    @listeners.length is 0 and not @dependentProperties.find((prop) => prop.listeners.length isnt 0)
+
   gc: ->
-    if @listeners.length is 0 and not @dependentProperties.find((prop) => prop.listeners.length isnt 0)
+    if @hasListeners
       fn() for fn in @_gcQueue
       @_isRegistered = false
+      @_gcQueue = []
 
     for dependency in @definition.localDependencies
       @object[dependency + "_property"]?.gc()
