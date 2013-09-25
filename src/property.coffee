@@ -72,9 +72,13 @@ class PropertyAccessor
     else
       val
 
-  registerGlobal: ->
+  registerGlobal: (value) ->
     return if @_isRegistered
     @_isRegistered = true
+
+    if "_oldValue" of this
+      value = @get() if arguments.length is 0
+      @_oldValue = value
 
     @definition.globalDependencies.forEach ({ name, type, subname }) =>
       switch type

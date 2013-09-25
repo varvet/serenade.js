@@ -8,13 +8,17 @@ formatTextValue = (value) ->
   value = "0" if value is 0
   value or ""
 
+bindToProperty = (node, model, name, cb) ->
+  value = model[name]
+  model["#{name}_property"]?.registerGlobal?(value)
+  node.bindEvent(model["#{name}_property"], cb)
+  cb({}, value)
+
 Property =
   style: (ast, node, model, controller) ->
     if ast.bound and ast.value
-      set = (value) ->
+      bindToProperty node, model, ast.value, (_, value) ->
         assignUnlessEqual(node.element.style, ast.name, formatValue(ast, model, value))
-      node.bindEvent(model["#{ast.value}_property"], (_, value) -> set(value))
-      set(model[ast.value])
     else
       node.element.style[ast.name] = ast.value ? model
 
@@ -24,14 +28,12 @@ Property =
       controller[ast.value](node.element, model, e)
 
   class: (ast, node, model, controller) ->
-    set = (value) ->
+    bindToProperty node, model, ast.value, (_, value) ->
       if value
         node.boundClasses.push(ast.name) unless node.boundClasses.includes(ast.name)
       else
         node.boundClasses.delete(ast.name)
       node.updateClass()
-    set(model[ast.value])
-    node.bindEvent(model["#{ast.value}_property"], (_, value) -> set(value))
 
   binding: (ast, node, model, controller) ->
     element = node.element
@@ -46,7 +48,7 @@ Property =
       else
         element.value
 
-    set = (value) ->
+    bindToProperty node, model, ast.value, (_, value) ->
       if element.type is "checkbox"
         element.checked = !!value
       else if element.type is "radio"
@@ -55,8 +57,6 @@ Property =
         value = "" if value == undefined
         assignUnlessEqual(element, "value", value)
 
-    node.bindEvent(model["#{ast.value}_property"], (_, value) -> set(value))
-    set(model[ast.value])
     if ast.name is "binding"
       # we can't bind to the form directly since it doesn't exist yet
       handler = (e) -> domUpdated() if element.form is (e.target or e.srcElement)
@@ -84,8 +84,8 @@ Property =
           node.element.setAttribute(ast.name, value)
 
     if ast.bound and ast.value
-      node.bindEvent(model["#{ast.value}_property"], (_, value) -> set(formatValue(ast, model, value)))
-      set(formatValue(ast, model, model[ast.value]))
+      bindToProperty node, model, ast.value, (_, value) ->
+        set(formatValue(ast, model, value))
     else
       set(ast.value ? model)
 
@@ -151,9 +151,9 @@ Compile =
 
   text: (ast, model, controller) ->
     if ast.bound and ast.value
-      textNode = Serenade.document.createTextNode(formatTextValue(formatValue(ast, model, model[ast.value])))
+      textNode = Serenade.document.createTextNode("")
       node = new Node(ast, textNode)
-      node.bindEvent model["#{ast.value}_property"], (_, value) ->
+      bindToProperty node, model, ast.value, (_, value) ->
         assignUnlessEqual textNode, "nodeValue", formatTextValue(formatValue(ast, model, value))
       node
     else
@@ -206,10 +206,8 @@ Compile =
 
   bound: (ast, model, controller, callback) ->
     dynamic = new DynamicNode(ast)
-    update = (before, after) ->
+    bindToProperty dynamic, model, ast.argument, (before, after) ->
       callback(dynamic, before, after) unless before is after
-    update({}, model[ast.argument])
-    dynamic.bindEvent(model["#{ast.argument}_property"], update)
     dynamic
 
 # turn a single element, document fragment, compiled view or string, or an

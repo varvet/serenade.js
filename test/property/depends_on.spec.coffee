@@ -109,6 +109,19 @@ describe 'Serenade.defineProperty', ->
         expect(@object.author.name_property.listeners.length).to.eql(1)
         expect(@object.author_property.listeners.length).to.eql(1)
 
+      it "triggers change event if value in other object has changed while no listeners were attached", ->
+        class Item extends Serenade.Model
+          @property "parent"
+          @property "active",
+            dependsOn: "parent.active"
+            get: -> @parent?.active
+
+        model = Serenade(active: true, item: undefined)
+        item = new Item(parent: model)
+
+        model.active = false
+        expect(-> model.active = true).to.triggerEvent item.active_property
+
     context "reaching into a collection", ->
       beforeEach ->
         defineProperty @object, 'authors', value: new Serenade.Collection()
