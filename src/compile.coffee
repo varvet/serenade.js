@@ -30,10 +30,9 @@ Property =
   class: (ast, node, model, controller) ->
     bindToProperty node, model, ast.value, (_, value) ->
       if value
-        node.boundClasses.push(ast.name) unless node.boundClasses.includes(ast.name)
+        node.addBoundClass(ast.name)
       else
-        node.boundClasses.delete(ast.name)
-      node.updateClass()
+        node.removeBoundClass(ast.name)
 
   binding: (ast, node, model, controller) ->
     element = node.element
@@ -104,7 +103,7 @@ Compile =
     element.setAttribute('id', ast.id) if ast.id
     element.setAttribute('class', ast.classes.join(' ')) if ast.classes?.length
 
-    node.children = compile(ast.children, model, controller)
+    node.addChildren(compile(ast.children, model, controller))
     child.append(element) for child in node.children
 
     for property in ast.properties

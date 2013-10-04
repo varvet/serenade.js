@@ -2,7 +2,6 @@ class DynamicNode extends Node
   constructor: (@ast) ->
     @anchor = Serenade.document.createTextNode('')
     @nodeSets = new Collection([])
-    @boundEvents = new Collection([])
 
   nodes: ->
     nodes = []

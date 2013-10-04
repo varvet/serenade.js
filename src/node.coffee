@@ -3,9 +3,19 @@ class Node
   defineEvent(@prototype, "unload", async: false)
 
   constructor: (@ast, @element) ->
-    @children = new Collection([])
-    @boundClasses = new Collection([])
-    @boundEvents = new Collection([])
+
+  addBoundClass: (className) ->
+    @boundClasses or= []
+    if @boundClasses?.indexOf(className) is -1
+      @boundClasses.push(className)
+    @updateClass()
+
+  removeBoundClass: (className) ->
+    @boundClasses.splice(@boundClasses.indexOf(className), 1) if @boundClasses
+    @updateClass()
+
+  addChildren: (children) ->
+    @children = children
 
   append: (inside) ->
     inside.appendChild(@element)
@@ -21,16 +31,18 @@ class Node
     @element
 
   nodes: ->
-    @children
+    @children or []
 
   bindEvent: (event, fun) ->
+    @boundEvents or= []
     if event
       @boundEvents.push({ event, fun })
       event.bind(fun)
 
   unbindEvent: (event, fun) ->
+    @boundEvents or= []
     if event
-      @boundEvents.delete(fun)
+      @boundEvents.splice(@boundEvents.indexOf(fun), 1)
       event.unbind(fun)
 
   detach: ->
@@ -44,7 +56,7 @@ class Node
   updateClass: ->
     classes = @ast.classes
     classes = classes.concat(@attributeClasses) if @attributeClasses
-    classes = classes.concat(@boundClasses.toArray()) if @boundClasses.length
+    classes = classes.concat(@boundClasses) if @boundClasses?.length
     classes.sort()
     if classes.length
       assignUnlessEqual(@element, "className", classes.join(' '))
