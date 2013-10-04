@@ -7,9 +7,12 @@ class Collection
   def @prototype, "last", get: ->
     @[@length-1]
 
-  constructor: (list=[]) ->
-    @[index] = val for val, index in list
-    @length = list?.length or 0
+  constructor: (list) ->
+    if list
+      @[index] = val for val, index in list
+      @length = list.length
+    else
+      @length = 0
 
   get: (index) ->
     @[index]
