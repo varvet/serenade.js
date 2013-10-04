@@ -5,14 +5,16 @@ class Node
   constructor: (@ast, @element) ->
 
   addBoundClass: (className) ->
-    @boundClasses or= []
-    if @boundClasses?.indexOf(className) is -1
+    @boundClasses or= new Collection()
+    unless @boundClasses?.includes(className)
       @boundClasses.push(className)
-    @updateClass()
+      @updateClass()
 
   removeBoundClass: (className) ->
-    @boundClasses.splice(@boundClasses.indexOf(className), 1) if @boundClasses
-    @updateClass()
+    if @boundClasses
+      index = @boundClasses.indexOf(className)
+      @boundClasses.delete(className)
+      @updateClass()
 
   setAttributeClasses: (name="__self__", value) ->
     @attributeClasses or= {}
@@ -39,15 +41,15 @@ class Node
     @children or []
 
   bindEvent: (event, fun) ->
-    @boundEvents or= []
     if event
+      @boundEvents or= new Collection()
       @boundEvents.push({ event, fun })
       event.bind(fun)
 
   unbindEvent: (event, fun) ->
-    @boundEvents or= []
     if event
-      @boundEvents.splice(@boundEvents.indexOf(fun), 1)
+      @boundEvents or= new Collection()
+      @boundEvents.delete(fun)
       event.unbind(fun)
 
   detach: ->
@@ -62,7 +64,7 @@ class Node
     classes = @ast.classes
     if @attributeClasses
       classes = classes.concat(value) for own _, value of @attributeClasses
-    classes = classes.concat(@boundClasses) if @boundClasses?.length
+    classes = classes.concat(@boundClasses.toArray()) if @boundClasses?.length
     classes.sort()
     if classes.length
       assignUnlessEqual(@element, "className", classes.join(' '))
