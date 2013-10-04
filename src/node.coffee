@@ -14,6 +14,11 @@ class Node
     @boundClasses.splice(@boundClasses.indexOf(className), 1) if @boundClasses
     @updateClass()
 
+  setAttributeClasses: (name="__self__", value) ->
+    @attributeClasses or= {}
+    @attributeClasses[name] = value
+    @updateClass()
+
   addChildren: (children) ->
     @children = children
 
@@ -55,7 +60,8 @@ class Node
 
   updateClass: ->
     classes = @ast.classes
-    classes = classes.concat(@attributeClasses) if @attributeClasses
+    if @attributeClasses
+      classes = classes.concat(value) for own _, value of @attributeClasses
     classes = classes.concat(@boundClasses) if @boundClasses?.length
     classes.sort()
     if classes.length

@@ -73,8 +73,7 @@ Property =
       else if node.ast.name is 'input' and ast.name is 'checked'
         assignUnlessEqual(node.element, "checked", !!value)
       else if ast.name is 'class'
-        node.attributeClasses = value
-        node.updateClass()
+        node.setAttributeClasses(ast.value, value)
       else if value is undefined
         node.element.removeAttribute(ast.name) if node.element.hasAttribute(ast.name)
       else

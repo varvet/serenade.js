@@ -29,13 +29,15 @@ describe 'Classes', ->
     expect(@body).not.to.have.element("div.active")
 
   it 'plays nice with class attributes and CSS like template values', ->
-    model = Serenade({ active: true, status: "done" })
-    @render 'div.status[class=@status class:active=@active]', model
-    expect(@body.children[0].className).to.eql("active done status")
+    model = Serenade({ active: true, status: "done", type: "blob" })
+    @render 'div.status[class=@status class=@type class:active=@active]', model
+    expect(@body.children[0].className).to.eql("active blob done status")
     model.status = "pending"
-    expect(@body.children[0].className).to.eql("active pending status")
+    expect(@body.children[0].className).to.eql("active blob pending status")
     model.active = false
-    expect(@body.children[0].className).to.eql("pending status")
+    expect(@body.children[0].className).to.eql("blob pending status")
+    model.type = "qloog"
+    expect(@body.children[0].className).to.eql("pending qloog status")
 
   it 'does not add same class more than once', ->
     model = Serenade({ active: false })
