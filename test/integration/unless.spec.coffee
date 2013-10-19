@@ -45,7 +45,7 @@ describe 'Unless', ->
     expect(@body).not.to.have.element('ul > li#visible')
 
   it 'updates the existence of content based on model value truthiness', ->
-    model = new Serenade.Model(valid: false, visible: 0)
+    model = Serenade(valid: false, visible: 0)
 
     @render '''
       ul
@@ -69,7 +69,7 @@ describe 'Unless', ->
     expect(@body).not.to.have.element('ul > li#visible')
 
   it 'peacefully coexists with collections', ->
-    model = new Serenade.Model(items: [{ valid: true, name: 'foo' }, { name: 'bar' }])
+    model = Serenade(items: [{ valid: true, name: 'foo' }, { name: 'bar' }])
     @render '''
       ul
         - collection @items

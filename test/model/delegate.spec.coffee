@@ -36,22 +36,25 @@ describe "Serenade.Model.delegate", ->
     expect(post.email).to.eql(undefined)
 
   it "notifies of changes when delegated attributes are changed", ->
-    author = new Serenade.Model(name: "Jonas", email: "jonas@elabs.se")
+    author = Serenade(name: "Jonas", email: "jonas@elabs.se")
     class Post extends Serenade.Model
       @delegate "name", "email", to: "author"
+      @property "author"
     post = new Post(author: author)
+    post.name
+    post.email
     expect(-> author.name = "peter").to.triggerEvent(post.name_property, with: ["Jonas", "peter"])
     expect(-> author.email = "peter@elabs.se").to.triggerEvent(post.email_property, with: ["jonas@elabs.se", "peter@elabs.se"])
 
   it "allows dependencies to be overwritten", ->
-    author = new Serenade.Model(name: "Jonas", email: "jonas@elabs.se")
+    author = Serenade(name: "Jonas", email: "jonas@elabs.se")
     class Post extends Serenade.Model
       @delegate "name", "email", to: "author", dependsOn: []
     post = new Post(author: author)
     expect(-> author.name = "peter").not.to.triggerEvent(post.name_property)
 
   it "can set prefix", ->
-    author = new Serenade.Model(name: "Jonas", email: "jonas@elabs.se")
+    author = Serenade(name: "Jonas", email: "jonas@elabs.se")
     class Post extends Serenade.Model
       @delegate "name", "email", to: "author", prefix: true
     post = new Post(author: { name: "Jonas", email: "jonas@elabs.se" })
@@ -59,7 +62,7 @@ describe "Serenade.Model.delegate", ->
     expect(post.authorEmail).to.eql("jonas@elabs.se")
 
   it "can set suffix", ->
-    author = new Serenade.Model(name: "Jonas", email: "jonas@elabs.se")
+    author = Serenade(name: "Jonas", email: "jonas@elabs.se")
     class Post extends Serenade.Model
       @delegate "name", "email", to: "author", suffix: true
     post = new Post(author: { name: "Jonas", email: "jonas@elabs.se" })
@@ -67,7 +70,7 @@ describe "Serenade.Model.delegate", ->
     expect(post.emailAuthor).to.eql("jonas@elabs.se")
 
   it "can set prefix as string", ->
-    author = new Serenade.Model(name: "Jonas", email: "jonas@elabs.se")
+    author = Serenade(name: "Jonas", email: "jonas@elabs.se")
     class Post extends Serenade.Model
       @delegate "name", "email", to: "author", prefix: "quox"
     post = new Post(author: { name: "Jonas", email: "jonas@elabs.se" })
@@ -75,7 +78,7 @@ describe "Serenade.Model.delegate", ->
     expect(post.quoxEmail).to.eql("jonas@elabs.se")
 
   it "can set suffix as string", ->
-    author = new Serenade.Model(name: "Jonas", email: "jonas@elabs.se")
+    author = Serenade(name: "Jonas", email: "jonas@elabs.se")
     class Post extends Serenade.Model
       @delegate "name", "email", to: "author", suffix: "Quox"
     post = new Post(author: { name: "Jonas", email: "jonas@elabs.se" })

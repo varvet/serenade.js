@@ -108,8 +108,8 @@ describe 'Serenade.Collection', ->
       expect(@collection[1]).to.eql(item1)
 
     it 'works with Serenade Models', ->
-      item1 = new Serenade.Model(name: 'CJ', age: 30)
-      item2 = new Serenade.Model(name: 'Anders', age: 37)
+      item1 = Serenade(name: 'CJ', age: 30)
+      item2 = Serenade(name: 'Anders', age: 37)
       @collection.update([item1, item2])
 
       @collection.sortBy('name')
