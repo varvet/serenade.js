@@ -41,14 +41,17 @@ class PropertyAccessor
     @event = new Event(@object, @name + "_change", @definition.eventOptions)
     @_gcQueue = []
 
+  update: (value) ->
+    if @definition.set
+      @definition.set.call(@object, value)
+    else
+      def @object, @valueName, value: value, configurable: true
+
   set: (value) ->
     if typeof(value) is "function"
       @definition.get = value
     else
-      if @definition.set
-        @definition.set.call(@object, value)
-      else
-        def @object, @valueName, value: value, configurable: true
+      @update(value)
       @trigger()
 
   get: ->

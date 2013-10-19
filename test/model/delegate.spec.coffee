@@ -41,8 +41,8 @@ describe "Serenade.Model.delegate", ->
       @delegate "name", "email", to: "author"
       @property "author"
     post = new Post(author: author)
-    post.name
-    post.email
+    post.name_property.trigger()
+    post.email_property.trigger()
     expect(-> author.name = "peter").to.triggerEvent(post.name_property, with: ["Jonas", "peter"])
     expect(-> author.email = "peter@elabs.se").to.triggerEvent(post.email_property, with: ["jonas@elabs.se", "peter@elabs.se"])
 
