@@ -42,7 +42,7 @@ describe 'Shortcuts', ->
     expect(@body).to.have.element('div.peter.jonas')
 
   it 'updates multiple classes with short form as the class attribute changes', ->
-    model = new Serenade.Model( names: ['jonas', 'peter'] )
+    model = Serenade( names: ['jonas', 'peter'] )
     @render 'div.quack[class=names]', model
     expect(@body).to.have.element('div.quack.jonas.peter')
     model.names = undefined

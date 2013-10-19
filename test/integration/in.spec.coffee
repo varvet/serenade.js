@@ -27,7 +27,7 @@ describe 'In', ->
     expect(@body).to.have.element('article > div')
 
   it 'updates when the subobject is changed', ->
-    model = new Serenade.Model( author: { name: 'jonas' } )
+    model = Serenade( author: { name: 'jonas' } )
 
     @render '''
       article
@@ -40,7 +40,7 @@ describe 'In', ->
     expect(@body).not.to.have.element('article > p#jonas')
 
   it 'updates when a property on the subobject is changed', ->
-    model = { author: new Serenade.Model( name: 'jonas' ) }
+    model = { author: Serenade( name: 'jonas' ) }
 
     @render '''
       article

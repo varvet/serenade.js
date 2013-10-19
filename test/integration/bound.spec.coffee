@@ -25,14 +25,14 @@ describe 'Bound attributes and text nodes', ->
     expect(@body).to.have.element('div.jonas.peter')
 
   it 'changes bound attributes as they are changed', ->
-    model = new Serenade.Model(name: "jonas")
+    model = Serenade(name: "jonas")
     @render 'div[id=name]', model
     expect(@body).to.have.element('div#jonas')
     model.name = 'peter'
     expect(@body).to.have.element('div#peter')
 
   it 'removes attributes and reattaches them as they are set to undefined', ->
-    model = new Serenade.Model(name: "jonas")
+    model = Serenade(name: "jonas")
     @render 'div[id=name]', model
     expect(@body).to.have.element('div#jonas')
     model.name = undefined
@@ -41,14 +41,14 @@ describe 'Bound attributes and text nodes', ->
     expect(@body).to.have.element('div#peter')
 
   it 'handles value specially', ->
-    model = new Serenade.Model(name: "jonas")
+    model = Serenade(name: "jonas")
     @render 'input[value=name]', model
     @body.querySelector('input').value = "changed"
     model.name = 'peter'
     expect(@body.querySelector('input').value).to.eql('peter')
 
   it 'handles checked specially', ->
-    model = new Serenade.Model(checked: true)
+    model = Serenade(checked: true)
     @render 'input[checked=checked]', model
 
     expect(@body.querySelector('input').checked).to.be.ok
@@ -58,14 +58,14 @@ describe 'Bound attributes and text nodes', ->
     expect(@body.querySelector('input').checked).to.be.ok
 
   it 'changes bound text nodes as they are changed', ->
-    model = new Serenade.Model(name: "Jonas Nicklas")
+    model = Serenade(name: "Jonas Nicklas")
     @render 'div @name', model
     expect(@body.querySelector('div')).to.have.text('Jonas Nicklas')
     model.name = 'Peter Pan'
     expect(@body.querySelector('div')).to.have.text('Peter Pan')
 
   it 'updates multiple classes as the class attribute changes', ->
-    model = new Serenade.Model( names: ['jonas', 'peter'] )
+    model = Serenade( names: ['jonas', 'peter'] )
     @render 'div[class=names]', model
     expect(@body).to.have.element('div.jonas.peter')
     model.names = undefined
@@ -94,7 +94,7 @@ describe 'Bound attributes and text nodes', ->
     expect(@body.querySelector('div').textContent).to.eql("PETER")
 
   it 'can handle bound text as root nodes', ->
-    model = new Serenade.Model(first: "Jonas", last: "Nicklas")
+    model = Serenade(first: "Jonas", last: "Nicklas")
     @render """
       @first
       " "

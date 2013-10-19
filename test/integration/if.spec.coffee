@@ -45,7 +45,7 @@ describe 'If', ->
     expect(@body).not.to.have.element('ul > li#visible')
 
   it 'updates the existence of content based on model value truthiness', ->
-    model = new Serenade.Model(valid: false, visible: 0)
+    model = Serenade(valid: false, visible: 0)
 
     @render '''
       ul
@@ -69,7 +69,7 @@ describe 'If', ->
     expect(@body).to.have.element('ul > li#visible')
 
   it 'can have else statement', ->
-    model = new Serenade.Model(valid: false)
+    model = Serenade(valid: false)
 
     @render '''
       ul
@@ -86,7 +86,7 @@ describe 'If', ->
 
 
   it 'peacefully coexists with collections', ->
-    model = new Serenade.Model(items: [{ valid: true, name: 'foo' }, { name: 'bar' }])
+    model = Serenade(items: [{ valid: true, name: 'foo' }, { name: 'bar' }])
     @render '''
       ul
         - collection @items
@@ -97,7 +97,7 @@ describe 'If', ->
     expect(@body).not.to.have.element('ul > li#bar')
 
   it "can be nested", ->
-    model = new Serenade.Model(show: true, details: "test")
+    model = Serenade(show: true, details: "test")
     @render """
       div
         - if @show
@@ -109,7 +109,7 @@ describe 'If', ->
     expect(@body).to.have.element('#test')
 
   it 'can be a root node', ->
-    model = new Serenade.Model(valid: false)
+    model = Serenade(valid: false)
 
     @render '''
       - if @valid
