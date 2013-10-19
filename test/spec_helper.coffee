@@ -4,6 +4,7 @@ root.Serenade = Build.Serenade
 
 chai = require 'chai'
 chai.should()
+chai.Assertion.includeStack = true
 root.expect = chai.expect
 sinon = require('sinon')
 
