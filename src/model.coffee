@@ -138,9 +138,7 @@ class Model
     @set(attributes)
 
   set: (attributes) ->
-    for own name, value of attributes
-      defineProperty(this, name) unless name of this
-      @[name] = value
+    @[name] = value for own name, value of attributes
 
   save: ->
     @saved.trigger()
