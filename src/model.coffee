@@ -135,7 +135,12 @@ class Model
         return fromCache
       else
         Cache.set(@constructor, attributes.id, this)
-    @set(attributes)
+    for own name, value of attributes
+      property = @[name + "_property"]
+      if property
+        property.update(value)
+      else
+        @[name] = value
 
   set: (attributes) ->
     @[name] = value for own name, value of attributes

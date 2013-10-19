@@ -7,6 +7,25 @@ describe 'Serenade.Model', ->
       expect(john.age).to.eql(23)
       expect(john.name).to.eql('John')
 
+    it 'does not trigger any change events', ->
+      nameTriggered = false
+      ageTriggered = false
+
+      class Person extends Serenade.Model
+        @property "name", async: true
+        @property "age"
+        @property "nameListener", dependsOn: "name"
+        @property "ageListener", dependsOn: "age"
+
+        constructor: ->
+          @nameListener_property.bind -> nameTriggered = true
+          @ageListener_property.bind -> ageTriggered = true
+          super
+
+      john = new Person(name: 'John', age: 23)
+      expect(nameTriggered).to.be.false
+      expect(ageTriggered).to.be.false
+
   describe '.extend', ->
     it 'sets up prototypes correctly', ->
       Test = Serenade.Model.extend()

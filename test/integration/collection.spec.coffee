@@ -116,6 +116,21 @@ describe 'Collection', ->
     """, model
     model.things = ["world"]
     expect(@body).to.have.element('ul > li#world')
+    expect(@body).not.to.have.element('ul > li#hello')
+
+  it 'updates when the collection is replaced for serenade models', ->
+    class Thing extends Serenade.Model
+      @property "things"
+    model = new Thing(things: ["hello"])
+
+    @render """
+      ul
+        - collection @things
+          li[id=@]
+    """, model
+    model.things = ["world"]
+    expect(@body).to.have.element('ul > li#world')
+    expect(@body).not.to.have.element('ul > li#hello')
 
   it 'can handle being a root node', ->
     model = Serenade(things: ["hello"])
@@ -128,6 +143,7 @@ describe 'Collection', ->
     model.things = []
     expect(@body).to.have.text("")
     model.things = ["foo", "bar"]
+    expect(@body).not.to.have.text("hello")
     expect(@body).to.have.text("foobar")
 
   it 'passes collection item into controller', ->
