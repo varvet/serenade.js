@@ -47,7 +47,7 @@ beforeEach ->
       @assert @obj.querySelectorAll(selector).length > 0, "expected #{selector} to occur", "expected #{selector} not to occur, but it did"
 
   chai.Assertion::text = (text) ->
-    actual = @obj.textContent.trim().replace(/\s/g, ' ')
+    actual = @obj.textContent.trim().replace(/\s+/g, ' ')
     @assert actual is text, "expected #{actual} to be #{text}"
   chai.Assertion::attribute = (name) ->
     @assert @obj.hasAttribute(name), "expected #{@obj} to have attribute #{name}"
