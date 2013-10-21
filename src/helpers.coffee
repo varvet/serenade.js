@@ -90,3 +90,14 @@ safeDelete = (object, collection, item) ->
     unless object.hasOwnProperty(collection)
       def object, collection, value: [].concat(object[collection])
     object[collection].splice(index, 1)
+
+nextTickTimeout = null
+nextTickList = []
+nextTick = (fn) ->
+  nextTickList.push(fn)
+  nextTickTimeout or= setTimeout((->
+    thisTickList = nextTickList
+    nextTickTimeout = null
+    nextTickList = []
+    fn() for fn in thisTickList
+  ), 0)
