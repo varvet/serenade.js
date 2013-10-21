@@ -138,7 +138,7 @@ class Model
     for own name, value of attributes
       property = @[name + "_property"]
       if property
-        property.update(value)
+        property.initialize(value)
       else
         @[name] = value
 
