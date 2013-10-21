@@ -41,6 +41,10 @@ class PropertyAccessor
     @event = new Event(@object, @name + "_change", @definition.eventOptions)
     @_gcQueue = []
 
+  initialize: (value) ->
+    @update(value)
+    @_oldValue = value
+
   update: (value) ->
     if @definition.set
       @definition.set.call(@object, value)

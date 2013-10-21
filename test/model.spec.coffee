@@ -26,6 +26,12 @@ describe 'Serenade.Model', ->
       expect(nameTriggered).to.be.false
       expect(ageTriggered).to.be.false
 
+    it 'keeps track of constructor values for change events', ->
+      class Person extends Serenade.Model
+        @property "name"
+      john = new Person(name: 'John')
+      expect(-> john.name = 'Peter').to.triggerEvent(john.name_property, with: ["John", "Peter"])
+
   describe '.extend', ->
     it 'sets up prototypes correctly', ->
       Test = Serenade.Model.extend()
