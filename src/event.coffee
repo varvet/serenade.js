@@ -12,8 +12,12 @@ class Event
           @queue.frame or= requestAnimationFrame((=> @resolve()), @options.timeout or 0)
         else
           return if @queue.timeout and not @options.buffer
-          clearTimeout(@queue.timeout)
-          @queue.timeout = setTimeout((=> @resolve()), @options.timeout or 0)
+          if @options.timeout
+            clearTimeout(@queue.timeout)
+            @queue.timeout = setTimeout((=> @resolve()), @options.timeout or 0)
+          else if not @queue.tick
+            @queue.tick = true
+            nextTick => @resolve()
       else
         @resolve()
 
