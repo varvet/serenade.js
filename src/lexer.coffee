@@ -76,7 +76,7 @@ class Lexer
 
   stringToken: ->
     if match = STRING.exec @chunk
-      @token 'STRING_LITERAL', match[1]
+      @token 'STRING_LITERAL', match[1].replace(/\\(.)/g, "$1")
       match[0].length
     else
       0

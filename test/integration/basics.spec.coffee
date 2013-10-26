@@ -46,3 +46,9 @@ describe 'Basics', ->
       div "Serenade"
     '''
     expect(@body.children[0]).to.have.text("Serenade")
+
+  it 'compiles a simple element with a text node with escaped quotes', ->
+    @render '''
+      div "hello \\"Serenade\\""
+    '''
+    expect(@body.children[0]).to.have.text('hello "Serenade"')
