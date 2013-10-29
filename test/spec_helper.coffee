@@ -51,6 +51,8 @@ beforeEach ->
     @assert actual is text, "expected #{actual} to be #{text}"
   chai.Assertion::attribute = (name) ->
     @assert @obj.hasAttribute(name), "expected #{@obj} to have attribute #{name}"
+  chai.Assertion::property = (name) ->
+    @assert @obj[name], "expected #{@obj} to have property #{name}"
   chai.Assertion::triggerEvent = (event, options={}) ->
     args = null
     count = 0
