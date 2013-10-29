@@ -94,6 +94,15 @@ Property =
     else
       throw new SyntaxError("unkown lifecycle event '#{ast.name}'")
 
+  property: (ast, node, model, controller) ->
+    set = (value) ->
+      assignUnlessEqual(node.element, ast.name, value)
+    if ast.bound and ast.value
+      bindToProperty node, model, ast.value, (_, value) ->
+        set(value)
+    else
+      set(ast.value ? model)
+
 Compile =
   element: (ast, model, controller) ->
     element = Serenade.document.createElement(ast.name)
