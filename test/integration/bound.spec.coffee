@@ -57,6 +57,16 @@ describe 'Bound attributes and text nodes', ->
     model.checked = 'schmock'
     expect(@body.querySelector('input').checked).to.be.ok
 
+  it 'handles novalidate specially', ->
+    model = Serenade(novalidate: true)
+    @render 'input[novalidate=novalidate]', model
+
+    expect(@body.querySelector('input').noValidate).to.be.ok
+    model.novalidate = false
+    expect(@body.querySelector('input').noValidate).not.to.be.ok
+    model.novalidate = 'schmock'
+    expect(@body.querySelector('input').noValidate).to.be.ok
+
   it 'changes bound text nodes as they are changed', ->
     model = Serenade(name: "Jonas Nicklas")
     @render 'div @name', model

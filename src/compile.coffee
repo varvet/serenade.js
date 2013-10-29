@@ -14,6 +14,26 @@ bindToProperty = (node, model, name, cb) ->
   node.bindEvent(model["#{name}_property"], cb)
   cb({}, value)
 
+booleanAttributes =
+  async: "async"
+  autofocus: "autofocus"
+  checked: "checked"
+  default: "default"
+  defer: "defer"
+  disabled: "disabled"
+  formnovalidate: "formNoValidate"
+  hidden: "hidden"
+  ismap: "isMap"
+  multiple: "multiple"
+  muted: "muted"
+  novalidate: "noValidate"
+  open: "open"
+  readonly: "readonly"
+  required: "required"
+  reversed: "reversed"
+  seamless: "seamless"
+  selected: "selected"
+
 Property =
   style: (ast, node, model, controller) ->
     if ast.bound and ast.value
@@ -70,8 +90,8 @@ Property =
     set = (value) ->
       if ast.name is 'value'
         assignUnlessEqual(node.element, "value", value or '')
-      else if node.ast.name is 'input' and ast.name is 'checked'
-        assignUnlessEqual(node.element, "checked", !!value)
+      else if ast.name of booleanAttributes
+        assignUnlessEqual(node.element, booleanAttributes[ast.name], !!value)
       else if ast.name is 'class'
         node.setAttributeClasses(ast.value, value)
       else if value is undefined
