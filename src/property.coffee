@@ -49,7 +49,7 @@ class PropertyAccessor
     if @definition.set
       @definition.set.call(@object, value)
     else
-      def @object, @valueName, value: value, configurable: true
+      def @object, @valueName, value: value, configurable: true, writable: true
 
   set: (value) ->
     if typeof(value) is "function"
