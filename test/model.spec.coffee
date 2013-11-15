@@ -114,6 +114,14 @@ describe 'Serenade.Model', ->
       expect(-> john.firstName = "Johnny").to.triggerEvent john.firstName_property
       expect(john.toJSON().lastName).to.eql("Smith")
 
+    it 'cannot break constructor by declaring a property called `set`', ->
+      class Person extends Serenade.Model
+        @property "set", value: -> throw new Error("Set was called!")
+      new Person(id: "hey", name: "Jonas")
+      jonas = new Person(id: "hey", age: 28)
+      expect(jonas.name).to.eql("Jonas")
+      expect(jonas.age).to.eql(28)
+
   describe '.event', ->
     it 'adds an event to the prototype', ->
       class Person extends Serenade.Model

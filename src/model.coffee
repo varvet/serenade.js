@@ -131,7 +131,7 @@ class Model
     if @constructor.identityMap and attributes?.id
       fromCache = Cache.get(@constructor, attributes.id)
       if fromCache
-        fromCache.set(attributes)
+        Model::set.call(fromCache, attributes)
         return fromCache
       else
         Cache.set(@constructor, attributes.id, this)
