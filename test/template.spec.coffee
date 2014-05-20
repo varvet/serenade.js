@@ -225,5 +225,5 @@ describe 'Template', ->
       expect(result.children[0].children[1].name).to.eql('p')
 
     it 'it adds view name to error message', ->
-      view = Serenade.view("someView", "di'v")
+      view = Serenade.template("someView", "di'v")
       expect(-> view.parse()).to.throw(SyntaxError, /In view 'someView':/)

@@ -1,4 +1,4 @@
-Serenade.view 'post', '''
+Serenade.template 'post', '''
   div[id="serenade"]
     h1 @title
     p @body

@@ -1,4 +1,4 @@
-Serenade.view 'post', '''
+Serenade.template 'post', '''
   div#serenade
     h1 @title
     p @body
@@ -13,7 +13,7 @@ Serenade.view 'post', '''
         input[type="submit" value="Post"]
 '''
 
-Serenade.view 'comment', '''
+Serenade.template 'comment', '''
   li[style:backgroundColor=@color]
     p @body
     p

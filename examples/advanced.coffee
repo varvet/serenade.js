@@ -1,4 +1,4 @@
-Serenade.view 'thing', '''
+Serenade.template 'thing', '''
   div[id="serenade"]
     p
       a[event:click=doThing! href="#"] "Do thing"

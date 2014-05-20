@@ -5,7 +5,7 @@ Serenade = (wrapped) ->
 
 extend Serenade,
   VERSION: '0.5.0'
-  views: {}
+  templates: {}
   controllers: {}
 
   document: window?.document
@@ -14,14 +14,14 @@ extend Serenade,
   defineProperty: defineProperty
   defineEvent: defineEvent
 
-  view: (nameOrTemplate, template) ->
+  template: (nameOrTemplate, template) ->
     if template
-      @views[nameOrTemplate] = new Template(nameOrTemplate, template)
+      @templates[nameOrTemplate] = new Template(nameOrTemplate, template)
     else
       new Template(undefined, nameOrTemplate)
 
   render: (name, model, controller, parent, skipCallback) ->
-    @views[name].render(model, controller, parent, skipCallback)
+    @templates[name].render(model, controller, parent, skipCallback)
 
   controller: (name, klass) ->
     @controllers[name] = klass
@@ -29,7 +29,7 @@ extend Serenade,
   clearCache: ->
     Serenade.clearIdentityMap()
   unregisterAll: ->
-    Serenade.views = {}
+    Serenade.templates = {}
     Serenade.controllers = {}
 
   Model: Model

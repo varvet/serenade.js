@@ -1,4 +1,4 @@
-Serenade.view 'test', '''
+Serenade.template 'test', '''
   div[id="foo"]
     h1 "This is a Serenade.js example"
     p
