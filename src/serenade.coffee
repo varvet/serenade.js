@@ -16,9 +16,9 @@ extend Serenade,
 
   view: (nameOrTemplate, template) ->
     if template
-      @views[nameOrTemplate] = new View(nameOrTemplate, template)
+      @views[nameOrTemplate] = new Template(nameOrTemplate, template)
     else
-      new View(undefined, nameOrTemplate)
+      new Template(undefined, nameOrTemplate)
 
   render: (name, model, controller, parent, skipCallback) ->
     @views[name].render(model, controller, parent, skipCallback)
@@ -35,7 +35,7 @@ extend Serenade,
   Model: Model
   Collection: Collection
   Cache: Cache
-  View: View
+  Template: Template
   Helpers: {}
 
 def Serenade, "async",

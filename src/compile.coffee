@@ -105,14 +105,18 @@ Property =
 
 Compile =
   element: (ast, model, controller) ->
-    element = Serenade.document.createElement(ast.name)
-    node = new Node(ast, element)
+    if Serenade.views[ast.name]
+      console.log(ast.name, Serenade.views)
+      view = Serenade.render(ast.name, model, controller)
+      node = new Node(ast, view.element)
+    else
+      view = new DomElement(ast.name)
+      node = new Node(ast, view.element)
+      view.set('id', ast.id) if ast.id
+      view.set('class', ast.classes.join(' ')) if ast.classes?.length
 
-    element.setAttribute('id', ast.id) if ast.id
-    element.setAttribute('class', ast.classes.join(' ')) if ast.classes?.length
-
-    node.addChildren(compile(ast.children, model, controller))
-    child.append(element) for child in node.children
+      node.addChildren(compile(ast.children, model, controller))
+      child.append(view.element) for child in node.children
 
     for property in ast.properties
       action = Property[property.scope]
@@ -145,7 +149,7 @@ Compile =
   helper: (ast, model, controller) ->
     dynamic = new DynamicNode(ast)
     renderBlock = (model=model, blockController=controller) ->
-      new View(null, ast.children).render(model, blockController, controller, controller is blockController)
+      new Template(null, ast.children).render(model, blockController, controller, controller is blockController)
     helperFunction = Serenade.Helpers[ast.command] or throw SyntaxError "no helper #{ast.command} defined"
     context = { model, controller, render: renderBlock }
     update = ->

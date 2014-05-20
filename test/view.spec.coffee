@@ -1,10 +1,10 @@
 require './spec_helper'
-{View} = Serenade
+{Template} = Serenade
 
-describe 'View', ->
+describe 'Template', ->
   describe '#parse', ->
     parse = (view) ->
-      new View(undefined, view).parse()[0]
+      new Template(undefined, view).parse()[0]
 
     it 'parses a single tag', ->
       expect(parse('div').name).to.eql('div')

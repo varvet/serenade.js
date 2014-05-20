@@ -7,7 +7,7 @@ parser.lexer =
   upcomingInput: ->
     ""
 
-class View
+class Template
   constructor: (@name, @view) ->
 
   parse: ->
