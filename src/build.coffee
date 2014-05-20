@@ -27,6 +27,7 @@ Build =
 
   sourceFiles: [
     "helpers"
+    "dom_element"
     "transform"
     "event"
     "cache"
@@ -38,7 +39,7 @@ Build =
     "node"
     "dynamic_node"
     "compile"
-    "view"
+    "template"
     "serenade"
   ]
 
