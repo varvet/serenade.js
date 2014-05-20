@@ -1,13 +1,13 @@
 require './../spec_helper'
 
-describe 'Custom helpers', ->
+describe 'Custom views', ->
   beforeEach -> @setupDom()
 
-  it 'uses a custom helper', ->
-    Serenade.Helpers.funky = -> Serenade.document.createElement('form')
+  it 'uses a custom view', ->
+    Serenade.view "funky", -> element: Serenade.document.createElement('form')
     @render '''
       div
-        - funky
+        funky
     '''
     expect(@body).to.have.element('div > form')
 

@@ -105,9 +105,8 @@ Property =
 
 Compile =
   element: (ast, model, controller) ->
-    if Serenade.templates[ast.name]
-      console.log(ast.name, Serenade.templates)
-      view = Serenade.render(ast.name, model, controller)
+    if Serenade.views[ast.name]
+      view = Serenade.renderView(ast.name, model, controller)
       node = new Node(ast, view.element)
     else
       view = new DomElement(ast.name)
