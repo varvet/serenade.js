@@ -109,13 +109,13 @@ Compile =
       view = Serenade.renderView(ast.name, model, controller)
       node = new Node(ast, view.element)
     else
-      view = new DomElement(ast.name)
-      node = new Node(ast, view.element)
-      view.set('id', ast.id) if ast.id
-      view.set('class', ast.classes.join(' ')) if ast.classes?.length
+      element = Serenade.document.createElement(ast.name)
+      node = new Node(ast, element)
+      element.setAttribute('id', ast.id) if ast.id
+      element.setAttribute('class', ast.classes.join(' ')) if ast.classes?.length
 
       node.addChildren(compile(ast.children, model, controller))
-      child.append(view.element) for child in node.children
+      child.append(element) for child in node.children
 
     for property in ast.properties
       action = Property[property.scope]

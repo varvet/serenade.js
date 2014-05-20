@@ -27,7 +27,7 @@ Build =
 
   sourceFiles: [
     "helpers"
-    "dom_element"
+    "view"
     "transform"
     "event"
     "cache"
