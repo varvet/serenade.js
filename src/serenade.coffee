@@ -43,6 +43,7 @@ extend Serenade,
   Collection: Collection
   Cache: Cache
   Template: Template
+  View: View
   Helpers: {}
 
 def Serenade, "async",

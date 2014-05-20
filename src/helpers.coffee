@@ -101,3 +101,7 @@ nextTick = (fn) ->
     nextTickList = []
     fn() for fn in thisTickList
   ), 0)
+
+notImplemeted: ->
+  throw(new Error("not implemented"))
+
