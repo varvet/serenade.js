@@ -5,6 +5,7 @@ Serenade = (wrapped) ->
 
 extend Serenade,
   VERSION: '0.5.0'
+  views: {}
   templates: {}
   controllers: {}
 
@@ -13,6 +14,12 @@ extend Serenade,
 
   defineProperty: defineProperty
   defineEvent: defineEvent
+
+  view: (name, generator) ->
+    @views[name] = generator
+
+  renderView: (name, args...) ->
+    @views[name](args...)
 
   template: (nameOrTemplate, template) ->
     if template
