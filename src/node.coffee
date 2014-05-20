@@ -16,7 +16,7 @@ class Node
       @boundClasses.delete(className)
       @updateClass()
 
-  setAttributeClasses: (name="__self__", value) ->
+  setAttributeClass: (name="__self__", value) ->
     @attributeClasses or= {}
     @attributeClasses[name] = value
     @updateClass()
