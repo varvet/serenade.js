@@ -105,27 +105,26 @@ Property =
 
 Compile =
   element: (ast, model, controller) ->
-    if Serenade.views[ast.name]
-      view = Serenade.renderView(ast.name, model, controller)
-      node = new Element(ast, view.element)
+    view = if Serenade.views[ast.name]
+      Serenade.renderView(ast.name, model, controller)
     else
-      element = Serenade.document.createElement(ast.name)
-      node = new Element(ast, element)
-      element.setAttribute('id', ast.id) if ast.id
-      element.setAttribute('class', ast.classes.join(' ')) if ast.classes?.length
+      new Element(ast, Serenade.document.createElement(ast.name))
 
-      node.addChildren(compile(ast.children, model, controller))
-      child.append(element) for child in node.children
+    view.setAttribute('id', ast.id) if ast.id
+    view.setAttribute('class', ast.classes.join(' ')) if ast.classes?.length
+
+    view.addChildren(compile(ast.children, model, controller))
+    child.append(view.element) for child in view.children
 
     for property in ast.properties
       action = Property[property.scope]
       if action
-        action(property, node, model, controller)
+        action(property, view, model, controller)
       else
         throw SyntaxError "#{property.scope} is not a valid scope"
 
-    node.load.trigger()
-    node
+    view.load.trigger()
+    view
 
   view: (ast, model, parent) ->
     controller = Serenade.controllers[ast.argument]

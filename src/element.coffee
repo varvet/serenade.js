@@ -34,6 +34,11 @@ class Element extends View
     @detach()
     @element.parentNode?.removeChild(@element)
 
+  setAttribute: (property, value) ->
+    @element.setAttribute(property, value)
+
+  setAttributeNS: (namespace, property, value) -> notImplemeted()
+
   def @prototype, "lastElement", configurable: true, get: ->
     @element
 

@@ -4,7 +4,12 @@ describe 'Custom views', ->
   beforeEach -> @setupDom()
 
   it 'uses a custom view', ->
-    Serenade.view "funky", -> element: Serenade.document.createElement('form')
+    class CustomView extends Serenade.Element
+      constructor: (@ast) ->
+        @element = Serenade.document.createElement('form')
+
+    Serenade.view "funky", CustomView
+
     @render '''
       div
         funky

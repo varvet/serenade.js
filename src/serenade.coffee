@@ -19,7 +19,7 @@ extend Serenade,
     @views[name] = generator
 
   renderView: (name, args...) ->
-    @views[name](args...)
+    new @views[name](args...)
 
   template: (nameOrTemplate, template) ->
     if template
@@ -44,6 +44,8 @@ extend Serenade,
   Cache: Cache
   Template: Template
   View: View
+  Element: Element
+  CollectionView: CollectionView
   Helpers: {}
 
 def Serenade, "async",
