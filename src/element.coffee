@@ -1,4 +1,4 @@
-class Node extends View
+class Element extends View
   defineEvent(@prototype, "load", async: false)
   defineEvent(@prototype, "unload", async: false)
 

@@ -107,10 +107,10 @@ Compile =
   element: (ast, model, controller) ->
     if Serenade.views[ast.name]
       view = Serenade.renderView(ast.name, model, controller)
-      node = new Node(ast, view.element)
+      node = new Element(ast, view.element)
     else
       element = Serenade.document.createElement(ast.name)
-      node = new Node(ast, element)
+      node = new Element(ast, element)
       element.setAttribute('id', ast.id) if ast.id
       element.setAttribute('class', ast.classes.join(' ')) if ast.classes?.length
 
@@ -143,10 +143,10 @@ Compile =
     if ast.bound
       @bound(ast, model, controller, compileView)
     else
-      compileView(new DynamicNode(ast), undefined, ast.argument)
+      compileView(new CollectionView(ast), undefined, ast.argument)
 
   helper: (ast, model, controller) ->
-    dynamic = new DynamicNode(ast)
+    dynamic = new CollectionView(ast)
     renderBlock = (model=model, blockController=controller) ->
       new Template(null, ast.children).render(model, blockController, controller, controller is blockController)
     helperFunction = Serenade.Helpers[ast.command] or throw SyntaxError "no helper #{ast.command} defined"
@@ -162,12 +162,12 @@ Compile =
   text: (ast, model, controller) ->
     if ast.bound and ast.value
       textNode = Serenade.document.createTextNode("")
-      node = new Node(ast, textNode)
+      node = new Element(ast, textNode)
       bindToProperty node, model, ast.value, (_, value) ->
         assignUnlessEqual textNode, "nodeValue", formatTextValue(formatValue(ast, model, value))
       node
     else
-      new Node(ast, Serenade.document.createTextNode(ast.value ? model))
+      new Element(ast, Serenade.document.createTextNode(ast.value ? model))
 
   collection: (ast, model, controller) ->
     dynamic = null
@@ -215,7 +215,7 @@ Compile =
         dynamic.replace([nodes])
 
   bound: (ast, model, controller, callback) ->
-    dynamic = new DynamicNode(ast)
+    dynamic = new CollectionView(ast)
     bindToProperty dynamic, model, ast.argument, (before, after) ->
       callback(dynamic, before, after) unless before is after
     dynamic
@@ -228,14 +228,14 @@ normalize = (ast, val) ->
     if typeof(element) is "string"
       div = Serenade.document.createElement("div")
       div.innerHTML = element
-      aggregate.push(new Node(ast, child)) for child in div.childNodes
+      aggregate.push(new Element(ast, child)) for child in div.childNodes
     else if element.nodeName is "#document-fragment"
       if element.nodes # rendered Serenade.template, clean up listeners!
         aggregate = aggregate.concat(element.nodes)
       else
-        aggregate.push(new Node(ast, child)) for child in element.childNodes
+        aggregate.push(new Element(ast, child)) for child in element.childNodes
     else
-      aggregate.push(new Node(ast, element))
+      aggregate.push(new Element(ast, element))
     aggregate
   [].concat(val).reduce(reduction, [])
 

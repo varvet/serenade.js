@@ -1,4 +1,4 @@
-class DynamicNode extends Node
+class CollectionView extends Element
   constructor: (@ast) ->
     @anchor = Serenade.document.createTextNode('')
     @nodeSets = new Collection([])
