@@ -105,8 +105,8 @@ Property =
 
 Compile =
   element: (ast, model, controller) ->
-    if Serenade.views[ast.name]
-      console.log(ast.name, Serenade.views)
+    if Serenade.templates[ast.name]
+      console.log(ast.name, Serenade.templates)
       view = Serenade.render(ast.name, model, controller)
       node = new Node(ast, view.element)
     else
@@ -137,7 +137,7 @@ Compile =
       controller = parent
 
     compileView = (dynamic, before, after) ->
-      view = Serenade.views[after].render(model, controller, parent, skipCallback)
+      view = Serenade.templates[after].render(model, controller, parent, skipCallback)
       dynamic.replace([view.nodes])
       dynamic
 
@@ -231,7 +231,7 @@ normalize = (ast, val) ->
       div.innerHTML = element
       aggregate.push(new Node(ast, child)) for child in div.childNodes
     else if element.nodeName is "#document-fragment"
-      if element.nodes # rendered Serenade view, clean up listeners!
+      if element.nodes # rendered Serenade.template, clean up listeners!
         aggregate = aggregate.concat(element.nodes)
       else
         aggregate.push(new Node(ast, child)) for child in element.childNodes

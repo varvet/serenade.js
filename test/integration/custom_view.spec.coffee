@@ -36,9 +36,9 @@ describe 'Custom helpers', ->
     expect(@body).to.have.element('div > form')
     expect(@body).to.have.element('div > article')
 
-  it 'can return a renderered Serenade view', ->
+  it 'can return a renderered Serenade.template', ->
     Serenade.Helpers.funky = ->
-      Serenade.view("""
+      Serenade.template("""
         #foo
           #bar
         #baz
@@ -56,7 +56,7 @@ describe 'Custom helpers', ->
     model = Serenade(name: "Jonas", active: true)
     Serenade.Helpers.funky = (active) ->
       if active
-        Serenade.view("""
+        Serenade.template("""
           #bar @name
         """).render(@model)
       else
@@ -303,10 +303,10 @@ describe 'Custom helpers', ->
       model.lastName = "Lüchow"
       expect(@body).to.have.text("LÜCHOW, ANNIKA")
 
-    it "update a rendered Serenade view", ->
+    it "update a rendered Serenade.template", ->
       model = Serenade(id: "test")
       Serenade.Helpers.funky = (id) ->
-        Serenade.view("""
+        Serenade.template("""
           #foo
           div[id=@id]
         """).render(id: id)

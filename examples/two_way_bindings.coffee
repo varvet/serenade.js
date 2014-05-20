@@ -1,4 +1,4 @@
-Serenade.view 'form', '''
+Serenade.template 'form', '''
   form[event:submit=stop!]
     h3 "Fill in stuff here"
     p
@@ -35,7 +35,7 @@ Serenade.view 'form', '''
       input[type="submit" value="Update"]
 '''
 
-Serenade.view 'result', '''
+Serenade.template 'result', '''
   div
     h3 "See this change magically"
     p "Title: " @title

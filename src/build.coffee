@@ -108,7 +108,7 @@ module.exports.compile = ->
   (env) ->
     model = env.model
     viewName = env.filename.split('/').reverse()[0].replace(/\.serenade$/, '')
-    Serenade.view(viewName, fs.readFileSync(env.filename).toString())
+    Serenade.template(viewName, fs.readFileSync(env.filename).toString())
     element = Serenade.render(viewName, model, {})
     document.body.appendChild(element)
     html = document.body.innerHTML

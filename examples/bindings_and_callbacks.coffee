@@ -1,4 +1,4 @@
-Serenade.view 'test', '''
+Serenade.template 'test', '''
   div[id="hello-world"]
     h1 @name
     p

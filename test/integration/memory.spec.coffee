@@ -76,7 +76,7 @@ describe 'Memory management', ->
 
   it 'prevents memory leaks on nodes in views', ->
     model = Serenade(leaking: "foobar", toggle: true)
-    Serenade.view "test", "p @leaking"
+    Serenade.template "test", "p @leaking"
     @render """
       div
         - if @toggle
@@ -128,7 +128,7 @@ describe 'Memory management', ->
 
   it 'does not leak bindings when a view is properly disposed', ->
     model = Serenade(leaking: "foobar")
-    view = Serenade.view("h1 @leaking").render(model)
+    view = Serenade.template("h1 @leaking").render(model)
     @body.appendChild(view)
     view.remove()
     expect(@body).not.to.have.element("h1")

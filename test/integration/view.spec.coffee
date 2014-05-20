@@ -5,7 +5,7 @@ describe 'View', ->
     @setupDom()
 
   it 'compiles a view instruction by fetching and compiling the given view', ->
-    Serenade.view('test', 'li[id="foo"]')
+    Serenade.template('test', 'li[id="foo"]')
     @render '''
       ul
         - view "test"
@@ -17,7 +17,7 @@ describe 'View', ->
     class TestCon
       funk: -> funked = true
 
-    Serenade.view('test', 'li[id="foo" event:click=funk]')
+    Serenade.template('test', 'li[id="foo" event:click=funk]')
     Serenade.controller('test', TestCon)
 
     @render '''
@@ -34,7 +34,7 @@ describe 'View', ->
     class TestCon
       constructor: (model) -> funked = model.test
 
-    Serenade.view('test', 'li[id="foo" event:click=funk]')
+    Serenade.template('test', 'li[id="foo" event:click=funk]')
     Serenade.controller('test', TestCon)
 
     @render '''
@@ -50,7 +50,7 @@ describe 'View', ->
     class TestCon
       constructor: (model, parent) -> funked = parent.foo
 
-    Serenade.view('test', 'li')
+    Serenade.template('test', 'li')
     Serenade.controller('test', TestCon)
 
     @render '''
@@ -64,7 +64,7 @@ describe 'View', ->
     class TestCon
       funk: -> funked = true
 
-    Serenade.view('test', 'li[id="foo" event:click=funk]')
+    Serenade.template('test', 'li[id="foo" event:click=funk]')
 
     @render '''
       ul
@@ -79,7 +79,7 @@ describe 'View', ->
     class TestCon
       loaded: -> funked = 'foo'
 
-    Serenade.view('test', 'li[id="foo"]')
+    Serenade.template('test', 'li[id="foo"]')
     Serenade.controller('test', TestCon)
 
     @render '''
@@ -93,7 +93,7 @@ describe 'View', ->
     class TestCon
       loaded: -> funked += 1
 
-    Serenade.view('test', 'li[id="foo"]')
+    Serenade.template('test', 'li[id="foo"]')
 
     @render '''
       ul
@@ -103,8 +103,8 @@ describe 'View', ->
 
   it 'compiles a dynamic view instruction and updates it', ->
     model = Serenade(name: "foo")
-    Serenade.view('foo', 'li#foo')
-    Serenade.view('bar', 'li#bar')
+    Serenade.template('foo', 'li#foo')
+    Serenade.template('bar', 'li#bar')
     @render '''
       ul
         - view @name
@@ -115,8 +115,8 @@ describe 'View', ->
 
   it 'does not leak memory when view is changed', ->
     model = Serenade(name: "foo", body: "hello")
-    Serenade.view('foo', 'li#foo @body')
-    Serenade.view('bar', 'li#bar')
+    Serenade.template('foo', 'li#foo @body')
+    Serenade.template('bar', 'li#bar')
     @render '''
       ul
         - view @name
