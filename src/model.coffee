@@ -64,9 +64,14 @@ class Model
           model = new (options.as())(model)
         previous = @[valueName]
         @[valueName] = model
-        if options.inverseOf and not model[options.inverseOf].includes(this)
-          previous[options.inverseOf].delete(this) if previous
-          model[options.inverseOf].push(this)
+
+        if options.inverseOf
+          newCollection = model?[options.inverseOf] or new Collection()
+          oldCollection = previous?[options.inverseOf] or new Collection()
+
+          oldCollection.delete(this)
+          newCollection.push(this) unless this in newCollection
+
     @property name, propOptions
     @property name + 'Id',
       get: -> @[name]?.id

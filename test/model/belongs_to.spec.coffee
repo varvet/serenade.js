@@ -119,3 +119,14 @@ describe 'Serenade.Model.belongsTo', ->
     expect(post.comments.length).to.eql(0)
     expect(otherPost.comments[0]).to.eql(comment)
     expect(otherPost.comments.length).to.eql(1)
+
+  it 'removes itself from its previous inverse relation when nullified', ->
+    class Comment extends Serenade.Model
+      @belongsTo "post", inverseOf: "comments", as: -> Post
+    class Post extends Serenade.Model
+      @hasMany 'comments', as: -> Comment
+    post = new Post()
+    comment = new Comment(post: post)
+    comment.post = null
+    expect(post.comments.length).to.eql(0)
+    expect(comment.post).to.be.null
