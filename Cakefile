@@ -1,3 +1,4 @@
+require("coffee-script/register")
 {Build, Serenade} = require './src/build'
 fs = require 'fs'
 
