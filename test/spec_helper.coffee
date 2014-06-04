@@ -25,9 +25,9 @@ beforeEach ->
   Serenade.unregisterAll()
   Serenade.clearCache()
 
-  @setupDom = ->
+  @setupDom = =>
     @document = require("jsdom").jsdom(null, null, features: { QuerySelector: true })
-    @window = @document.createWindow()
+    @window = @document.parentWindow
     @body = @document.body
     Serenade.document = @document
 

@@ -1,1 +1,2 @@
---compilers coffee:coffee-script --recursive
+--compilers coffee:coffee-script/register --recursive
+--globals document,window,body

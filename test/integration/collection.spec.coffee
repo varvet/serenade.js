@@ -26,18 +26,18 @@ describe 'Collection', ->
     expect(@body).to.have.element('ul')
 
   it 'can reference the items itself', ->
-    model = { people: ['jonas', 'peter'] }
+    model = { colors: ['red', 'blue'] }
 
     @render '''
       ul
-        - collection @people
+        - collection @colors
           li[id=@ style:color=@] @
     ''', model
-    expect(@body).to.have.element('ul > li#jonas')
-    expect(@body).to.have.element('ul > li#peter')
-    expect(@body.querySelector("#jonas")).to.have.text("jonas")
-    expect(@body.querySelector("#peter")).to.have.text("peter")
-    expect(@body.querySelector("li").style.color).to.eql("jonas")
+    expect(@body).to.have.element('ul > li#red')
+    expect(@body).to.have.element('ul > li#blue')
+    expect(@body.querySelector("#red")).to.have.text("red")
+    expect(@body.querySelector("#blue")).to.have.text("blue")
+    expect(@body.querySelector("li").style.color).to.eql("red")
 
   it 'compiles a Serenade.collection in a collection instruction', ->
     model = { people: new Serenade.Collection([{ name: 'jonas' }, { name: 'peter' }]) }
