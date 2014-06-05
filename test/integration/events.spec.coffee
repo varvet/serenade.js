@@ -19,17 +19,6 @@ describe 'Events', ->
     @fireEvent @body.querySelector('div'), 'click'
     expect(funked).to.eql("foo")
 
-  it 'calls the loaded event after the view is done rendering, sending in model and view', ->
-    nodeName = null
-    name = null
-    controller =
-      loaded: (view, model) ->
-        nodeName = view.nodeName
-        name = model.name
-    @render 'div', { name: "Jonas" }, controller
-    expect(nodeName).to.eql("DIV")
-    expect(name).to.eql("Jonas")
-
   it 'sends in model, element and event when action is triggered', ->
     nodeName = null
     name = null
