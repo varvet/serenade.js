@@ -20,10 +20,10 @@ class Template
     else
       @view
 
-  render: (model, controller, parent) ->
+  render: (model, controller) ->
     controller or= Serenade.controllers[@name] or {}
     if typeof(controller) is "function"
-      controller = new controller(model, parent)
+      controller = new controller(model)
 
     nodes = compile(@parse(), model, controller)
 
