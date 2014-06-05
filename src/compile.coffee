@@ -129,13 +129,10 @@ Compile =
   view: (ast, model, parent) ->
     controller = Serenade.controllers[ast.argument]
     # If we cannot find a controller, we inherit the base view's controller,
-    # in that case we don't want the `loaded` callback to be called
-    unless controller
-      skipCallback = true
-      controller = parent
+    controller = parent unless controller
 
     compileView = (dynamic, before, after) ->
-      view = Serenade.templates[after].render(model, controller, parent, skipCallback)
+      view = Serenade.templates[after].render(model, controller, parent)
       dynamic.replace([view.nodes])
       dynamic
 
@@ -147,7 +144,7 @@ Compile =
   helper: (ast, model, controller) ->
     dynamic = new CollectionView(ast)
     renderBlock = (model=model, blockController=controller) ->
-      new Template(null, ast.children).render(model, blockController, controller, controller is blockController)
+      new Template(null, ast.children).render(model, blockController, controller)
     helperFunction = Serenade.Helpers[ast.command] or throw SyntaxError "no helper #{ast.command} defined"
     context = { model, controller, render: renderBlock }
     update = ->

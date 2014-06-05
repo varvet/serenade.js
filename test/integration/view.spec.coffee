@@ -74,33 +74,6 @@ describe 'View', ->
 
     expect(funked).to.be.ok
 
-  it 'calls loaded callback if controller is new', ->
-    funked = null
-    class TestCon
-      loaded: -> funked = 'foo'
-
-    Serenade.template('test', 'li[id="foo"]')
-    Serenade.controller('test', TestCon)
-
-    @render '''
-      ul
-        - view "test"
-    '''
-    expect(funked).to.eql('foo')
-
-  it 'does not call loaded callback if controller is inherited', ->
-    funked = 0
-    class TestCon
-      loaded: -> funked += 1
-
-    Serenade.template('test', 'li[id="foo"]')
-
-    @render '''
-      ul
-        - view "test"
-    ''', {}, TestCon
-    expect(funked).to.eql(1)
-
   it 'compiles a dynamic view instruction and updates it', ->
     model = Serenade(name: "foo")
     Serenade.template('foo', 'li#foo')

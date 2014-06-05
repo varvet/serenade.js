@@ -20,13 +20,12 @@ class Template
     else
       @view
 
-  render: (model, controller, parent, skipCallback) ->
+  render: (model, controller, parent) ->
     controller or= Serenade.controllers[@name] or {}
     if typeof(controller) is "function"
       controller = new controller(model, parent)
 
     nodes = compile(@parse(), model, controller)
-    controller.loaded?(nodes.map((node) -> node.element)..., model) unless skipCallback
 
     fragment = Serenade.document.createDocumentFragment()
     for node in nodes

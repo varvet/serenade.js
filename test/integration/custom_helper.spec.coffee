@@ -324,29 +324,3 @@ describe 'Custom helpers', ->
       expect(@body).to.have.element('div > #foo')
       expect(@body).to.have.element('div > #quox')
       expect(@body).not.to.have.element('div > #test')
-
-  it "calls loaded callback if controller is new", ->
-    funked = null
-    class TestCon
-      loaded: -> funked = 'foo'
-
-    Serenade.Helpers.funky = -> @render({}, TestCon)
-
-    @render '''
-      ul
-        - funky
-    '''
-    expect(funked).to.eql('foo')
-
-  it "does not call loaded callback if controller is inherited", ->
-    funked = 0
-    class TestCon
-      loaded: -> funked += 1
-
-    Serenade.Helpers.funky = -> @render({}, @controller)
-
-    @render '''
-      ul
-        - funky
-    ''', {}, TestCon
-    expect(funked).to.eql(1)

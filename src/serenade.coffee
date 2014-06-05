@@ -27,8 +27,8 @@ extend Serenade,
     else
       new Template(undefined, nameOrTemplate)
 
-  render: (name, model, controller, parent, skipCallback) ->
-    @templates[name].render(model, controller, parent, skipCallback)
+  render: (name, model, controller, parent) ->
+    @templates[name].render(model, controller, parent)
 
   controller: (name, klass) ->
     @controllers[name] = klass
