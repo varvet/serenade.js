@@ -25,12 +25,4 @@ class Template
     if typeof(controller) is "function"
       controller = new controller(model)
 
-    nodes = compile(@parse(), model, controller)
-
-    fragment = Serenade.document.createDocumentFragment()
-    for node in nodes
-      node.append(fragment)
-    fragment.nodes = nodes
-    fragment.remove = ->
-      node.remove() for node in @nodes
-    fragment
+    new TemplateView(this.parse(), model, controller).element

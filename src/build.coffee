@@ -40,6 +40,7 @@ Build =
     "collection_view"
     "compile"
     "template"
+    "template_view"
     "serenade"
   ]
 
