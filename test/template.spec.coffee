@@ -4,7 +4,7 @@ require './spec_helper'
 describe 'Template', ->
   describe '#parse', ->
     parse = (view) ->
-      new Template(undefined, view).parse()[0]
+      new Template(undefined, view).ast[0]
 
     it 'parses a single tag', ->
       expect(parse('div').name).to.eql('div')
@@ -225,5 +225,4 @@ describe 'Template', ->
       expect(result.children[0].children[1].name).to.eql('p')
 
     it 'it adds view name to error message', ->
-      view = Serenade.template("someView", "di'v")
-      expect(-> view.parse()).to.throw(SyntaxError, /In view 'someView':/)
+      expect(-> Serenade.template("someView", "di'v")).to.throw(SyntaxError, /In view 'someView':/)
