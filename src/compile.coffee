@@ -2,34 +2,34 @@ formatTextValue = (value) ->
   value = "0" if value is 0
   value or ""
 
-bindToProperty = (node, model, name, cb) ->
+bindToProperty = (view, model, name, cb) ->
   value = model[name]
   model["#{name}_property"]?.registerGlobal?(value)
-  node.bindEvent(model["#{name}_property"], cb)
+  view.bindEvent(model["#{name}_property"], cb)
   cb({}, value)
 
 Property =
   style:
-    update: (ast, node, model, controller, value) ->
-      assignUnlessEqual(node.element.style, ast.name, value)
+    update: (ast, view, model, controller, value) ->
+      assignUnlessEqual(view.element.style, ast.name, value)
 
   event:
-    setup: (ast, node, model, controller) ->
-      node.element.addEventListener ast.name, (e) ->
+    setup: (ast, view, model, controller) ->
+      view.element.addEventListener ast.name, (e) ->
         e.preventDefault() if ast.preventDefault
-        controller[ast.value](node.element, model, e)
+        controller[ast.value](view.element, model, e)
 
   class:
-    update: (ast, node, model, controller, value) ->
+    update: (ast, view, model, controller, value) ->
       if value
-        node.addBoundClass(ast.name)
+        view.addBoundClass(ast.name)
       else
-        node.removeBoundClass(ast.name)
+        view.removeBoundClass(ast.name)
 
   binding:
-    setup: (ast, node, model, controller) ->
-      element = node.element
-      node.ast.name in ["input", "textarea", "select"] or throw SyntaxError "invalid node type #{node.ast.name} for two way binding"
+    setup: (ast, view, model, controller) ->
+      element = view.element
+      view.ast.name in ["input", "textarea", "select"] or throw SyntaxError "invalid view type #{view.ast.name} for two way binding"
       ast.value or throw SyntaxError "cannot bind to whole model, please specify an attribute to bind to"
 
       domUpdated = ->
@@ -44,12 +44,12 @@ Property =
         # we can't bind to the form directly since it doesn't exist yet
         handler = (e) -> domUpdated() if element.form is (e.target or e.srcElement)
         Serenade.document.addEventListener("submit", handler, true)
-        node.unload.bind -> Serenade.document.removeEventListener("submit", handler, true)
+        view.unload.bind -> Serenade.document.removeEventListener("submit", handler, true)
       else
         element.addEventListener(ast.name, domUpdated)
 
-    update: (ast, node, model, controller, value) ->
-      element = node.element
+    update: (ast, view, model, controller, value) ->
+      element = view.element
       if element.type is "checkbox"
         element.checked = !!value
       else if element.type is "radio"
@@ -59,20 +59,20 @@ Property =
         assignUnlessEqual(element, "value", value)
 
   attribute:
-    update: (ast, node, model, controller, value) ->
-      node.setAttribute(ast.name, value)
+    update: (ast, view, model, controller, value) ->
+      view.setAttribute(ast.name, value)
 
   on:
-    setup: (ast, node, model, controller) ->
+    setup: (ast, view, model, controller) ->
       if ast.name in ["load", "unload"]
-        node[ast.name].bind ->
-          controller[ast.value](node.element, model)
+        view[ast.name].bind ->
+          controller[ast.value](view.element, model)
       else
         throw new SyntaxError("unkown lifecycle event '#{ast.name}'")
 
   property:
-    update: (ast, node, model, controller, value) ->
-      assignUnlessEqual(node.element, ast.name, value)
+    update: (ast, view, model, controller, value) ->
+      assignUnlessEqual(view.element, ast.name, value)
 
 Compile =
   element: (ast, model, controller) ->
@@ -147,10 +147,10 @@ Compile =
   text: (ast, model, controller) ->
     if ast.bound and ast.value
       textNode = Serenade.document.createTextNode("")
-      node = new Element(ast, textNode)
-      bindToProperty node, model, ast.value, (_, value) ->
+      view = new Element(ast, textNode)
+      bindToProperty view, model, ast.value, (_, value) ->
         assignUnlessEqual textNode, "nodeValue", formatTextValue(value)
-      node
+      view
     else
       new Element(ast, Serenade.document.createTextNode(ast.value ? model))
 
