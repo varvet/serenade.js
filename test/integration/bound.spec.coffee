@@ -115,14 +115,3 @@ describe 'Bound attributes and text nodes', ->
     expect(counter).to.eql(3)
     model.counter = "blah"
     expect(counter).to.eql(4)
-
-  it 'can set several class bindings', ->
-    model = Serenade(names: ['jonas', 'peter'], job: 'handyman')
-    @render 'div[class=@names class=@job]', model
-    expect(@body).to.have.element('div.jonas.peter.handyman')
-    model.names = ["john"]
-    expect(@body).not.to.have.element('div.jonas.peter.handyman')
-    expect(@body).to.have.element('div.john.handyman')
-    model.job = "carpenter"
-    expect(@body).not.to.have.element('div.john.handyman')
-    expect(@body).to.have.element('div.john.carpenter')

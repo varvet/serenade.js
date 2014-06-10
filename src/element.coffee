@@ -16,9 +16,8 @@ class Element extends View
       @boundClasses.delete(className)
       @updateClass()
 
-  setAttributeClass: (name="__self__", value) ->
-    @attributeClasses or= {}
-    @attributeClasses[name] = value
+  setAttributeClass: (value) ->
+    @attributeClasses = value
     @updateClass()
 
   addChildren: (children) ->
@@ -67,8 +66,7 @@ class Element extends View
 
   updateClass: ->
     classes = @ast.classes
-    if @attributeClasses
-      classes = classes.concat(value) for own _, value of @attributeClasses
+    classes = classes.concat(@attributeClasses) if @attributeClasses
     classes = classes.concat(@boundClasses.toArray()) if @boundClasses?.length
     classes.sort()
     if classes.length
