@@ -10,7 +10,6 @@ extend Serenade,
   controllers: {}
 
   document: window?.document
-  format: format
 
   defineProperty: defineProperty
   defineEvent: defineEvent

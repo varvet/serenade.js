@@ -37,7 +37,6 @@ class Model
         dependsOn: options.dependsOn or "#{to}.#{name}"
         get: -> @[to]?[name]
         set: (value) -> @[to]?[name] = value
-        format: -> Serenade.format(@[to], name) if @[to]?
       @property propName, propOptions
 
   @collection: (name, options={}) ->

@@ -1,9 +1,3 @@
-formatValue = (ast, model, value) ->
-  if formatter = model[ast.value + "_property"]
-    formatter.format(value)
-  else
-    value
-
 formatTextValue = (value) ->
   value = "0" if value is 0
   value or ""
@@ -18,7 +12,7 @@ Property =
   style: (ast, node, model, controller) ->
     if ast.bound and ast.value
       bindToProperty node, model, ast.value, (_, value) ->
-        assignUnlessEqual(node.element.style, ast.name, formatValue(ast, model, value))
+        assignUnlessEqual(node.element.style, ast.name, value)
     else
       node.element.style[ast.name] = ast.value ? model
 
@@ -72,7 +66,7 @@ Property =
 
     if ast.bound and ast.value
       bindToProperty node, model, ast.value, (_, value) ->
-        set(formatValue(ast, model, value))
+        set(value)
     else
       set(ast.value ? model)
 
@@ -149,7 +143,7 @@ Compile =
       textNode = Serenade.document.createTextNode("")
       node = new Element(ast, textNode)
       bindToProperty node, model, ast.value, (_, value) ->
-        assignUnlessEqual textNode, "nodeValue", formatTextValue(formatValue(ast, model, value))
+        assignUnlessEqual textNode, "nodeValue", formatTextValue(value)
       node
     else
       new Element(ast, Serenade.document.createTextNode(ast.value ? model))

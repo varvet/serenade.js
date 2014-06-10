@@ -30,12 +30,6 @@ assignUnlessEqual = (object, prop, value) ->
 merge = (target, source, enumerable=true) ->
   extend(extend({}, target, enumerable), source, enumerable)
 
-format = (model, key) ->
-  if model[key + "_property"]
-    model[key + "_property"].format()
-  else
-    model[key]
-
 isArray = (object) ->
   Object::toString.call(object) is "[object Array]"
 

@@ -72,13 +72,6 @@ class PropertyAccessor
 
     value
 
-  format: (val) ->
-    val = @get() if arguments.length is 0
-    if typeof(@definition.format) is "function"
-      @definition.format.call(@object, val)
-    else
-      val
-
   registerGlobal: (value) ->
     return if @_isRegistered
     @_isRegistered = true
