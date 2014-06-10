@@ -43,7 +43,7 @@ describe 'Shortcuts', ->
 
   it 'updates multiple classes with short form as the class attribute changes', ->
     model = Serenade( names: ['jonas', 'peter'] )
-    @render 'div.quack[class=names]', model
+    @render 'div.quack[class=@names]', model
     expect(@body).to.have.element('div.quack.jonas.peter')
     model.names = undefined
     expect(@body).to.have.element('div.quack')

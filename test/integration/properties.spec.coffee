@@ -16,12 +16,12 @@ describe 'Bound properties', ->
 
   it 'get bound properties from the model', ->
     model = { disabled: true }
-    @render 'input[property:disabled=disabled]', model
+    @render 'input[property:disabled=@disabled]', model
     expect(@body).to.have.element('input[disabled]')
 
   it 'changes bound properties as they are changed', ->
     model = Serenade(disabled: true)
-    @render 'input[property:disabled=disabled]', model
+    @render 'input[property:disabled=@disabled]', model
     expect(@body).to.have.element('input[disabled]')
     model.disabled = false
     expect(@body).not.to.have.element('input[disabled]')

@@ -9,39 +9,47 @@ bindToProperty = (node, model, name, cb) ->
   cb({}, value)
 
 Property =
-  style: (ast, node, model, controller) ->
-    if ast.bound and ast.value
-      bindToProperty node, model, ast.value, (_, value) ->
-        assignUnlessEqual(node.element.style, ast.name, value)
-    else
-      node.element.style[ast.name] = ast.value ? model
+  style:
+    update: (ast, node, model, controller, value) ->
+      assignUnlessEqual(node.element.style, ast.name, value)
 
-  event: (ast, node, model, controller) ->
-    node.element.addEventListener ast.name, (e) ->
-      e.preventDefault() if ast.preventDefault
-      controller[ast.value](node.element, model, e)
+  event:
+    setup: (ast, node, model, controller) ->
+      node.element.addEventListener ast.name, (e) ->
+        e.preventDefault() if ast.preventDefault
+        controller[ast.value](node.element, model, e)
 
-  class: (ast, node, model, controller) ->
-    bindToProperty node, model, ast.value, (_, value) ->
+  class:
+    update: (ast, node, model, controller, value) ->
       if value
         node.addBoundClass(ast.name)
       else
         node.removeBoundClass(ast.name)
 
-  binding: (ast, node, model, controller) ->
-    element = node.element
-    node.ast.name in ["input", "textarea", "select"] or throw SyntaxError "invalid node type #{node.ast.name} for two way binding"
-    ast.value or throw SyntaxError "cannot bind to whole model, please specify an attribute to bind to"
+  binding:
+    setup: (ast, node, model, controller) ->
+      element = node.element
+      node.ast.name in ["input", "textarea", "select"] or throw SyntaxError "invalid node type #{node.ast.name} for two way binding"
+      ast.value or throw SyntaxError "cannot bind to whole model, please specify an attribute to bind to"
 
-    domUpdated = ->
-      model[ast.value] = if element.type is "checkbox"
-        element.checked
-      else if element.type is "radio"
-        element.getAttribute("value") if element.checked
+      domUpdated = ->
+        model[ast.value] = if element.type is "checkbox"
+          element.checked
+        else if element.type is "radio"
+          element.getAttribute("value") if element.checked
+        else
+          element.value
+
+      if ast.name is "binding"
+        # we can't bind to the form directly since it doesn't exist yet
+        handler = (e) -> domUpdated() if element.form is (e.target or e.srcElement)
+        Serenade.document.addEventListener("submit", handler, true)
+        node.unload.bind -> Serenade.document.removeEventListener("submit", handler, true)
       else
-        element.value
+        element.addEventListener(ast.name, domUpdated)
 
-    bindToProperty node, model, ast.value, (_, value) ->
+    update: (ast, node, model, controller, value) ->
+      element = node.element
       if element.type is "checkbox"
         element.checked = !!value
       else if element.type is "radio"
@@ -50,41 +58,21 @@ Property =
         value = "" if value == undefined
         assignUnlessEqual(element, "value", value)
 
-    if ast.name is "binding"
-      # we can't bind to the form directly since it doesn't exist yet
-      handler = (e) -> domUpdated() if element.form is (e.target or e.srcElement)
-      Serenade.document.addEventListener("submit", handler, true)
-      node.unload.bind -> Serenade.document.removeEventListener("submit", handler, true)
-    else
-      element.addEventListener(ast.name, domUpdated)
-
-  attribute: (ast, node, model, controller) ->
-    return Property.binding(ast, node, model, controller) if ast.name is "binding"
-
-    set = (value) ->
+  attribute:
+    update: (ast, node, model, controller, value) ->
       node.setAttribute(ast.name, value)
 
-    if ast.bound and ast.value
-      bindToProperty node, model, ast.value, (_, value) ->
-        set(value)
-    else
-      set(ast.value ? model)
+  on:
+    setup: (ast, node, model, controller) ->
+      if ast.name in ["load", "unload"]
+        node[ast.name].bind ->
+          controller[ast.value](node.element, model)
+      else
+        throw new SyntaxError("unkown lifecycle event '#{ast.name}'")
 
-  on: (ast, node, model, controller) ->
-    if ast.name in ["load", "unload"]
-      node[ast.name].bind ->
-        controller[ast.value](node.element, model)
-    else
-      throw new SyntaxError("unkown lifecycle event '#{ast.name}'")
-
-  property: (ast, node, model, controller) ->
-    set = (value) ->
+  property:
+    update: (ast, node, model, controller, value) ->
       assignUnlessEqual(node.element, ast.name, value)
-    if ast.bound and ast.value
-      bindToProperty node, model, ast.value, (_, value) ->
-        set(value)
-    else
-      set(ast.value ? model)
 
 Compile =
   element: (ast, model, controller) ->
@@ -99,10 +87,28 @@ Compile =
     view.addChildren(compile(ast.children, model, controller))
     child.append(view.element) for child in view.children
 
-    for property in ast.properties
+    ast.properties.forEach (property) ->
       action = Property[property.scope]
+      if property.scope is "attribute" and property.name is "binding"
+        action = Property.binding
+
       if action
-        action(property, view, model, controller)
+        action.setup(property, view, model, controller) if action.setup
+
+        if action.update
+          if property.static
+            action.update(property, view, model, controller, model[property.value])
+          else if property.bound
+            if property.value
+              bindToProperty view, model, property.value, (_, value) ->
+                action.update(property, view, model, controller, value)
+            else
+              action.update(property, view, model, controller, model)
+          else
+            action.update(property, view, model, controller, property.value)
+        else if property.bound
+          throw SyntaxError "properties in scope #{property.scope} cannot be bound, use: `#{property.scope}:#{property.name}=#{property.value}`"
+
       else
         throw SyntaxError "#{property.scope} is not a valid scope"
 

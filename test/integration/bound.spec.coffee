@@ -26,14 +26,21 @@ describe 'Bound attributes and text nodes', ->
 
   it 'changes bound attributes as they are changed', ->
     model = Serenade(name: "jonas")
-    @render 'div[id=name]', model
+    @render 'div[id=@name]', model
     expect(@body).to.have.element('div#jonas')
     model.name = 'peter'
     expect(@body).to.have.element('div#peter')
 
-  it 'removes attributes and reattaches them as they are set to undefined', ->
+  it 'does not change static attributes as they are changed', ->
     model = Serenade(name: "jonas")
     @render 'div[id=name]', model
+    expect(@body).to.have.element('div#jonas')
+    model.name = 'peter'
+    expect(@body).to.have.element('div#jonas')
+
+  it 'removes attributes and reattaches them as they are set to undefined', ->
+    model = Serenade(name: "jonas")
+    @render 'div[id=@name]', model
     expect(@body).to.have.element('div#jonas')
     model.name = undefined
     expect(@body.querySelector('div')).not.to.have.attribute('id')
@@ -42,14 +49,14 @@ describe 'Bound attributes and text nodes', ->
 
   it 'handles value specially', ->
     model = Serenade(name: "jonas")
-    @render 'input[value=name]', model
+    @render 'input[value=@name]', model
     @body.querySelector('input').value = "changed"
     model.name = 'peter'
     expect(@body.querySelector('input').value).to.eql('peter')
 
   it 'handles checked specially', ->
     model = Serenade(checked: true)
-    @render 'input[checked=checked]', model
+    @render 'input[checked=@checked]', model
 
     expect(@body.querySelector('input').checked).to.be.ok
     model.checked = false
@@ -66,7 +73,7 @@ describe 'Bound attributes and text nodes', ->
 
   it 'updates multiple classes as the class attribute changes', ->
     model = Serenade( names: ['jonas', 'peter'] )
-    @render 'div[class=names]', model
+    @render 'div[class=@names]', model
     expect(@body).to.have.element('div.jonas.peter')
     model.names = undefined
     expect(@body.querySelector('div')).not.to.have.attribute('class')
@@ -77,7 +84,7 @@ describe 'Bound attributes and text nodes', ->
 
   it 'handles the number zero correctly', ->
     model = { number: 0 }
-    @render 'div[data-foo=number] @number', model
+    @render 'div[data-foo=@number] @number', model
     expect(@body.querySelector('div').getAttribute('data-foo')).to.eql("0")
     expect(@body.querySelector('div').textContent).to.eql("0")
 

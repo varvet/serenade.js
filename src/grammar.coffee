@@ -37,7 +37,7 @@ grammar =
 
   Text: [
     o 'Bound', -> { type: 'text', value: $1, bound: true }
-    o 'STRING_LITERAL', -> { type: 'text', value: $1, bound: false }
+    o 'STRING_LITERAL', -> { type: 'text', value: $1 }
   ]
 
   ChildList: [
@@ -59,11 +59,11 @@ grammar =
   ]
 
   Property: [
-    o 'AnyIdentifier = AnyIdentifier', -> { name: $1, value: $3, bound: true, scope: 'attribute' }
+    o 'AnyIdentifier = AnyIdentifier', -> { name: $1, static: true, value: $3, scope: 'attribute' }
     o 'AnyIdentifier = Bound', -> { name: $1, value: $3, bound: true, scope: 'attribute' }
-    o 'AnyIdentifier = AnyIdentifier !', -> { name: $1, value: $3, bound: true, scope: 'attribute', preventDefault: true }
+    o 'AnyIdentifier = AnyIdentifier !', -> { name: $1, static: true, value: $3, scope: 'attribute', preventDefault: true }
     o 'AnyIdentifier = Bound !', -> { name: $1, value: $3, bound: true, scope: 'attribute', preventDefault: true }
-    o 'AnyIdentifier = STRING_LITERAL', -> { name: $1, value: $3, bound: false, scope: 'attribute' }
+    o 'AnyIdentifier = STRING_LITERAL', -> { name: $1, value: $3, scope: 'attribute' }
     o 'AnyIdentifier : Property', -> $3.scope = $1; $3
   ]
 

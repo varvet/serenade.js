@@ -27,22 +27,25 @@ describe 'Template', ->
       expect(result.properties[0].scope).to.eql('attribute')
       expect(result.properties[0].name).to.eql('id')
       expect(result.properties[0].value).to.eql('foo')
-      expect(result.properties[0].bound).to.eql(false)
+      expect(result.properties[0].static).to.eql(undefined)
+      expect(result.properties[0].bound).to.eql(undefined)
 
-    it 'parses a tag with a bound attribute', ->
+    it 'parses a tag with a static attribute', ->
       result = parse('div[id=foo]')
       expect(result.name).to.eql('div')
       expect(result.properties[0].scope).to.eql('attribute')
       expect(result.properties[0].name).to.eql('id')
       expect(result.properties[0].value).to.eql('foo')
-      expect(result.properties[0].bound).to.eql(true)
+      expect(result.properties[0].static).to.eql(true)
+      expect(result.properties[0].bound).to.eql(undefined)
 
-    it 'parses a tag with a bound attribute with optional @', ->
+    it 'parses a tag with a bound attribute', ->
       result = parse('div[id=@foo]')
       expect(result.name).to.eql('div')
       expect(result.properties[0].scope).to.eql('attribute')
       expect(result.properties[0].name).to.eql('id')
       expect(result.properties[0].value).to.eql('foo')
+      expect(result.properties[0].static).to.eql(undefined)
       expect(result.properties[0].bound).to.eql(true)
 
     it 'parses a tag with a scoped attribute', ->
@@ -51,25 +54,29 @@ describe 'Template', ->
       expect(result.properties[0].scope).to.eql('style')
       expect(result.properties[0].name).to.eql('color')
       expect(result.properties[0].value).to.eql('foo')
-      expect(result.properties[0].bound).to.eql(false)
+      expect(result.properties[0].static).to.eql(undefined)
+      expect(result.properties[0].bound).to.eql(undefined)
 
     it 'parses a tag with multiple properties', ->
       result = parse('div[id="foo" class=schmoo]')
       expect(result.name).to.eql('div')
       expect(result.properties[0].name).to.eql('id')
       expect(result.properties[0].value).to.eql('foo')
-      expect(result.properties[0].bound).to.eql(false)
+      expect(result.properties[0].bound).to.eql(undefined)
+      expect(result.properties[0].static).to.eql(undefined)
       expect(result.properties[1].name).to.eql('class')
       expect(result.properties[1].value).to.eql('schmoo')
-      expect(result.properties[1].bound).to.eql(true)
+      expect(result.properties[1].bound).to.eql(undefined)
+      expect(result.properties[1].static).to.eql(true)
 
-    it 'parses a tag with a bound scoped attribute', ->
+    it 'parses a tag with a bound static scoped attribute', ->
       result = parse('div[style:color=foo]')
       expect(result.name).to.eql('div')
       expect(result.properties[0].scope).to.eql('style')
       expect(result.properties[0].name).to.eql('color')
       expect(result.properties[0].value).to.eql('foo')
-      expect(result.properties[0].bound).to.eql(true)
+      expect(result.properties[0].static).to.eql(true)
+      expect(result.properties[0].bound).to.eql(undefined)
 
     it 'parses a tag with an attribute with the prevent default flag', ->
       result = parse('div[event:click=foo!]')
@@ -77,7 +84,8 @@ describe 'Template', ->
       expect(result.properties[0].scope).to.eql('event')
       expect(result.properties[0].name).to.eql('click')
       expect(result.properties[0].value).to.eql('foo')
-      expect(result.properties[0].bound).to.eql(true)
+      expect(result.properties[0].static).to.eql(true)
+      expect(result.properties[0].bound).to.eql(undefined)
       expect(result.properties[0].preventDefault).to.eql(true)
 
     it 'parses child tags', ->
@@ -131,10 +139,10 @@ describe 'Template', ->
       expect(result.name).to.eql('div')
       expect(result.children[0].type).to.eql('text')
       expect(result.children[0].value).to.eql('Loca')
-      expect(result.children[0].bound).to.eql(false)
+      expect(result.children[0].bound).to.eql(undefined)
       expect(result.children[1].type).to.eql('text')
       expect(result.children[1].value).to.eql('schmoo')
-      expect(result.children[1].bound).to.eql(false)
+      expect(result.children[1].bound).to.eql(undefined)
 
     it 'parses bound strings on the same line with arguments', ->
       result = parse """
@@ -158,7 +166,7 @@ describe 'Template', ->
       expect(result.children[0].value).to.eql('baz')
       expect(result.children[0].bound).to.eql(true)
       expect(result.children[1].value).to.eql('schmoo')
-      expect(result.children[1].bound).to.eql(false)
+      expect(result.children[1].bound).to.eql(undefined)
       expect(result.children[2].name).to.eql('span')
       expect(result.children[3].value).to.eql('bar')
       expect(result.children[3].bound).to.eql(true)
@@ -173,7 +181,7 @@ describe 'Template', ->
       expect(result.children[0].value).to.eql('baz')
       expect(result.children[0].bound).to.eql(true)
       expect(result.children[1].value).to.eql('schmoo')
-      expect(result.children[1].bound).to.eql(false)
+      expect(result.children[1].bound).to.eql(undefined)
       expect(result.children[2].value).to.eql('bar')
       expect(result.children[2].bound).to.eql(true)
       expect(result.children[3].name).to.eql('span')

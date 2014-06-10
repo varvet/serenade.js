@@ -10,7 +10,7 @@ describe 'In', ->
     @render '''
       article
         - in @author
-          p[id=name]
+          p[id=@name]
     ''', model
     expect(@body).to.have.element('article > p#jonas')
 
@@ -45,7 +45,7 @@ describe 'In', ->
     @render '''
       article
         - in @author
-          p[id=name]
+          p[id=@name]
     ''', model
     expect(@body).to.have.element('article > p#jonas')
     model.author.name = 'peter'

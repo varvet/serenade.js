@@ -32,12 +32,12 @@ describe "Serenade", ->
       @body.appendChild Serenade.template("h1#test").render()
       expect(@body).to.have.element("h1#test")
 
-    it "can be take models as parameters", ->
+    it "can take models as parameters", ->
       model = { id: 'test' }
       @body.appendChild Serenade.template("test", "h1[id=@id]").render(model)
       expect(@body).to.have.element("h1#test")
 
-    it "can be take controllers as parameters", ->
+    it "can take controllers as parameters", ->
       tested = false
       controller = { test: -> tested = true }
       model = {}
