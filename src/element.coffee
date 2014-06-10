@@ -16,10 +16,6 @@ class Element extends View
       @boundClasses.delete(className)
       @updateClass()
 
-  setAttributeClass: (value) ->
-    @attributeClasses = value
-    @updateClass()
-
   addChildren: (children) ->
     @children = children
 
@@ -39,7 +35,8 @@ class Element extends View
     else if @ast.name is 'input' and property is 'checked'
       assignUnlessEqual(@element, "checked", !!value)
     else if property is 'class'
-      @setAttributeClass(value)
+      @attributeClasses = value
+      @updateClass()
     else if value is undefined
       @element.removeAttribute(property) if @element.hasAttribute(property)
     else
