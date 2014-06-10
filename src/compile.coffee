@@ -68,18 +68,7 @@ Property =
     return Property.binding(ast, node, model, controller) if ast.name is "binding"
 
     set = (value) ->
-      if ast.name is 'value'
-        assignUnlessEqual(node.element, "value", value or '')
-      else if node.ast.name is 'input' and ast.name is 'checked'
-        assignUnlessEqual(node.element, "checked", !!value)
-      else if ast.name is 'class'
-        node.setAttributeClass(value)
-      else if value is undefined
-        node.element.removeAttribute(ast.name) if node.element.hasAttribute(ast.name)
-      else
-        value = "0" if value is 0
-        unless node.element.getAttribute(ast.name) is value
-          node.element.setAttribute(ast.name, value)
+      node.setAttribute(ast.name, value)
 
     if ast.bound and ast.value
       bindToProperty node, model, ast.value, (_, value) ->

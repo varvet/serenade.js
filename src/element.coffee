@@ -34,7 +34,18 @@ class Element extends View
     @element.parentNode?.removeChild(@element)
 
   setAttribute: (property, value) ->
-    @element.setAttribute(property, value)
+    if property is 'value'
+      assignUnlessEqual(@element, "value", value or '')
+    else if @ast.name is 'input' and property is 'checked'
+      assignUnlessEqual(@element, "checked", !!value)
+    else if property is 'class'
+      @setAttributeClass(value)
+    else if value is undefined
+      @element.removeAttribute(property) if @element.hasAttribute(property)
+    else
+      value = "0" if value is 0
+      unless @element.getAttribute(property) is value
+        @element.setAttribute(property, value)
 
   setAttributeNS: (namespace, property, value) -> notImplemeted()
 
