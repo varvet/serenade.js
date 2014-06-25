@@ -147,13 +147,13 @@ class Model
       else
         @[name] = value
 
-  set: (attributes) ->
+  def @prototype, "set", configurable: true, writable: true, value: (attributes) ->
     @[name] = value for own name, value of attributes
 
-  save: ->
+  def @prototype, "save", configurable: true, writable: true, value: ->
     @saved.trigger()
 
-  toJSON: ->
+  def @prototype, "toJSON", configurable: true, writable: true, value: ->
     serialized = {}
     for property in @_s.properties
       if typeof(property.serialize) is 'string'
@@ -165,5 +165,5 @@ class Model
         serialized[property.name] = serializeObject(@[property.name])
     serialized
 
-  toString: ->
+  def @prototype, "toString", configurable: true, writable: true, value: ->
     JSON.stringify(@toJSON())

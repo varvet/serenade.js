@@ -7,6 +7,11 @@ describe 'Serenade.Model', ->
       expect(john.age).to.eql(23)
       expect(john.name).to.eql('John')
 
+    it 'enumerates over only those properties', ->
+      john = new Serenade.Model(name: 'John', age: 23)
+      expect(Object.keys(john)).to.eql(["name", "age"])
+      expect(prop for prop of john).to.eql(["name", "age", "id"])
+
     it 'does not trigger any change events', ->
       nameTriggered = false
       ageTriggered = false
