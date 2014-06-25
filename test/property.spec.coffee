@@ -21,6 +21,19 @@ describe 'Serenade.defineProperty', ->
     defineProperty @object, 'name', get: -> "bar"
     expect(@object.name).to.eql("bar")
 
+  it 'is listed as an own property', ->
+    defineProperty @object, 'name'
+    expect(Object.keys(@object)).to.eql(["name"])
+    expect(prop for prop of @object).to.eql(["name"])
+    @child = Object.create(@object)
+    expect(Object.keys(@child)).to.eql([])
+
+  it 'adopts own property status when redefined', ->
+    defineProperty @object, 'name'
+    @child = Object.create(@object)
+    @child.name = "bar"
+    expect(Object.keys(@child)).to.eql(["name"])
+
   describe '#set', ->
     beforeEach ->
       defineProperty @object, ("foo")
@@ -130,6 +143,11 @@ describe 'Serenade.defineProperty', ->
       expect(@object.name).to.eql("Jonas")
       expect(@object.name).to.eql("Jonas")
       expect(hitCount).to.eql(1)
+
+    it "does not make cache enumerable", ->
+      defineProperty @object, "name", cache: true, get: -> "Jonas"
+      expect(@object.name).to.eql("Jonas")
+      expect(Object.keys(@object)).to.eql(["name"])
 
     it "resets cache when change event triggered", ->
       hitCount = 0

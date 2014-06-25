@@ -62,7 +62,7 @@ class PropertyAccessor
     if @definition.get and not (@definition.cache and @valueName of @object)
       value = @definition.get.call(@object)
       if @definition.cache
-        @object[@valueName] = value
+        def @object, @valueName, value: value, writable: true, configurable: true
         # make sure global listeners are attached and stay attached
         unless @_isCached
           @_isCached = true
@@ -197,11 +197,15 @@ defineProperty = (object, name, options={}) ->
 
   safePush object._s, "properties", definition
 
-  def object, name,
-    get: -> @[name + "_property"].get()
-    set: (value) -> @[name + "_property"].set(value)
-    configurable: true
-    enumerable: if "enumerable" of options then options.enumerable else true
+  define = (object) ->
+    def object, name,
+      get: -> @[name + "_property"].get()
+      set: (value) ->
+        define(this)
+        @[name + "_property"].set(value)
+      configurable: true
+      enumerable: if "enumerable" of options then options.enumerable else true
+  define(object)
 
   accessorName = name + "_property"
   def object, accessorName,
