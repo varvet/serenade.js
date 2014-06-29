@@ -4,7 +4,7 @@ describe 'Custom helpers', ->
   beforeEach -> @setupDom()
 
   it 'uses a custom helper', ->
-    Serenade.Helpers.funky = -> Serenade.document.createElement('form')
+    Serenade.helper "funky", -> Serenade.document.createElement('form')
     @render '''
       div
         - funky
@@ -12,7 +12,7 @@ describe 'Custom helpers', ->
     expect(@body).to.have.element('div > form')
 
   it 'can return multiple elements', ->
-    Serenade.Helpers.funky = ->
+    Serenade.helper "funky", ->
       [Serenade.document.createElement('form'), Serenade.document.createElement('article')]
     @render '''
       div
@@ -22,7 +22,7 @@ describe 'Custom helpers', ->
     expect(@body).to.have.element('div > article')
 
   it 'can return a document fragment', ->
-    Serenade.Helpers.funky = ->
+    Serenade.helper "funky", ->
       frag = Serenade.document.createDocumentFragment()
       frag.appendChild Serenade.document.createElement('form')
       frag.appendChild Serenade.document.createElement('article')
@@ -37,7 +37,7 @@ describe 'Custom helpers', ->
     expect(@body).to.have.element('div > article')
 
   it 'can return a renderered Serenade.template', ->
-    Serenade.Helpers.funky = ->
+    Serenade.helper "funky", ->
       Serenade.template("""
         #foo
           #bar
@@ -54,7 +54,7 @@ describe 'Custom helpers', ->
 
   it 'cleans up listeners from rendered serenade view', ->
     model = Serenade(name: "Jonas", active: true)
-    Serenade.Helpers.funky = (active) ->
+    Serenade.helper "funky", (active) ->
       if active
         Serenade.template("""
           #bar @name
@@ -74,7 +74,7 @@ describe 'Custom helpers', ->
     expect(model.name_property.listeners.length).to.eql(0)
 
   it 'can return undefined', ->
-    Serenade.Helpers.funky = -> undefined
+    Serenade.helper "funky", -> undefined
     @render '''
       div
         - funky
@@ -82,7 +82,7 @@ describe 'Custom helpers', ->
     expect(@body).to.have.element('div')
 
   it 'can return a string of text', ->
-    Serenade.Helpers.funky = ->
+    Serenade.helper "funky", ->
       "Hello"
     @render '''
       div
@@ -92,7 +92,7 @@ describe 'Custom helpers', ->
     expect(@body).to.have.text("Hello")
 
   it 'can return a string of html', ->
-    Serenade.Helpers.funky = ->
+    Serenade.helper "funky", ->
       "<article>Hello</article>"
     @render '''
       div
@@ -102,7 +102,7 @@ describe 'Custom helpers', ->
     expect(@body).to.have.text("Hello")
 
   it 'can return a string with multiple children', ->
-    Serenade.Helpers.funky = ->
+    Serenade.helper "funky", ->
       "<article>Hello</article><section></section>"
     @render '''
       div
@@ -113,7 +113,7 @@ describe 'Custom helpers', ->
     expect(@body).to.have.text("Hello")
 
   it 'provides access to model in helper', ->
-    Serenade.Helpers.funky = ->
+    Serenade.helper "funky", ->
       element = Serenade.document.createElement('form')
       element.setAttribute('id', @model.name)
       element
@@ -125,7 +125,7 @@ describe 'Custom helpers', ->
     expect(@body).to.have.element('div > form#jonas')
 
   it 'provides access to controller in helper', ->
-    Serenade.Helpers.funky = ->
+    Serenade.helper "funky", ->
       element = Serenade.document.createElement('form')
       element.setAttribute('id', @controller.name)
       element
@@ -137,17 +137,8 @@ describe 'Custom helpers', ->
     expect(@body).to.have.element('div > form#jonas')
 
   it 'uses a custom helper and sends in an argument', ->
-    Serenade.Helpers.makeElement = (name) -> Serenade.document.createElement(name)
-    @render '''
-      div
-        - makeElement "form"
-        - makeElement "article"
-    '''
-    expect(@body).to.have.element('div > form')
-    expect(@body).to.have.element('div > article')
-
-  it 'uses a custom helper and sends in an argument', ->
-    Serenade.Helpers.makeElement = (name) -> Serenade.document.createElement(name)
+    Serenade.helper "makeElement", (name) ->
+      Serenade.document.createElement(name)
     @render '''
       div
         - makeElement "form"
@@ -157,7 +148,7 @@ describe 'Custom helpers', ->
     expect(@body).to.have.element('div > article')
 
   it 'uses a custom helper and sends in mupltiple arguments', ->
-    Serenade.Helpers.makeElement = (name, id) ->
+    Serenade.helper "makeElement", (name, id) ->
       element = Serenade.document.createElement(name)
       element.setAttribute('id', id)
       element
@@ -170,7 +161,7 @@ describe 'Custom helpers', ->
     expect(@body).to.have.element('div > article#banana')
 
   it "doesn't fail when called from a collection", ->
-    Serenade.Helpers.test = ->
+    Serenade.helper "test", ->
       Serenade.document.createElement("span")
     model =
       col: [1, 2]
@@ -183,7 +174,7 @@ describe 'Custom helpers', ->
 
   describe 'with block argument', ->
     it 'renders the block contents into an element', ->
-      Serenade.Helpers.form = ->
+      Serenade.helper "form", ->
         element = Serenade.document.createElement('form')
         element.appendChild(@render())
         element
@@ -195,7 +186,7 @@ describe 'Custom helpers', ->
       expect(@body).to.have.element('div > form > div#jonas')
 
     it 'works with muliple elements at the same indentation level in a block', ->
-      Serenade.Helpers.form = ->
+      Serenade.helper "form", ->
         element = Serenade.document.createElement('form')
         element.appendChild(@render())
         element
@@ -209,7 +200,7 @@ describe 'Custom helpers', ->
       expect(@body).to.have.element('div > form > div#peter')
 
     it 'does not use block contents if render is not called', ->
-      Serenade.Helpers.form = ->
+      Serenade.helper "form", ->
         Serenade.document.createElement('form')
       @render '''
         div
@@ -219,7 +210,7 @@ describe 'Custom helpers', ->
       expect(@body).not.to.have.element('div > form > div#jonas')
 
     it 'allows model to be changed by passing it as an argument to render', ->
-      Serenade.Helpers.form = ->
+      Serenade.helper "form", ->
         element = Serenade.document.createElement('form')
         element.appendChild(@render(name: 'peter'))
         element
@@ -232,7 +223,7 @@ describe 'Custom helpers', ->
 
     it 'allows controller to be changed by passing it as an argument to render', ->
       funked = false
-      Serenade.Helpers.form = ->
+      Serenade.helper "form", ->
         element = Serenade.document.createElement('form')
         element.appendChild(@render(null, funky: -> funked = true))
         element
@@ -246,7 +237,7 @@ describe 'Custom helpers', ->
 
     it 'allows block content to be reused', ->
       funked = false
-      Serenade.Helpers.form = ->
+      Serenade.helper "form", ->
         element = Serenade.document.createElement('form')
         element.appendChild(@render(name: 'jonas'))
         element.appendChild(@render(name: 'peter'))
@@ -261,7 +252,7 @@ describe 'Custom helpers', ->
 
     it 'allows rendered block contents to be manually cleaned up', ->
       model = Serenade(name: "jonas")
-      Serenade.Helpers.form = ->
+      Serenade.helper "form", ->
         element = Serenade.document.createElement('form')
         view = @render(model)
         element.appendChild(view)
@@ -281,7 +272,8 @@ describe 'Custom helpers', ->
   describe 'with bound argument', ->
     it "binds to a model attribute", ->
       model = Serenade(name: "Jonas")
-      Serenade.Helpers.upcase = (value) -> Serenade.document.createTextNode(value.toUpperCase())
+      Serenade.helper "upcase", (value) ->
+        Serenade.document.createTextNode(value.toUpperCase())
       @render """
         div
           - upcase @name
@@ -292,7 +284,8 @@ describe 'Custom helpers', ->
 
     it "binds to multiple arguments", ->
       model = Serenade(firstName: "Jonas", lastName: "Nicklas")
-      Serenade.Helpers.upcase = (args...) -> Serenade.document.createTextNode(args.join("").toUpperCase())
+      Serenade.helper "upcase", (args...) ->
+        Serenade.document.createTextNode(args.join("").toUpperCase())
       @render """
         div
           - upcase @lastName ", " @firstName
@@ -305,7 +298,7 @@ describe 'Custom helpers', ->
 
     it "update a rendered Serenade.template", ->
       model = Serenade(id: "test")
-      Serenade.Helpers.funky = (id) ->
+      Serenade.helper "funky", (id) ->
         Serenade.template("""
           #foo
           div[id=@id]

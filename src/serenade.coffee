@@ -17,6 +17,9 @@ extend Serenade,
   view: (name, generator) ->
     @views[name] = generator
 
+  helper: (name, generator) ->
+    @Helpers[name] = generator
+
   renderView: (name, args...) ->
     new @views[name](args...)
 
