@@ -50,7 +50,7 @@ class Element extends View
     else
       @node.removeAttribute("class")
 
-  _detach: ->
+  detach: ->
     @unload.trigger()
     super
 

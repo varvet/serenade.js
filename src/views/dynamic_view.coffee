@@ -21,7 +21,7 @@ class DynamicView extends View
     @children.update([])
 
   remove: ->
-    @_detach()
+    @detach()
     @clear()
     @anchor.parentNode.removeChild(@anchor) if @anchor.parentNode
 
