@@ -39,6 +39,7 @@ Build =
     "node"
     "element"
     "collection_view"
+    "helper_view"
     "compile"
     "template"
     "template_view"

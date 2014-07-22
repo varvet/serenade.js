@@ -11,12 +11,8 @@ bindToProperty = (view, model, name, cb) ->
 
 Compile =
   element: (ast, model, controller) ->
-    view = if Serenade.views[ast.name]
-      Serenade.renderView(ast.name, model, controller)
-    else
-      new Element(ast, model, controller)
-
-    view.load.trigger()
+    view = Serenade.renderView(ast, model, controller)
+    view.load?.trigger()
     view
 
   view: (ast, model, parent) ->
@@ -37,9 +33,7 @@ Compile =
   helper: (ast, model, controller) ->
     dynamic = new CollectionView(ast)
     renderBlock = (model=model, blockController=controller) ->
-      new Template(null, ast.children).render(model, blockController, controller)
     helperFunction = Serenade.Helpers[ast.command] or throw SyntaxError "no helper #{ast.command} defined"
-    context = { model, controller, render: renderBlock }
     update = ->
       args = ast.arguments.map((a) -> if a.bound then model[a.value] else a.value)
       dynamic.replace([normalize(ast, helperFunction.apply(context, args))])
@@ -59,39 +53,25 @@ Compile =
       new Node(ast, Serenade.document.createTextNode(ast.value ? model))
 
   collection: (ast, model, controller) ->
-    dynamic = null
-    compileItem = (item) -> compile(ast.children, item, controller)
-    renderedCollection = []
-    updateCollection = (_, after) ->
-      for operation in Transform(renderedCollection, after)
-        switch operation.type
-          when "insert"
-            dynamic.insertNodeSet(operation.index, compileItem(operation.value))
-          when "remove"
-            dynamic.deleteNodeSet(operation.index)
-          when "swap"
-            dynamic.swapNodeSet(operation.index, operation.with)
-      renderedCollection = after?.map((a) -> a) or []
-    update = (dyn, before, after) ->
-      dynamic = dyn
-      dynamic.unbindEvent(before?.change, updateCollection)
-      dynamic.bindEvent(after?.change, updateCollection)
-      updateCollection(before, after)
+    update = (collectionView, before, after) ->
+      collectionView.unbindEvent(before?.change, collectionView.update)
+      collectionView.bindEvent(after?.change, collectionView.update)
+      collectionView.update()
     @bound(ast, model, controller, update)
 
   in: (ast, model, controller) ->
     @bound ast, model, controller, (dynamic, _, value) ->
       if value
-        dynamic.replace([compile(ast.children, value, controller)])
+        dynamic.replace([new TemplateView(ast.children, value, controller)])
       else
         dynamic.clear()
 
   if: (ast, model, controller) ->
     @bound ast, model, controller, (dynamic, _, value) ->
       if value
-        dynamic.replace([compile(ast.children, model, controller)])
+        dynamic.replace([new TemplateView(ast.children, model, controller)])
       else if ast.else
-        dynamic.replace([compile(ast.else.children, model, controller)])
+        dynamic.replace([new TemplateView(ast.else.children, model, controller)])
       else
         dynamic.clear()
 
@@ -100,7 +80,7 @@ Compile =
       if value
         dynamic.clear()
       else
-        nodes = compile(ast.children, model, controller)
+        nodes = new TemplateView(ast.children, model, controller)
         dynamic.replace([nodes])
 
   bound: (ast, model, controller, callback) ->
@@ -127,5 +107,3 @@ normalize = (ast, val) ->
       aggregate.push(new Node(ast, element))
     aggregate
   [].concat(val).reduce(reduction, [])
-
-compile = (asts, model, controller) -> Compile[ast.type](ast, model, controller) for ast in asts

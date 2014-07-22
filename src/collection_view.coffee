@@ -1,53 +1,35 @@
 class CollectionView extends Element
   constructor: (@ast) ->
     @anchor = Serenade.document.createTextNode('')
-    @nodeSets = new Collection([])
+    @renderedCollection = []
+    @views = new Collection()
 
-  nodes: ->
-    nodes = []
-    for set in @nodeSets
-      nodes.push(node) for node in set
-    nodes
+  update: =>
+    for operation in Transform(@renderedCollection, @views)
+      switch operation.type
+        when "insert"
+          @_insertView(operation.index, new TemplateView(@ast.children or [], operation.value, @controller))
+        when "remove"
+          @_deleteView(operation.index)
+        when "swap"
+          @_swapViews(operation.index, operation.with)
+    @renderedCollection = @views.map((a) -> a)
 
   rebuild: ->
-    if @anchor.parentNode
-      last = @anchor
-      for node in @nodes()
-        node.insertAfter(last)
-        last = node.lastElement
+    last = @anchor
+    for view in @views
+      view.insertAfter(last)
+      last = view.lastElement
+    @renderedCollection = @views.map((a) -> a)
 
-  replace: (sets) ->
+  replace: (views) ->
     @clear()
-    @nodeSets.update(new Collection(set) for set in sets)
+    @views.update(views)
     @rebuild()
 
-  deleteNodeSet: (index) ->
-    node.remove() for node in @nodeSets[index]
-    @nodeSets.deleteAt(index)
-
-  insertNodeSet: (index, nodes) ->
-    last = @nodeSets[index-1]?.last?.lastElement or @anchor
-    for node in nodes
-      node.insertAfter(last) if @anchor.parentNode
-      last = node.lastElement
-    @nodeSets.insertAt(index, new Collection(nodes))
-
-  swapNodeSet: (fromIndex, toIndex) ->
-    last = @nodeSets[fromIndex-1]?.last?.lastElement or @anchor
-    for node in @nodeSets[toIndex]
-      node.insertAfter(last) if @anchor.parentNode
-      last = node.lastElement
-
-    last = @nodeSets[toIndex-1]?.last?.lastElement or @anchor
-    for node in @nodeSets[fromIndex]
-      node.insertAfter(last) if @anchor.parentNode
-      last = node.lastElement
-
-    [@nodeSets[fromIndex], @nodeSets[toIndex]] = [@nodeSets[toIndex], @nodeSets[fromIndex]]
-
   clear: ->
-    node.remove() for node in @nodes()
-    @nodeSets.update([])
+    view.remove() for view in @views
+    @views.update([])
 
   remove: ->
     @detach()
@@ -63,4 +45,25 @@ class CollectionView extends Element
     @rebuild()
 
   def @prototype, "lastElement", configurable: true, get: ->
-    @nodeSets.last?.last?.lastElement or @anchor
+    @views.last?.lastElement or @anchor
+
+  _deleteView: (index) ->
+    @views[index].remove()
+    @views.deleteAt(index)
+
+  _insertView: (index, view) ->
+    if @anchor.parentNode # don't do this if this collection view hasn't been inserted
+      last = @views[index-1]?.lastElement or @anchor
+      view.insertAfter(last)
+    @views.insertAt(index, view)
+
+  _swapViews: (fromIndex, toIndex) ->
+    if @anchor.parentNode # don't do this if this collection view hasn't been inserted
+      last = @views[fromIndex-1]?.lastElement or @anchor
+      @views[toIndex].insertAfter(last)
+
+      last = @views[toIndex-1]?.lastElement or @anchor
+      @views[fromIndex].insertAfter(last)
+
+    [@views[fromIndex], @views[toIndex]] = [@views[toIndex], @views[fromIndex]]
+

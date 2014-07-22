@@ -14,14 +14,17 @@ extend Serenade,
   defineProperty: defineProperty
   defineEvent: defineEvent
 
-  view: (name, generator) ->
-    @views[name] = generator
+  view: (name, fn) ->
+    @views[name] = (ast, model, controller) -> new fn(ast, model, controller)
 
-  helper: (name, generator) ->
-    @Helpers[name] = generator
+  helper: (name, fn) ->
+    @views[name] = (ast, model, controller) -> new HelperView(ast, model, controller, fn)
 
-  renderView: (name, args...) ->
-    new @views[name](args...)
+  renderView: (ast, model, controller) ->
+    if @views[ast.name]
+      @views[ast.name](ast, model, controller)
+    else
+      new Element(ast, model, controller)
 
   template: (nameOrTemplate, template) ->
     if template
@@ -30,7 +33,7 @@ extend Serenade,
       new Template(undefined, nameOrTemplate)
 
   render: (name, model, controller) ->
-    @templates[name].render(model, controller)
+    @templates[name].render(model, controller).fragment
 
   controller: (name, klass) ->
     @controllers[name] = klass
@@ -48,7 +51,6 @@ extend Serenade,
   View: View
   Element: Element
   CollectionView: CollectionView
-  Helpers: {}
 
 def Serenade, "async",
   get: -> settings.async

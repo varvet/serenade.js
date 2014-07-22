@@ -5,8 +5,10 @@ class Element extends Node
     @setAttribute('id', @ast.id) if @ast.id
     @setAttribute('class', @ast.classes.join(' ')) if @ast.classes?.length
 
-    @addChildren(compile(@ast.children, @model, @controller))
-    child.append(@node) for child in @children
+    for child in @ast.children
+      childView = Compile[child.type](child, @model, @controller)
+      childView.append(@node)
+      @children.push(childView)
 
     @ast.properties.forEach (property) =>
       action = if property.scope is "attribute" and property.name is "binding"

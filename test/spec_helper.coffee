@@ -37,7 +37,7 @@ beforeEach ->
     element.dispatchEvent(event)
 
   @render = (template, model, controller) =>
-    @body.appendChild(Serenade.template(template).render(model, controller))
+    @body.appendChild(Serenade.template(template).render(model, controller).fragment)
 
   @sinon = sinon.sandbox.create()
 

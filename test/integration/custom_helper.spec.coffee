@@ -7,7 +7,7 @@ describe 'Custom helpers', ->
     Serenade.helper "funky", -> Serenade.document.createElement('form')
     @render '''
       div
-        - funky
+        funky
     '''
     expect(@body).to.have.element('div > form')
 
@@ -16,7 +16,7 @@ describe 'Custom helpers', ->
       [Serenade.document.createElement('form'), Serenade.document.createElement('article')]
     @render '''
       div
-        - funky
+        funky
     '''
     expect(@body).to.have.element('div > form')
     expect(@body).to.have.element('div > article')
@@ -30,7 +30,7 @@ describe 'Custom helpers', ->
 
     @render '''
       div
-        - funky
+        funky
     '''
 
     expect(@body).to.have.element('div > form')
@@ -46,7 +46,7 @@ describe 'Custom helpers', ->
 
     @render '''
       div
-        - funky
+        funky
     '''
 
     expect(@body).to.have.element('div > #foo > #bar')
@@ -64,7 +64,7 @@ describe 'Custom helpers', ->
 
     @render '''
       div
-        - funky @active
+        funky @active
     ''', model
 
     expect(@body).to.have.element('#bar')
@@ -77,7 +77,7 @@ describe 'Custom helpers', ->
     Serenade.helper "funky", -> undefined
     @render '''
       div
-        - funky
+        funky
     '''
     expect(@body).to.have.element('div')
 
@@ -86,7 +86,7 @@ describe 'Custom helpers', ->
       "Hello"
     @render '''
       div
-        - funky
+        funky
     '''
     expect(@body).to.have.element('div')
     expect(@body).to.have.text("Hello")
@@ -96,7 +96,7 @@ describe 'Custom helpers', ->
       "<article>Hello</article>"
     @render '''
       div
-        - funky
+        funky
     '''
     expect(@body).to.have.element('div > article')
     expect(@body).to.have.text("Hello")
@@ -106,7 +106,7 @@ describe 'Custom helpers', ->
       "<article>Hello</article><section></section>"
     @render '''
       div
-        - funky
+        funky
     '''
     expect(@body).to.have.element('div > article')
     expect(@body).to.have.element('div > section')
@@ -120,7 +120,7 @@ describe 'Custom helpers', ->
     model = name: 'jonas'
     @render '''
       div
-        - funky
+        funky
     ''', model
     expect(@body).to.have.element('div > form#jonas')
 
@@ -132,7 +132,7 @@ describe 'Custom helpers', ->
     controller = name: 'jonas'
     @render '''
       div
-        - funky
+        funky
     ''', {}, controller
     expect(@body).to.have.element('div > form#jonas')
 
@@ -141,8 +141,8 @@ describe 'Custom helpers', ->
       Serenade.document.createElement(name)
     @render '''
       div
-        - makeElement "form"
-        - makeElement "article"
+        makeElement "form"
+        makeElement "article"
     '''
     expect(@body).to.have.element('div > form')
     expect(@body).to.have.element('div > article')
@@ -154,8 +154,8 @@ describe 'Custom helpers', ->
       element
     @render '''
       div
-        - makeElement "form" "product"
-        - makeElement "article" "banana"
+        makeElement "form" "product"
+        makeElement "article" "banana"
     '''
     expect(@body).to.have.element('div > form#product')
     expect(@body).to.have.element('div > article#banana')
@@ -168,7 +168,7 @@ describe 'Custom helpers', ->
     @render '''
       div
         - collection @col
-          - test
+          test
     ''', model
     expect(@body).to.have.element('div > span')
 
@@ -180,7 +180,7 @@ describe 'Custom helpers', ->
         element
       @render '''
         div
-          - form
+          form
             div[id="jonas"]
       '''
       expect(@body).to.have.element('div > form > div#jonas')
@@ -192,7 +192,7 @@ describe 'Custom helpers', ->
         element
       @render '''
         div
-          - form
+          form
             div#jonas
             div#peter
       '''
@@ -204,7 +204,7 @@ describe 'Custom helpers', ->
         Serenade.document.createElement('form')
       @render '''
         div
-          - form
+          form
             div[id="jonas"]
       '''
       expect(@body).not.to.have.element('div > form > div#jonas')
@@ -216,7 +216,7 @@ describe 'Custom helpers', ->
         element
       @render '''
         div
-          - form
+          form
             div[id=name]
       '''
       expect(@body).to.have.element('div > form > div#peter')
@@ -229,7 +229,7 @@ describe 'Custom helpers', ->
         element
       @render '''
         div
-          - form
+          form
             div[id="jonas" event:click=funky]
       '''
       @fireEvent(@body.querySelector('div#jonas'), 'click')
@@ -244,7 +244,7 @@ describe 'Custom helpers', ->
         element
       @render '''
         div
-          - form
+          form
             div[id=name]
       '''
       expect(@body).to.have.element('div > form > div#jonas')
@@ -260,7 +260,7 @@ describe 'Custom helpers', ->
         element
       @render '''
         div
-          - form
+          form
             div[id=name]
       '''
       expect(@body).to.have.element('div > form > div#jonas')
@@ -276,7 +276,7 @@ describe 'Custom helpers', ->
         Serenade.document.createTextNode(value.toUpperCase())
       @render """
         div
-          - upcase @name
+          upcase @name
       """, model
       expect(@body).to.have.text("JONAS")
       model.name = "Peter"
@@ -288,7 +288,7 @@ describe 'Custom helpers', ->
         Serenade.document.createTextNode(args.join("").toUpperCase())
       @render """
         div
-          - upcase @lastName ", " @firstName
+          upcase @lastName ", " @firstName
       """, model
       expect(@body).to.have.text("NICKLAS, JONAS")
       model.firstName = "Annika"
@@ -306,7 +306,7 @@ describe 'Custom helpers', ->
 
       @render '''
         div
-          - funky @id
+          funky @id
       ''', model
 
       expect(@body).to.have.element('div > #foo')

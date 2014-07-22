@@ -21,4 +21,4 @@ class Template
     if typeof(controller) is "function"
       controller = new controller(model)
 
-    new TemplateView(@ast, model, controller).element
+    new TemplateView(@ast, model, controller)

@@ -3,6 +3,7 @@ class Node extends View
   defineEvent(@prototype, "unload", async: false)
 
   constructor: (@ast, @node) ->
+    @children = []
 
   addBoundClass: (className) ->
     @boundClasses or= new Collection()
@@ -15,9 +16,6 @@ class Node extends View
       index = @boundClasses.indexOf(className)
       @boundClasses.delete(className)
       @updateClass()
-
-  addChildren: (children) ->
-    @children = children
 
   append: (inside) ->
     inside.appendChild(@node)
