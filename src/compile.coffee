@@ -89,21 +89,3 @@ Compile =
       callback(dynamic, before, after) unless before is after
     dynamic
 
-# turn a single element, document fragment, compiled view or string, or an
-# array of any of these into Nodes.
-normalize = (ast, val) ->
-  return [] unless val
-  reduction = (aggregate, element) ->
-    if typeof(element) is "string"
-      div = Serenade.document.createElement("div")
-      div.innerHTML = element
-      aggregate.push(new Node(ast, child)) for child in div.childNodes
-    else if element.nodeName is "#document-fragment"
-      if element.nodes # rendered Serenade.template, clean up listeners!
-        aggregate = aggregate.concat(element.nodes)
-      else
-        aggregate.push(new Node(ast, child)) for child in element.childNodes
-    else
-      aggregate.push(new Node(ast, element))
-    aggregate
-  [].concat(val).reduce(reduction, [])

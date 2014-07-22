@@ -54,7 +54,7 @@ describe 'Custom helpers', ->
 
   it 'cleans up listeners from rendered serenade view', ->
     model = Serenade(name: "Jonas", active: true)
-    Serenade.helper "funky", (active) ->
+    Serenade.helper "funky", ({ active }) ->
       if active
         Serenade.template("""
           #bar @name
@@ -64,7 +64,7 @@ describe 'Custom helpers', ->
 
     @render '''
       div
-        funky @active
+        funky[active=@active]
     ''', model
 
     expect(@body).to.have.element('#bar')
@@ -137,25 +137,25 @@ describe 'Custom helpers', ->
     expect(@body).to.have.element('div > form#jonas')
 
   it 'uses a custom helper and sends in an argument', ->
-    Serenade.helper "makeElement", (name) ->
+    Serenade.helper "makeElement", ({ name }) ->
       Serenade.document.createElement(name)
     @render '''
       div
-        makeElement "form"
-        makeElement "article"
+        makeElement[name="form"]
+        makeElement[name="article"]
     '''
     expect(@body).to.have.element('div > form')
     expect(@body).to.have.element('div > article')
 
   it 'uses a custom helper and sends in mupltiple arguments', ->
-    Serenade.helper "makeElement", (name, id) ->
+    Serenade.helper "makeElement", ({ name, id }) ->
       element = Serenade.document.createElement(name)
       element.setAttribute('id', id)
       element
     @render '''
       div
-        makeElement "form" "product"
-        makeElement "article" "banana"
+        makeElement[name="form" id="product"]
+        makeElement[name="article" id="banana"]
     '''
     expect(@body).to.have.element('div > form#product')
     expect(@body).to.have.element('div > article#banana')
@@ -269,14 +269,28 @@ describe 'Custom helpers', ->
       expect(@body).not.to.have.element('div > form > div#jonas')
       expect(model.name_property.listeners.length).to.eql(0)
 
+  describe 'with static argument', ->
+    it "renders model attribute but does not update it", ->
+      model = Serenade(name: "Jonas")
+      Serenade.helper "upcase", ({ text }) ->
+        Serenade.document.createTextNode(text.toUpperCase())
+      @render """
+        div
+          upcase[text=name]
+      """, model
+      expect(@body).to.have.text("JONAS")
+      model.name = "Peter"
+      expect(@body).to.have.text("JONAS")
+
+
   describe 'with bound argument', ->
     it "binds to a model attribute", ->
       model = Serenade(name: "Jonas")
-      Serenade.helper "upcase", (value) ->
-        Serenade.document.createTextNode(value.toUpperCase())
+      Serenade.helper "upcase", ({ text }) ->
+        Serenade.document.createTextNode(text.toUpperCase())
       @render """
         div
-          upcase @name
+          upcase[text=@name]
       """, model
       expect(@body).to.have.text("JONAS")
       model.name = "Peter"
@@ -284,11 +298,11 @@ describe 'Custom helpers', ->
 
     it "binds to multiple arguments", ->
       model = Serenade(firstName: "Jonas", lastName: "Nicklas")
-      Serenade.helper "upcase", (args...) ->
-        Serenade.document.createTextNode(args.join("").toUpperCase())
+      Serenade.helper "upcase", ({ one, two, three }) ->
+        Serenade.document.createTextNode([one, two, three].join("").toUpperCase())
       @render """
         div
-          upcase @lastName ", " @firstName
+          upcase[one=@lastName two=", " three=@firstName]
       """, model
       expect(@body).to.have.text("NICKLAS, JONAS")
       model.firstName = "Annika"
@@ -298,7 +312,7 @@ describe 'Custom helpers', ->
 
     it "update a rendered Serenade.template", ->
       model = Serenade(id: "test")
-      Serenade.helper "funky", (id) ->
+      Serenade.helper "funky", ({ id }) ->
         Serenade.template("""
           #foo
           div[id=@id]
@@ -306,7 +320,7 @@ describe 'Custom helpers', ->
 
       @render '''
         div
-          funky @id
+          funky[id=@id]
       ''', model
 
       expect(@body).to.have.element('div > #foo')

@@ -16,10 +16,11 @@ class CollectionView extends Element
     @items = items?.map((a) -> a) or []
 
   rebuild: ->
-    last = @anchor
-    for view in @views
-      view.insertAfter(last)
-      last = view.lastElement
+    if @anchor.parentNode
+      last = @anchor
+      for view in @views
+        view.insertAfter(last)
+        last = view.lastElement
 
   clear: ->
     view.remove() for view in @views
