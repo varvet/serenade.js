@@ -41,7 +41,6 @@ Build =
     "collection_view"
     "text_view"
     "helper_view"
-    "bound_view"
     "if_view"
     "unless_view"
     "in_view"
