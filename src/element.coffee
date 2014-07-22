@@ -1,4 +1,7 @@
 class Element extends Node
+  defineEvent(@prototype, "load", async: false)
+  defineEvent(@prototype, "unload", async: false)
+
   constructor: (@ast, @model, @controller) ->
     super @ast, Serenade.document.createElement(@ast.name)
 
@@ -35,6 +38,11 @@ class Element extends Node
 
       else
         throw SyntaxError "#{property.scope} is not a valid scope"
+    @load.trigger()
+
+  detach: ->
+    @unload.trigger()
+    super
 
   property:
     style:

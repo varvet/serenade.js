@@ -1,9 +1,6 @@
 class Node extends View
-  defineEvent(@prototype, "load", async: false)
-  defineEvent(@prototype, "unload", async: false)
-
   constructor: (@ast, @node) ->
-    @children = []
+    super
 
   addBoundClass: (className) ->
     @boundClasses or= new Collection()
@@ -24,7 +21,7 @@ class Node extends View
     after.parentNode.insertBefore(@node, after.nextSibling)
 
   remove: ->
-    @detach()
+    super
     @node.parentNode?.removeChild(@node)
 
   setAttribute: (property, value) ->
@@ -47,26 +44,6 @@ class Node extends View
 
   nodes: ->
     @children or []
-
-  bindEvent: (event, fun) ->
-    if event
-      @boundEvents or= new Collection()
-      @boundEvents.push({ event, fun })
-      event.bind(fun)
-
-  unbindEvent: (event, fun) ->
-    if event
-      @boundEvents or= new Collection()
-      @boundEvents.delete(fun)
-      event.unbind(fun)
-
-  detach: ->
-    # trigger unload callbacks
-    @unload.trigger()
-    # recursively unbind events on children
-    node.detach() for node in @nodes()
-    # remove events
-    event.unbind(fun) for {event, fun} in @boundEvents if @boundEvents
 
   updateClass: ->
     classes = @ast.classes

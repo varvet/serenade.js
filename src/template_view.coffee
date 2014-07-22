@@ -1,9 +1,9 @@
 class TemplateView extends CollectionView
   constructor: (asts, @model, @controller) ->
     super
-    @views = for ast in asts
+    @children = for ast in asts
       Compile[ast.type](ast, model, controller)
-    @views = new Collection(@views)
+    @children = new Collection(@children)
 
   def @prototype, "fragment", get: ->
     fragment = Serenade.document.createDocumentFragment()

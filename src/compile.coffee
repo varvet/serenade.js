@@ -11,9 +11,7 @@ bindToProperty = (view, model, name, cb) ->
 
 Compile =
   element: (ast, model, controller) ->
-    view = Serenade.renderView(ast, model, controller)
-    view.load?.trigger()
-    view
+    Serenade.renderView(ast, model, controller)
 
   view: (ast, model, parent) ->
     controller = Serenade.controllers[ast.argument]

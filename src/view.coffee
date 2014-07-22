@@ -1,30 +1,29 @@
 class View
-  constructor: (@model, @controller) ->
-    @element = Serenade.document.createElement("div")
+  constructor: ->
+    @children = []
 
-  # CURRENT API
+  append: (inside) ->
 
-  addBoundClass: (className) -> notImplemeted()
-  removeBoundClass: (className) -> notImplemeted()
-  setAttributeClass: (name, value) -> notImplemeted()
-  addChildren: (children) -> notImplemeted()
-  append: (inside) -> notImplemeted()
-  insertAfter: (after) -> notImplemeted()
-  remove: -> notImplemeted()
+  insertAfter: (after) ->
 
-  # FUTURE?
+  remove: ->
+    @detach()
 
-  appendChild: (view) -> notImplemeted()
-  insertBefore: (newView, referenceView) -> notImplemeted()
-  removeChild: (view) -> notImplemeted()
+  detach: ->
+    # recursively unbind events on children
+    child.detach() for child in @children
+    # remove events
+    event.unbind(fun) for {event, fun} in @boundEvents if @boundEvents
 
-  # DONE
+  bindEvent: (event, fun) ->
+    if event
+      @boundEvents or= new Collection()
+      @boundEvents.push({ event, fun })
+      event.bind(fun)
 
-  setAttribute: (property, value) -> notImplemeted()
-  setAttributeNS: (namespace, property, value) -> notImplemeted()
-  getAttribute: (property, value) -> notImplemeted()
-  getAttributeNS: (namespace, property, value) -> notImplemeted()
+  unbindEvent: (event, fun) ->
+    if event
+      @boundEvents or= new Collection()
+      @boundEvents.delete(fun)
+      event.unbind(fun)
 
-  readyCallback: -> # no op
-  insertedCallback: -> # no op
-  removedCallback: -> # no op

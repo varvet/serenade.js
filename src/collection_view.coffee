@@ -1,8 +1,8 @@
-class CollectionView extends Element
+class CollectionView extends View
   constructor: (@ast, @model, @controller) ->
     @anchor = Serenade.document.createTextNode('')
     @items = []
-    @views = new Collection()
+    @children = new Collection()
 
   replace: (items) ->
     for operation in Transform(@items, items)
@@ -18,16 +18,16 @@ class CollectionView extends Element
   rebuild: ->
     if @anchor.parentNode
       last = @anchor
-      for view in @views
+      for view in @children
         view.insertAfter(last)
         last = view.lastElement
 
   clear: ->
-    view.remove() for view in @views
-    @views.update([])
+    view.remove() for view in @children
+    @children.update([])
 
   remove: ->
-    @detach()
+    super
     @clear()
     @anchor.parentNode.removeChild(@anchor) if @anchor.parentNode
 
@@ -40,25 +40,25 @@ class CollectionView extends Element
     @rebuild()
 
   def @prototype, "lastElement", configurable: true, get: ->
-    @views.last?.lastElement or @anchor
+    @children.last?.lastElement or @anchor
 
   _deleteView: (index) ->
-    @views[index].remove()
-    @views.deleteAt(index)
+    @children[index].remove()
+    @children.deleteAt(index)
 
   _insertView: (index, view) ->
     if @anchor.parentNode # don't do this if this collection view hasn't been inserted
-      last = @views[index-1]?.lastElement or @anchor
+      last = @children[index-1]?.lastElement or @anchor
       view.insertAfter(last)
-    @views.insertAt(index, view)
+    @children.insertAt(index, view)
 
   _swapViews: (fromIndex, toIndex) ->
     if @anchor.parentNode # don't do this if this collection view hasn't been inserted
-      last = @views[fromIndex-1]?.lastElement or @anchor
-      @views[toIndex].insertAfter(last)
+      last = @children[fromIndex-1]?.lastElement or @anchor
+      @children[toIndex].insertAfter(last)
 
-      last = @views[toIndex-1]?.lastElement or @anchor
-      @views[fromIndex].insertAfter(last)
+      last = @children[toIndex-1]?.lastElement or @anchor
+      @children[fromIndex].insertAfter(last)
 
-    [@views[fromIndex], @views[toIndex]] = [@views[toIndex], @views[fromIndex]]
+    [@children[fromIndex], @children[toIndex]] = [@children[toIndex], @children[fromIndex]]
 

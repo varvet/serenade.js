@@ -29,7 +29,7 @@ class HelperView extends CollectionView
 
   update: =>
     @clear()
-    @views = normalize(@ast, @helper.call(@context, @arguments))
+    @children = normalize(@ast, @helper.call(@context, @arguments))
     @rebuild()
 
   def @prototype, "arguments", get: ->
