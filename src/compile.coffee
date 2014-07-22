@@ -28,10 +28,10 @@ Compile =
     if ast.bound
       @bound(ast, model, controller, compileView)
     else
-      compileView(new CollectionView(ast), undefined, ast.argument)
+      compileView(new CollectionView(ast, model, controller), undefined, ast.argument)
 
   helper: (ast, model, controller) ->
-    dynamic = new CollectionView(ast)
+    dynamic = new CollectionView(ast, model, controller)
     renderBlock = (model=model, blockController=controller) ->
     helperFunction = Serenade.Helpers[ast.command] or throw SyntaxError "no helper #{ast.command} defined"
     update = ->
@@ -54,9 +54,9 @@ Compile =
 
   collection: (ast, model, controller) ->
     update = (collectionView, before, after) ->
-      collectionView.unbindEvent(before?.change, collectionView.update)
-      collectionView.bindEvent(after?.change, collectionView.update)
-      collectionView.update()
+      collectionView.unbindEvent(before?.change, (_, after) -> collectionView.replace(after))
+      collectionView.bindEvent(after?.change, (_, after) -> collectionView.replace(after))
+      collectionView.replace(after)
     @bound(ast, model, controller, update)
 
   in: (ast, model, controller) ->
@@ -84,7 +84,7 @@ Compile =
         dynamic.replace([nodes])
 
   bound: (ast, model, controller, callback) ->
-    dynamic = new CollectionView(ast)
+    dynamic = new CollectionView(ast, model, controller)
     bindToProperty dynamic, model, ast.argument, (before, after) ->
       callback(dynamic, before, after) unless before is after
     dynamic

@@ -1,5 +1,5 @@
 class TemplateView extends CollectionView
-  constructor: (asts, model, controller) ->
+  constructor: (asts, @model, @controller) ->
     super
     @views = for ast in asts
       Compile[ast.type](ast, model, controller)

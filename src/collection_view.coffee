@@ -1,11 +1,11 @@
 class CollectionView extends Element
-  constructor: (@ast) ->
+  constructor: (@ast, @model, @controller) ->
     @anchor = Serenade.document.createTextNode('')
-    @renderedCollection = []
+    @items = []
     @views = new Collection()
 
-  update: =>
-    for operation in Transform(@renderedCollection, @views)
+  replace: (items) ->
+    for operation in Transform(@items, items)
       switch operation.type
         when "insert"
           @_insertView(operation.index, new TemplateView(@ast.children or [], operation.value, @controller))
@@ -13,19 +13,13 @@ class CollectionView extends Element
           @_deleteView(operation.index)
         when "swap"
           @_swapViews(operation.index, operation.with)
-    @renderedCollection = @views.map((a) -> a)
+    @items = items?.map((a) -> a) or []
 
   rebuild: ->
     last = @anchor
     for view in @views
       view.insertAfter(last)
       last = view.lastElement
-    @renderedCollection = @views.map((a) -> a)
-
-  replace: (views) ->
-    @clear()
-    @views.update(views)
-    @rebuild()
 
   clear: ->
     view.remove() for view in @views
