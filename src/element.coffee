@@ -27,7 +27,7 @@ class Element extends View
             action.update.call(this, property, @model[property.value])
           else if property.bound
             if property.value
-              bindToProperty this, @model, property.value, (_, value) =>
+              @_bindToModel property.value, (value) =>
                 action.update.call(this, property, value)
             else
               action.update.call(this, property, @model)

@@ -1,9 +1,3 @@
-bindToProperty = (view, model, name, cb) ->
-  value = model[name]
-  model["#{name}_property"]?.registerGlobal?(value)
-  view._bindEvent(model["#{name}_property"], cb)
-  cb({}, value)
-
 Compile =
   element: (ast, model, controller) ->
     Serenade.renderView(ast, model, controller)
@@ -32,9 +26,3 @@ Compile =
 
   unless: (ast, model, controller) ->
     new UnlessView(ast, model, controller)
-
-  bound: (ast, model, controller, callback) ->
-    dynamic = new DynamicView(ast, model, controller)
-    bindToProperty dynamic, model, ast.argument, (before, after) ->
-      callback(dynamic, before, after) unless before is after
-    dynamic
