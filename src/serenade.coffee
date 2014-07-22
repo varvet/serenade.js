@@ -41,6 +41,7 @@ extend Serenade,
   clearCache: ->
     Serenade.clearIdentityMap()
   unregisterAll: ->
+    Serenade.views = {}
     Serenade.templates = {}
     Serenade.controllers = {}
 
