@@ -30,18 +30,6 @@ Compile =
     else
       compileView(new CollectionView(ast, model, controller), undefined, ast.argument)
 
-  helper: (ast, model, controller) ->
-    dynamic = new CollectionView(ast, model, controller)
-    renderBlock = (model=model, blockController=controller) ->
-    helperFunction = Serenade.Helpers[ast.command] or throw SyntaxError "no helper #{ast.command} defined"
-    update = ->
-      args = ast.arguments.map((a) -> if a.bound then model[a.value] else a.value)
-      dynamic.replace([normalize(ast, helperFunction.apply(context, args))])
-    for argument in ast.arguments when argument.bound is true
-      dynamic.bindEvent(model["#{argument.value}_property"], update)
-    update()
-    dynamic
-
   text: (ast, model, controller) ->
     if ast.bound and ast.value
       textNode = Serenade.document.createTextNode("")
