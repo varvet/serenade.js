@@ -6,7 +6,7 @@ describe 'Custom views', ->
   it 'uses a custom view', ->
     class CustomView extends Serenade.Element
       constructor: (@ast) ->
-        @element = Serenade.document.createElement('form')
+        @node = Serenade.document.createElement('form')
 
     Serenade.view "funky", CustomView
 

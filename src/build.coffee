@@ -36,6 +36,7 @@ Build =
     "property"
     "model"
     "lexer"
+    "node"
     "element"
     "collection_view"
     "compile"

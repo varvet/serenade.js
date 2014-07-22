@@ -1,83 +1,100 @@
-class Element extends View
-  defineEvent(@prototype, "load", async: false)
-  defineEvent(@prototype, "unload", async: false)
+class Element extends Node
+  constructor: (@ast, @model, @controller) ->
+    super @ast, Serenade.document.createElement(@ast.name)
 
-  constructor: (@ast, @element) ->
+    @setAttribute('id', @ast.id) if @ast.id
+    @setAttribute('class', @ast.classes.join(' ')) if @ast.classes?.length
 
-  addBoundClass: (className) ->
-    @boundClasses or= new Collection()
-    unless @boundClasses?.includes(className)
-      @boundClasses.push(className)
-      @updateClass()
+    @addChildren(compile(@ast.children, @model, @controller))
+    child.append(@node) for child in @children
 
-  removeBoundClass: (className) ->
-    if @boundClasses
-      index = @boundClasses.indexOf(className)
-      @boundClasses.delete(className)
-      @updateClass()
+    @ast.properties.forEach (property) =>
+      action = if property.scope is "attribute" and property.name is "binding"
+        @property.binding
+      else
+        @property[property.scope]
 
-  addChildren: (children) ->
-    @children = children
+      if action
+        action.setup.call(this, property) if action.setup
 
-  append: (inside) ->
-    inside.appendChild(@element)
+        if action.update
+          if property.static
+            action.update.call(this, property, @model[property.value])
+          else if property.bound
+            if property.value
+              bindToProperty this, @model, property.value, (_, value) =>
+                action.update.call(this, property, value)
+            else
+              action.update.call(this, property, @model)
+          else
+            action.update.call(this, property, property.value)
+        else if property.bound
+          throw SyntaxError "properties in scope #{property.scope} cannot be bound, use: `#{property.scope}:#{property.name}=#{property.value}`"
 
-  insertAfter: (after) ->
-    after.parentNode.insertBefore(@element, after.nextSibling)
+      else
+        throw SyntaxError "#{property.scope} is not a valid scope"
 
-  remove: ->
-    @detach()
-    @element.parentNode?.removeChild(@element)
+  property:
+    style:
+      update: (property, value) ->
+        assignUnlessEqual(@node.style, property.name, value)
 
-  setAttribute: (property, value) ->
-    if property is 'value'
-      assignUnlessEqual(@element, "value", value or '')
-    else if @ast.name is 'input' and property is 'checked'
-      assignUnlessEqual(@element, "checked", !!value)
-    else if property is 'class'
-      @attributeClasses = value
-      @updateClass()
-    else if value is undefined
-      @element.removeAttribute(property) if @element.hasAttribute(property)
-    else
-      value = "0" if value is 0
-      unless @element.getAttribute(property) is value
-        @element.setAttribute(property, value)
+    event:
+      setup: (property) ->
+        @node.addEventListener property.name, (e) =>
+          e.preventDefault() if property.preventDefault
+          @controller[property.value](@node, @model, e)
 
-  setAttributeNS: (namespace, property, value) -> notImplemeted()
+    class:
+      update: (property, value) ->
+        if value
+          @addBoundClass(property.name)
+        else
+          @removeBoundClass(property.name)
 
-  def @prototype, "lastElement", configurable: true, get: ->
-    @element
+    binding:
+      setup: (property) ->
+        @ast.name in ["input", "textarea", "select"] or throw SyntaxError "invalid view type #{@ast.name} for two way binding"
+        property.value or throw SyntaxError "cannot bind to whole model, please specify an attribute to bind to"
 
-  nodes: ->
-    @children or []
+        domUpdated = =>
+          @model[property.value] = if @node.type is "checkbox"
+            @node.checked
+          else if @node.type is "radio"
+            @node.getAttribute("value") if @node.checked
+          else
+            @node.value
 
-  bindEvent: (event, fun) ->
-    if event
-      @boundEvents or= new Collection()
-      @boundEvents.push({ event, fun })
-      event.bind(fun)
+        if property.name is "binding"
+          # we can't bind to the form directly since it doesn't exist yet
+          handler = (e) => domUpdated() if @node.form is (e.target or e.srcElement)
+          Serenade.document.addEventListener("submit", handler, true)
+          @unload.bind -> Serenade.document.removeEventListener("submit", handler, true)
+        else
+          @node.addEventListener(property.name, domUpdated)
 
-  unbindEvent: (event, fun) ->
-    if event
-      @boundEvents or= new Collection()
-      @boundEvents.delete(fun)
-      event.unbind(fun)
+      update: (property, value) ->
+        if @node.type is "checkbox"
+          @node.checked = !!value
+        else if @node.type is "radio"
+          @node.checked = true if value is @node.getAttribute("value")
+        else
+          value = "" if value == undefined
+          assignUnlessEqual(@node, "value", value)
 
-  detach: ->
-    # trigger unload callbacks
-    @unload.trigger()
-    # recursively unbind events on children
-    node.detach() for node in @nodes()
-    # remove events
-    event.unbind(fun) for {event, fun} in @boundEvents if @boundEvents
+    attribute:
+      update: (property, value) ->
+        @setAttribute(property.name, value)
 
-  updateClass: ->
-    classes = @ast.classes
-    classes = classes.concat(@attributeClasses) if @attributeClasses
-    classes = classes.concat(@boundClasses.toArray()) if @boundClasses?.length
-    classes.sort()
-    if classes.length
-      assignUnlessEqual(@element, "className", classes.join(' '))
-    else
-      @element.removeAttribute("class")
+    on:
+      setup: (property) ->
+        if property.name in ["load", "unload"]
+          @[property.name].bind ->
+            @controller[property.value](@node, @model)
+        else
+          throw new SyntaxError("unkown lifecycle event '#{property.name}'")
+
+    property:
+      update: (property, value) ->
+        assignUnlessEqual(@node, property.name, value)
+
