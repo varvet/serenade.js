@@ -17,7 +17,7 @@ normalize = (ast, val) ->
     aggregate
   new Collection([].concat(val).reduce(reduction, []))
 
-class HelperView extends CollectionView
+class HelperView extends DynamicView
   constructor: (@ast, @model, @controller, @helper) ->
     super
 

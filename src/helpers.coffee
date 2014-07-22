@@ -98,3 +98,4 @@ nextTick = (fn) ->
 
 notImplemeted = ->
   throw(new Error("not implemented"))
+

@@ -1,4 +1,4 @@
-class TemplateView extends CollectionView
+class TemplateView extends DynamicView
   constructor: (asts, @model, @controller) ->
     super
     @children = for ast in asts

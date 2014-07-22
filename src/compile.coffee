@@ -8,7 +8,6 @@ bindToProperty = (view, model, name, cb) ->
   view.bindEvent(model["#{name}_property"], cb)
   cb({}, value)
 
-
 Compile =
   element: (ast, model, controller) ->
     Serenade.renderView(ast, model, controller)
@@ -26,7 +25,7 @@ Compile =
     if ast.bound
       @bound(ast, model, controller, compileView)
     else
-      compileView(new CollectionView(ast, model, controller), undefined, ast.argument)
+      compileView(new TemplateView(ast, model, controller), undefined, ast.argument)
 
   text: (ast, model, controller) ->
     if ast.bound and ast.value
@@ -39,11 +38,7 @@ Compile =
       new Node(ast, Serenade.document.createTextNode(ast.value ? model))
 
   collection: (ast, model, controller) ->
-    update = (collectionView, before, after) ->
-      collectionView.unbindEvent(before?.change, (_, after) -> collectionView.update(after))
-      collectionView.bindEvent(after?.change, (_, after) -> collectionView.update(after))
-      collectionView.update(after)
-    @bound(ast, model, controller, update)
+    new CollectionView(ast, model, controller)
 
   in: (ast, model, controller) ->
     @bound ast, model, controller, (dynamic, _, value) ->
@@ -70,7 +65,7 @@ Compile =
         dynamic.replace([nodes])
 
   bound: (ast, model, controller, callback) ->
-    dynamic = new CollectionView(ast, model, controller)
+    dynamic = new DynamicView(ast, model, controller)
     bindToProperty dynamic, model, ast.argument, (before, after) ->
       callback(dynamic, before, after) unless before is after
     dynamic
