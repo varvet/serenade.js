@@ -40,6 +40,7 @@ Build =
     "element"
     "dynamic_view"
     "collection_view"
+    "text_view"
     "helper_view"
     "compile"
     "template"

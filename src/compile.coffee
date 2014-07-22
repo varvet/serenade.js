@@ -1,7 +1,3 @@
-formatTextValue = (value) ->
-  value = "0" if value is 0
-  value or ""
-
 bindToProperty = (view, model, name, cb) ->
   value = model[name]
   model["#{name}_property"]?.registerGlobal?(value)
@@ -28,14 +24,7 @@ Compile =
       compileView(new TemplateView(ast, model, controller), undefined, ast.argument)
 
   text: (ast, model, controller) ->
-    if ast.bound and ast.value
-      textNode = Serenade.document.createTextNode("")
-      view = new Node(ast, textNode)
-      bindToProperty view, model, ast.value, (_, value) ->
-        assignUnlessEqual textNode, "nodeValue", formatTextValue(value)
-      view
-    else
-      new Node(ast, Serenade.document.createTextNode(ast.value ? model))
+    new TextView(ast, model, controller)
 
   collection: (ast, model, controller) ->
     new CollectionView(ast, model, controller)
