@@ -44,6 +44,8 @@ Build =
     "bound_view"
     "if_view"
     "unless_view"
+    "in_view"
+    "bound_view_view"
     "compile"
     "template"
     "template_view"

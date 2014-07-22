@@ -13,15 +13,10 @@ Compile =
     # If we cannot find a controller, we inherit the base view's controller,
     controller = parent unless controller
 
-    compileView = (dynamic, before, after) ->
-      view = Serenade.templates[after].render(model, controller, parent)
-      dynamic.replace([view.nodes])
-      dynamic
-
     if ast.bound
-      @bound(ast, model, controller, compileView)
+      new BoundViewView(ast, model, controller)
     else
-      compileView(new TemplateView(ast, model, controller), undefined, ast.argument)
+      Serenade.templates[ast.argument].render(model, controller).view
 
   text: (ast, model, controller) ->
     new TextView(ast, model, controller)
@@ -30,11 +25,7 @@ Compile =
     new CollectionView(ast, model, controller)
 
   in: (ast, model, controller) ->
-    @bound ast, model, controller, (dynamic, _, value) ->
-      if value
-        dynamic.replace([new TemplateView(ast.children, value, controller)])
-      else
-        dynamic.clear()
+    new InView(ast, model, controller)
 
   if: (ast, model, controller) ->
     new IfView(ast, model, controller)
@@ -47,4 +38,3 @@ Compile =
     bindToProperty dynamic, model, ast.argument, (before, after) ->
       callback(dynamic, before, after) unless before is after
     dynamic
-
