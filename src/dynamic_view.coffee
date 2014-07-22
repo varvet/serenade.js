@@ -6,7 +6,7 @@ class DynamicView extends View
 
   replace: (children) ->
     @clear()
-    @children = children
+    @children = new Collection(children)
     @rebuild()
 
   rebuild: ->

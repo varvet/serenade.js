@@ -37,13 +37,7 @@ Compile =
         dynamic.clear()
 
   if: (ast, model, controller) ->
-    @bound ast, model, controller, (dynamic, _, value) ->
-      if value
-        dynamic.replace([new TemplateView(ast.children, model, controller)])
-      else if ast.else
-        dynamic.replace([new TemplateView(ast.else.children, model, controller)])
-      else
-        dynamic.clear()
+    new IfView(ast, model, controller)
 
   unless: (ast, model, controller) ->
     @bound ast, model, controller, (dynamic, _, value) ->
