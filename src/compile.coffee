@@ -40,12 +40,7 @@ Compile =
     new IfView(ast, model, controller)
 
   unless: (ast, model, controller) ->
-    @bound ast, model, controller, (dynamic, _, value) ->
-      if value
-        dynamic.clear()
-      else
-        nodes = new TemplateView(ast.children, model, controller)
-        dynamic.replace([nodes])
+    new UnlessView(ast, model, controller)
 
   bound: (ast, model, controller, callback) ->
     dynamic = new DynamicView(ast, model, controller)
