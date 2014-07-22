@@ -4,5 +4,5 @@ class HelperView extends CollectionView
   def @prototype, "context", get: ->
     context = { model, controller, render: @render }
 
-  render: =>
-    new Template(null, ast.children).render(model, blockController, controller)
+  render: (model, controller) =>
+    new TemplateView(@ast.children, model, controller, @controller)

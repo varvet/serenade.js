@@ -33,7 +33,7 @@ extend Serenade,
       new Template(undefined, nameOrTemplate)
 
   render: (name, model, controller) ->
-    @templates[name].render(model, controller).fragment
+    @templates[name].render(model, controller)
 
   controller: (name, klass) ->
     @controllers[name] = klass
