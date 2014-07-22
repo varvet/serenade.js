@@ -1,12 +1,12 @@
-class Element extends Node
+class Element extends View
   defineEvent(@prototype, "load", async: false)
   defineEvent(@prototype, "unload", async: false)
 
   constructor: (@ast, @model, @controller) ->
-    super @ast, Serenade.document.createElement(@ast.name)
+    super Serenade.document.createElement(@ast.name)
 
-    @setAttribute('id', @ast.id) if @ast.id
-    @setAttribute('class', @ast.classes.join(' ')) if @ast.classes?.length
+    @node.setAttribute('id', @ast.id) if @ast.id
+    @node.setAttribute('class', @ast.classes.join(' ')) if @ast.classes?.length
 
     for child in @ast.children
       childView = Compile[child.type](child, @model, @controller)
@@ -40,34 +40,7 @@ class Element extends Node
         throw SyntaxError "#{property.scope} is not a valid scope"
     @load.trigger()
 
-  addBoundClass: (className) ->
-    @boundClasses or= new Collection()
-    unless @boundClasses?.includes(className)
-      @boundClasses.push(className)
-      @updateClass()
-
-  removeBoundClass: (className) ->
-    if @boundClasses
-      index = @boundClasses.indexOf(className)
-      @boundClasses.delete(className)
-      @updateClass()
-
-  setAttribute: (property, value) ->
-    if property is 'value'
-      assignUnlessEqual(@node, "value", value or '')
-    else if @ast.name is 'input' and property is 'checked'
-      assignUnlessEqual(@node, "checked", !!value)
-    else if property is 'class'
-      @attributeClasses = value
-      @updateClass()
-    else if value is undefined
-      @node.removeAttribute(property) if @node.hasAttribute(property)
-    else
-      value = "0" if value is 0
-      unless @node.getAttribute(property) is value
-        @node.setAttribute(property, value)
-
-  updateClass: ->
+  _updateClass: ->
     classes = @ast.classes
     classes = classes.concat(@attributeClasses) if @attributeClasses
     classes = classes.concat(@boundClasses.toArray()) if @boundClasses?.length
@@ -77,7 +50,7 @@ class Element extends Node
     else
       @node.removeAttribute("class")
 
-  detach: ->
+  _detach: ->
     @unload.trigger()
     super
 
@@ -95,9 +68,14 @@ class Element extends Node
     class:
       update: (property, value) ->
         if value
-          @addBoundClass(property.name)
-        else
-          @removeBoundClass(property.name)
+          @boundClasses or= new Collection()
+          unless @boundClasses?.includes(property.name)
+            @boundClasses.push(property.name)
+            @_updateClass()
+        else if @boundClasses
+          index = @boundClasses.indexOf(property.name)
+          @boundClasses.delete(property.name)
+          @_updateClass()
 
     binding:
       setup: (property) ->
@@ -131,7 +109,19 @@ class Element extends Node
 
     attribute:
       update: (property, value) ->
-        @setAttribute(property.name, value)
+        if property.name is 'value'
+          assignUnlessEqual(@node, "value", value or '')
+        else if @ast.name is 'input' and property.name is 'checked'
+          assignUnlessEqual(@node, "checked", !!value)
+        else if property.name is 'class'
+          @attributeClasses = value
+          @_updateClass()
+        else if value is undefined
+          @node.removeAttribute(property.name) if @node.hasAttribute(property.name)
+        else
+          value = "0" if value is 0
+          unless @node.getAttribute(property.name) is value
+            @node.setAttribute(property.name, value)
 
     on:
       setup: (property) ->

@@ -1,7 +1,7 @@
 bindToProperty = (view, model, name, cb) ->
   value = model[name]
   model["#{name}_property"]?.registerGlobal?(value)
-  view.bindEvent(model["#{name}_property"], cb)
+  view._bindEvent(model["#{name}_property"], cb)
   cb({}, value)
 
 Compile =

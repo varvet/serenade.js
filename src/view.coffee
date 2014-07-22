@@ -1,29 +1,34 @@
 class View
-  constructor: ->
+  constructor: (@node) ->
     @children = []
 
   append: (inside) ->
+    inside.appendChild(@node)
 
   insertAfter: (after) ->
+    after.parentNode.insertBefore(@node, after.nextSibling)
 
   remove: ->
-    @detach()
+    @node.parentNode?.removeChild(@node)
+    @_detach()
 
-  detach: ->
+  def @prototype, "lastElement", configurable: true, get: ->
+    @node
+
+  _detach: ->
     # recursively unbind events on children
-    child.detach() for child in @children
+    child._detach() for child in @children
     # remove events
     event.unbind(fun) for {event, fun} in @boundEvents if @boundEvents
 
-  bindEvent: (event, fun) ->
+  _bindEvent: (event, fun) ->
     if event
       @boundEvents or= new Collection()
       @boundEvents.push({ event, fun })
       event.bind(fun)
 
-  unbindEvent: (event, fun) ->
+  _unbindEvent: (event, fun) ->
     if event
       @boundEvents or= new Collection()
       @boundEvents.delete(fun)
       event.unbind(fun)
-

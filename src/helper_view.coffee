@@ -1,19 +1,19 @@
 # turn a single element, document fragment, compiled view or string, or an
 # array of any of these into views.
-normalize = (ast, val) ->
+normalize = (val) ->
   return [] unless val
   reduction = (aggregate, element) ->
     if typeof(element) is "string"
       div = Serenade.document.createElement("div")
       div.innerHTML = element
-      aggregate.push(new Node(ast, child)) for child in div.childNodes
+      aggregate.push(new View(child)) for child in div.childNodes
     else if element.nodeName is "#document-fragment"
       if element.view # rendered Serenade.template, clean up listeners!
         aggregate = aggregate.concat(element.view)
       else
-        aggregate.push(new Node(ast, child)) for child in element.childNodes
+        aggregate.push(new View(child)) for child in element.childNodes
     else
-      aggregate.push(new Node(ast, element))
+      aggregate.push(new View(element))
     aggregate
   new Collection([].concat(val).reduce(reduction, []))
 
@@ -25,11 +25,11 @@ class HelperView extends DynamicView
     @update()
 
     for property in @ast.properties when property.bound is true
-      @bindEvent(@model["#{property.value}_property"], @update)
+      @_bindEvent(@model["#{property.value}_property"], @update)
 
   update: =>
     @clear()
-    @children = normalize(@ast, @helper.call(@context, @arguments))
+    @children = normalize(@helper.call(@context, @arguments))
     @rebuild()
 
   def @prototype, "arguments", get: ->

@@ -9,12 +9,12 @@ class CollectionView extends DynamicView
     @children = new Collection(@children)
 
     @cb = (_, after) => @replace(after)
-    @bindEvent(model["#{ast.argument}_property"], @update)
-    @bindEvent(items.change, @cb)
+    @_bindEvent(model["#{ast.argument}_property"], @update)
+    @_bindEvent(items.change, @cb)
 
   update: (before, after) =>
-    @unbindEvent(before?.change, @cb)
-    @bindEvent(after?.change, @cb)
+    @_unbindEvent(before?.change, @cb)
+    @_bindEvent(after?.change, @cb)
     @replace(after)
 
   replace: (items) ->

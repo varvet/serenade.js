@@ -36,7 +36,6 @@ Build =
     "property"
     "model"
     "lexer"
-    "node"
     "element"
     "dynamic_view"
     "collection_view"
