@@ -38,6 +38,7 @@ Build =
     "lexer"
     "node"
     "element"
+    "dynamic_view"
     "collection_view"
     "helper_view"
     "compile"

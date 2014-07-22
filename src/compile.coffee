@@ -40,9 +40,9 @@ Compile =
 
   collection: (ast, model, controller) ->
     update = (collectionView, before, after) ->
-      collectionView.unbindEvent(before?.change, (_, after) -> collectionView.replace(after))
-      collectionView.bindEvent(after?.change, (_, after) -> collectionView.replace(after))
-      collectionView.replace(after)
+      collectionView.unbindEvent(before?.change, (_, after) -> collectionView.update(after))
+      collectionView.bindEvent(after?.change, (_, after) -> collectionView.update(after))
+      collectionView.update(after)
     @bound(ast, model, controller, update)
 
   in: (ast, model, controller) ->
