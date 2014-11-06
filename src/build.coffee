@@ -47,7 +47,7 @@ Build =
 
     js = require('./grammar').Parser.generate({ moduleType: "js" })
     coffee = ""
-    coffee += fs.readFileSync("./src/#{name}.coffee").toString() for name in @sourceFiles
+    coffee += fs.readFileSync(path.join(__dirname, "#{name}.coffee")).toString() for name in @sourceFiles
     js += CoffeeScript.compile(coffee, bare: true)
     """
       (function(root) {
@@ -71,10 +71,10 @@ Build =
 
     context = vm.createContext(sandbox)
     for name in @sourceFiles
-      path = "./src/#{name}.coffee"
-      source = fs.readFileSync(path)
-      data = CoffeeScript.compile(source.toString(), bare: true, filename: path)
-      vm.runInContext(data, context, path)
+      filePath = path.join(__dirname, "#{name}.coffee")
+      source = fs.readFileSync(filePath)
+      data = CoffeeScript.compile(source.toString(), bare: true, filename: filePath)
+      vm.runInContext(data, context, filePath)
 
     context
 
