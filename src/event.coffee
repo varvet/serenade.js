@@ -37,7 +37,7 @@ class Event
 
   resolve: ->
     cancelAnimationFrame(@queue.frame) if @queue.frame
-    clearTimeout(@queue.timeout)
+    clearTimeout(@queue.timeout) if @queue.timeout
     if @queue.length
       perform = (args) =>
         if @listeners
