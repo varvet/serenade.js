@@ -12,39 +12,7 @@ describe 'View', ->
     '''
     expect(@body).to.have.element('ul > li#foo')
 
-  it 'changes controller in view', ->
-    funked = false
-    class TestCon
-      funk: -> funked = true
-
-    Serenade.template('test', 'li[id="foo" event:click=funk]')
-    Serenade.controller('test', TestCon)
-
-    @render '''
-      ul
-        - view "test"
-    '''
-    @fireEvent @body.querySelector('li#foo'), 'click'
-
-    expect(funked).to.be.ok
-
-  it 'inits controller with model', ->
-    funked = null
-    model = { quox: { test: 'foo' } }
-    class TestCon
-      constructor: (model) -> funked = model.test
-
-    Serenade.template('test', 'li[id="foo" event:click=funk]')
-    Serenade.controller('test', TestCon)
-
-    @render '''
-      ul
-        - in @quox
-          - view "test"
-    ''', model
-    expect(funked).to.eql('foo')
-
-  it 'falls back to same controller if none is set up', ->
+  it 'uses same controller', ->
     funked = false
     class TestCon
       funk: -> funked = true

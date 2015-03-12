@@ -7,7 +7,6 @@ extend Serenade,
   VERSION: '0.5.0'
   views: {}
   templates: {}
-  controllers: {}
 
   document: window?.document
 
@@ -35,15 +34,12 @@ extend Serenade,
   render: (name, model, controller) ->
     @templates[name].render(model, controller)
 
-  controller: (name, klass) ->
-    @controllers[name] = klass
   clearIdentityMap: -> Cache._identityMap = {}
   clearCache: ->
     Serenade.clearIdentityMap()
   unregisterAll: ->
     Serenade.views = {}
     Serenade.templates = {}
-    Serenade.controllers = {}
 
   Model: Model
   Collection: Collection

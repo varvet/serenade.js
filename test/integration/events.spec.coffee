@@ -10,15 +10,6 @@ describe 'Events', ->
     @fireEvent @body.querySelector('div'), 'click'
     expect(controller.clicked).to.be.ok
 
-  it 'initializes controllers sent in as constructors with the model instance', ->
-    funked = null
-    class Controller
-      constructor: (@model) ->
-      iWasClicked: -> funked = @model.foo
-    @render 'div[event:click=iWasClicked]', { foo: "foo" }, Controller
-    @fireEvent @body.querySelector('div'), 'click'
-    expect(funked).to.eql("foo")
-
   it 'sends in model, element and event when action is triggered', ->
     nodeName = null
     name = null

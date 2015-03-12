@@ -17,8 +17,4 @@ class Template
         throw e
 
   render: (model, controller) ->
-    controller or= Serenade.controllers[@name] or {}
-    if typeof(controller) is "function"
-      controller = new controller(model)
-
     new TemplateView(@ast, model, controller).fragment

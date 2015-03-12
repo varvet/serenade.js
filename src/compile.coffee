@@ -2,11 +2,7 @@ Compile =
   element: (ast, model, controller) ->
     Serenade.renderView(ast, model, controller)
 
-  view: (ast, model, parent) ->
-    controller = Serenade.controllers[ast.argument]
-    # If we cannot find a controller, we inherit the base view's controller,
-    controller = parent unless controller
-
+  view: (ast, model, controller) ->
     if ast.bound
       new BoundViewView(ast, model, controller)
     else
