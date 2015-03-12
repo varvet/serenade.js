@@ -3,5 +3,5 @@ class BoundViewView extends DynamicView
     super
 
     @_bindToModel @ast.argument, (value) =>
-      view = Serenade.templates[value].render(@model, @controller).view
+      view = Serenade.templates[value].render(@context).view
       @replace([view])

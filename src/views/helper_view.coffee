@@ -18,18 +18,17 @@ normalize = (val) ->
   new Collection([].concat(val).reduce(reduction, []))
 
 class HelperView extends DynamicView
-  constructor: (@ast, @model, @controller, @helper) ->
+  constructor: (@ast, @context, @helper) ->
     super
 
-    @context = { @model, @controller, @render }
     @update()
 
     for property in @ast.properties when property.bound is true
-      @_bindEvent(@model["#{property.value}_property"], @update)
+      @_bindEvent(@context["#{property.value}_property"], @update)
 
   update: =>
     @clear()
-    @children = normalize(@helper.call(@context, @arguments))
+    @children = normalize(@helper.call({ @context, @render }, @arguments))
     @rebuild()
 
   def @prototype, "arguments", get: ->
@@ -39,10 +38,10 @@ class HelperView extends DynamicView
         throw(new SyntaxError("scope '#{property.scope}' is not allowed for custom helpers"))
 
       args[property.name] = if property.static or property.bound
-        @model[property.value]
+        @context[property.value]
       else
         property.value
     args
 
-  render: (model, controller) =>
-    new TemplateView(@ast.children, model, controller, @controller).fragment
+  render: (context) =>
+    new TemplateView(@ast.children, context).fragment

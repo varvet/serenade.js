@@ -4,42 +4,42 @@ describe 'Classes', ->
   beforeEach ->
     @setupDom()
 
-  it 'adds bound class when model value is true', ->
-    model = { isActive: true }
-    @render 'div[class:active=@isActive]', model
+  it 'adds bound class when context value is true', ->
+    context = { isActive: true }
+    @render 'div[class:active=@isActive]', context
     expect(@body).to.have.element("div.active")
 
   it 'adds multiple bindings', ->
-    model = { isActive: true, isSelected: true }
-    @render 'div[class:active=@isActive class:selected=@isSelected]', model
+    context = { isActive: true, isSelected: true }
+    @render 'div[class:active=@isActive class:selected=@isSelected]', context
     expect(@body.children[0].className).to.eql("active selected")
 
-  it 'does not add bound class when model value is false', ->
-    model = { active: false }
-    @render 'div[class:active=@active]', model
+  it 'does not add bound class when context value is false', ->
+    context = { active: false }
+    @render 'div[class:active=@active]', context
     expect(@body).not.to.have.element("div.active")
 
   it 'updates when attribute changes', ->
-    model = Serenade({ active: false })
-    @render 'div[class:active=@active]', model
+    context = Serenade({ active: false })
+    @render 'div[class:active=@active]', context
     expect(@body).not.to.have.element("div.active")
-    model.active = true
+    context.active = true
     expect(@body).to.have.element("div.active")
-    model.active = false
+    context.active = false
     expect(@body).not.to.have.element("div.active")
 
   it 'plays nice with class attributes and CSS like template values', ->
-    model = Serenade({ active: true, status: "done" })
-    @render 'div.status[class=@status class:active=@active]', model
+    context = Serenade({ active: true, status: "done" })
+    @render 'div.status[class=@status class:active=@active]', context
     expect(@body.children[0].className).to.eql("active done status")
-    model.status = "pending"
+    context.status = "pending"
     expect(@body.children[0].className).to.eql("active pending status")
-    model.active = false
+    context.active = false
     expect(@body.children[0].className).to.eql("pending status")
 
   it 'does not add same class more than once', ->
-    model = Serenade({ active: false })
-    @render 'div[class:active=@active]', model
-    model.active = true
-    model.active = true
+    context = Serenade({ active: false })
+    @render 'div[class:active=@active]', context
+    context.active = true
+    context.active = true
     expect(@body.children[0].className).to.eql("active")

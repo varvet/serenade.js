@@ -4,14 +4,14 @@ describe 'Styles', ->
   beforeEach ->
     @setupDom()
 
-  it 'get bound style from the model', ->
-    model = { name: 'red' }
-    @render 'div[style:color=@name]', model
+  it 'get bound style from the context', ->
+    context = { name: 'red' }
+    @render 'div[style:color=@name]', context
     expect(@body.querySelector('div').style.color).to.eql('red')
 
   it 'changes bound style as they are changed', ->
-    model = Serenade(name: "red")
-    @render 'div[style:color=@name]', model
+    context = Serenade(name: "red")
+    @render 'div[style:color=@name]', context
     expect(@body.querySelector('div').style.color).to.eql('red')
-    model.name = 'blue'
+    context.name = 'blue'
     expect(@body.querySelector('div').style.color).to.eql('blue')

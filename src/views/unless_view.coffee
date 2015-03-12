@@ -6,4 +6,4 @@ class UnlessView extends DynamicView
       if value
         @clear()
       else
-        @replace([new TemplateView(@ast.children, @model, @controller)])
+        @replace([new TemplateView(@ast.children, @context)])

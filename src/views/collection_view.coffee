@@ -1,15 +1,15 @@
 class CollectionView extends DynamicView
-  constructor: (@ast, @model, @controller) ->
+  constructor: (@ast, @context) ->
     super
 
-    items = @model[ast.argument] or []
+    items = @context[ast.argument] or []
     @lastItems = items.map((i) -> i)
     @children = for item in items
-        new TemplateView(@ast.children or [], item, @controller)
+        new TemplateView(@ast.children or [], item, @context)
     @children = new Collection(@children)
 
     @cb = (_, after) => @replace(after)
-    @_bindEvent(model["#{ast.argument}_property"], @update)
+    @_bindEvent(@context["#{ast.argument}_property"], @update)
     @_bindEvent(items.change, @cb)
 
   update: (before, after) =>
@@ -21,7 +21,7 @@ class CollectionView extends DynamicView
     for operation in Transform(@lastItems, items)
       switch operation.type
         when "insert"
-          @_insertChild(operation.index, new TemplateView(@ast.children or [], operation.value, @controller))
+          @_insertChild(operation.index, new TemplateView(@ast.children or [], operation.value))
         when "remove"
           @_deleteChild(operation.index)
         when "swap"

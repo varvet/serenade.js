@@ -34,8 +34,8 @@ class View
       event.unbind(fun)
 
   _bindToModel: (name, fun) ->
-    value = @model[name]
-    property = @model["#{name}_property"]
+    value = @context[name]
+    property = @context["#{name}_property"]
     property?.registerGlobal?(value)
     @_bindEvent(property, (_, value) -> fun(value))
     fun(value)

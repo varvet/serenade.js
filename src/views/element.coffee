@@ -2,14 +2,14 @@ class Element extends View
   defineEvent(@prototype, "load", async: false)
   defineEvent(@prototype, "unload", async: false)
 
-  constructor: (@ast, @model, @controller) ->
+  constructor: (@ast, @context) ->
     super Serenade.document.createElement(@ast.name)
 
     @node.setAttribute('id', @ast.id) if @ast.id
     @node.setAttribute('class', @ast.classes.join(' ')) if @ast.classes?.length
 
     for child in @ast.children
-      childView = Compile[child.type](child, @model, @controller)
+      childView = Compile[child.type](child, @context)
       childView.append(@node)
       @children.push(childView)
 
@@ -24,13 +24,13 @@ class Element extends View
 
         if action.update
           if property.static
-            action.update.call(this, property, @model[property.value])
+            action.update.call(this, property, @context[property.value])
           else if property.bound
             if property.value
               @_bindToModel property.value, (value) =>
                 action.update.call(this, property, value)
             else
-              action.update.call(this, property, @model)
+              action.update.call(this, property, @context)
           else
             action.update.call(this, property, property.value)
         else if property.bound
@@ -63,7 +63,7 @@ class Element extends View
       setup: (property) ->
         @node.addEventListener property.name, (e) =>
           e.preventDefault() if property.preventDefault
-          @controller[property.value](@node, @model, e)
+          @context[property.value](@node, @context, e)
 
     class:
       update: (property, value) ->
@@ -80,10 +80,10 @@ class Element extends View
     binding:
       setup: (property) ->
         @ast.name in ["input", "textarea", "select"] or throw SyntaxError "invalid view type #{@ast.name} for two way binding"
-        property.value or throw SyntaxError "cannot bind to whole model, please specify an attribute to bind to"
+        property.value or throw SyntaxError "cannot bind to whole context, please specify an attribute to bind to"
 
         domUpdated = =>
-          @model[property.value] = if @node.type is "checkbox"
+          @context[property.value] = if @node.type is "checkbox"
             @node.checked
           else if @node.type is "radio"
             @node.getAttribute("value") if @node.checked
@@ -127,7 +127,7 @@ class Element extends View
       setup: (property) ->
         if property.name in ["load", "unload"]
           @[property.name].bind ->
-            @controller[property.value](@node, @model)
+            @context[property.value](@node, @context)
         else
           throw new SyntaxError("unkown lifecycle event '#{property.name}'")
 

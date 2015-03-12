@@ -12,7 +12,7 @@ describe 'View', ->
     '''
     expect(@body).to.have.element('ul > li#foo')
 
-  it 'uses same controller', ->
+  it 'uses same context', ->
     funked = false
     class TestCon
       funk: -> funked = true
@@ -22,30 +22,30 @@ describe 'View', ->
     @render '''
       ul
         - view "test"
-    ''', {}, new TestCon()
+    ''', new TestCon()
     @fireEvent @body.querySelector('li#foo'), 'click'
 
     expect(funked).to.be.ok
 
   it 'compiles a dynamic view instruction and updates it', ->
-    model = Serenade(name: "foo")
+    context = Serenade(name: "foo")
     Serenade.template('foo', 'li#foo')
     Serenade.template('bar', 'li#bar')
     @render '''
       ul
         - view @name
-    ''', model
+    ''', context
     expect(@body).to.have.element('ul > li#foo')
-    model.name = "bar"
+    context.name = "bar"
     expect(@body).to.have.element('ul > li#bar')
 
   it 'does not leak memory when view is changed', ->
-    model = Serenade(name: "foo", body: "hello")
+    context = Serenade(name: "foo", body: "hello")
     Serenade.template('foo', 'li#foo @body')
     Serenade.template('bar', 'li#bar')
     @render '''
       ul
         - view @name
-    ''', model
-    model.name = "bar"
-    expect(model.body_property.listeners.length).to.eql(0)
+    ''', context
+    context.name = "bar"
+    expect(context.body_property.listeners.length).to.eql(0)

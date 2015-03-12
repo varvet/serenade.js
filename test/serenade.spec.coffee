@@ -19,7 +19,7 @@ describe "Serenade", ->
       @body.appendChild Serenade.render("test", {}, {})
       expect(@body).to.have.element("h1#test")
 
-    it "doesn't require model or controller to be given", ->
+    it "doesn't require context to be given", ->
       Serenade.template("test", "h1#test")
       @body.appendChild Serenade.render("test")
       expect(@body).to.have.element("h1#test")
@@ -32,15 +32,7 @@ describe "Serenade", ->
       @body.appendChild Serenade.template("h1#test").render()
       expect(@body).to.have.element("h1#test")
 
-    it "can take models as parameters", ->
-      model = { id: 'test' }
-      @body.appendChild Serenade.template("test", "h1[id=@id]").render(model)
+    it "can take context as parameter", ->
+      context = { id: 'test' }
+      @body.appendChild Serenade.template("test", "h1[id=@id]").render(context)
       expect(@body).to.have.element("h1#test")
-
-    it "can take controllers as parameters", ->
-      tested = false
-      controller = { test: -> tested = true }
-      model = {}
-      @body.appendChild Serenade.template("test", "a[event:click=test]").render(model, controller)
-      @fireEvent @body.querySelector('a'), 'click'
-      expect(tested).to.be.ok

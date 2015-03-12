@@ -16,5 +16,5 @@ class Template
         e.message = "In view '#{@name}': #{e.message}" if @name
         throw e
 
-  render: (model, controller) ->
-    new TemplateView(@ast, model, controller).fragment
+  render: (context) ->
+    new TemplateView(@ast, context).fragment

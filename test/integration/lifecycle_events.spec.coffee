@@ -10,26 +10,30 @@ describe "Lifecycle events", ->
   describe "on:load", ->
     it "runs an event when an element is rendered", ->
       ran = false
-      model = Serenade(foo: false)
+      context = Serenade(foo: false)
+      context.run = (element, context) ->
+        ran = element.getAttribute("id")
       @render """
         div
           - if @foo
             div[on:load=run id="thing"]
-      """, model, run: (element, model) -> ran = element.getAttribute("id")
+      """, context
       expect(ran).to.eql(false)
-      model.foo = true
+      context.foo = true
       expect(ran).to.eql("thing")
 
   describe "on:unload", ->
     it "runs an event when an element is removed from the DOM", ->
       ran = false
-      model = Serenade(foo: true)
+      context = Serenade(foo: true)
+      context.run = (element, context) ->
+        ran = element.getAttribute("id")
       @render """
         div
           - if @foo
             div
               div[on:unload=run id="thing"]
-      """, model, run: (element, model) -> ran = element.getAttribute("id")
+      """, context
       expect(ran).to.eql(false)
-      model.foo = false
+      context.foo = false
       expect(ran).to.eql("thing")

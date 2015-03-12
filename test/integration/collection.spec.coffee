@@ -5,34 +5,34 @@ describe 'Collection', ->
     @setupDom()
 
   it 'compiles a collection instruction', ->
-    model = { people: [{ name: 'jonas' }, { name: 'peter' }] }
+    context = { people: [{ name: 'jonas' }, { name: 'peter' }] }
 
     @render '''
       ul
         - collection @people
           li[id=name]
-    ''', model
+    ''', context
     expect(@body).to.have.element('ul > li#jonas')
     expect(@body).to.have.element('ul > li#peter')
 
   it 'renders nothing if collection is not defined', ->
-    model = {}
+    context = {}
 
     @render '''
       ul
         - collection @people
           li[id=name]
-    ''', model
+    ''', context
     expect(@body).to.have.element('ul')
 
   it 'can reference the items itself', ->
-    model = { colors: ['red', 'blue'] }
+    context = { colors: ['red', 'blue'] }
 
     @render '''
       ul
         - collection @colors
           li[id=@ style:color=@] @
-    ''', model
+    ''', context
     expect(@body).to.have.element('ul > li#red')
     expect(@body).to.have.element('ul > li#blue')
     expect(@body.querySelector("#red")).to.have.text("red")
@@ -40,133 +40,121 @@ describe 'Collection', ->
     expect(@body.querySelector("li").style.color).to.eql("red")
 
   it 'compiles a Serenade.collection in a collection instruction', ->
-    model = { people: new Serenade.Collection([{ name: 'jonas' }, { name: 'peter' }]) }
+    context = { people: new Serenade.Collection([{ name: 'jonas' }, { name: 'peter' }]) }
 
     @render '''
       ul
         - collection @people
           li[id=name]
-    ''', model
+    ''', context
     expect(@body).to.have.element('ul > li#jonas')
     expect(@body).to.have.element('ul > li#peter')
 
   it 'updates a collection dynamically', ->
-    model = { people: new Serenade.Collection([{ name: 'jonas' }, { name: 'peter' }]) }
+    context = { people: new Serenade.Collection([{ name: 'jonas' }, { name: 'peter' }]) }
 
     @render '''
       ul
         - collection @people
           li[id=name]
-    ''', model
+    ''', context
     expect(@body).to.have.element('ul > li#jonas')
     expect(@body).to.have.element('ul > li#peter')
-    model.people.update([{ name: 'anders' }, { name: 'jimmy' }])
+    context.people.update([{ name: 'anders' }, { name: 'jimmy' }])
     expect(@body).not.to.have.element('ul > li#jonas')
     expect(@body).not.to.have.element('ul > li#peter')
     expect(@body).to.have.element('ul > li#anders')
     expect(@body).to.have.element('ul > li#jimmy')
 
   it 'removes item from collection when requested', ->
-    model = { people: new Serenade.Collection([{ name: 'jonas' }, { name: 'peter' }]) }
+    context = { people: new Serenade.Collection([{ name: 'jonas' }, { name: 'peter' }]) }
 
     @render '''
       ul
         - collection @people
           li[id=name]
-    ''', model
+    ''', context
     expect(@body).to.have.element('ul > li#jonas')
     expect(@body).to.have.element('ul > li#peter')
-    model.people.deleteAt(0)
+    context.people.deleteAt(0)
     expect(@body).not.to.have.element('ul > li#jonas')
     expect(@body).to.have.element('ul > li#peter')
 
   it 'inserts item into collection when requested', ->
-    model = { people: new Serenade.Collection([{ name: 'jonas' }, { name: 'peter' }]) }
+    context = { people: new Serenade.Collection([{ name: 'jonas' }, { name: 'peter' }]) }
 
     @render '''
       ul
         - collection @people
           li[id=name]
-    ''', model
+    ''', context
     expect(@body).to.have.element('ul > li#jonas')
     expect(@body).to.have.element('ul > li#peter')
-    model.people.insertAt(1, {name: "carry"})
+    context.people.insertAt(1, {name: "carry"})
     expect(@body).to.have.element('ul > li#jonas')
     expect(@body).to.have.element('ul > li#carry')
     expect(@body).to.have.element('ul > li#peter')
 
   it 'can insert at index zero', ->
-    model = { people: new Serenade.Collection([]) }
+    context = { people: new Serenade.Collection([]) }
 
     @render '''
       ul
         - collection @people
           li[id=name]
-    ''', model
-    model.people.insertAt(0, {name: "carry"})
+    ''', context
+    context.people.insertAt(0, {name: "carry"})
     expect(@body).to.have.element('ul > li#carry')
 
   it 'updates when the collection is replaced', ->
-    model = Serenade(things: ["hello"])
+    context = Serenade(things: ["hello"])
 
     @render """
       ul
         - collection @things
           li[id=@]
-    """, model
-    model.things = ["world"]
+    """, context
+    context.things = ["world"]
     expect(@body).to.have.element('ul > li#world')
     expect(@body).not.to.have.element('ul > li#hello')
 
-  it 'updates when the collection is replaced for serenade models', ->
+  it 'updates when the collection is replaced for serenade contexts', ->
     class Thing extends Serenade.Model
       @property "things"
-    model = new Thing(things: ["hello"])
+    context = new Thing(things: ["hello"])
 
     @render """
       ul
         - collection @things
           li[id=@]
-    """, model
-    model.things = ["world"]
+    """, context
+    context.things = ["world"]
     expect(@body).to.have.element('ul > li#world')
     expect(@body).not.to.have.element('ul > li#hello')
 
   it 'can handle being a root node', ->
-    model = Serenade(things: ["hello"])
+    context = Serenade(things: ["hello"])
 
     @render """
       - collection @things
         @
-    """, model
+    """, context
     expect(@body).to.have.text("hello")
-    model.things = []
+    context.things = []
     expect(@body).to.have.text("")
-    model.things = ["foo", "bar"]
+    context.things = ["foo", "bar"]
     expect(@body).not.to.have.text("hello")
     expect(@body).to.have.text("foobar")
 
-  it 'passes collection item into controller', ->
-    model = { things: [{ name: "foo" }, { name: "baz" }, {name: "bar"}] }
-    controller = { mark: (_, item) -> item.marked = true }
-
-    @render """
-      ul
-        - collection @things
-          li[event:click=mark id=@name]
-    """, model, controller
-    @fireEvent @body.querySelector('#baz'), 'click'
-    expect(model.things[1].marked).to.be.ok
-
   it 'does not rerender collection items which have not changed', ->
-    model = { things: new Serenade.Collection([{ name: "foo" }, {name: "bar"}]) }
+    context = { things: new Serenade.Collection([{ name: "foo" }, {name: "bar"}]) }
     @render """
       ul
         - collection @things
           li[id=@name]
-    """, model
+    """, context
     @body.querySelector("#foo").setAttribute("thing", "true")
-    model.things.push(name: "quox")
+    context.things.push(name: "quox")
     expect(@body).to.have.element('ul > li#foo[thing]')
     expect(@body).to.have.element('ul > li#quox')
 
@@ -178,34 +166,34 @@ describe 'Collection', ->
       for i in [0...rand(1, length)]
         letters[rand(0, letters.length)]
 
-    model = Serenade(things: [])
+    context = Serenade(things: [])
     @render """
       ul
         - collection @things
           li @
-    """, model
+    """, context
 
     for i in [0...iterations]
-      model.things = random_array(rand(1, 10))
-      expect(li.textContent for li in @body.querySelectorAll("li")).to.eql(model.things)
+      context.things = random_array(rand(1, 10))
+      expect(li.textContent for li in @body.querySelectorAll("li")).to.eql(context.things)
 
   it 'does not apply transform multiple times if event is async', ->
-    model = {}
-    Serenade.defineProperty(model, "things", async: true)
-    model.things_property.bind(->)
-    model.things = ["a", "b", "c"]
+    context = {}
+    Serenade.defineProperty(context, "things", async: true)
+    context.things_property.bind(->)
+    context.things = ["a", "b", "c"]
 
     @render """
       ul#things
         - collection @things
           li[class=@]
-    """, model
-    model.things_property.resolve()
+    """, context
+    context.things_property.resolve()
 
     expect(n.className for n in @body.querySelectorAll("#things li")).to.eql(["a", "b", "c"])
 
   it 'can render same collection multiple times', ->
-    model = { people: new Serenade.Collection(["jonas"]) }
+    context = { people: new Serenade.Collection(["jonas"]) }
 
     @render '''
       ul#one
@@ -217,9 +205,9 @@ describe 'Collection', ->
       ul#three
         - collection @people
           li.three[class=@]
-    ''', model
-    model.people.push("peter")
-    model.people.push("kim")
+    ''', context
+    context.people.push("peter")
+    context.people.push("kim")
     expect(@body).to.have.element('#one > .jonas')
     expect(@body).to.have.element('#one > .kim')
     expect(@body).to.have.element('#one > .peter')
@@ -228,7 +216,7 @@ describe 'Collection', ->
     expect(@body).to.have.element('#one > .peter')
     expect(@body).to.have.element('#three > .jonas')
     expect(@body).to.have.element('#three > .kim')
-    model.people.delete("peter")
+    context.people.delete("peter")
     expect(@body).to.have.element('#one > .jonas')
     expect(@body).to.have.element('#one > .kim')
     expect(@body).not.to.have.element('#one > .peter')

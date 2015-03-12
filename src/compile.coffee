@@ -1,24 +1,24 @@
 Compile =
-  element: (ast, model, controller) ->
-    Serenade.renderView(ast, model, controller)
+  element: (ast, context) ->
+    Serenade.renderView(ast, context)
 
-  view: (ast, model, controller) ->
+  view: (ast, context) ->
     if ast.bound
-      new BoundViewView(ast, model, controller)
+      new BoundViewView(ast, context)
     else
-      Serenade.templates[ast.argument].render(model, controller).view
+      Serenade.templates[ast.argument].render(context).view
 
-  text: (ast, model, controller) ->
-    new TextView(ast, model, controller)
+  text: (ast, context) ->
+    new TextView(ast, context)
 
-  collection: (ast, model, controller) ->
-    new CollectionView(ast, model, controller)
+  collection: (ast, context) ->
+    new CollectionView(ast, context)
 
-  in: (ast, model, controller) ->
-    new InView(ast, model, controller)
+  in: (ast, context) ->
+    new InView(ast, context)
 
-  if: (ast, model, controller) ->
-    new IfView(ast, model, controller)
+  if: (ast, context) ->
+    new IfView(ast, context)
 
-  unless: (ast, model, controller) ->
-    new UnlessView(ast, model, controller)
+  unless: (ast, context) ->
+    new UnlessView(ast, context)

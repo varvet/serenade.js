@@ -1,8 +1,8 @@
 class TemplateView extends DynamicView
-  constructor: (asts, @model, @controller) ->
+  constructor: (asts, @context) ->
     super
     @children = for ast in asts
-      Compile[ast.type](ast, model, controller)
+      Compile[ast.type](ast, context)
     @children = new Collection(@children)
 
   def @prototype, "fragment", get: ->

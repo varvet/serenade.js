@@ -4,8 +4,8 @@ describe 'Unless', ->
   beforeEach ->
     @setupDom()
 
-  it 'shows the content unless the model value is truthy', ->
-    model = { valid: false, visible: 0 }
+  it 'shows the content unless the context value is truthy', ->
+    context = { valid: false, visible: 0 }
 
     @render '''
       ul
@@ -13,12 +13,12 @@ describe 'Unless', ->
           li[id="valid"]
         - unless @visible
           li[id="visible"]
-    ''', model
+    ''', context
     expect(@body).to.have.element('ul > li#valid')
     expect(@body).to.have.element('ul > li#visible')
 
   it 'can have multiple children', ->
-    model = { valid: false }
+    context = { valid: false }
 
     @render '''
       ul
@@ -26,13 +26,13 @@ describe 'Unless', ->
           li[id="valid"]
           li[id="visible"]
           li[id="monkey"]
-    ''', model
+    ''', context
     expect(@body).to.have.element('ul > li#valid')
     expect(@body).to.have.element('ul > li#visible')
     expect(@body).to.have.element('ul > li#monkey')
 
-  it 'does not show the content unless the model value is falsy', ->
-    model = { valid: true, visible: "true" }
+  it 'does not show the content unless the context value is falsy', ->
+    context = { valid: true, visible: "true" }
 
     @render '''
       ul
@@ -40,12 +40,12 @@ describe 'Unless', ->
           li[id="valid"]
         - unless @visible
           li[id="visible"]
-    ''', model
+    ''', context
     expect(@body).not.to.have.element('ul > li#valid')
     expect(@body).not.to.have.element('ul > li#visible')
 
-  it 'updates the existence of content based on model value truthiness', ->
-    model = Serenade(valid: false, visible: 0)
+  it 'updates the existence of content based on context value truthiness', ->
+    context = Serenade(valid: false, visible: 0)
 
     @render '''
       ul
@@ -53,29 +53,29 @@ describe 'Unless', ->
           li[id="valid"]
         - unless @visible
           li[id="visible"]
-    ''', model
+    ''', context
     expect(@body).to.have.element('ul > li#valid')
     expect(@body).to.have.element('ul > li#visible')
-    model.valid = "yes"
+    context.valid = "yes"
     expect(@body).not.to.have.element('ul > li#valid')
     expect(@body).to.have.element('ul > li#visible')
-    model.valid = ""
-    model.visible = "Cool"
+    context.valid = ""
+    context.visible = "Cool"
     expect(@body).to.have.element('ul > li#valid')
     expect(@body).not.to.have.element('ul > li#visible')
-    model.valid = "Blah"
-    model.visible = {}
+    context.valid = "Blah"
+    context.visible = {}
     expect(@body).not.to.have.element('ul > li#valid')
     expect(@body).not.to.have.element('ul > li#visible')
 
   it 'peacefully coexists with collections', ->
-    model = Serenade(items: [{ valid: true, name: 'foo' }, { name: 'bar' }])
+    context = Serenade(items: [{ valid: true, name: 'foo' }, { name: 'bar' }])
     @render '''
       ul
         - collection @items
           - unless @valid
             li[id=@name]
-    ''', model
+    ''', context
     expect(@body).not.to.have.element('ul > li#foo')
     expect(@body).to.have.element('ul > li#bar')
 

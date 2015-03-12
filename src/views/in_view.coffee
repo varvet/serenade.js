@@ -4,6 +4,6 @@ class InView extends DynamicView
 
     @_bindToModel @ast.argument, (value) =>
       if value
-        @replace([new TemplateView(@ast.children, value, @controller)])
+        @replace([new TemplateView(@ast.children, value)])
       else
         @clear()

@@ -42,14 +42,14 @@ describe 'Shortcuts', ->
     expect(@body).to.have.element('div.peter.jonas')
 
   it 'updates multiple classes with short form as the class attribute changes', ->
-    model = Serenade( names: ['jonas', 'peter'] )
-    @render 'div.quack[class=@names]', model
+    context = Serenade( names: ['jonas', 'peter'] )
+    @render 'div.quack[class=@names]', context
     expect(@body).to.have.element('div.quack.jonas.peter')
-    model.names = undefined
+    context.names = undefined
     expect(@body).to.have.element('div.quack')
     expect(@body).not.to.have.element('div.jonas')
     expect(@body).not.to.have.element('div.peter')
-    model.names = 'jonas'
+    context.names = 'jonas'
     expect(@body).to.have.element('div.jonas')
-    model.names = ['harry', 'jonas']
+    context.names = ['harry', 'jonas']
     expect(@body).to.have.element('div.harry.jonas')

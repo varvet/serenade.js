@@ -3,17 +3,17 @@ formatTextValue = (value) ->
   value or ""
 
 class TextView extends View
-  constructor: (@ast, @model, @controller) ->
+  constructor: (@ast, @context) ->
     if ast.bound and ast.value
-      value = @model[ast.value]
-      property = @model["#{ast.value}_property"]
+      value = @context[ast.value]
+      property = @context["#{ast.value}_property"]
       property?.registerGlobal?(value)
       @_bindEvent(property, (_, value) => @update(value))
       value
     else if ast.value
       value = ast.value
     else
-      value = model
+      value = context
 
     super Serenade.document.createTextNode("")
     @update(value)

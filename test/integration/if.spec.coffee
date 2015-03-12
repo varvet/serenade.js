@@ -4,8 +4,8 @@ describe 'If', ->
   beforeEach ->
     @setupDom()
 
-  it 'shows the content if the model value is truthy', ->
-    model = { valid: true, visible: "true" }
+  it 'shows the content if the context value is truthy', ->
+    context = { valid: true, visible: "true" }
 
     @render '''
       ul
@@ -13,12 +13,12 @@ describe 'If', ->
           li[id="valid"]
         - if @visible
           li[id="visible"]
-    ''', model
+    ''', context
     expect(@body).to.have.element('ul > li#valid')
     expect(@body).to.have.element('ul > li#visible')
 
   it 'can have multiple children', ->
-    model = { valid: true, visible: "true" }
+    context = { valid: true, visible: "true" }
 
     @render '''
       ul
@@ -26,13 +26,13 @@ describe 'If', ->
           li[id="valid"]
           li[id="visible"]
           li[id="monkey"]
-    ''', model
+    ''', context
     expect(@body).to.have.element('ul > li#valid')
     expect(@body).to.have.element('ul > li#visible')
     expect(@body).to.have.element('ul > li#monkey')
 
-  it 'does not show the content if the model value is falsy', ->
-    model = { valid: false, visible: 0 }
+  it 'does not show the content if the context value is falsy', ->
+    context = { valid: false, visible: 0 }
 
     @render '''
       ul
@@ -40,12 +40,12 @@ describe 'If', ->
           li[id="valid"]
         - if @visible
           li[id="visible"]
-    ''', model
+    ''', context
     expect(@body).not.to.have.element('ul > li#valid')
     expect(@body).not.to.have.element('ul > li#visible')
 
-  it 'updates the existence of content based on model value truthiness', ->
-    model = Serenade(valid: false, visible: 0)
+  it 'updates the existence of content based on context value truthiness', ->
+    context = Serenade(valid: false, visible: 0)
 
     @render '''
       ul
@@ -53,23 +53,23 @@ describe 'If', ->
           li[id="valid"]
         - if @visible
           li[id="visible"]
-    ''', model
+    ''', context
     expect(@body).not.to.have.element('ul > li#valid')
     expect(@body).not.to.have.element('ul > li#visible')
-    model.valid = "yes"
+    context.valid = "yes"
     expect(@body).to.have.element('ul > li#valid')
     expect(@body).not.to.have.element('ul > li#visible')
-    model.valid = ""
-    model.visible = "Cool"
+    context.valid = ""
+    context.visible = "Cool"
     expect(@body).not.to.have.element('ul > li#valid')
     expect(@body).to.have.element('ul > li#visible')
-    model.valid = "Blah"
-    model.visible = {}
+    context.valid = "Blah"
+    context.visible = {}
     expect(@body).to.have.element('ul > li#valid')
     expect(@body).to.have.element('ul > li#visible')
 
   it 'can have else statement', ->
-    model = Serenade(valid: false)
+    context = Serenade(valid: false)
 
     @render '''
       ul
@@ -77,48 +77,48 @@ describe 'If', ->
           li[id="valid"]
         - else
           li[id="invalid"]
-    ''', model
+    ''', context
     expect(@body).not.to.have.element('ul > li#valid')
     expect(@body).to.have.element('ul > li#invalid')
-    model.valid = true
+    context.valid = true
     expect(@body).to.have.element('ul > li#valid')
     expect(@body).not.to.have.element('ul > li#invalid')
 
 
   it 'peacefully coexists with collections', ->
-    model = Serenade(items: [{ valid: true, name: 'foo' }, { name: 'bar' }])
+    context = Serenade(items: [{ valid: true, name: 'foo' }, { name: 'bar' }])
     @render '''
       ul
         - collection @items
           - if @valid
             li[id=@name]
-    ''', model
+    ''', context
     expect(@body).to.have.element('ul > li#foo')
     expect(@body).not.to.have.element('ul > li#bar')
 
   it "can be nested", ->
-    model = Serenade(show: true, details: "test")
+    context = Serenade(show: true, details: "test")
     @render """
       div
         - if @show
           - if @details
             p#test
-    """, model
-    model.show = false
-    model.show = true
+    """, context
+    context.show = false
+    context.show = true
     expect(@body).to.have.element('#test')
 
   it 'can be a root node', ->
-    model = Serenade(valid: false)
+    context = Serenade(valid: false)
 
     @render '''
       - if @valid
         p[id="valid"]
       - else
         p[id="invalid"]
-    ''', model
+    ''', context
     expect(@body).not.to.have.element('p#valid')
     expect(@body).to.have.element('p#invalid')
-    model.valid = true
+    context.valid = true
     expect(@body).to.have.element('p#valid')
     expect(@body).not.to.have.element('p#invalid')

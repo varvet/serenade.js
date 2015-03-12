@@ -14,16 +14,16 @@ extend Serenade,
   defineEvent: defineEvent
 
   view: (name, fn) ->
-    @views[name] = (ast, model, controller) -> new fn(ast, model, controller)
+    @views[name] = (ast, context) -> new fn(ast, context)
 
   helper: (name, fn) ->
-    @views[name] = (ast, model, controller) -> new HelperView(ast, model, controller, fn)
+    @views[name] = (ast, context) -> new HelperView(ast, context, fn)
 
-  renderView: (ast, model, controller) ->
+  renderView: (ast, context) ->
     if @views[ast.name]
-      @views[ast.name](ast, model, controller)
+      @views[ast.name](ast, context)
     else
-      new Element(ast, model, controller)
+      new Element(ast, context)
 
   template: (nameOrTemplate, template) ->
     if template
@@ -31,8 +31,8 @@ extend Serenade,
     else
       new Template(undefined, nameOrTemplate)
 
-  render: (name, model, controller) ->
-    @templates[name].render(model, controller)
+  render: (name, context) ->
+    @templates[name].render(context)
 
   clearIdentityMap: -> Cache._identityMap = {}
   clearCache: ->

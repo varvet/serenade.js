@@ -53,25 +53,25 @@ describe 'Custom helpers', ->
     expect(@body).to.have.element('div > #baz')
 
   it 'cleans up listeners from rendered serenade view', ->
-    model = Serenade(name: "Jonas", active: true)
+    context = Serenade(name: "Jonas", active: true)
     Serenade.helper "funky", ({ active }) ->
       if active
         Serenade.template("""
           #bar @name
-        """).render(@model)
+        """).render(@context)
       else
         undefined
 
     @render '''
       div
         funky[active=@active]
-    ''', model
+    ''', context
 
     expect(@body).to.have.element('#bar')
-    expect(model.name_property.listeners.length).to.eql(1)
-    model.active = false
+    expect(context.name_property.listeners.length).to.eql(1)
+    context.active = false
     expect(@body).not.to.have.element('#bar')
-    expect(model.name_property.listeners.length).to.eql(0)
+    expect(context.name_property.listeners.length).to.eql(0)
 
   it 'can return undefined', ->
     Serenade.helper "funky", -> undefined
@@ -112,28 +112,16 @@ describe 'Custom helpers', ->
     expect(@body).to.have.element('div > section')
     expect(@body).to.have.text("Hello")
 
-  it 'provides access to model in helper', ->
+  it 'provides access to context in helper', ->
     Serenade.helper "funky", ->
       element = Serenade.document.createElement('form')
-      element.setAttribute('id', @model.name)
+      element.setAttribute('id', @context.name)
       element
-    model = name: 'jonas'
+    context = name: 'jonas'
     @render '''
       div
         funky
-    ''', model
-    expect(@body).to.have.element('div > form#jonas')
-
-  it 'provides access to controller in helper', ->
-    Serenade.helper "funky", ->
-      element = Serenade.document.createElement('form')
-      element.setAttribute('id', @controller.name)
-      element
-    controller = name: 'jonas'
-    @render '''
-      div
-        funky
-    ''', {}, controller
+    ''', context
     expect(@body).to.have.element('div > form#jonas')
 
   it 'uses a custom helper and sends in an argument', ->
@@ -163,13 +151,13 @@ describe 'Custom helpers', ->
   it "doesn't fail when called from a collection", ->
     Serenade.helper "test", ->
       Serenade.document.createElement("span")
-    model =
+    context =
       col: [1, 2]
     @render '''
       div
         - collection @col
           test
-    ''', model
+    ''', context
     expect(@body).to.have.element('div > span')
 
   describe 'with block argument', ->
@@ -209,7 +197,7 @@ describe 'Custom helpers', ->
       '''
       expect(@body).not.to.have.element('div > form > div#jonas')
 
-    it 'allows model to be changed by passing it as an argument to render', ->
+    it 'allows context to be changed by passing it as an argument to render', ->
       Serenade.helper "form", ->
         element = Serenade.document.createElement('form')
         element.appendChild(@render(name: 'peter'))
@@ -220,20 +208,6 @@ describe 'Custom helpers', ->
             div[id=name]
       '''
       expect(@body).to.have.element('div > form > div#peter')
-
-    it 'allows controller to be changed by passing it as an argument to render', ->
-      funked = false
-      Serenade.helper "form", ->
-        element = Serenade.document.createElement('form')
-        element.appendChild(@render(null, funky: -> funked = true))
-        element
-      @render '''
-        div
-          form
-            div[id="jonas" event:click=funky]
-      '''
-      @fireEvent(@body.querySelector('div#jonas'), 'click')
-      expect(funked).to.be.ok
 
     it 'allows block content to be reused', ->
       funked = false
@@ -251,10 +225,10 @@ describe 'Custom helpers', ->
       expect(@body).to.have.element('div > form > div#peter')
 
     it 'allows rendered block contents to be manually cleaned up', ->
-      model = Serenade(name: "jonas")
+      context = Serenade(name: "jonas")
       Serenade.helper "form", ->
         element = Serenade.document.createElement('form')
-        view = @render(model)
+        view = @render(context)
         element.appendChild(view)
         element.addEventListener("submit", -> view.remove())
         element
@@ -267,51 +241,51 @@ describe 'Custom helpers', ->
       @fireEvent(@body.querySelector("form"), "submit")
 
       expect(@body).not.to.have.element('div > form > div#jonas')
-      expect(model.name_property.listeners.length).to.eql(0)
+      expect(context.name_property.listeners.length).to.eql(0)
 
   describe 'with static argument', ->
-    it "renders model attribute but does not update it", ->
-      model = Serenade(name: "Jonas")
+    it "renders context attribute but does not update it", ->
+      context = Serenade(name: "Jonas")
       Serenade.helper "upcase", ({ text }) ->
         Serenade.document.createTextNode(text.toUpperCase())
       @render """
         div
           upcase[text=name]
-      """, model
+      """, context
       expect(@body).to.have.text("JONAS")
-      model.name = "Peter"
+      context.name = "Peter"
       expect(@body).to.have.text("JONAS")
 
 
   describe 'with bound argument', ->
-    it "binds to a model attribute", ->
-      model = Serenade(name: "Jonas")
+    it "binds to a context attribute", ->
+      context = Serenade(name: "Jonas")
       Serenade.helper "upcase", ({ text }) ->
         Serenade.document.createTextNode(text.toUpperCase())
       @render """
         div
           upcase[text=@name]
-      """, model
+      """, context
       expect(@body).to.have.text("JONAS")
-      model.name = "Peter"
+      context.name = "Peter"
       expect(@body).to.have.text("PETER")
 
     it "binds to multiple arguments", ->
-      model = Serenade(firstName: "Jonas", lastName: "Nicklas")
+      context = Serenade(firstName: "Jonas", lastName: "Nicklas")
       Serenade.helper "upcase", ({ one, two, three }) ->
         Serenade.document.createTextNode([one, two, three].join("").toUpperCase())
       @render """
         div
           upcase[one=@lastName two=", " three=@firstName]
-      """, model
+      """, context
       expect(@body).to.have.text("NICKLAS, JONAS")
-      model.firstName = "Annika"
+      context.firstName = "Annika"
       expect(@body).to.have.text("NICKLAS, ANNIKA")
-      model.lastName = "Lüchow"
+      context.lastName = "Lüchow"
       expect(@body).to.have.text("LÜCHOW, ANNIKA")
 
     it "update a rendered Serenade.template", ->
-      model = Serenade(id: "test")
+      context = Serenade(id: "test")
       Serenade.helper "funky", ({ id }) ->
         Serenade.template("""
           #foo
@@ -321,12 +295,12 @@ describe 'Custom helpers', ->
       @render '''
         div
           funky[id=@id]
-      ''', model
+      ''', context
 
       expect(@body).to.have.element('div > #foo')
       expect(@body).to.have.element('div > #test')
 
-      model.id = "quox"
+      context.id = "quox"
 
       expect(@body).to.have.element('div > #foo')
       expect(@body).to.have.element('div > #quox')

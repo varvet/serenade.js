@@ -1,5 +1,5 @@
 class DynamicView extends View
-  constructor: (@ast, @model, @controller) ->
+  constructor: (@ast, @context) ->
     @anchor = Serenade.document.createTextNode('')
     @items = []
     @children = new Collection()

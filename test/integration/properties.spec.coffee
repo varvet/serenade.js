@@ -5,53 +5,53 @@ describe 'Bound properties', ->
     @setupDom()
 
   it 'supports non-bound values', ->
-    model = {}
-    @render 'input[property:disabled="disabled"]', model
+    context = {}
+    @render 'input[property:disabled="disabled"]', context
     expect(@body).to.have.element('input[disabled]')
 
-  it 'does not add bound property if value is undefined in model', ->
-    model = {}
-    @render 'input[property:disabled=@foo]', model
+  it 'does not add bound property if value is undefined in context', ->
+    context = {}
+    @render 'input[property:disabled=@foo]', context
     expect(@body).not.to.have.element('input[disabled]')
 
-  it 'get bound properties from the model', ->
-    model = { disabled: true }
-    @render 'input[property:disabled=@disabled]', model
+  it 'get bound properties from the context', ->
+    context = { disabled: true }
+    @render 'input[property:disabled=@disabled]', context
     expect(@body).to.have.element('input[disabled]')
 
   it 'changes bound properties as they are changed', ->
-    model = Serenade(disabled: true)
-    @render 'input[property:disabled=@disabled]', model
+    context = Serenade(disabled: true)
+    @render 'input[property:disabled=@disabled]', context
     expect(@body).to.have.element('input[disabled]')
-    model.disabled = false
+    context.disabled = false
     expect(@body).not.to.have.element('input[disabled]')
 
   it 'does not access getter more than once when updating dom nodes', ->
-    model = {}
+    context = {}
     counter = 0
 
-    Serenade.defineProperty model, "counter",
+    Serenade.defineProperty context, "counter",
       get: ->
         counter += 1
         @_counter
       set: (value) ->
         @_counter = value
 
-    model.counter_property.trigger()
-    @render "input[property:disabled=@counter]", model
+    context.counter_property.trigger()
+    @render "input[property:disabled=@counter]", context
     expect(counter).to.eql(2)
-    model.counter = true
+    context.counter = true
     expect(counter).to.eql(3)
-    model.counter = false
+    context.counter = false
     expect(counter).to.eql(4)
 
   it 'can set several property bindings', ->
-    model = Serenade(disabled: true, checked: true)
-    @render 'input[type="checkbox" property:disabled=@disabled property:checked=@checked]', model
+    context = Serenade(disabled: true, checked: true)
+    @render 'input[type="checkbox" property:disabled=@disabled property:checked=@checked]', context
     expect(@body).to.have.element('input[disabled][checked]')
-    model.disabled = false
+    context.disabled = false
     expect(@body).not.to.have.element('input[disabled][checked]')
     expect(@body).to.have.element('input[checked]')
-    model.checked = false
+    context.checked = false
     expect(@body).not.to.have.element('input[checked]')
     expect(@body).to.have.element('input')

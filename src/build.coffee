@@ -119,10 +119,10 @@ module.exports.compile = ->
   Serenade.document = document
 
   (env) ->
-    model = env.model
+    context = env.context
     viewName = env.filename.split('/').reverse()[0].replace(/\.serenade$/, '')
     Serenade.template(viewName, fs.readFileSync(env.filename).toString())
-    element = Serenade.render(viewName, model, {})
+    element = Serenade.render(viewName, context)
     document.body.appendChild(element)
     html = document.body.innerHTML
     html = "<!DOCTYPE html>\n" + html unless env.doctype is false
