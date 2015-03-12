@@ -224,7 +224,7 @@ describe "Serenade.defineEvent", ->
         now = new Date()
         defineEvent(@object, "event", timeout: 50, optimize: (q) -> q[0])
         @object.event.bind ->
-          expect((new Date()) - now).to.be.within(45,55)
+          expect((new Date()) - now).to.be.within(30,60)
           done()
 
         @object.event.trigger()
@@ -235,11 +235,11 @@ describe "Serenade.defineEvent", ->
         now = new Date()
         defineEvent(@object, "event", buffer: true, timeout: 50, optimize: (q) -> q[0])
         @object.event.bind ->
-          expect((new Date()) - now).to.be.within(70,80)
+          expect((new Date()) - now).to.be.within(70,90)
           done()
 
         @object.event.trigger()
-        setTimeout((=> @object.event.trigger()), 25)
+        setTimeout((=> @object.event.trigger()), 30)
 
     describe "with `animate` option", ->
       it "animates with requestAnimationFrame", (done) ->
