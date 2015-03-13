@@ -1,51 +1,58 @@
 {
-   "name": "serenade",
-   "main": "src/build",
-   "version": "0.5.0",
-   "description": "JavaScript client side MVC framework",
-   "keywords": [ "MVC", "data bingings", "client-side" ],
-   "maintainers": [
-       {
-           "name": "Jonas Nicklas",
-           "email": "jonas.nicklas@gmail.com"
-       }
-   ],
-   "contributors": [
-       {
-           "name": "Jonas Nicklas",
-           "email": "jonas.nicklas@gmail.com"
-       }
-   ],
-   "bugs": {
-       "url": "https://github.com/elabs/serenade.js/issues"
-   },
-   "licenses": [
-       {
-           "type": "MIT",
-           "url": "https://github.com/elabs/serenade.js/blob/master/LICENSE"
-       }
-   ],
-   "repository": [
-       {
-           "type": "git",
-           "url": "git@github.com:elabs/serenade.js.git"
-       }
-   ],
-   "dependencies": {
-       "mocha": "1.x.x",
-       "chai": "0.5.x",
-       "jsdom": ">= 0.2",
-       "jison": "0.3.10",
-       "coffee-script": "1.x.x",
-       "sinon": "1.x.x",
-       "uglify-js": "1.x.x",
-       "express": "2.x.x",
-       "gzip-js": ">= 0.1"
-   },
-   "scripts": {
-       "build": "cake build",
-       "test": "mocha test/*.spec.coffee test/**/*.spec.coffee",
-       "examples": "coffee web.coffee"
-   }
+  "name": "serenade",
+  "main": "src/build",
+  "version": "0.5.0",
+  "description": "JavaScript client side MVC framework",
+  "keywords": [
+    "MVC",
+    "data bingings",
+    "client-side"
+  ],
+  "maintainers": [
+    {
+      "name": "Jonas Nicklas",
+      "email": "jonas.nicklas@gmail.com"
+    }
+  ],
+  "contributors": [
+    {
+      "name": "Jonas Nicklas",
+      "email": "jonas.nicklas@gmail.com"
+    }
+  ],
+  "bugs": {
+    "url": "https://github.com/elabs/serenade.js/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/elabs/serenade.js/blob/master/LICENSE"
+    }
+  ],
+  "repository": [
+    {
+      "type": "git",
+      "url": "git@github.com:elabs/serenade.js.git"
+    }
+  ],
+  "dependencies": {
+    "mocha": "1.x.x",
+    "chai": "0.5.x",
+    "jsdom": ">= 0.2",
+    "jison": "0.3.10",
+    "coffee-script": "1.x.x",
+    "sinon": "1.x.x",
+    "uglify-js": "1.x.x",
+    "express": "2.x.x",
+    "gzip-js": ">= 0.1"
+  },
+  "scripts": {
+    "build": "cake build",
+    "test": "mocha test/*.spec.coffee test/**/*.spec.coffee",
+    "examples": "coffee web.coffee"
+  },
+  "devDependencies": {
+    "babel": "^4.7.9",
+    "webpack": "^1.7.3"
+  }
 }
-

@@ -1,6 +1,5 @@
 # load globally so we don't have to load it again and again
-root.Build = require('../src/build')
-root.Serenade = Build.Serenade
+root.Serenade = require('../lib/serenade')
 
 chai = require 'chai'
 chai.should()

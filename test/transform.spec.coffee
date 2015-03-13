@@ -1,5 +1,5 @@
 require './spec_helper'
-{Transform} = Build
+{Transform} = require '../lib/transform'
 
 replay = (array, operations) ->
   array = [].concat(array)
