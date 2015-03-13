@@ -1,4 +1,4 @@
-import { def, defineOptions, safePush, safeDelete, settings } from "./helpers"
+import { def, defineOptions, safePush, safeDelete, settings, nextTick } from "./helpers"
 
 var Event, defineEvent,
 	__slice = [].slice;

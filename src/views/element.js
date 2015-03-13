@@ -1,5 +1,7 @@
 import View from "./view"
 import defineEvent from "../event"
+import { def } from "../helpers"
+import Compile from "../compile"
 
 var Element,
   __hasProp = {}.hasOwnProperty,

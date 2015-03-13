@@ -7,6 +7,7 @@ import Collection from "./collection"
 import CollectionView from "./views/collection_view"
 import defineProperty from "./property"
 import defineEvent from "./event"
+import HelperView from "./views/helper_view"
 import { def, extend, settings } from "./helpers"
 
 function Serenade(wrapped) {

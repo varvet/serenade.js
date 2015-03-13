@@ -1,5 +1,6 @@
 import { Parser } from "./grammar"
 import Lexer from "./lexer"
+import TemplateView from "./views/template_view"
 
 var Template;
 
