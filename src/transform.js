@@ -1,3 +1,5 @@
+import { hash } from "./helpers"
+
 var Map, Transform;
 
 Map = (function() {

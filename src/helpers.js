@@ -94,7 +94,7 @@ var hash_prefix = "";
 
 const hash_max = Math.pow(10, 12);
 
-var hash = function (value) {
+export var hash = function (value) {
   var key;
   key = value instanceof Object ? (!("_s_hash" in value) ? (hash_current >= hash_max ? hash_prefix = Math.random().toString(36) : void 0, def(value, "_s_hash", {
     value: hash_prefix + ++hash_current
