@@ -135,19 +135,23 @@ Element = (function(_super) {
         property.value || (function() {
           throw SyntaxError("cannot bind to whole context, please specify an attribute to bind to");
         })();
-        domUpdated = (function(_this) {
-          return function() {
-            return _this.context[property.value] = _this.node.type === "checkbox" ? _this.node.checked : _this.node.type === "radio" ? _this.node.checked ? _this.node.getAttribute("value") : void 0 : _this.node.value;
-          };
-        })(this);
+        domUpdated = function() {
+          if(this.node.type === "checkbox") {
+            this.context[property.value] = this.node.checked;
+          } else if(this.node.type === "radio") {
+            if(this.node.checked) {
+              this.context[property.value] = this.node.value;
+            }
+          } else {
+            this.context[property.value] = this.node.value;
+          }
+        }.bind(this);
         if (property.name === "binding") {
-          handler = (function(_this) {
-            return function(e) {
-              if (_this.node.form === (e.target || e.srcElement)) {
-                return domUpdated();
-              }
-            };
-          })(this);
+          handler = function(e) {
+            if (this.node.form === (e.target || e.srcElement)) {
+              return domUpdated();
+            }
+          }.bind(this);
           Serenade.document.addEventListener("submit", handler, true);
           return this.unload.bind(function() {
             return Serenade.document.removeEventListener("submit", handler, true);
@@ -160,7 +164,7 @@ Element = (function(_super) {
         if (this.node.type === "checkbox") {
           return this.node.checked = !!value;
         } else if (this.node.type === "radio") {
-          if (value === this.node.getAttribute("value")) {
+          if (value === this.node.value) {
             return this.node.checked = true;
           }
         } else {

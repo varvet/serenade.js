@@ -6,7 +6,7 @@ describe 'Two-way bindings', ->
 
   it 'updates plain context when event triggers', ->
     context = {}
-    @render 'input[type="text" binding:keyup=@name]', context, {}
+    @render 'input[type="text" binding:keyup=@name]', context
     input = @body.querySelector('input')
     input.value = "Test"
     @fireEvent input, "keyup"
@@ -14,7 +14,7 @@ describe 'Two-way bindings', ->
 
   it 'updates context when form is submitted if no event name is specified', ->
     context = {}
-    @render 'form\n\tinput[type="text" binding=@name]\n\t', context, {}
+    @render 'form\n\tinput[type="text" binding=@name]\n\t', context
     input = @body.querySelector('input')
     input.value = "Test"
     expect(context.name).to.eql(undefined)
@@ -38,7 +38,7 @@ describe 'Two-way bindings', ->
     class MyModel extends Serenade.Model
       @property 'name'
     context = new MyModel()
-    @render 'input[type="text" binding:keyup=@name]', context, {}
+    @render 'input[type="text" binding:keyup=@name]', context
     input = @body.querySelector('input')
     input.value = "Test"
     @fireEvent input, "keyup"
@@ -46,13 +46,13 @@ describe 'Two-way bindings', ->
 
   it 'sets value of input to context value', ->
     context = {name: "My name"}
-    @render 'input[type="text" binding:keyup=@name]', context, {}
+    @render 'input[type="text" binding:keyup=@name]', context
     input = @body.querySelector('input')
     expect(input.value).to.eql("My name")
 
   it 'sets value of textarea to context value', ->
     context = {name: "My name"}
-    @render 'textarea[binding:keyup=@name]', context, {}
+    @render 'textarea[binding:keyup=@name]', context
     input = @body.querySelector('textarea')
     expect(input.value).to.eql("My name")
 
@@ -70,7 +70,7 @@ describe 'Two-way bindings', ->
     class MyModel extends Serenade.Model
       @property 'name'
     context = new MyModel({name: "My name"})
-    @render 'input[type="text" binding:keyup=@name]', context, {}
+    @render 'input[type="text" binding:keyup=@name]', context
     context.name = "Changed name"
     input = @body.querySelector('input')
     expect(input.value).to.eql("Changed name")
@@ -91,7 +91,7 @@ describe 'Two-way bindings', ->
 
   it 'sets boolean value for checkboxes', ->
     context = {}
-    @render 'input[type="checkbox" binding:change=@active]', context, {}
+    @render 'input[type="checkbox" binding:change=@active]', context
     input = @body.querySelector('input')
     input.checked = true
     @fireEvent input, "change"
@@ -101,14 +101,14 @@ describe 'Two-way bindings', ->
     class MyModel extends Serenade.Model
       @property 'active'
     context = new MyModel({active: false})
-    @render 'input[type="checkbox" binding:change=@active]', context, {}
+    @render 'input[type="checkbox" binding:change=@active]', context
     context.active = true
     input = @body.querySelector('input')
     expect(input.checked).to.eql(true)
 
   it 'sets context value if radio is checked', ->
     context = {}
-    @render 'input[type="radio" value="small" binding:change=@size]', context, {}
+    @render 'input[type="radio" value="small" binding:change=@size]', context
     input = @body.querySelector('input')
     input.checked = true
     @fireEvent input, "change"
@@ -116,7 +116,7 @@ describe 'Two-way bindings', ->
 
   it 'does not set context value if radio is not checked', ->
     context = {}
-    @render 'input[type="radio" value="small" binding:change=@size]', context, {}
+    @render 'input[type="radio" value="small" binding:change=@size]', context
     input = @body.querySelector('input')
     @fireEvent input, "change"
     expect(context.size).to.eql(undefined)
@@ -125,7 +125,7 @@ describe 'Two-way bindings', ->
     class MyModel extends Serenade.Model
       @property 'size'
     context = new MyModel({size: "small"})
-    @render 'input[type="radio" value="large" binding:change=@size]', context, {}
+    @render 'input[type="radio" value="large" binding:change=@size]', context
     context.size =  "large"
     input = @body.querySelector('input')
     expect(input.checked).to.eql(true)
@@ -134,7 +134,7 @@ describe 'Two-way bindings', ->
     class MyModel extends Serenade.Model
       @property 'size'
     context = new MyModel({size: "small"})
-    @render 'input[type="radio" value="large" binding:change=@size]', context, {}
+    @render 'input[type="radio" value="large" binding:change=@size]', context
     context.size = "medium"
     input = @body.querySelector('input')
     expect(input.checked).to.eql(false)

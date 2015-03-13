@@ -48,10 +48,12 @@ describe 'Bound properties', ->
   it 'can set several property bindings', ->
     context = Serenade(disabled: true, checked: true)
     @render 'input[type="checkbox" property:disabled=@disabled property:checked=@checked]', context
-    expect(@body).to.have.element('input[disabled][checked]')
+    input = @body.querySelector("input")
+    expect(input.checked).to.eql(true)
+    expect(input.disabled).to.eql(true)
     context.disabled = false
-    expect(@body).not.to.have.element('input[disabled][checked]')
-    expect(@body).to.have.element('input[checked]')
+    expect(input.checked).to.eql(true)
+    expect(input.disabled).to.eql(false)
     context.checked = false
-    expect(@body).not.to.have.element('input[checked]')
-    expect(@body).to.have.element('input')
+    expect(input.checked).to.eql(false)
+    expect(input.disabled).to.eql(false)
