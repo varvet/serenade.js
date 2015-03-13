@@ -1,24 +1,38 @@
 SRC = $(shell find src -name *.js)
 LIB = $(SRC:src/%.js=lib/%.js)
+BIN = node_modules/.bin
+BABEL = $(BIN)/babel
+JISON = $(BIN)/jison
+BROWSERIFY = $(BIN)/browserify
+UGLIFY = $(BIN)/uglifyjs
 
-default: target/serenade
+default: target/serenade.js target/serenade.min.js target/serenade.min.js.gz
 
 lib: $(LIB)
 lib/%.js: src/%.js
 	@mkdir -p $(@D)
-	node_modules/.bin/babel $< -o $@ --modules common
+	$(BABEL) $< -o $@ --modules common
 
 lib/grammar.js: src/grammar.jison
 	@mkdir -p $(@D)
-	jison $< -m commonjs -o $@
+	$(JISON) $< -m commonjs -o $@
 
 build: $(LIB) lib/grammar.js
 
 test: build
 	npm test
 
-target/serenade: build
+target/serenade.js: build
 	@mkdir -p $(@D)
-	browserify lib/serenade -o $@
+	$(BROWSERIFY) lib/serenade -o $@ -i file -i system -s Serenade
+
+target/serenade.min.js: target/serenade.js
+	@mkdir -p $(@D)
+	$(UGLIFY) -o $@ $<
+
+target/serenade.min.js.gz: target/serenade.min.js
+	@mkdir -p $(@D)
+	gzip -kf $<
+
 
 .PHONY: test
