@@ -1,89 +1,63 @@
-import { def } from "../helpers"
 import Collection from "../collection"
 
-var View = (function() {
-  function View(node) {
+class View {
+  constructor(node) {
     this.node = node;
     this.children = [];
   }
 
-  View.prototype.append = function(inside) {
-    return inside.appendChild(this.node);
-  };
+  append(inside) {
+    inside.appendChild(this.node);
+  }
 
-  View.prototype.insertAfter = function(after) {
-    return after.parentNode.insertBefore(this.node, after.nextSibling);
-  };
+  insertAfter(after) {
+    after.parentNode.insertBefore(this.node, after.nextSibling);
+  }
 
-  View.prototype.remove = function() {
-    var _ref;
-    if ((_ref = this.node.parentNode) != null) {
-      _ref.removeChild(this.node);
+  remove() {
+    if (this.node.parentNode) {
+      this.node.parentNode.removeChild(this.node);
     }
-    return this.detach();
-  };
+    this.detach();
+  }
 
-  View.prototype.detach = function() {
-    var child, event, fun, _i, _j, _len, _len1, _ref, _ref1, _ref2, _results;
-    _ref = this.children;
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      child = _ref[_i];
-      child.detach();
-    }
+  detach() {
+    this.children.forEach((child) => child.detach())
+
     if (this.boundEvents) {
-      _ref1 = this.boundEvents;
-      _results = [];
-      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-        _ref2 = _ref1[_j], event = _ref2.event, fun = _ref2.fun;
-        _results.push(event.unbind(fun));
-      }
-      return _results;
+      this.boundEvents.forEach(({ event, fun }) => event.unbind(fun))
     }
-  };
+  }
 
-  def(View.prototype, "lastElement", {
-    configurable: true,
-    get: function() {
-      return this.node;
-    }
-  });
+  get lastElement() {
+    return this.node;
+  }
 
-  View.prototype._bindEvent = function(event, fun) {
-    if (event) {
+  _bindEvent(event, fun) {
+    if(event) {
       this.boundEvents || (this.boundEvents = new Collection());
-      this.boundEvents.push({
-        event: event,
-        fun: fun
-      });
-      return event.bind(fun);
+      this.boundEvents.push({ event, fun });
+      event.bind(fun);
     }
-  };
+  }
 
-  View.prototype._unbindEvent = function(event, fun) {
-    if (event) {
+  _unbindEvent(event, fun) {
+    if(event) {
       this.boundEvents || (this.boundEvents = new Collection());
-      this.boundEvents["delete"](fun);
-      return event.unbind(fun);
+      this.boundEvents.delete(fun);
+      event.unbind(fun);
     }
-  };
+  }
 
-  View.prototype._bindToModel = function(name, fun) {
-    var property, value;
-    value = this.context[name];
-    property = this.context["" + name + "_property"];
-    if (property != null) {
-      if (typeof property.registerGlobal === "function") {
-        property.registerGlobal(value);
-      }
+  _bindToModel(name, fun) {
+    let value = this.context[name];
+    let property = this.context["" + name + "_property"];
+    if(property && property.registerGlobal) {
+      property.registerGlobal(value);
     }
-    this._bindEvent(property, function(_, value) {
-      return fun(value);
-    });
-    return fun(value);
-  };
-
-  return View;
-
-})();
+    this._bindEvent(property, (_, value) => fun(value))
+    fun(value);
+  }
+}
 
 export default View;
