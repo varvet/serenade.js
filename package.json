@@ -35,24 +35,21 @@
       "url": "git@github.com:elabs/serenade.js.git"
     }
   ],
-  "dependencies": {
-    "mocha": "1.x.x",
-    "chai": "0.5.x",
-    "jsdom": ">= 0.2",
-    "jison": "0.3.10",
-    "coffee-script": "1.x.x",
-    "sinon": "1.x.x",
-    "uglify-js": "1.x.x",
-    "express": "2.x.x",
-    "gzip-js": ">= 0.1"
-  },
+  "dependencies": {},
   "scripts": {
-    "build": "cake build",
-    "test": "mocha test/*.spec.coffee test/**/*.spec.coffee",
-    "examples": "coffee web.coffee"
+    "test": "make",
+    "build": "make build"
   },
   "devDependencies": {
     "babel": "^4.7.9",
+    "browserify": "^9.0.3",
+    "chai": "0.5.x",
+    "coffee-script": "1.x.x",
+    "jison": "0.3.10",
+    "jsdom": "^3.1.2",
+    "mocha": "1.x.x",
+    "sinon": "1.x.x",
+    "uglify-js": "1.x.x",
     "webpack": "^1.7.3"
   }
 }

@@ -30,8 +30,8 @@ beforeEach ->
   Serenade.clearCache()
 
   @setupDom = =>
-    @document = require("jsdom").jsdom(null, null, features: { QuerySelector: true })
-    @window = @document.parentWindow
+    @document = require("jsdom").jsdom("<!doctype html><html><body></body></html>", features: { QuerySelector: true })
+    @window = @document.defaultView
     @body = @document.body
     Serenade.document = @document
 

@@ -5,6 +5,7 @@ BABEL = $(BIN)/babel
 JISON = $(BIN)/jison
 BROWSERIFY = $(BIN)/browserify
 UGLIFY = $(BIN)/uglifyjs
+MOCHA = $(BIN)/mocha
 
 default: target/serenade.js target/serenade.min.js target/serenade.min.js.gz
 
@@ -20,7 +21,7 @@ lib/grammar.js: src/grammar.jison
 build: $(LIB) lib/grammar.js
 
 test: build
-	npm test
+	$(MOCHA) test/*.spec.coffee test/**/*.spec.coffee
 
 target/serenade.js: build
 	@mkdir -p $(@D)
