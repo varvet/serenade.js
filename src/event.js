@@ -66,10 +66,11 @@ Event = (function() {
 	};
 
 	Event.prototype.one = function(fun) {
+    var unbind = this.unbind.bind(this);
 		var handler = function() {
-			this.unbind(this);
+			unbind(handler);
 			fun.apply(this, arguments);
-		}.bind(this);
+		};
 		this.bind(handler);
 	};
 

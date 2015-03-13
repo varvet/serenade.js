@@ -1,14 +1,21 @@
 import Model from "./model"
 import Cache from "./cache"
-import View from "./views/view"
-import Element from "./views/element"
 import Template from "./template"
 import Collection from "./collection"
-import CollectionView from "./views/collection_view"
 import defineProperty from "./property"
 import defineEvent from "./event"
-import HelperView from "./views/helper_view"
 import { def, extend, settings } from "./helpers"
+
+import BoundViewView from "./views/bound_view_view"
+import CollectionView from "./views/collection_view"
+import Element from "./views/element"
+import HelperView from "./views/helper_view"
+import IfView from "./views/if_view"
+import InView from "./views/in_view"
+import TemplateView from "./views/template_view"
+import TextView from "./views/text_view"
+import UnlessView from "./views/unless_view"
+import View from "./views/view"
 
 function Serenade(wrapped) {
 	var key, object, value;
@@ -22,11 +29,12 @@ function Serenade(wrapped) {
 	return object;
 };
 
+settings.document = typeof window !== "undefined" && window !== null ? window.document : void 0,
+
 extend(Serenade, {
 	VERSION: '0.5.0',
 	views: {},
 	templates: {},
-	document: typeof window !== "undefined" && window !== null ? window.document : void 0,
 	defineProperty: defineProperty,
 	defineEvent: defineEvent,
 	view: function(name, fn) {
@@ -81,6 +89,15 @@ def(Serenade, "async", {
 	},
 	set: function(value) {
 		return settings.async = value;
+	}
+});
+
+def(Serenade, "document", {
+	get: function() {
+		return settings.document;
+	},
+	set: function(value) {
+		return settings.document = value;
 	}
 });
 

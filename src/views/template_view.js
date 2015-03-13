@@ -1,5 +1,5 @@
 import DynamicView from "./dynamic_view"
-import { def } from "../helpers"
+import { def, settings } from "../helpers"
 import Compile from "../compile"
 import Collection from "../collection"
 
@@ -30,7 +30,7 @@ TemplateView = (function(_super) {
   def(TemplateView.prototype, "fragment", {
     get: function() {
       var fragment;
-      fragment = Serenade.document.createDocumentFragment();
+      fragment = settings.document.createDocumentFragment();
       this.append(fragment);
       fragment.view = this;
       fragment.remove = this.remove.bind(this);

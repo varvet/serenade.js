@@ -1,7 +1,8 @@
 import View from "./view"
 import defineEvent from "../event"
-import { def } from "../helpers"
+import { def, assignUnlessEqual } from "../helpers"
 import Compile from "../compile"
+import Collection from "../collection"
 
 var Element,
   __hasProp = {}.hasOwnProperty,
@@ -215,5 +216,9 @@ Element = (function(_super) {
   return Element;
 
 })(View);
+
+Compile.element = function(ast, context) {
+  return Serenade.renderView(ast, context);
+};
 
 export default Element;

@@ -19,6 +19,11 @@ compareArrays = (one, two) ->
 jsdom = require("jsdom")
 fs = require('fs')
 
+root.requestAnimationFrame = (fn) ->
+  setTimeout(fn, 17)
+
+root.cancelAnimationFrame = clearTimeout
+
 beforeEach ->
   Serenade.async = false
   Serenade.unregisterAll()

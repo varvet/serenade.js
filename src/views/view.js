@@ -1,4 +1,5 @@
 import { def } from "../helpers"
+import Collection from "../collection"
 
 var View = (function() {
   function View(node) {
