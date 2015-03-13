@@ -55,7 +55,7 @@ class View {
     if(property && property.registerGlobal) {
       property.registerGlobal(value);
     }
-    this._bindEvent(property, (_, value) => fun(value))
+    this._bindEvent(property, (_, value) => fun(value));
     fun(value);
   }
 }
