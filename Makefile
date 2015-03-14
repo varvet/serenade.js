@@ -1,4 +1,4 @@
-SRC = $(shell find src -name *.js)
+SRC = $(shell find src -name '*.js')
 LIB = $(SRC:src/%.js=lib/%.js)
 BIN = node_modules/.bin
 BABEL = $(BIN)/babel
