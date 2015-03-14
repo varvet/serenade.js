@@ -37,7 +37,7 @@
   ],
   "dependencies": {},
   "scripts": {
-    "test": "make",
+    "test": "make test",
     "build": "make build"
   },
   "devDependencies": {
