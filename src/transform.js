@@ -1,107 +1,85 @@
 import { hash } from "./helpers"
 
-var Map, Transform;
-
-Map = (function() {
-  function Map(array) {
-    var element, index, _i, _len;
+class Map {
+  constructor(array) {
     this.map = {};
-    for (index = _i = 0, _len = array.length; _i < _len; index = ++_i) {
-      element = array[index];
-      this.put(index, element);
+    array.forEach((element, index) => this.put(index, element))
+  }
+
+  isMember(element) {
+    let element = this.map[hash(element)];
+    return element && element[0].length > 0;
+  }
+
+  indexOf(element) {
+    let element = this.map[hash(element)];
+    return element && element[0] && element[0][0];
+  }
+
+  put(index, element) {
+    let h = hash(element);
+    let existing = this.map[h];
+    if(existing) {
+      this.map[h] = [existing[0].concat(index).sort((a, b) => a - b), element];
+    } else {
+      this.map[h] = [[index], element];
     }
   }
 
-  Map.prototype.isMember = function(element) {
-    var _ref;
-    return ((_ref = this.map[hash(element)]) != null ? _ref[0].length : void 0) > 0;
-  };
-
-  Map.prototype.indexOf = function(element) {
-    var _ref, _ref1;
-    return (_ref = this.map[hash(element)]) != null ? (_ref1 = _ref[0]) != null ? _ref1[0] : void 0 : void 0;
-  };
-
-  Map.prototype.put = function(index, element) {
-    var existing;
-    existing = this.map[hash(element)];
-    return this.map[hash(element)] = existing ? [
-      existing[0].concat(index).sort(function(a, b) {
-        return a - b;
-      }), element
-    ] : [[index], element];
-  };
-
-  Map.prototype.remove = function(element) {
-    var _base, _ref;
-    return (_ref = this.map[hash(element)]) != null ? typeof (_base = _ref[0]).shift === "function" ? _base.shift() : void 0 : void 0;
-  };
-
-  return Map;
-
-})();
-
-Transform = function(from, to) {
-  var actual, cleaned, cleanedMap, complete, completeMap, element, index, indexActual, indexWanted, operations, targetMap, wanted, _i, _j, _k, _len, _len1, _len2;
-  if (from == null) {
-    from = [];
+  remove(element) {
+    let element = this.map[hash(element)];
+    if(element && element[0]) {
+      element[0].shift();
+    }
   }
-  if (to == null) {
-    to = [];
-  }
-  operations = [];
-  to = to.map(function(e) {
-    return e;
-  });
-  targetMap = new Map(to);
-  cleaned = [];
-  for (_i = 0, _len = from.length; _i < _len; _i++) {
-    element = from[_i];
-    if (targetMap.isMember(element)) {
+}
+
+export default function Transform(from, to) {
+  if(!from) { from = []; }
+  if(!to) { to = []; }
+
+  let operations = [];
+  to = to.map((e) => e);
+  let targetMap = new Map(to);
+  let cleaned = [];
+
+  from.forEach((element) => {
+    if(targetMap.isMember(element)) {
       cleaned.push(element);
     } else {
-      operations.push({
-        type: "remove",
-        index: cleaned.length
-      });
+      operations.push({ type: "remove", index: cleaned.length });
     }
     targetMap.remove(element);
-  }
-  complete = [].concat(cleaned);
-  cleanedMap = new Map(cleaned);
-  for (index = _j = 0, _len1 = to.length; _j < _len1; index = ++_j) {
-    element = to[index];
+  });
+
+  let complete = [].concat(cleaned);
+
+  let cleanedMap = new Map(cleaned);
+
+  to.forEach((element, index) => {
     if (!cleanedMap.isMember(element)) {
-      operations.push({
-        type: "insert",
-        index: index,
-        value: element
-      });
+      operations.push({ type: "insert", index: index, value: element });
       complete.splice(index, 0, element);
     }
     cleanedMap.remove(element);
-  }
-  completeMap = new Map(complete);
-  for (indexActual = _k = 0, _len2 = complete.length; _k < _len2; indexActual = ++_k) {
-    actual = complete[indexActual];
-    wanted = to[indexActual];
+  });
+
+  let completeMap = new Map(complete);
+
+  complete.forEach((actual, indexActual) => {
+    let wanted = to[indexActual];
     if (actual !== wanted) {
-      indexWanted = completeMap.indexOf(wanted);
+      let indexWanted = completeMap.indexOf(wanted);
       completeMap.remove(actual);
       completeMap.remove(wanted);
       completeMap.put(indexWanted, actual);
       complete[indexActual] = wanted;
       complete[indexWanted] = actual;
-      operations.push({
-        type: "swap",
-        index: indexActual,
-        "with": indexWanted
-      });
+      operations.push({ type: "swap", index: indexActual, with: indexWanted });
     } else {
       completeMap.remove(actual);
     }
-  }
+  });
+
   return operations;
 };
-
-export default Transform;
