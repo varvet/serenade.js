@@ -18,18 +18,16 @@ import UnlessView from "./views/unless_view"
 import View from "./views/view"
 
 function Serenade(wrapped) {
-	var key, object, value;
-	object = Object.create(wrapped);
-	for (key in wrapped) {
-		value = wrapped[key];
-		defineProperty(object, key, {
-			value: value
-		});
+	let object = Object.create(wrapped);
+	for(let key in wrapped) {
+		defineProperty(object, key, { value: wrapped[key] });
 	}
 	return object;
 };
 
-settings.document = typeof window !== "undefined" && window !== null ? window.document : void 0,
+if(typeof(window) !== "undefined") {
+  settings.document = window.document;
+}
 
 extend(Serenade, {
 	VERSION: '0.5.0',
@@ -37,68 +35,72 @@ extend(Serenade, {
 	templates: {},
 	defineProperty: defineProperty,
 	defineEvent: defineEvent,
+
 	view: function(name, fn) {
-		return this.views[name] = function(ast, context) {
-			return new fn(ast, context);
-		};
+		return this.views[name] = (ast, context) => new fn(ast, context);
 	},
+
 	helper: function(name, fn) {
-		return this.views[name] = function(ast, context) {
-			return new HelperView(ast, context, fn);
-		};
+		return this.views[name] = (ast, context) => new HelperView(ast, context, fn);
 	},
+
 	renderView: function(ast, context) {
-		if (this.views[ast.name]) {
+		if(this.views[ast.name]) {
 			return this.views[ast.name](ast, context);
 		} else {
 			return new Element(ast, context);
 		}
 	},
+
 	template: function(nameOrTemplate, template) {
-		if (template) {
+		if(template) {
 			return this.templates[nameOrTemplate] = new Template(nameOrTemplate, template);
 		} else {
 			return new Template(void 0, nameOrTemplate);
 		}
 	},
+
 	render: function(name, context) {
 		return this.templates[name].render(context);
 	},
+
 	clearIdentityMap: function() {
-		return Cache._identityMap = {};
+		Cache._identityMap = {};
 	},
+
 	clearCache: function() {
-		return Serenade.clearIdentityMap();
+		Serenade.clearIdentityMap();
 	},
+
 	unregisterAll: function() {
 		Serenade.views = {};
-		return Serenade.templates = {};
+		Serenade.templates = {};
 	},
+
 	Model: Model,
 	Collection: Collection,
 	Cache: Cache,
 	Template: Template,
 	View: View,
 	Element: Element,
-	CollectionView: CollectionView
-});
+	CollectionView: CollectionView,
 
-def(Serenade, "async", {
-	get: function() {
-		return settings.async;
-	},
-	set: function(value) {
-		return settings.async = value;
-	}
-});
+  get async() {
+    return settings.async;
+  },
 
-def(Serenade, "document", {
-	get: function() {
+  set async(value) {
+    settings.async = value;
+  },
+
+	get document() {
 		return settings.document;
 	},
-	set: function(value) {
-		return settings.document = value;
-	}
+
+	set document(value) {
+		settings.document = value;
+	},
 });
+
 
 export default Serenade;
