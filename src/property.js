@@ -1,112 +1,88 @@
 import { def, extend, defineOptions, safePush, primitiveTypes } from "./helpers"
 import { Event } from "./event"
 
-var PropertyAccessor, PropertyDefinition, defineProperty,
-	__bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-	__indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
-
-PropertyDefinition = (function() {
-	function PropertyDefinition(name, options) {
-		var subname, type, _i, _len, _ref, _ref1, _ref2;
-		this.name = name;
+class PropertyDefinition {
+	constructor(name, options) {
 		extend(this, options);
+		this.name = name;
 		this.dependencies = [];
 		this.localDependencies = [];
 		this.globalDependencies = [];
-		if (this.dependsOn) {
-			_ref = [].concat(this.dependsOn);
-			for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-				name = _ref[_i];
-				if (this.dependencies.indexOf(name) === -1) {
-					this.dependencies.push(name);
-					if (name.match(/\./)) {
-						type = "singular";
-						_ref1 = name.split("."), name = _ref1[0], subname = _ref1[1];
-					} else if (name.match(/:/)) {
-						type = "collection";
-						_ref2 = name.split(":"), name = _ref2[0], subname = _ref2[1];
-					}
-					this.localDependencies.push(name);
-					if (this.localDependencies.indexOf(name) === -1) {
-						this.localDependencies.push(name);
-					}
-					if (type) {
-						this.globalDependencies.push({
-							subname: subname,
-							name: name,
-							type: type
-						});
-					}
-				}
-			}
-		}
+
+    [].concat(this.dependsOn || []).forEach((name) => {
+      if(this.dependencies.indexOf(name) === -1) {
+        let subname, type;
+        this.dependencies.push(name);
+        if(name.match(/\./)) {
+          type = "singular";
+          [name, subname] = name.split(".");
+        } else if (name.match(/:/)) {
+          type = "collection";
+          [name, subname] = name.split(":");
+        }
+        this.localDependencies.push(name);
+        if(this.localDependencies.indexOf(name) === -1) this.localDependencies.push(name);
+        if(type) this.globalDependencies.push({ subname, name, type });
+      }
+		});
 	}
 
-	def(PropertyDefinition.prototype, "eventOptions", {
-		get: function() {
-			var name, options;
-			name = this.name;
-			options = {
-				timeout: this.timeout,
-				buffer: this.buffer,
-				animate: this.animate,
-				bind: function() {
-					return this[name + "_property"].registerGlobal();
-				},
-				optimize: function(queue) {
-					var _ref, _ref1;
-					return [(_ref = queue[0]) != null ? _ref[0] : void 0, (_ref1 = queue[queue.length - 1]) != null ? _ref1[1] : void 0];
-				}
-			};
-			if (this.async != null) {
-				options.async = this.async;
-			}
-			return options;
-		}
-	});
+  get eventOptions() {
+    var name, options;
+    name = this.name;
+    options = {
+      timeout: this.timeout,
+      buffer: this.buffer,
+      animate: this.animate,
+      bind: function() {
+        return this[name + "_property"].registerGlobal();
+      },
+      optimize: function(queue) {
+        var _ref, _ref1;
+        return [(_ref = queue[0]) != null ? _ref[0] : void 0, (_ref1 = queue[queue.length - 1]) != null ? _ref1[1] : void 0];
+      }
+    };
+    if (this.async != null) {
+      options.async = this.async;
+    }
+    return options;
+	}
+}
 
-	return PropertyDefinition;
-
-})();
-
-PropertyAccessor = (function() {
-	function PropertyAccessor(definition, object) {
+class PropertyAccessor {
+	constructor(definition, object) {
 		this.definition = definition;
 		this.object = object;
-		this.trigger = __bind(this.trigger, this);
+		this.trigger = this.trigger.bind(this);
 		this.name = this.definition.name;
 		this.valueName = "_" + this.name;
 		this.event = new Event(this.object, this.name + "_change", this.definition.eventOptions);
 		this._gcQueue = [];
 	}
 
-	PropertyAccessor.prototype.initialize = function(value) {
+	initialize(value) {
 		this.update(value);
 		return this._oldValue = value;
-	};
+	}
 
-	PropertyAccessor.prototype.update = function(value) {
+	update(value) {
 		if (this.definition.set) {
 			return this.definition.set.call(this.object, value);
 		} else {
-			return def(this.object, this.valueName, {
-				value: value,
-				configurable: true,
-				writable: true
-			});
+			return def(this.object, this.valueName, { value: value, configurable: true, writable: true });
 		}
-	};
+	}
 
-	PropertyAccessor.prototype.set = function(value) {
+	set(value) {
 		if (typeof value === "function") {
 			return this.definition.get = value;
 		} else {
 			this.update(value);
 			return this.trigger();
 		}
-	};
+	}
 
-	PropertyAccessor.prototype.get = function() {
+	get() {
 		var value;
 		if (this.definition.get && !(this.definition.cache && this.valueName in this.object)) {
 			value = this.definition.get.call(this.object);
@@ -125,9 +101,9 @@ PropertyAccessor = (function() {
 			value = this.object[this.valueName];
 		}
 		return value;
-	};
+	}
 
-	PropertyAccessor.prototype.registerGlobal = function(value) {
+	registerGlobal(value) {
 		var dependency, _i, _len, _ref, _ref1, _results;
 		if (this._isRegistered) {
 			return;
@@ -217,19 +193,17 @@ PropertyAccessor = (function() {
 			_results.push((_ref1 = this.object[dependency + "_property"]) != null ? _ref1.registerGlobal() : void 0);
 		}
 		return _results;
-	};
+	}
 
-	def(PropertyAccessor.prototype, "hasListeners", {
-		get: function() {
-			return this.listeners.length === 0 && !this.dependentProperties.find((function(_this) {
-				return function(prop) {
-					return prop.listeners.length !== 0;
-				};
-			})(this));
-		}
-	});
+	get hasListeners() {
+    return this.listeners.length === 0 && !this.dependentProperties.find((function(_this) {
+      return function(prop) {
+        return prop.listeners.length !== 0;
+      };
+    })(this));
+	}
 
-	PropertyAccessor.prototype.gc = function() {
+	gc() {
 		var dependency, fn, _i, _j, _len, _len1, _ref, _ref1, _ref2, _results;
 		if (this.hasListeners) {
 			_ref = this._gcQueue;
@@ -249,7 +223,7 @@ PropertyAccessor = (function() {
 		return _results;
 	};
 
-	PropertyAccessor.prototype.trigger = function() {
+	trigger() {
 		var changes, name, newValue, retrievedNewValue, _i, _len, _ref, _ref1, _ref2, _ref3;
 		this.clearCache();
 		if ((_ref = this.definition.changed) === true || _ref === false) {
@@ -267,7 +241,7 @@ PropertyAccessor = (function() {
 				} else {
 					retrievedNewValue = true;
 					newValue = this.get();
-					if (_ref1 = typeof this._oldValue, __indexOf.call(primitiveTypes, _ref1) >= 0) {
+					if (_ref1 = typeof this._oldValue, primitiveTypes.indexOf(_ref1) >= 0) {
 						if (this._oldValue === newValue) {
 							return;
 						}
@@ -292,79 +266,75 @@ PropertyAccessor = (function() {
 			this.object[name + "_property"].trigger();
 		}
 		return this._oldValue = newValue;
-	};
+	}
 
-	["bind", "one", "resolve"].forEach(function(fn) {
-		return PropertyAccessor.prototype[fn] = function() {
-			var _ref;
-			return (_ref = this.event)[fn].apply(_ref, arguments);
-		};
-	});
+  bind(fn) {
+    this.event.bind(fn);
+  }
 
-	PropertyAccessor.prototype.unbind = function(fn) {
+  one(fn) {
+    this.event.one(fn);
+  }
+
+  resolve(fn) {
+    this.event.resolve(fn);
+  }
+
+	unbind(fn) {
 		this.event.unbind(fn);
 		return this.gc();
-	};
+	}
 
-	def(PropertyAccessor.prototype, "dependents", {
-		get: function() {
-			var deps, findDependencies;
-			deps = [];
-			findDependencies = (function(_this) {
-				return function(name) {
-					var property, _i, _len, _ref, _ref1, _results;
-					_ref = _this.object._s.properties;
-					_results = [];
-					for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-						property = _ref[_i];
-						if ((_ref1 = property.name, __indexOf.call(deps, _ref1) < 0) && __indexOf.call(property.localDependencies, name) >= 0) {
-							deps.push(property.name);
-							_results.push(findDependencies(property.name));
-						} else {
-							_results.push(void 0);
-						}
-					}
-					return _results;
-				};
-			})(this);
-			findDependencies(this.name);
-			return deps;
-		}
-	});
+	get dependents() {
+    var deps, findDependencies;
+    deps = [];
+    findDependencies = (function(_this) {
+      return function(name) {
+        var property, _i, _len, _ref, _ref1, _results;
+        _ref = _this.object._s.properties;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          property = _ref[_i];
+          if ((_ref1 = property.name, deps.indexOf(_ref1) < 0) && property.localDependencies.indexOf(name) >= 0) {
+            deps.push(property.name);
+            _results.push(findDependencies(property.name));
+          } else {
+            _results.push(void 0);
+          }
+        }
+        return _results;
+      };
+    })(this);
+    findDependencies(this.name);
+    return deps;
+	}
 
-	def(PropertyAccessor.prototype, "listeners", {
-		get: function() {
-			return this.event.listeners;
-		}
-	});
+  get listeners() {
+    return this.event.listeners;
+	}
 
-	PropertyAccessor.prototype.clearCache = function() {
+	clearCache() {
 		if (this.definition.cache && this.definition.get) {
 			return delete this.object[this.valueName];
 		}
-	};
+	}
 
-	def(PropertyAccessor.prototype, "dependentProperties", {
-		get: function() {
-			var name;
-			return new Serenade.Collection((function() {
-				var _i, _len, _ref, _results;
-				_ref = this.dependents;
-				_results = [];
-				for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-					name = _ref[_i];
-					_results.push(this.object[name + "_property"]);
-				}
-				return _results;
-			}).call(this));
-		}
-	});
+	get dependentProperties() {
+    var name;
+    return new Serenade.Collection((function() {
+      var _i, _len, _ref, _results;
+      _ref = this.dependents;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        name = _ref[_i];
+        _results.push(this.object[name + "_property"]);
+      }
+      return _results;
+    }).call(this));
+	}
+}
 
-	return PropertyAccessor;
-
-})();
-
-defineProperty = function(object, name, options) {
+function defineProperty(object, name, options) {
 	var accessorName, define, definition;
 	if (options == null) {
 		options = {};
