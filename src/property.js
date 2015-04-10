@@ -1,5 +1,6 @@
 import { def, maybe, extend, defineOptions, safePush, primitiveTypes } from "./helpers"
 import { Event } from "./event"
+import Collection from "./collection"
 
 class PropertyDefinition {
 	constructor(name, options) {
@@ -153,76 +154,62 @@ class PropertyAccessor {
 	}
 
 	get hasListeners() {
-    return this.listeners.length === 0 && !this.dependentProperties.find((function(_this) {
-      return function(prop) {
-        return prop.listeners.length !== 0;
-      };
-    })(this));
+    if(this.listeners.length) {
+      return true;
+    } else {
+      return this.dependentProperties.some((prop) => prop.listeners.length);
+    }
 	}
 
 	gc() {
-		var dependency, fn, _i, _j, _len, _len1, _ref, _ref1, _ref2, _results;
-		if (this.hasListeners) {
-			_ref = this._gcQueue;
-			for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-				fn = _ref[_i];
-				fn();
-			}
+		if (!this.hasListeners) {
+      this._gcQueue.forEach((fn) => fn())
 			this._isRegistered = false;
 			this._gcQueue = [];
 		}
-		_ref1 = this.definition.localDependencies;
-		_results = [];
-		for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-			dependency = _ref1[_j];
-			_results.push((_ref2 = this.object[dependency + "_property"]) != null ? _ref2.gc() : void 0);
-		}
-		return _results;
+
+    this.definition.localDependencies.forEach((dependency) => {
+      maybe(this.object[dependency + "_property"]).call("gc");
+    });
 	};
 
 	trigger() {
-		var changes, name, newValue, retrievedNewValue, _i, _len, _ref, _ref1, _ref2, _ref3;
 		this.clearCache();
-		if ((_ref = this.definition.changed) === true || _ref === false) {
-			if (!this.definition.changed) {
-				return;
-			}
-		} else {
-			if ("_oldValue" in this) {
-				if (this.definition.changed) {
+
+    let retrievedNewValue, newValue;
+
+		if(this.definition.changed === false) {
+      return;
+    } else if(this.definition.changed !== true) {
+			if("_oldValue" in this) {
+				if(this.definition.changed) {
 					retrievedNewValue = true;
 					newValue = this.get();
-					if (!this.definition.changed.call(this.object, this._oldValue, newValue)) {
-						return;
-					}
+					if(!this.definition.changed.call(this.object, this._oldValue, newValue)) return;
 				} else {
 					retrievedNewValue = true;
 					newValue = this.get();
-					if (_ref1 = typeof this._oldValue, primitiveTypes.indexOf(_ref1) >= 0) {
-						if (this._oldValue === newValue) {
-							return;
-						}
-					}
+					if(primitiveTypes.indexOf(typeof(this._oldValue) !== -1) && this._oldValue === newValue) return;
 				}
 			}
 		}
+
 		if (!retrievedNewValue) {
 			newValue = this.get();
 		}
+
 		this.event.trigger(this._oldValue, newValue);
-		changes = {};
+
+		let changes = {};
 		changes[this.name] = newValue;
-		if ((_ref2 = this.object.changed) != null) {
-			if (typeof _ref2.trigger === "function") {
-				_ref2.trigger(changes);
-			}
-		}
-		_ref3 = this.dependents;
-		for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
-			name = _ref3[_i];
+
+    maybe(this.object).prop("changed").call("trigger", changes)
+
+    this.dependents.forEach((name) => {
 			this.object[name + "_property"].trigger();
-		}
-		return this._oldValue = newValue;
+    });
+
+		this._oldValue = newValue;
 	}
 
   bind(fn) {
@@ -243,25 +230,15 @@ class PropertyAccessor {
 	}
 
 	get dependents() {
-    var deps, findDependencies;
-    deps = [];
-    findDependencies = (function(_this) {
-      return function(name) {
-        var property, _i, _len, _ref, _ref1, _results;
-        _ref = _this.object._s.properties;
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          property = _ref[_i];
-          if ((_ref1 = property.name, deps.indexOf(_ref1) < 0) && property.localDependencies.indexOf(name) >= 0) {
-            deps.push(property.name);
-            _results.push(findDependencies(property.name));
-          } else {
-            _results.push(void 0);
-          }
+    let deps = [];
+    let findDependencies = (name) => {
+      this.object._s.properties.forEach((property) => {
+        if(deps.indexOf(property.name) === -1 && property.localDependencies.indexOf(name) !== -1) {
+          deps.push(property.name)
+          findDependencies(property.name)
         }
-        return _results;
-      };
-    })(this);
+      });
+    };
     findDependencies(this.name);
     return deps;
 	}
@@ -271,23 +248,13 @@ class PropertyAccessor {
 	}
 
 	clearCache() {
-		if (this.definition.cache && this.definition.get) {
-			return delete this.object[this.valueName];
+		if(this.definition.cache && this.definition.get) {
+			delete this.object[this.valueName];
 		}
 	}
 
 	get dependentProperties() {
-    var name;
-    return new Serenade.Collection((function() {
-      var _i, _len, _ref, _results;
-      _ref = this.dependents;
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        name = _ref[_i];
-        _results.push(this.object[name + "_property"]);
-      }
-      return _results;
-    }).call(this));
+    return new Collection(this.dependents.map((name) => this.object[name + "_property"]));
 	}
 }
 
