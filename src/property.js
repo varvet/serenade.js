@@ -1,4 +1,4 @@
-import { def, maybe, extend, defineOptions, safePush, primitiveTypes } from "./helpers"
+import { maybe, extend, defineOptions, safePush, primitiveTypes } from "./helpers"
 import { Event } from "./event"
 import Collection from "./collection"
 
@@ -259,52 +259,58 @@ class PropertyAccessor {
 }
 
 function defineProperty(object, name, options) {
-	var accessorName, define, definition;
-	if (options == null) {
-		options = {};
-	}
-	definition = new PropertyDefinition(name, options);
-	if (!("_s" in object)) {
+	if(!options) options = {};
+
+	let definition = new PropertyDefinition(name, options);
+
+	if(!("_s" in object)) {
 		defineOptions(object, "_s");
 	}
+
 	safePush(object._s, "properties", definition);
-	define = function(object) {
-		return def(object, name, {
+
+	function define(object) {
+		Object.defineProperty(object, name, {
 			get: function() {
 				return this[name + "_property"].get();
 			},
 			set: function(value) {
 				define(this);
-				return this[name + "_property"].set(value);
+				this[name + "_property"].set(value);
 			},
 			configurable: true,
 			enumerable: "enumerable" in options ? options.enumerable : true
 		});
 	};
+
 	define(object);
-	accessorName = name + "_property";
-	def(object, accessorName, {
+
+	let accessorName = name + "_property";
+
+	Object.defineProperty(object, accessorName, {
 		get: function() {
-			if (!this._s.hasOwnProperty(accessorName)) {
+			if(!this._s.hasOwnProperty(accessorName)) {
 				this._s[accessorName] = new PropertyAccessor(definition, this);
 			}
 			return this._s[accessorName];
 		},
 		configurable: true
 	});
-	if (typeof options.serialize === 'string') {
+
+	if(typeof options.serialize === 'string') {
 		defineProperty(object, options.serialize, {
 			get: function() {
 				return this[name];
 			},
 			set: function(v) {
-				return this[name] = v;
+				this[name] = v;
 			},
 			configurable: true
 		});
 	}
-	if ("value" in options) {
-		return object[name] = options.value;
+
+	if("value" in options) {
+		object[name] = options.value;
 	}
 };
 
