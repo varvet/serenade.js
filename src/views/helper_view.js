@@ -2,7 +2,6 @@ import DynamicView from "./dynamic_view"
 import View from "./view"
 import TemplateView from "./template_view"
 import Collection from "../collection"
-import { def } from "../helpers"
 
 function normalize(val) {
   var reduction;

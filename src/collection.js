@@ -1,5 +1,5 @@
 import defineEvent from "./event"
-import { def, serializeObject } from "./helpers"
+import { serializeObject } from "./helpers"
 
 class Collection {
 	get first() {

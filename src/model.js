@@ -1,6 +1,6 @@
 import defineProperty from "./property"
 import defineEvent from "./event"
-import { def, serializeObject } from "./helpers"
+import { serializeObject } from "./helpers"
 import collection from "./model/collection"
 import belongsTo from "./model/belongs_to"
 import delegate from "./model/delegate"

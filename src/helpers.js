@@ -4,14 +4,10 @@ export var settings = {
   async: false
 };
 
-export var def = Object.defineProperty;
-
-export var hasProp = Object.hasOwnProperty;
-
 export var primitiveTypes = ["undefined", "boolean", "number", "string"];
 
 export function defineOptions(object, name) {
-  return def(object, name, {
+  return Object.defineProperty(object, name, {
     get: function get() {
       if(!this.hasOwnProperty("_" + name)) {
         let options;
@@ -93,9 +89,9 @@ export function safePush(object, collection, item) {
     if(object.hasOwnProperty(collection)) {
       object[collection].push(item);
     } else if(object[collection]) {
-      def(object, collection, { value: [item].concat(object[collection]) });
+      Object.defineProperty(object, collection, { value: [item].concat(object[collection]) });
     } else {
-      def(object, collection, { value: [item] });
+      Object.defineProperty(object, collection, { value: [item] });
     }
   }
 };
@@ -107,7 +103,7 @@ export var safeDelete = function (object, collection, item) {
 
   if(index !== -1) {
     if(!object.hasOwnProperty(collection)) {
-      def(object, collection, { value: [].concat(object[collection]) });
+      Object.defineProperty(object, collection, { value: [].concat(object[collection]) });
     }
     object[collection].splice(index, 1);
   }

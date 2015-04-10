@@ -1,5 +1,5 @@
 import DynamicView from "./dynamic_view"
-import { def, settings } from "../helpers"
+import { settings } from "../helpers"
 import Compile from "../compile"
 import Collection from "../collection"
 
