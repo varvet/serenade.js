@@ -4,36 +4,28 @@ import TemplateView from "./template_view"
 import Collection from "../collection"
 
 function normalize(val) {
-  var reduction;
-  if (!val) {
-    return [];
-  }
-  reduction = function(aggregate, element) {
-    var child, div, _i, _j, _len, _len1, _ref, _ref1;
-    if (typeof element === "string") {
-      div = Serenade.document.createElement("div");
+  if(!val) return [];
+
+  return new Collection([].concat(val).reduce((aggregate, element) => {
+    if(typeof element === "string") {
+      let div = Serenade.document.createElement("div");
       div.innerHTML = element;
-      _ref = div.childNodes;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        child = _ref[_i];
+      Array.prototype.forEach.call(div.childNodes, (child) => {
         aggregate.push(new View(child));
-      }
-    } else if (element.nodeName === "#document-fragment") {
+      });
+    } else if(element.nodeName === "#document-fragment") {
       if (element.view) {
         aggregate = aggregate.concat(element.view);
       } else {
-        _ref1 = element.childNodes;
-        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-          child = _ref1[_j];
+        Array.prototype.forEach.call(element.childNodes, (child) => {
           aggregate.push(new View(child));
-        }
+        });
       }
     } else {
       aggregate.push(new View(element));
     }
     return aggregate;
-  };
-  return new Collection([].concat(val).reduce(reduction, []));
+  }, []));
 };
 
 class HelperView extends DynamicView {
