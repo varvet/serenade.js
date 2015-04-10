@@ -128,3 +128,30 @@ export var nextTick = function (fn) {
     }, 0);
   }
 };
+
+class Maybe {
+  constructor(value) {
+    this.value = value;
+  }
+
+  // Maybe(a) :: (a -> b) -> Maybe(b)
+  map(fn) {
+    if(this.value) {
+      return new Maybe(fn(this.value))
+    } else {
+      return this;
+    }
+  }
+
+  prop(name) {
+    return this.map((value) => value[name])
+  }
+
+  call(name, ...args) {
+    return this.prop(name).map((fn) => fn.apply(this.value, args))
+  }
+}
+
+export function maybe(value) {
+  return new Maybe(value);
+}

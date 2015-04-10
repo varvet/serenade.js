@@ -1,4 +1,4 @@
-import { def, extend, defineOptions, safePush, primitiveTypes } from "./helpers"
+import { def, maybe, extend, defineOptions, safePush, primitiveTypes } from "./helpers"
 import { Event } from "./event"
 
 class PropertyDefinition {
@@ -28,32 +28,27 @@ class PropertyDefinition {
 	}
 
   get eventOptions() {
-    var name, options;
-    name = this.name;
-    options = {
+    let name = this.name;
+    let options = {
       timeout: this.timeout,
       buffer: this.buffer,
       animate: this.animate,
       bind: function() {
-        return this[name + "_property"].registerGlobal();
+        this[name + "_property"].registerGlobal();
       },
-      optimize: function(queue) {
-        var _ref, _ref1;
-        return [(_ref = queue[0]) != null ? _ref[0] : void 0, (_ref1 = queue[queue.length - 1]) != null ? _ref1[1] : void 0];
-      }
+      optimize: (queue) => [queue[0][0], queue[queue.length - 1][1]]
     };
-    if (this.async != null) {
-      options.async = this.async;
-    }
+    if(this.hasOwnProperty("async")) options.async = this.async;
+
     return options;
 	}
 }
 
 class PropertyAccessor {
 	constructor(definition, object) {
+    this.trigger = this.trigger.bind(this);
 		this.definition = definition;
 		this.object = object;
-		this.trigger = this.trigger.bind(this);
 		this.name = this.definition.name;
 		this.valueName = "_" + this.name;
 		this.event = new Event(this.object, this.name + "_change", this.definition.eventOptions);
@@ -62,137 +57,99 @@ class PropertyAccessor {
 
 	initialize(value) {
 		this.update(value);
-		return this._oldValue = value;
+		this._oldValue = value;
 	}
 
 	update(value) {
-		if (this.definition.set) {
-			return this.definition.set.call(this.object, value);
+		if(this.definition.set) {
+			this.definition.set.call(this.object, value);
 		} else {
-			return def(this.object, this.valueName, { value: value, configurable: true, writable: true });
+			Object.defineProperty(this.object, this.valueName, { value: value, configurable: true, writable: true });
 		}
 	}
 
 	set(value) {
-		if (typeof value === "function") {
-			return this.definition.get = value;
+		if(typeof value === "function") {
+			this.definition.get = value;
 		} else {
 			this.update(value);
-			return this.trigger();
+			this.trigger();
 		}
 	}
 
 	get() {
-		var value;
 		if (this.definition.get && !(this.definition.cache && this.valueName in this.object)) {
-			value = this.definition.get.call(this.object);
+			let value = this.definition.get.call(this.object);
 			if (this.definition.cache) {
-				def(this.object, this.valueName, {
-					value: value,
-					writable: true,
-					configurable: true
-				});
-				if (!this._isCached) {
+				Object.defineProperty(this.object, this.valueName, { value, writable: true, configurable: true });
+				if(!this._isCached) {
 					this._isCached = true;
 					this.bind(function() {});
 				}
 			}
+      return value;
 		} else {
-			value = this.object[this.valueName];
+			return this.object[this.valueName];
 		}
-		return value;
 	}
 
 	registerGlobal(value) {
-		var dependency, _i, _len, _ref, _ref1, _results;
-		if (this._isRegistered) {
-			return;
-		}
+		if(this._isRegistered) return;
 		this._isRegistered = true;
-		if ("_oldValue" in this) {
-			if (arguments.length === 0) {
-				value = this.get();
-			}
+
+		if("_oldValue" in this) {
+			if(arguments.length === 0) value = this.get();
 			this._oldValue = value;
 		}
-		this.definition.globalDependencies.forEach((function(_this) {
-			return function(_arg) {
-				var name, subname, type, updateCollectionBindings, updateItemBinding, updateItemBindings, _ref, _ref1;
-				name = _arg.name, type = _arg.type, subname = _arg.subname;
-				switch (type) {
-					case "singular":
-						updateItemBinding = function(before, after) {
-							var _ref, _ref1;
-							if (before != null) {
-								if ((_ref = before[subname + "_property"]) != null) {
-									_ref.unbind(_this.trigger);
-								}
-							}
-							return after != null ? (_ref1 = after[subname + "_property"]) != null ? _ref1.bind(_this.trigger) : void 0 : void 0;
-						};
-						if ((_ref = _this.object[name + "_property"]) != null) {
-							_ref.bind(updateItemBinding);
-						}
-						updateItemBinding(void 0, _this.object[name]);
-						return _this._gcQueue.push(function() {
-							var _ref1;
-							updateItemBinding(_this.object[name], void 0);
-							return (_ref1 = _this.object[name + "_property"]) != null ? _ref1.unbind(updateItemBinding) : void 0;
-						});
-					case "collection":
-						updateItemBindings = function(before, after) {
-							if (before != null) {
-								if (typeof before.forEach === "function") {
-									before.forEach(function(item) {
-										var _ref1;
-										return (_ref1 = item[subname + "_property"]) != null ? _ref1.unbind(_this.trigger) : void 0;
-									});
-								}
-							}
-							return after != null ? typeof after.forEach === "function" ? after.forEach(function(item) {
-								var _ref1;
-								return (_ref1 = item[subname + "_property"]) != null ? _ref1.bind(_this.trigger) : void 0;
-							}) : void 0 : void 0;
-						};
-						updateCollectionBindings = function(before, after) {
-							var _ref1, _ref2, _ref3, _ref4;
-							updateItemBindings(before, after);
-							if (before != null) {
-								if ((_ref1 = before.change) != null) {
-									_ref1.unbind(_this.trigger);
-								}
-							}
-							if (after != null) {
-								if ((_ref2 = after.change) != null) {
-									_ref2.bind(_this.trigger);
-								}
-							}
-							if (before != null) {
-								if ((_ref3 = before.change) != null) {
-									_ref3.unbind(updateItemBindings);
-								}
-							}
-							return after != null ? (_ref4 = after.change) != null ? _ref4.bind(updateItemBindings) : void 0 : void 0;
-						};
-						if ((_ref1 = _this.object[name + "_property"]) != null) {
-							_ref1.bind(updateCollectionBindings);
-						}
-						updateCollectionBindings(void 0, _this.object[name]);
-						return _this._gcQueue.push(function() {
-							var _ref2;
-							updateCollectionBindings(_this.object[name], void 0);
-							return (_ref2 = _this.object[name + "_property"]) != null ? _ref2.unbind(updateCollectionBindings) : void 0;
-						});
-				}
+
+		this.definition.globalDependencies.forEach(({ name, type, subname }) => {
+      let trigger = this.trigger;
+
+      if(type === "singular") {
+        let updateItemBinding = function(before, after) {
+          maybe(before).prop(subname + "_property").call("unbind", trigger);
+          maybe(after).prop(subname + "_property").call("bind", trigger);
+        };
+
+        maybe(this.object[name + "_property"]).call("bind", updateItemBinding);
+        updateItemBinding(undefined, this.object[name]);
+
+        this._gcQueue.push(() => {
+          updateItemBinding(this.object[name], undefined);
+          maybe(this.object[name + "_property"]).call("unbind", updateItemBinding);
+        });
+
+      } else if(type == "collection") {
+        function updateItemBindings(before, after) {
+          maybe(before).call("forEach", (item) => {
+            maybe(item[subname + "_property"]).call("unbind", trigger);
+          });
+          maybe(after).call("forEach", (item) => {
+            maybe(item[subname + "_property"]).call("bind", trigger);
+          });
+        };
+
+        function updateCollectionBindings(before, after) {
+          updateItemBindings(before, after);
+          maybe(before).prop("change").call("unbind", trigger);
+          maybe(after).prop("change").call("bind", trigger);
+          maybe(before).prop("change").call("unbind", updateItemBindings);
+          maybe(after).prop("change").call("bind", updateItemBindings);
+        };
+
+        maybe(this.object[name + "_property"]).call("bind", updateCollectionBindings);
+        updateCollectionBindings(undefined, this.object[name]);
+
+        this._gcQueue.push(() => {
+          updateCollectionBindings(this.object[name], undefined);
+          maybe(this.object[name + "_property"]).call("unbind", updateCollectionBindings);
+        });
 			};
-		})(this));
-		_ref = this.definition.localDependencies;
-		_results = [];
-		for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-			dependency = _ref[_i];
-			_results.push((_ref1 = this.object[dependency + "_property"]) != null ? _ref1.registerGlobal() : void 0);
-		}
-		return _results;
+		});
+
+		this.definition.localDependencies.forEach((dependency) => {
+			maybe(this.object[dependency + "_property"]).call("registerGlobal")
+		});
 	}
 
 	get hasListeners() {
@@ -282,7 +239,7 @@ class PropertyAccessor {
 
 	unbind(fn) {
 		this.event.unbind(fn);
-		return this.gc();
+		this.gc();
 	}
 
 	get dependents() {
