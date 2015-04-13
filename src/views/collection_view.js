@@ -66,16 +66,6 @@ class CollectionView extends DynamicView {
       this.children[fromIndex].insertAfter(last);
     }
     return _ref2 = [this.children[toIndex], this.children[fromIndex]], this.children[fromIndex] = _ref2[0], this.children[toIndex] = _ref2[1], _ref2;
-    // if (this.anchor.parentNode) {
-    //   let previousChild = this.children[fromIndex - 1]
-    //   let previousElement = (previousChild && previousChild.lastElement) || this.anchor;
-    //   this.children[toIndex].insertAfter(previousElement);
-
-    //   previousChild = this.children[toIndex - 1]
-    //   previousElement = (previousChild && previousChild.lastElement) || this.anchor;
-    //   this.children[fromIndex].insertAfter(previousElement);
-    // }
-    // [this.children[toIndex], this.children[fromIndex]] = [this.children[toIndex], this.children[fromIndex]]
   };
 
 }
