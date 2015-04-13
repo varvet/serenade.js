@@ -35,5 +35,7 @@ target/serenade.min.js.gz: target/serenade.min.js
 	@mkdir -p $(@D)
 	gzip -kf $<
 
+test/%: build
+	mocha $@
 
-.PHONY: test
+.PHONY: test test/%
