@@ -109,7 +109,7 @@ describe 'Template', ->
     it 'parses string literals as children on separate lines', ->
       result = parse("div\n\t\"Loca\"\n\tspan")
       expect(result.name).to.eql('div')
-      expect(result.children[0].type).to.eql('text')
+      expect(result.children[0].type).to.eql('content')
       expect(result.children[0].value).to.eql('Loca')
       expect(result.children[1].name).to.eql('span')
 
@@ -120,7 +120,7 @@ describe 'Template', ->
           span[class=bar]
       """
       expect(result.name).to.eql('div')
-      expect(result.children[0].type).to.eql('text')
+      expect(result.children[0].type).to.eql('content')
       expect(result.children[0].value).to.eql('Loca')
       expect(result.children[1].name).to.eql('span')
 
@@ -129,7 +129,7 @@ describe 'Template', ->
         div "Loca"
       """
       expect(result.name).to.eql('div')
-      expect(result.children[0].type).to.eql('text')
+      expect(result.children[0].type).to.eql('content')
       expect(result.children[0].value).to.eql('Loca')
 
     it 'parses string literals as children on the same line with arguments', ->
@@ -137,10 +137,10 @@ describe 'Template', ->
         div[id=foo] "Loca" "schmoo"
       """
       expect(result.name).to.eql('div')
-      expect(result.children[0].type).to.eql('text')
+      expect(result.children[0].type).to.eql('content')
       expect(result.children[0].value).to.eql('Loca')
       expect(result.children[0].bound).to.eql(undefined)
-      expect(result.children[1].type).to.eql('text')
+      expect(result.children[1].type).to.eql('content')
       expect(result.children[1].value).to.eql('schmoo')
       expect(result.children[1].bound).to.eql(undefined)
 

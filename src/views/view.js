@@ -60,4 +60,6 @@ class View {
   }
 }
 
+View.isView = true;
+
 export default View;

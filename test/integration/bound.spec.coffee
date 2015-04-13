@@ -19,6 +19,11 @@ describe 'Bound attributes and text nodes', ->
     @render 'div @name', context
     expect(@body.querySelector('div')).to.have.text('Jonas Nicklas')
 
+  it 'get bound view from the context', ->
+    context = { name: Serenade.template('h1 "Jonas"').render() }
+    @render 'div @name', context
+    expect(@body.querySelector('div h1')).to.have.text('Jonas')
+
   it 'sets multiple classes with an array given as the class attribute', ->
     context = { names: ['jonas', 'peter'] }
     @render 'div[class=names]', context

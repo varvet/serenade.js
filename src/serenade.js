@@ -14,6 +14,7 @@ import IfView from "./views/if_view"
 import InView from "./views/in_view"
 import TemplateView from "./views/template_view"
 import TextView from "./views/text_view"
+import ContentView from "./views/content_view"
 import UnlessView from "./views/unless_view"
 import View from "./views/view"
 

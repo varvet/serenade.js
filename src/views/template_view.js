@@ -13,7 +13,12 @@ class TemplateView extends DynamicView {
     let fragment = settings.document.createDocumentFragment();
     this.append(fragment);
     fragment.view = this;
+    fragment.isView = true;
     fragment.remove = this.remove.bind(this);
+    fragment.append = this.append.bind(this);
+    fragment.insertAfter = this.insertAfter.bind(this);
+    fragment.detach = this.detach.bind(this);
+    Object.defineProperty(fragment, "lastElement", { get: () => this.lastElement })
     return fragment;
   }
 }

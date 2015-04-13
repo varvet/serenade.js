@@ -23,18 +23,18 @@ Element
   : ElementIdentifier { $$ = { name: $1.name, id: $1.id, classes: $1.classes, properties: [], children: [], type: "element" } }
   | Element LBRACKET RBRACKET { $$ = $1 }
   | Element LBRACKET PropertyList RBRACKET { $1.properties = $3; $$ = $1 }
-  | Element WHITESPACE Text { $1.children = $1.children.concat($3); $$ = $1 }
+  | Element WHITESPACE Content { $1.children = $1.children.concat($3); $$ = $1 }
   | Element INDENT ChildList OUTDENT { $1.children = $1.children.concat($3); $$ = $1 }
   ;
 
-TextList
-  : Text { $$ = [$1] }
-  | TextList WHITESPACE Text { $$ = $1.concat($3) }
+ContentList
+  : Content { $$ = [$1] }
+  | ContentList WHITESPACE Content { $$ = $1.concat($3) }
   ;
 
-Text
-  : Bound { $$ = { type: "text", value: $1, bound: true } }
-  | STRING_LITERAL { $$ = { type: "text", value: $1 } }
+Content
+  : Bound { $$ = { type: "content", value: $1, bound: true } }
+  | STRING_LITERAL { $$ = { type: "content", value: $1 } }
   ;
 
 Child
@@ -42,7 +42,7 @@ Child
   | IfInstruction { $$ = $1 }
   | Instruction { $$ = $1 }
   | Helper { $$ = $1 }
-  | TextList { $$ = $1 }
+  | ContentList { $$ = $1 }
   ;
 
 PropertyList
@@ -70,7 +70,7 @@ Instruction
 
 Helper
   : DASH WHITESPACE IDENTIFIER { $$ = { command: $3, arguments: [], children: [], type: "helper" } }
-  | Helper WHITESPACE Text { $1.arguments.push($3); $$ = $1 }
+  | Helper WHITESPACE Content { $1.arguments.push($3); $$ = $1 }
   | Helper INDENT ChildList OUTDENT { $1.children = $3; $$ = $1 }
   ;
 
