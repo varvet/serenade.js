@@ -128,10 +128,10 @@ const Property = {
 
 class Element extends View {
   constructor(ast, context) {
+    super(settings.document.createElement(ast.name))
+
     this.ast = ast;
     this.context = context;
-
-    super(settings.document.createElement(ast.name))
 
     if (ast.id) {
       this.node.setAttribute('id', ast.id);

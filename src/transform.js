@@ -6,28 +6,28 @@ class Map {
     array.forEach((element, index) => this.put(index, element))
   }
 
-  isMember(element) {
-    let element = this.map[hash(element)];
+  isMember(key) {
+    let element = this.map[hash(key)];
     return element && element[0].length > 0;
   }
 
-  indexOf(element) {
-    let element = this.map[hash(element)];
+  indexOf(key) {
+    let element = this.map[hash(key)];
     return element && element[0] && element[0][0];
   }
 
-  put(index, element) {
-    let h = hash(element);
+  put(index, key) {
+    let h = hash(key);
     let existing = this.map[h];
     if(existing) {
-      this.map[h] = [existing[0].concat(index).sort((a, b) => a - b), element];
+      this.map[h] = [existing[0].concat(index).sort((a, b) => a - b), key];
     } else {
-      this.map[h] = [[index], element];
+      this.map[h] = [[index], key];
     }
   }
 
-  remove(element) {
-    let element = this.map[hash(element)];
+  remove(key) {
+    let element = this.map[hash(key)];
     if(element && element[0]) {
       element[0].shift();
     }

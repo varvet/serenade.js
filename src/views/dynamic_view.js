@@ -3,6 +3,7 @@ import Collection from "../collection"
 
 class DynamicView extends View {
   constructor(ast, context) {
+    super()
     this.ast = ast;
     this.context = context;
     this.anchor = Serenade.document.createTextNode('');

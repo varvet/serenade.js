@@ -6,11 +6,9 @@ import Transform from "../transform"
 
 class CollectionView extends DynamicView {
   constructor(ast, context) {
-    this.ast = ast;
-    this.context = context;
-    this.update = this.update.bind(this);
-
     super(ast, context);
+
+    this.update = this.update.bind(this);
 
     let items = this.context[ast.argument] || [];
     this.lastItems = items.map((i) => i)

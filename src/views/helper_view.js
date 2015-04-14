@@ -30,13 +30,11 @@ function normalize(val) {
 
 class HelperView extends DynamicView {
   constructor(ast, context, helper) {
-    this.ast = ast;
-    this.context = context;
+    super(ast, context);
+
     this.helper = helper;
     this.render = this.render.bind(this);
     this.update = this.update.bind(this);
-
-    super(ast, context);
 
     this.update();
 
