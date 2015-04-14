@@ -12,7 +12,7 @@ default: target/serenade.js target/serenade.min.js target/serenade.min.js.gz
 lib: $(LIB)
 lib/%.js: src/%.js
 	@mkdir -p $(@D)
-	$(BABEL) $< -o $@ --modules common
+	$(BABEL) $< -o $@ --modules common --optional es7.decorators
 
 lib/grammar.js: src/grammar.jison
 	@mkdir -p $(@D)

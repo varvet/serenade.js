@@ -41,7 +41,7 @@
     "build": "make build"
   },
   "devDependencies": {
-    "babel": "^4.7.9",
+    "babel": "^5.1.9",
     "browserify": "^9.0.3",
     "chai": "0.5.x",
     "coffee-script": "1.x.x",
