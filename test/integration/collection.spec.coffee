@@ -192,6 +192,39 @@ describe 'Collection', ->
 
     expect(n.className for n in @body.querySelectorAll("#things li")).to.eql(["a", "b", "c"])
 
+  it 'renders a collection without children', ->
+    context = { people: new Serenade.Collection(['jonas', 'peter']) }
+
+    @render '''
+      div
+        - collection @people
+    ''', context
+    expect(@body.querySelector("div")).to.have.text("jonaspeter")
+    context.people.push("mary")
+    expect(@body.querySelector("div")).to.have.text("jonaspetermary")
+
+  it 'renders a collection of views', ->
+    template = Serenade.template('li[id=@name]')
+    context = {
+      people: new Serenade.Collection([
+        template.render(name: "jonas"),
+        template.render(name: "peter")
+      ])
+    }
+
+    @render '''
+      ul
+        - collection @people
+    ''', context
+    expect(@body).to.have.element('ul > li#jonas')
+    expect(@body).to.have.element('ul > li#peter')
+
+    context.people.push(template.render(name: "mary"))
+
+    expect(@body).to.have.element('ul > li#jonas')
+    expect(@body).to.have.element('ul > li#peter')
+    expect(@body).to.have.element('ul > li#mary')
+
   it 'can render same collection multiple times', ->
     context = { people: new Serenade.Collection(["jonas"]) }
 

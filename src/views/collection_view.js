@@ -1,5 +1,6 @@
 import DynamicView from "./dynamic_view"
 import TemplateView from "./template_view"
+import TextView from "./text_view"
 import Compile from "../compile"
 import Collection from "../collection"
 import Transform from "../transform"
@@ -12,7 +13,7 @@ class CollectionView extends DynamicView {
 
     let items = this.context[ast.argument] || [];
     this.lastItems = items.map((i) => i)
-    this.children = new Collection(items.map((item) => new TemplateView(ast.children || [], item, context)))
+    this.children = new Collection(items.map(this._toView.bind(this)))
     this.cb = (_, after) => this.replace(after);
     this._bindEvent(this.context["" + ast.argument + "_property"], this.update);
     this._bindEvent(items.change, this.cb);
@@ -27,7 +28,7 @@ class CollectionView extends DynamicView {
   replace(items) {
     Transform(this.lastItems, items).forEach((operation) => {
       if(operation.type == "insert") {
-        this._insertChild(operation.index, new TemplateView(this.ast.children || [], operation.value));
+        this._insertChild(operation.index, this._toView(operation.value));
       } else if(operation.type == "remove") {
         this._deleteChild(operation.index);
       } else if(operation.type == "swap") {
@@ -39,12 +40,22 @@ class CollectionView extends DynamicView {
     } else {
       this.lastItems = [];
     }
-  };
+  }
+
+  _toView(item) {
+    if(this.ast.children.length) {
+      return new TemplateView(this.ast.children || [], item);
+    } else if(item && item.isView) {
+      return item;
+    } else {
+      return new TextView(item);
+    }
+  }
 
   _deleteChild(index) {
     this.children[index].remove();
     this.children.deleteAt(index);
-  };
+  }
 
   _insertChild(index, view) {
     if(this.anchor.parentNode) {
@@ -53,7 +64,7 @@ class CollectionView extends DynamicView {
       view.insertAfter(previousElement);
     }
     this.children.insertAt(index, view);
-  };
+  }
 
   _swapChildren(fromIndex, toIndex) {
     var last, _ref, _ref1, _ref2;
@@ -64,8 +75,7 @@ class CollectionView extends DynamicView {
       this.children[fromIndex].insertAfter(last);
     }
     return _ref2 = [this.children[toIndex], this.children[fromIndex]], this.children[fromIndex] = _ref2[0], this.children[toIndex] = _ref2[1], _ref2;
-  };
-
+  }
 }
 
 Compile.collection = function(ast, context) {
