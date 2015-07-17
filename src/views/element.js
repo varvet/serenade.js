@@ -206,7 +206,11 @@ defineEvent(Element.prototype, "load", { async: false });
 defineEvent(Element.prototype, "unload", { async: false });
 
 Compile.element = function(ast, context) {
-  return Serenade.renderView(ast, context);
+  if(settings.views[ast.name]) {
+    return settings.views[ast.name](ast, context);
+  } else {
+    return new Element(ast, context);
+  }
 };
 
 export default Element;

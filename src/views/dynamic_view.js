@@ -1,12 +1,13 @@
 import View from "./view"
 import Collection from "../collection"
+import { settings } from "../helpers"
 
 class DynamicView extends View {
   constructor(ast, context) {
     super()
     this.ast = ast;
     this.context = context;
-    this.anchor = Serenade.document.createTextNode('');
+    this.anchor = settings.document.createTextNode('');
     this.items = [];
     this.children = new Collection();
   }

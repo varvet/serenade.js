@@ -1,9 +1,9 @@
 import View from "./view"
-import { assignUnlessEqual } from "../helpers"
+import { settings, assignUnlessEqual } from "../helpers"
 
 class TextView extends View {
   constructor(value) {
-    super(Serenade.document.createTextNode(""));
+    super(settings.document.createTextNode(""));
     this.update(value);
   }
 

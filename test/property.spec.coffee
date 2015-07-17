@@ -1,5 +1,6 @@
 require './spec_helper'
 
+Serenade = require('../lib/serenade')
 {defineProperty} = Serenade
 
 describe 'Serenade.defineProperty', ->

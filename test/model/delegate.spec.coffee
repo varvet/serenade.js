@@ -1,4 +1,5 @@
 require './../spec_helper'
+Serenade = require('../../lib/serenade')
 
 describe "Serenade.Model.delegate", ->
   it "sets up delegated attributes", ->

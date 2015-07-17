@@ -1,4 +1,5 @@
 require './spec_helper'
+Serenade = require('../lib/serenade')
 {Template} = Serenade
 
 describe 'Template', ->

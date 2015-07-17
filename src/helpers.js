@@ -1,7 +1,9 @@
 "use strict";
 
 export var settings = {
-  async: false
+  async: false,
+  views: {},
+  templates: {},
 };
 
 export var primitiveTypes = ["undefined", "boolean", "number", "string"];

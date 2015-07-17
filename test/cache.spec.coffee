@@ -1,4 +1,5 @@
 require './spec_helper'
+Serenade = require('../lib/serenade')
 {Cache} = Serenade
 
 describe 'Serenade.Cache', ->

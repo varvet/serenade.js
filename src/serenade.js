@@ -32,8 +32,6 @@ if(typeof(window) !== "undefined") {
 
 extend(Serenade, {
 	VERSION: '0.5.0',
-	views: {},
-	templates: {},
 	defineProperty: defineProperty,
 	defineEvent: defineEvent,
 
@@ -43,14 +41,6 @@ extend(Serenade, {
 
 	helper: function(name, fn) {
 		return this.views[name] = (ast, context) => new HelperView(ast, context, fn);
-	},
-
-	renderView: function(ast, context) {
-		if(this.views[ast.name]) {
-			return this.views[ast.name](ast, context);
-		} else {
-			return new Element(ast, context);
-		}
 	},
 
 	template: function(nameOrTemplate, template) {
@@ -100,6 +90,22 @@ extend(Serenade, {
 
 	set document(value) {
 		settings.document = value;
+	},
+
+  get views() {
+		return settings.views;
+	},
+
+	set views(value) {
+		settings.views = value;
+	},
+
+  get templates() {
+		return settings.templates;
+	},
+
+	set templates(value) {
+		settings.templates = value;
 	},
 });
 

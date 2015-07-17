@@ -1,4 +1,5 @@
 require './../spec_helper'
+Serenade = require('../../lib/serenade')
 
 describe 'Serenade.Model.hasMany', ->
   it 'allows objects to be added and retrieved', ->

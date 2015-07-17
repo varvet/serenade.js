@@ -1,4 +1,5 @@
 require './../spec_helper'
+Serenade = require('../../lib/serenade')
 
 describe 'Serenade.Model.belongsTo', ->
   it 'allows model to be assigned and retrieved', ->

@@ -1,5 +1,5 @@
 # load globally so we don't have to load it again and again
-root.Serenade = require('../lib/serenade')
+Serenade = require('../lib/serenade')
 
 chai = require 'chai'
 chai.should()

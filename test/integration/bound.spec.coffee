@@ -1,4 +1,5 @@
 require './../spec_helper'
+Serenade = require('../../lib/serenade')
 
 describe 'Bound attributes and text nodes', ->
   beforeEach ->
