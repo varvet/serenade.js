@@ -1,8 +1,6 @@
-import { Parser } from "./grammar"
+import parser from "./grammar"
 import Lexer from "./lexer"
 import TemplateView from "./views/template_view"
-
-var parser = new Parser()
 
 parser.lexer = {
 	lex: function() {

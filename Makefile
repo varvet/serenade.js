@@ -16,7 +16,8 @@ lib/%.js: src/%.js
 
 lib/grammar.js: src/grammar.jison
 	@mkdir -p $(@D)
-	$(JISON) $< -m commonjs -o $@
+	$(JISON) $< -m js -o $@
+	@echo "module.exports = (function() { `cat $@`; return `basename -s .js $@`; })();" > $@
 
 build: $(LIB) lib/grammar.js
 
@@ -25,7 +26,7 @@ test: build
 
 target/serenade.js: build
 	@mkdir -p $(@D)
-	$(BROWSERIFY) lib/serenade -o $@ -i file -i system -s Serenade
+	$(BROWSERIFY) lib/serenade -o $@ -s Serenade
 
 target/serenade.min.js: target/serenade.js
 	@mkdir -p $(@D)
