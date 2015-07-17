@@ -13,10 +13,10 @@ const Property = {
   event: {
     setup: function(property) {
       this.node.addEventListener(property.name, (e) => {
-        if(property.preventDefault) {
+        if(property.arguments[0].preventDefault) {
           e.preventDefault();
         }
-        this.context[property.value](this.node, this.context, e);
+        this.context[property.arguments[0].value](this.node, this.context, e);
       });
     }
   },
@@ -39,21 +39,22 @@ const Property = {
   },
   binding: {
     setup: function(property) {
+      let value = property.arguments[0].value;
       if(this.ast.name !== "input" && this.ast.name !== "textarea" && this.ast.name !== "select") {
         throw SyntaxError("invalid view type " + this.ast.name + " for two way binding");
       }
-      if(!property.value) {
+      if(!value) {
         throw SyntaxError("cannot bind to whole context, please specify an attribute to bind to");
       }
       let domUpdated = () => {
         if(this.node.type === "checkbox") {
-          this.context[property.value] = this.node.checked;
+          this.context[value] = this.node.checked;
         } else if(this.node.type === "radio") {
           if(this.node.checked) {
-            this.context[property.value] = this.node.value;
+            this.context[value] = this.node.value;
           }
         } else {
-          this.context[property.value] = this.node.value;
+          this.context[value] = this.node.value;
         }
       }
       if(property.name === "binding") {
@@ -112,7 +113,7 @@ const Property = {
     setup: function(property) {
       if(property.name === "load" || property.name === "unload") {
         this[property.name].bind(function() {
-          this.context[property.value](this.node, this.context);
+          this.context[property.arguments[0].value](this.node, this.context);
         });
       } else {
         throw new SyntaxError("unkown lifecycle event '" + property.name + "'");
@@ -149,32 +150,37 @@ class Element extends View {
 
     ast.properties.forEach((property) => {
       let action;
-      if(property.scope === "attribute" && property.name === "binding") {
-        action = Property.binding
+
+      if(!property.scope && property.name === "binding") {
+        action = Property.binding;
       } else {
-        action = Property[property.scope];
+        action = Property[property.scope || "attribute"];
       }
-      if(action) {
-        if(action.setup) {
-          action.setup.call(this, property);
-        }
-        if(action.update) {
-          if(property["static"]) {
-            action.update.call(this, property, this.context[property.value]);
-          } else if (property.bound) {
-            if (property.value) {
-              this._bindToModel(property.value, (value) => action.update.call(this, property, value));
-            } else {
-              action.update.call(this, property, this.context);
-            }
-          } else {
-            action.update.call(this, property, property.value);
-          }
-        } else if(property.bound) {
-          throw SyntaxError("properties in scope " + property.scope + " cannot be bound, use: `" + property.scope + ":" + property.name + "=" + property.value + "`");
-        }
-      } else {
+
+      if(!action) {
         throw SyntaxError("" + property.scope + " is not a valid scope");
+      }
+
+      if(action.setup) {
+        action.setup.call(this, property);
+      }
+
+      let argument = property.arguments[0];
+
+      if(action.update) {
+        if(argument.static) {
+          action.update.call(this, property, this.context[argument.value]);
+        } else if (argument.bound) {
+          if (argument.value) {
+            this._bindToModel(argument.value, (value) => action.update.call(this, property, value));
+          } else {
+            action.update.call(this, property, this.context);
+          }
+        } else {
+          action.update.call(this, property, argument.value);
+        }
+      } else if(argument.bound) {
+        throw SyntaxError("properties in scope " + property.scope + " cannot be bound, use: `" + property.scope + ":" + property.name + "=...")
       }
     });
     this.load.trigger();

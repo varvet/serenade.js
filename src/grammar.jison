@@ -51,12 +51,16 @@ PropertyList
   ;
 
 Property
-  : AnyIdentifier EQUALS AnyIdentifier { $$ = { name: $1, static: true, value: $3, scope: "attribute" } }
-  | AnyIdentifier EQUALS Bound { $$ = { name: $1, value: $3, bound: true, scope: "attribute" } }
-  | AnyIdentifier EQUALS AnyIdentifier BANG { $$ = { name: $1, static: true, value: $3, scope: "attribute", preventDefault: true } }
-  | AnyIdentifier EQUALS Bound BANG { $$ = { name: $1, value: $3, bound: true, scope: "attribute", preventDefault: true } }
-  | AnyIdentifier EQUALS STRING_LITERAL { $$ = { name: $1, value: $3, scope: "attribute" } }
+  : AnyIdentifier EQUALS PropertyArguments { $$ = { name: $1, arguments: $3 } }
   | AnyIdentifier COLON Property { $3.scope = $1; $$ = $3 }
+  ;
+
+PropertyArguments
+  : AnyIdentifier { $$ = [{ static: true, value: $1 }] }
+  | Bound { $$ = [{ bound: true, value: $1 }] }
+  | AnyIdentifier BANG { $$ = [{ static: true, value: $1, preventDefault: true }] }
+  | Bound BANG { $$ = [{ bound: true, value: $1, preventDefault: true }] }
+  | STRING_LITERAL { $$ = [{ value: $1 }] }
   ;
 
 Instruction
