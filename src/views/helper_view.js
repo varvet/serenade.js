@@ -3,6 +3,7 @@ import View from "./view"
 import TemplateView from "./template_view"
 import Collection from "../collection"
 import { settings } from "../helpers"
+import Compile from "../compile"
 
 function normalize(val) {
   if(!val) return [];
@@ -39,9 +40,9 @@ class HelperView extends DynamicView {
 
     this.update();
 
-    this.ast.properties.forEach((property) => {
-      if (property.bound === true) {
-        this._bindEvent(context["" + property.value + "_property"], this.update);
+    this.ast.arguments.forEach(({ value, bound }) => {
+      if (bound === true) {
+        this._bindEvent(context["" + value + "_property"], this.update);
       }
     });
   }
@@ -51,24 +52,24 @@ class HelperView extends DynamicView {
     this.children = normalize(this.helper.call({
       context: this.context,
       render: this.render
-    }, this.arguments));
+    }, ...this.arguments));
     this.rebuild();
   }
 
   get arguments() {
-    let args = {};
-    this.ast.properties.forEach((property) => {
-      if(property.scope !== "attribute") {
-        throw new SyntaxError("scope '" + property.scope + "' is not allowed for custom helpers");
-      }
-      args[property.name] = (property.static || property.bound) ? this.context[property.value] : property.value;
+    return this.ast.arguments.map((argument) => {
+      return (argument.static || argument.bound) ? this.context[argument.value] : argument.value;
     });
-    return args;
   }
 
   render(context) {
     return new TemplateView(this.ast.children, context).fragment;
   }
 }
+
+Compile.helper = function(ast, context) {
+  return settings.views[ast.command](ast, context);
+};
+
 
 export default HelperView;

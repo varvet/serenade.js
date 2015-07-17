@@ -8,7 +8,7 @@ describe 'Custom helpers', ->
     Serenade.helper "funky", -> Serenade.document.createElement('form')
     @render '''
       div
-        funky
+        - funky
     '''
     expect(@body).to.have.element('div > form')
 
@@ -17,7 +17,7 @@ describe 'Custom helpers', ->
       [Serenade.document.createElement('form'), Serenade.document.createElement('article')]
     @render '''
       div
-        funky
+        - funky
     '''
     expect(@body).to.have.element('div > form')
     expect(@body).to.have.element('div > article')
@@ -31,7 +31,7 @@ describe 'Custom helpers', ->
 
     @render '''
       div
-        funky
+        - funky
     '''
 
     expect(@body).to.have.element('div > form')
@@ -47,7 +47,7 @@ describe 'Custom helpers', ->
 
     @render '''
       div
-        funky
+        - funky
     '''
 
     expect(@body).to.have.element('div > #foo > #bar')
@@ -55,7 +55,7 @@ describe 'Custom helpers', ->
 
   it 'cleans up listeners from rendered serenade view', ->
     context = Serenade(name: "Jonas", active: true)
-    Serenade.helper "funky", ({ active }) ->
+    Serenade.helper "funky", (active) ->
       if active
         Serenade.template("""
           #bar @name
@@ -65,7 +65,7 @@ describe 'Custom helpers', ->
 
     @render '''
       div
-        funky[active=@active]
+        - funky @active
     ''', context
 
     expect(@body).to.have.element('#bar')
@@ -78,7 +78,7 @@ describe 'Custom helpers', ->
     Serenade.helper "funky", -> undefined
     @render '''
       div
-        funky
+        - funky
     '''
     expect(@body).to.have.element('div')
 
@@ -87,7 +87,7 @@ describe 'Custom helpers', ->
       "Hello"
     @render '''
       div
-        funky
+        - funky
     '''
     expect(@body).to.have.element('div')
     expect(@body).to.have.text("Hello")
@@ -97,7 +97,7 @@ describe 'Custom helpers', ->
       "<article>Hello</article>"
     @render '''
       div
-        funky
+        - funky
     '''
     expect(@body).to.have.element('div > article')
     expect(@body).to.have.text("Hello")
@@ -107,7 +107,7 @@ describe 'Custom helpers', ->
       "<article>Hello</article><section></section>"
     @render '''
       div
-        funky
+        - funky
     '''
     expect(@body).to.have.element('div > article')
     expect(@body).to.have.element('div > section')
@@ -121,30 +121,30 @@ describe 'Custom helpers', ->
     context = name: 'jonas'
     @render '''
       div
-        funky
+        - funky
     ''', context
     expect(@body).to.have.element('div > form#jonas')
 
   it 'uses a custom helper and sends in an argument', ->
-    Serenade.helper "makeElement", ({ name }) ->
+    Serenade.helper "makeElement", (name) ->
       Serenade.document.createElement(name)
     @render '''
       div
-        makeElement[name="form"]
-        makeElement[name="article"]
+        - makeElement "form"
+        - makeElement "article"
     '''
     expect(@body).to.have.element('div > form')
     expect(@body).to.have.element('div > article')
 
   it 'uses a custom helper and sends in mupltiple arguments', ->
-    Serenade.helper "makeElement", ({ name, id }) ->
+    Serenade.helper "makeElement", (name, id) ->
       element = Serenade.document.createElement(name)
       element.setAttribute('id', id)
       element
     @render '''
       div
-        makeElement[name="form" id="product"]
-        makeElement[name="article" id="banana"]
+        - makeElement "form" "product"
+        - makeElement "article" "banana"
     '''
     expect(@body).to.have.element('div > form#product')
     expect(@body).to.have.element('div > article#banana')
@@ -157,7 +157,7 @@ describe 'Custom helpers', ->
     @render '''
       div
         - collection @col
-          test
+          - test
     ''', context
     expect(@body).to.have.element('div > span')
 
@@ -169,7 +169,7 @@ describe 'Custom helpers', ->
         element
       @render '''
         div
-          form
+          - form
             div[id="jonas"]
       '''
       expect(@body).to.have.element('div > form > div#jonas')
@@ -181,7 +181,7 @@ describe 'Custom helpers', ->
         element
       @render '''
         div
-          form
+          - form
             div#jonas
             div#peter
       '''
@@ -193,7 +193,7 @@ describe 'Custom helpers', ->
         Serenade.document.createElement('form')
       @render '''
         div
-          form
+          - form
             div[id="jonas"]
       '''
       expect(@body).not.to.have.element('div > form > div#jonas')
@@ -205,7 +205,7 @@ describe 'Custom helpers', ->
         element
       @render '''
         div
-          form
+          - form
             div[id=name]
       '''
       expect(@body).to.have.element('div > form > div#peter')
@@ -219,7 +219,7 @@ describe 'Custom helpers', ->
         element
       @render '''
         div
-          form
+          - form
             div[id=name]
       '''
       expect(@body).to.have.element('div > form > div#jonas')
@@ -235,7 +235,7 @@ describe 'Custom helpers', ->
         element
       @render '''
         div
-          form
+          - form
             div[id=name]
       '''
       expect(@body).to.have.element('div > form > div#jonas')
@@ -247,11 +247,11 @@ describe 'Custom helpers', ->
   describe 'with static argument', ->
     it "renders context attribute but does not update it", ->
       context = Serenade(name: "Jonas")
-      Serenade.helper "upcase", ({ text }) ->
+      Serenade.helper "upcase", (text) ->
         Serenade.document.createTextNode(text.toUpperCase())
       @render """
         div
-          upcase[text=name]
+          - upcase name
       """, context
       expect(@body).to.have.text("JONAS")
       context.name = "Peter"
@@ -261,11 +261,11 @@ describe 'Custom helpers', ->
   describe 'with bound argument', ->
     it "binds to a context attribute", ->
       context = Serenade(name: "Jonas")
-      Serenade.helper "upcase", ({ text }) ->
+      Serenade.helper "upcase", (text) ->
         Serenade.document.createTextNode(text.toUpperCase())
       @render """
         div
-          upcase[text=@name]
+          - upcase @name
       """, context
       expect(@body).to.have.text("JONAS")
       context.name = "Peter"
@@ -273,11 +273,11 @@ describe 'Custom helpers', ->
 
     it "binds to multiple arguments", ->
       context = Serenade(firstName: "Jonas", lastName: "Nicklas")
-      Serenade.helper "upcase", ({ one, two, three }) ->
+      Serenade.helper "upcase", (one, two, three) ->
         Serenade.document.createTextNode([one, two, three].join("").toUpperCase())
       @render """
         div
-          upcase[one=@lastName two=", " three=@firstName]
+          - upcase @lastName ", " @firstName
       """, context
       expect(@body).to.have.text("NICKLAS, JONAS")
       context.firstName = "Annika"
@@ -287,7 +287,7 @@ describe 'Custom helpers', ->
 
     it "update a rendered Serenade.template", ->
       context = Serenade(id: "test")
-      Serenade.helper "funky", ({ id }) ->
+      Serenade.helper "funky", (id) ->
         Serenade.template("""
           #foo
           div[id=@id]
@@ -295,7 +295,7 @@ describe 'Custom helpers', ->
 
       @render '''
         div
-          funky[id=@id]
+          - funky @id
       ''', context
 
       expect(@body).to.have.element('div > #foo')

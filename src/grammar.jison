@@ -70,8 +70,14 @@ Instruction
 
 Helper
   : DASH WHITESPACE IDENTIFIER { $$ = { command: $3, arguments: [], children: [], type: "helper" } }
-  | Helper WHITESPACE Content { $1.arguments.push($3); $$ = $1 }
+  | Helper WHITESPACE HelperArgument { $1.arguments.push($3); $$ = $1 }
   | Helper INDENT ChildList OUTDENT { $1.children = $3; $$ = $1 }
+  ;
+
+HelperArgument
+  : Bound { $$ = { value: $1, bound: true } }
+  | AnyIdentifier { $$ = { value: $1, static: true } }
+  | STRING_LITERAL { $$ = { value: $1 } }
   ;
 
 IfInstruction
