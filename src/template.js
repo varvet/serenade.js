@@ -2,8 +2,6 @@ import { Parser } from "./grammar"
 import Lexer from "./lexer"
 import TemplateView from "./views/template_view"
 
-var Template;
-
 var parser = new Parser()
 
 parser.lexer = {
@@ -21,30 +19,25 @@ parser.lexer = {
 	}
 };
 
-Template = (function() {
-	function Template(name, ast) {
-		var e;
+class Template {
+	constructor(name, ast) {
 		this.name = name;
 		this.ast = ast;
 		if (typeof this.ast === 'string') {
 			try {
 				this.ast = parser.parse(new Lexer().tokenize(this.ast));
-			} catch (_error) {
-				e = _error;
+			} catch (error) {
 				if (this.name) {
-					e.message = "In view '" + this.name + "': " + e.message;
+					error.message = `In view '${this.name}': ${error.message}`;
 				}
-				throw e;
+				throw error;
 			}
 		}
 	}
 
-	Template.prototype.render = function(context) {
+	render(context) {
 		return new TemplateView(this.ast, context).fragment;
-	};
-
-	return Template;
-
-})();
+	}
+}
 
 export default Template;
