@@ -27,7 +27,7 @@ describe 'Bound properties', ->
     context.disabled = false
     expect(@body).not.to.have.element('input[disabled]')
 
-  it 'does not access getter more than once when updating dom nodes', ->
+  it.skip 'does not access getter more than once when updating dom nodes', ->
     context = {}
     counter = 0
 

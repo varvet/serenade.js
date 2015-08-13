@@ -3,6 +3,8 @@ const IDENTIFIER = /^[a-zA-Z][a-zA-Z0-9\-_]*/;
 const LITERALS = {
 	"[": "LBRACKET",
 	"]": "RBRACKET",
+	"(": "LPAREN",
+	")": "RPAREN",
 	"=": "EQUALS",
 	":": "COLON",
 	"-": "DASH",

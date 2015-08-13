@@ -165,21 +165,50 @@ class Element extends View {
         action.setup.call(this, property);
       }
 
-      let argument = property.arguments[0];
-
       if(action.update) {
-        if(argument.static) {
-          action.update.call(this, property, this.context[argument.value]);
-        } else if (argument.bound) {
-          if (argument.value) {
-            this._bindToModel(argument.value, (value) => action.update.call(this, property, value));
+        let update = (value) => {
+          let hadAValue = false;
+          /* TODO: Do not call getter unnecessarily */
+          let values = property.arguments.map((argument) => {
+            let value;
+            if (argument.bound || argument.static) {
+              if (argument.value) {
+                value = this.context[argument.value];
+              } else {
+                value = this.context;
+              }
+            } else {
+              value = argument.value;
+            }
+
+            if (value !== undefined) {
+              hadAValue = true;
+            }
+
+            return value;
+          });
+
+          if (hadAValue) {
+            if (values.length > 1) {
+              values = values.join("");
+            } else {
+              values = values[0];
+            }
           } else {
-            action.update.call(this, property, this.context);
+            values = undefined;
           }
-        } else {
-          action.update.call(this, property, argument.value);
+
+          action.update.call(this, property, values);
         }
-      } else if(argument.bound) {
+
+        property.arguments.forEach((argument) => {
+          if (argument.value && argument.bound) {
+            this._bindToModel(argument.value, update);
+          }
+        });
+
+        update();
+      } else if(property.arguments.some((argument) => argument.bound)) {
         throw SyntaxError("properties in scope " + property.scope + " cannot be bound, use: `" + property.scope + ":" + property.name + "=...")
       }
     });

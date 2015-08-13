@@ -61,6 +61,7 @@ PropertyArguments
   | AnyIdentifier BANG { $$ = [{ static: true, value: $1, preventDefault: true }] }
   | Bound BANG { $$ = [{ bound: true, value: $1, preventDefault: true }] }
   | STRING_LITERAL { $$ = [{ value: $1 }] }
+  | LPAREN ArgumentList RPAREN { $$ = $2 }
   ;
 
 Instruction
@@ -74,11 +75,16 @@ Instruction
 
 Helper
   : DASH WHITESPACE IDENTIFIER { $$ = { command: $3, arguments: [], children: [], type: "helper" } }
-  | Helper WHITESPACE HelperArgument { $1.arguments.push($3); $$ = $1 }
+  | Helper WHITESPACE Argument { $1.arguments.push($3); $$ = $1 }
   | Helper INDENT ChildList OUTDENT { $1.children = $3; $$ = $1 }
   ;
 
-HelperArgument
+ArgumentList
+  : Argument { $$ = [$1] }
+  | ArgumentList WHITESPACE Argument { $$ = $1.concat($3) }
+  ;
+
+Argument
   : Bound { $$ = { value: $1, bound: true } }
   | AnyIdentifier { $$ = { value: $1, static: true } }
   | STRING_LITERAL { $$ = { value: $1 } }

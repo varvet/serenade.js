@@ -15,6 +15,11 @@ describe 'Bound attributes and text nodes', ->
     @render 'div[id=name]', context
     expect(@body).to.have.element('div#jonas')
 
+  it 'gets concatenated attribute from context', ->
+    context = { name: 'jonas', age: 29 }
+    @render 'div[id=(@name "-" @age)]', context
+    expect(@body).to.have.element('div#jonas-29')
+
   it 'get bound text from the context', ->
     context = { name: 'Jonas Nicklas' }
     @render 'div @name', context
