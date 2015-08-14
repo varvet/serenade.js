@@ -2,6 +2,7 @@ import Model from "./model"
 import Cache from "./cache"
 import Template from "./template"
 import Collection from "./collection"
+import Channel from "./channel"
 import defineProperty from "./property"
 import defineEvent from "./event"
 import { extend, settings } from "./helpers"
@@ -75,6 +76,7 @@ extend(Serenade, {
 	View: View,
 	Element: Element,
 	CollectionView: CollectionView,
+  Channel: Channel,
 
   get async() {
     return settings.async;

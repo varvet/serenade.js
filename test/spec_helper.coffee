@@ -80,6 +80,26 @@ chai.Assertion::triggerEvent = (event, options={}) ->
     @assert count is expectedCount, "event #{event.name} was triggered #{count} times, expected #{expectedCount}"
   if options.with
     @assert compareArrays(args, options.with), "event arguments #{args} do not match expected arguments #{options.with}"
+
+chai.Assertion::emit = (channel, options={}) ->
+  value = null
+  count = 0
+  fun = (a) ->
+    value = a
+    count += 1
+
+  channel.subscribe fun
+  @obj()
+  channel.unsubscribe fun
+
+  if @negate
+    @assert count isnt 0, "", "channel #{channel} should not have emitted (emitted #{count} times)"
+  else
+    expectedCount = options.count ? 1
+    @assert count is expectedCount, "channel #{channel} emitted #{count} times, expected #{expectedCount}"
+  if options.with
+    @assert value is options.with, "channel value #{value} does not match expected value #{options.with}"
+
 chai.Assertion::become = (value, done) ->
   count = 0
   test = =>
