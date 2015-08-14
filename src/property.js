@@ -258,60 +258,64 @@ class PropertyAccessor {
 	}
 }
 
-function defineProperty(object, name, options) {
-	if(!options) options = {};
+function attachChannel(object, name, constructor) {
+  let channelName = "~" + name;
+  let privateChannelName = "~~" + name;
 
-	let definition = new PropertyDefinition(name, options);
+  Object.defineProperty(object, channelName, {
+    get: function() {
+      if(!this.hasOwnProperty(privateChannelName)) {
+        Object.defineProperty(this, privateChannelName, {
+          value: constructor.call(this),
+          configurable: true,
+        });
+      }
+      return this[privateChannelName];
+    },
+    configurable: true
+  })
+}
 
-	if(!("_s" in object)) {
-		defineOptions(object, "_s");
-	}
+function defineAttribute(object, name, options) {
+  let channelName = "~" + name;
 
-	safePush(object._s, "properties", definition);
+  attachChannel(object, name, () => new Channel(options));
 
 	function define(object) {
-		Object.defineProperty(object, name, {
-			get: function() {
-				return this[name + "_property"].get();
-			},
-			set: function(value) {
-				define(this);
-				this[name + "_property"].set(value);
-			},
-			configurable: true,
-			enumerable: "enumerable" in options ? options.enumerable : true
-		});
+    Object.defineProperty(object, name, {
+      get: function() {
+        return this[channelName].value
+      },
+      set: function(value) {
+        define(this);
+        this[channelName].emit(value);
+      },
+      enumerable: true,
+      configurable: true
+    })
 	};
 
 	define(object);
+};
 
-	let accessorName = name + "_property";
+function defineProperty(object, name, options) {
+  let channelName = "~" + name;
 
-	Object.defineProperty(object, accessorName, {
-		get: function() {
-			if(!this._s.hasOwnProperty(accessorName)) {
-				this._s[accessorName] = new PropertyAccessor(definition, this);
-			}
-			return this._s[accessorName];
-		},
-		configurable: true
-	});
+  attachChannel(object, name, function() {
+    return Channel.all(options.dependsOn.map((d) => this["~" + d])).map((args) => options.get(...args))
+  });
 
-	if(typeof options.serialize === 'string') {
-		defineProperty(object, options.serialize, {
-			get: function() {
-				return this[name];
-			},
-			set: function(v) {
-				this[name] = v;
-			},
-			configurable: true
-		});
-	}
+	function define(object) {
+    Object.defineProperty(object, name, {
+      get: function() {
+        return this[channelName].value
+      },
+      enumerable: true,
+      configurable: true
+    })
+	};
 
-	if("value" in options) {
-		object[name] = options.value;
-	}
+	define(object);
 };
 
 export default defineProperty;
