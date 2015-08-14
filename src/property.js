@@ -298,11 +298,11 @@ function defineAttribute(object, name, options) {
 	define(object);
 };
 
-function defineProperty(object, name, options) {
+function defineProperty(object, name, dependencies, ) {
   let channelName = "~" + name;
 
   attachChannel(object, name, function() {
-    return Channel.all(options.dependsOn.map((d) => this["~" + d])).map((args) => options.get(...args))
+    return Channel.all(dependencies.dependsOn.map((d) => this["~" + d])).map((args) => dependencies.get(...args))
   });
 
 	function define(object) {
