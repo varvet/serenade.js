@@ -307,7 +307,7 @@ export function defineProperty(object, name, dependencies, getter) {
   let channelName = "~" + name;
 
   attachChannel(object, name, function() {
-    return Channel.all(dependencies.map((d) => this["~" + d])).map((args) => getter(...args))
+    return Channel.all(dependencies.map((d) => Channel.get(this, d))).map((args) => getter(...args))
   });
 
 	function define(object) {

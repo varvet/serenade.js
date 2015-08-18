@@ -5,6 +5,17 @@ export default class Channel extends StaticChannel {
     return new Channel(value);
   }
 
+  static get(object, name) {
+    let channelName = "~" + name;
+    if(!object) {
+      return new StaticChannel();
+    } else if(object[channelName]) {
+      return object[channelName];
+    } else {
+      return new StaticChannel(object[name]);
+    }
+  }
+
   constructor(value, options = {}) {
     super(value)
     this.options = options;

@@ -4,6 +4,7 @@ import StaticChannel from "./static_channel"
 export default class MappedChannel extends StaticChannel {
   constructor(parent, fn) {
     super(undefined);
+    this.fn = fn;
     this.parent = parent;
     this.handler = (value) => {
       this.channel.emit(fn(value));
@@ -26,7 +27,7 @@ export default class MappedChannel extends StaticChannel {
   }
 
   get value() {
-    return this.channel.value;
+    return this.fn(this.parent.value);
   }
 
   set value(value) {

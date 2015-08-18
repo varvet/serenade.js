@@ -6,14 +6,12 @@ export default class AppliedChannel extends StaticChannel {
     var oldValue;
     super(undefined);
     this.parent = parent;
-    this.property = property;
-    this.channelName = "~" + property;
     this.appliedHandler = (value) => {
       this.channel.emit(value);
     };
     this.handler = (value) => {
-      this._fetch(oldValue).unsubscribe(this.appliedHandler);
-      this._fetch(value).bind(this.appliedHandler);
+      Channel.get(oldValue, property).unsubscribe(this.appliedHandler);
+      Channel.get(value, property).bind(this.appliedHandler);
       oldValue = value;
     };
     this.channel = new Channel(undefined);
@@ -40,16 +38,6 @@ export default class AppliedChannel extends StaticChannel {
 
   set value(value) {
     // No op
-  }
-
-  _fetch(object) {
-    if(!object) {
-      return new StaticChannel();
-    } else if(object[this.channelName]) {
-      return object[this.channelName];
-    } else {
-      return new StaticChannel(object[this.property]);
-    }
   }
 }
 
