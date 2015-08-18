@@ -59,7 +59,7 @@ let dependsOn = (...dependencies) => {
 
 @attributes("firstName", "lastName")
 class Person {
-  @property
+  @property("firstName", "lastName")
   get name(firstName, lastName) {
     return [firstName, lastName].join(" ");
   }

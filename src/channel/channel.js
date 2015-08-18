@@ -1,7 +1,12 @@
-import BaseChannel from "./base_channel"
+import StaticChannel from "./static_channel"
 
-export default class SourceChannel extends BaseChannel {
-  constructor(options = {}) {
+export default class Channel extends StaticChannel {
+  static of(value) {
+    return new Channel(value);
+  }
+
+  constructor(value, options = {}) {
+    super(value)
     this.options = options;
     this._subscribers = [];
   }

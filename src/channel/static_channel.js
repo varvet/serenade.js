@@ -1,9 +1,6 @@
-import MapChannel from "./map_channel"
-
-export default class BaseChannel {
-  constructor(options = {}) {
-    this.options = options;
-    this._subscribers = [];
+export default class StaticChannel {
+  constructor(value) {
+    this.value = value;
   }
 
   subscribe(callback) {
@@ -23,9 +20,5 @@ export default class BaseChannel {
       this.unsubscribe(handler);
     }
     this.subscribe(handler);
-  }
-
-  map(fn) {
-    return new MapChannel(this, fn);
   }
 }
