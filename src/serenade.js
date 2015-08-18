@@ -4,9 +4,10 @@ import Template from "./template"
 import Collection from "./collection"
 import Channel from "./channel/channel"
 import StaticChannel from "./channel/static_channel"
-import MapChannel from "./channel/map_channel"
+import MappedChannel from "./channel/mapped_channel"
+import AppliedChannel from "./channel/applied_channel"
 import CompositeChannel from "./channel/composite_channel"
-import defineProperty from "./property"
+import { defineProperty, defineAttribute } from "./property"
 import defineEvent from "./event"
 import { extend, settings } from "./helpers"
 
@@ -25,7 +26,7 @@ import View from "./views/view"
 function Serenade(wrapped) {
 	let object = Object.create(wrapped);
 	for(let key in wrapped) {
-		defineProperty(object, key, { value: wrapped[key] });
+		defineAttribute(object, key, { value: wrapped[key] });
 	}
 	return object;
 };
@@ -37,6 +38,7 @@ if(typeof(window) !== "undefined") {
 extend(Serenade, {
 	VERSION: '0.5.0',
 	defineProperty: defineProperty,
+	defineAttribute: defineAttribute,
 	defineEvent: defineEvent,
 
 	view: function(name, fn) {

@@ -1,6 +1,7 @@
 import { maybe, extend, defineOptions, safePush, primitiveTypes } from "./helpers"
 import { Event } from "./event"
 import Collection from "./collection"
+import Channel from "./channel/channel"
 
 class PropertyDefinition {
 	constructor(name, options) {
@@ -276,7 +277,7 @@ function attachChannel(object, name, constructor) {
   })
 }
 
-function defineAttribute(object, name, options) {
+export function defineAttribute(object, name, options) {
   let channelName = "~" + name;
 
   attachChannel(object, name, () => new Channel(options));
@@ -296,9 +297,13 @@ function defineAttribute(object, name, options) {
 	};
 
 	define(object);
+
+  if("value" in options) {
+    object[name] = options.value;
+  }
 };
 
-function defineProperty(object, name, dependencies, getter) {
+export function defineProperty(object, name, dependencies, getter) {
   let channelName = "~" + name;
 
   attachChannel(object, name, function() {
@@ -317,5 +322,3 @@ function defineProperty(object, name, dependencies, getter) {
 
 	define(object);
 };
-
-export default defineProperty;

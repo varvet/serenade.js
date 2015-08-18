@@ -1,4 +1,4 @@
-import defineProperty from "./property"
+import { defineProperty } from "./property"
 import defineEvent from "./event"
 import { serializeObject } from "./helpers"
 import collection from "./model/collection"
