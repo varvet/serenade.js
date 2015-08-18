@@ -1,7 +1,7 @@
 import Channel from "./channel"
 import StaticChannel from "./static_channel"
 
-export default class MapChannel extends StaticChannel {
+export default class MappedChannel extends StaticChannel {
   constructor(parent, fn) {
     super(undefined);
     this.parent = parent;
@@ -35,5 +35,5 @@ export default class MapChannel extends StaticChannel {
 }
 
 StaticChannel.prototype.map = function(fn) {
-  return new MapChannel(this, fn);
+  return new MappedChannel(this, fn);
 }
