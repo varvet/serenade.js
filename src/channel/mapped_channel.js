@@ -7,9 +7,9 @@ export default class MappedChannel extends StaticChannel {
     this.fn = fn;
     this.parent = parent;
     this.handler = (value) => {
-      this.channel.emit(fn(value));
+      this.channel.emit(this.value);
     };
-    this.channel = new Channel(fn(parent.value));
+    this.channel = new Channel(this.value);
   }
 
   subscribe(callback) {

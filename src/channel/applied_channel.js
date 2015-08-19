@@ -6,6 +6,7 @@ export default class AppliedChannel extends StaticChannel {
     var oldValue;
     super(undefined);
     this.parent = parent;
+    this.property = property;
     this.appliedHandler = (value) => {
       this.channel.emit(value);
     };
@@ -33,7 +34,7 @@ export default class AppliedChannel extends StaticChannel {
   }
 
   get value() {
-    return this.channel.value;
+    return Channel.get(this.parent.value, this.property).value
   }
 
   set value(value) {

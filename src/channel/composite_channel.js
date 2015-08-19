@@ -6,10 +6,9 @@ export default class CompositeChannel extends StaticChannel {
     super(undefined);
     this.parents = parents;
 
-    let value = () => parents.map((p) => p.value)
-    this.handler = () => this.channel.emit(value());
+    this.handler = () => this.channel.emit(this.value);
 
-    this.channel = new Channel(value())
+    this.channel = new Channel(this.value)
   }
 
   subscribe(callback) {
@@ -27,7 +26,7 @@ export default class CompositeChannel extends StaticChannel {
   }
 
   get value() {
-    return this.channel.value;
+    return this.parents.map((p) => p.value)
   }
 
   set value(value) {
