@@ -98,7 +98,7 @@ chai.Assertion::emit = (channel, options={}) ->
     expectedCount = options.count ? 1
     @assert count is expectedCount, "channel #{channel} emitted #{count} times, expected #{expectedCount}"
   if options.with
-    @assert value is options.with, "channel value #{value} does not match expected value #{options.with}"
+    chai.expect(value).to.eql(options.with)
 
 chai.Assertion::become = (value, done) ->
   count = 0
