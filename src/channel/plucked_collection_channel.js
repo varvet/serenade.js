@@ -1,7 +1,7 @@
 import Channel from "./channel"
 import StaticChannel from "./static_channel"
 
-export default class AppliedCollectionChannel extends StaticChannel {
+export default class PluckedCollectionChannel extends StaticChannel {
   constructor(parent, property) {
     var oldValues;
     super(undefined);
@@ -52,6 +52,6 @@ export default class AppliedCollectionChannel extends StaticChannel {
   }
 }
 
-StaticChannel.prototype.applyAll = function(property) {
-  return new AppliedCollectionChannel(this, property);
+StaticChannel.prototype.pluckAll = function(property) {
+  return new PluckedCollectionChannel(this, property);
 }
