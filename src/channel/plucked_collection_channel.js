@@ -18,8 +18,9 @@ export default class PluckedCollectionChannel extends StaticChannel {
       }
       if(values) {
         values.forEach((value) => {
-          Channel.get(value, property).bind(this.appliedHandler);
+          Channel.get(value, property).subscribe(this.appliedHandler);
         });
+        this.appliedHandler();
       }
       oldValues = [].concat(values);
     };

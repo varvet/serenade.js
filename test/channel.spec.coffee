@@ -17,6 +17,47 @@ describe "Serenade.Channel", ->
       expect(-> channel2.emit(5)).to.emit(combined, with: "4,5,3")
       expect(-> channel3.emit(6)).to.emit(combined, with: "4,5,6")
 
+  describe ".pluck", ->
+    it "creates a channel which listens to changes in a nested property", ->
+      person1 = Serenade(name: "Jonas")
+      person2 = Serenade(name: "Kim")
+      book = Serenade(author: person1)
+
+      channel = Channel.pluck(book, "author.name")
+
+      expect(channel.value).to.equal("Jonas")
+
+      expect(-> book.author = person2).to.emit(channel, with: "Kim")
+      expect(-> person2.name = "Eli").to.emit(channel, with: "Eli")
+
+      expect(channel.value).to.equal("Eli")
+
+    it "creates a channel which listens to changes in all nested properties", ->
+      person1 = Serenade(name: "Jonas")
+      person2 = Serenade(name: "Kim")
+      person3 = Serenade(name: "Eli")
+      book = Serenade(authors: [person1, person2])
+
+      channel = Channel.pluck(book, "authors:name")
+
+      expect(channel.value).to.eql(["Jonas", "Kim"])
+
+      expect(-> book.authors = [person2, person3]).to.emit(channel, with: ["Kim", "Eli"])
+      expect(-> person2.name = "Anna").to.emit(channel, with: ["Anna", "Eli"])
+
+      expect(channel.value).to.eql(["Anna", "Eli"])
+
+    it "creates a channel which listens to a given property", ->
+      person = Serenade(name: "Jonas")
+
+      channel = Channel.pluck(person, "name")
+
+      expect(channel.value).to.eql("Jonas")
+
+      expect(-> person.name = "Eli").to.emit(channel, with: "Eli")
+
+      expect(channel.value).to.eql("Eli")
+
   describe "#emit", ->
     it "broadcasts a new value to all subscribers in order", ->
       sum = 0

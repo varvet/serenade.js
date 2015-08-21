@@ -291,32 +291,40 @@ export function defineAttribute(object, name, options) {
         define(this);
         this[channelName].emit(value);
       },
-      enumerable: true,
-      configurable: true
+      enumerable: (options && "enumerable" in options) ? options.enumerable : true,
+      configurable: (options && "configurable" in options) ? options.configurable : true,
     })
 	};
 
 	define(object);
 
-  if("value" in options) {
+  if(options && "value" in options) {
     object[name] = options.value;
   }
 };
 
-export function defineProperty(object, name, dependencies, getter) {
+export function defineProperty(object, name, options) {
   let channelName = "~" + name;
+  let deps = options.dependsOn;
 
-  attachChannel(object, name, function() {
-    return Channel.all(dependencies.map((d) => Channel.get(this, d))).map((args) => getter(...args))
-  });
+  if(deps && deps.length) {
+    attachChannel(object, name, function() {
+      return Channel.all(deps.map((d) => Channel.pluck(this, d))).map((args) => options.get.apply(this, args));
+    });
+  } else {
+    attachChannel(object, name, function() {
+      return Channel.static(options.get.call(this));
+    });
+  }
 
 	function define(object) {
     Object.defineProperty(object, name, {
       get: function() {
         return this[channelName].value
       },
-      enumerable: true,
-      configurable: true
+      set: options.set,
+      enumerable: (options && "enumerable" in options) ? options.enumerable : true,
+      configurable: (options && "configurable" in options) ? options.configurable : true,
     })
 	};
 
