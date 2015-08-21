@@ -111,6 +111,14 @@ export var safeDelete = function (object, collection, item) {
   }
 };
 
+export var deleteItem = function (collection, item) {
+  let index = collection.indexOf(item);
+
+  if(index !== -1) {
+    collection.splice(index, 1);
+  }
+};
+
 var nextTickTimeout = null;
 
 var nextTickList = [];

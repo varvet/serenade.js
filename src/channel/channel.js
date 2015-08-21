@@ -1,4 +1,5 @@
 import StaticChannel from "./static_channel"
+import { deleteItem } from "../helpers"
 
 export default class Channel extends StaticChannel {
   static of(value) {
@@ -39,7 +40,7 @@ export default class Channel extends StaticChannel {
   constructor(value, options = {}) {
     super(value)
     this.options = options;
-    this._subscribers = [];
+    this.subscribers = [];
   }
 
   emit(value) {
@@ -58,18 +59,15 @@ export default class Channel extends StaticChannel {
   }
 
   subscribe(callback) {
-    this._subscribers.push(callback);
+    this.subscribers.push(callback);
   }
 
   unsubscribe(callback) {
-    let index = this._subscribers.indexOf(callback);
-    if(index !== -1) {
-      this._subscribers.splice(index, 1)
-    }
+    deleteItem(this.subscribers, callback);
   }
 
   resolve() {
-    this._subscribers.forEach((subscriber) => {
+    this.subscribers.forEach((subscriber) => {
       subscriber(this.value);
     });
   }

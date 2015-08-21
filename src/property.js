@@ -307,9 +307,9 @@ export function defineProperty(object, name, options) {
   let channelName = "~" + name;
   let deps = options.dependsOn;
 
-  if(deps && deps.length) {
+  if(deps) {
     attachChannel(object, name, function() {
-      return Channel.all(deps.map((d) => Channel.pluck(this, d))).map((args) => options.get.apply(this, args));
+      return Channel.all([].concat(deps).map((d) => Channel.pluck(this, d))).map((args) => options.get.apply(this, args));
     });
   } else {
     attachChannel(object, name, function() {

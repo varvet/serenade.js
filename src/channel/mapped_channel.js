@@ -1,27 +1,29 @@
-import Channel from "./channel"
 import StaticChannel from "./static_channel"
+import { deleteItem } from "../helpers"
 
 export default class MappedChannel extends StaticChannel {
   constructor(parent, fn) {
     super(undefined);
+    this.subscribers = []
     this.fn = fn;
     this.parent = parent;
     this.handler = (value) => {
-      this.channel.emit(this.value);
+      this.subscribers.forEach((callback) => {
+        callback(this.value);
+      });
     };
-    this.channel = new Channel(this.value);
   }
 
   subscribe(callback) {
-    if(!this.channel._subscribers.length) {
+    if(!this.subscribers.length) {
       this.parent.subscribe(this.handler)
     }
-    this.channel.subscribe(callback);
+    this.subscribers.push(callback);
   }
 
   unsubscribe(callback) {
-    this.channel.unsubscribe(callback);
-    if(!this.channel._subscribers.length) {
+    deleteItem(this.subscribers, callback)
+    if(!this.subscribers.length) {
       this.parent.unsubscribe(this.handler)
     }
   }

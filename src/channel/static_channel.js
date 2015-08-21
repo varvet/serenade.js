@@ -3,20 +3,20 @@ export default class StaticChannel {
     this.value = value;
   }
 
-  subscribe(callback) {
+  subscribe(cb) {
   }
 
-  unsubscribe(callback) {
+  unsubscribe(cb) {
   }
 
-  bind(callback) {
-    this.subscribe(callback);
-    callback(this.value);
+  bind(cb) {
+    this.subscribe(cb);
+    cb(this.value);
   }
 
-  once(callback) {
+  once(cb) {
     let handler = (value) => {
-      callback(value);
+      cb(value);
       this.unsubscribe(handler);
     }
     this.subscribe(handler);

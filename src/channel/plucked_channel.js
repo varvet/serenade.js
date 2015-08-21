@@ -1,5 +1,6 @@
 import Channel from "./channel"
 import StaticChannel from "./static_channel"
+import { deleteItem } from "../helpers"
 
 export default class PluckedChannel extends StaticChannel {
   constructor(parent, property) {
@@ -8,27 +9,27 @@ export default class PluckedChannel extends StaticChannel {
     this.parent = parent;
     this.property = property;
     this.appliedHandler = (value) => {
-      this.channel.emit(value);
+      this.subscribers.forEach((cb) => cb(this.value));
     };
     this.handler = (value) => {
       Channel.get(oldValue, property).unsubscribe(this.appliedHandler);
       Channel.get(value, property).bind(this.appliedHandler);
       oldValue = value;
     };
-    this.channel = new Channel(undefined);
+    this.subscribers = [];
     this.handler(parent.value);
   }
 
-  subscribe(callback) {
-    if(!this.channel._subscribers.length) {
+  subscribe(cb) {
+    if(!this.subscribers.length) {
       this.parent.subscribe(this.handler)
     }
-    this.channel.subscribe(callback);
+    this.subscribers.push(cb);
   }
 
-  unsubscribe(callback) {
-    this.channel.unsubscribe(callback);
-    if(!this.channel._subscribers.length) {
+  unsubscribe(cb) {
+    deleteItem(this.subscribers, cb);
+    if(!this.subscribers.length) {
       this.parent.unsubscribe(this.handler)
     }
   }

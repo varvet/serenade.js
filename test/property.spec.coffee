@@ -10,9 +10,9 @@ describe 'Serenade.defineProperty', ->
   it 'does not bleed over between objects with same prototype', ->
     @inst1 = Object.create(@object)
     @inst2 = Object.create(@object)
-    defineAttribute @object, 'name', serialize: true
-    defineAttribute @inst1, 'age', serialize: true
-    defineAttribute @inst2, 'height', serialize: true
+    defineAttribute @object, 'name'
+    defineAttribute @inst1, 'age'
+    defineAttribute @inst2, 'height'
     expect(Object.keys(@inst1)).to.include('age')
     expect(Object.keys(@inst2)).not.to.include('age')
 
@@ -84,13 +84,6 @@ describe 'Serenade.defineProperty', ->
       defineAttribute @object, 'foo', enumerable: true
       expect(Object.keys(@object)).to.eql(['foo'])
 
-  describe 'serialize', ->
-    it 'will setup a setter method for that name', ->
-      defineAttribute @object, 'fooBar', serialize: 'foo_bar'
-      @object.foo_bar = 56
-      expect(@object.foo_bar).to.eql(56)
-      expect(@object.fooBar).to.eql(56)
-
   describe "with `value` option", ->
     it 'can be given a value', ->
       defineAttribute @object, 'name', value: "Jonas"
@@ -107,10 +100,6 @@ describe 'Serenade.defineProperty', ->
     it 'can set up falsy default values', ->
       defineAttribute @object, 'name', value: null
       expect(@object.name).to.equal(null)
-
-    it 'ignores default when custom getter given', ->
-      defineAttribute @object, 'name', value: "bar", get: -> "foo"
-      expect(@object.name).to.eql("foo")
 
   describe "with `cache` option", ->
     it "returns values from cache", ->
