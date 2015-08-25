@@ -12,7 +12,7 @@ describe 'Serenade.defineProperty', ->
       defineAttribute @object, 'first'
       defineAttribute @object, 'last'
       defineProperty @object, 'fullName',
-        get: -> @first + " " + @last
+        get: (first, last) -> first + " " + last
         dependsOn: ['first', 'last']
       @object.last = 'Pan'
       expect(=> @object.first = "Peter").to.emit(@object["~fullName"], with: 'Peter Pan')
@@ -21,7 +21,7 @@ describe 'Serenade.defineProperty', ->
       defineAttribute @object, 'first'
       defineAttribute @object, 'last'
       defineProperty @object, 'fullName',
-        get: -> @first + " " + @last
+        get: (first, last) -> first + " " + last
         dependsOn: []
       @object.last = 'Pan'
       expect(=> @object.first = "Peter").not.to.emit(@object["~fullName"])
@@ -30,7 +30,7 @@ describe 'Serenade.defineProperty', ->
       defineAttribute @object, 'first'
       defineAttribute @object, 'last'
       defineProperty @object, 'fullName',
-        get: -> @first + " " + @last
+        get: (first, last) -> first + " " + last
         dependsOn: false
       @object.last = 'Pan'
       expect(=> @object.first = "Peter").not.to.emit(@object["~fullName"])
@@ -38,7 +38,7 @@ describe 'Serenade.defineProperty', ->
     it 'binds to single dependency', ->
       defineAttribute @object, 'name'
       defineProperty @object, 'reverseName',
-        get: -> @name.split("").reverse().join("") if @name
+        get: (name) -> name.split("").reverse().join("") if @name
         dependsOn: 'name'
       expect(=> @object.name = 'Jonas').to.emit(@object["~reverseName"], with: 'sanoJ')
 
@@ -46,7 +46,7 @@ describe 'Serenade.defineProperty', ->
       beforeEach ->
         defineProperty @object, 'bigName', dependsOn: 'name', get: -> @name.toUpperCase() if @name
         defineProperty @object, 'name', dependsOn: 'author.name', get: -> @author.name
-        defineProperty @object, 'author', value: Serenade(name: "Peter")
+        defineAttribute @object, 'author', value: Serenade(name: "Peter")
 
       it "observes changes to the property", ->
         @object.author = Serenade(name: "Jonas")
@@ -76,43 +76,43 @@ describe 'Serenade.defineProperty', ->
         @object.author.name = "John"
         expect(@object.cachedName).to.eql("John")
 
-      it "unbinds global listeners when property no longer has any listeners", ->
+      it "unbinds global subscribers when property no longer has any subscribers", ->
         foo = ->
         bar = ->
         @object["~name"].subscribe(foo)
         @object["~name"].subscribe(bar)
-        expect(@object.author["~name"].listeners.length).to.eql(1)
-        expect(@object["~author"].listeners.length).to.eql(1)
+        expect(@object.author["~name"].subscribers.length).to.eql(1)
+        expect(@object["~author"].subscribers.length).to.eql(1)
         @object["~name"].unsubscribe(foo)
-        expect(@object.author["~name"].listeners.length).to.eql(1)
-        expect(@object["~author"].listeners.length).to.eql(1)
+        expect(@object.author["~name"].subscribers.length).to.eql(1)
+        expect(@object["~author"].subscribers.length).to.eql(1)
         @object["~name"].unsubscribe(bar)
-        expect(@object.author["~name"].listeners.length).to.eql(0)
-        expect(@object["~author"].listeners.length).to.eql(0)
+        expect(@object.author["~name"].subscribers.length).to.eql(0)
+        expect(@object["~author"].subscribers.length).to.eql(0)
         @object["~name"].subscribe(bar)
-        expect(@object.author["~name"].listeners.length).to.eql(1)
-        expect(@object["~author"].listeners.length).to.eql(1)
+        expect(@object.author["~name"].subscribers.length).to.eql(1)
+        expect(@object["~author"].subscribers.length).to.eql(1)
 
-      it "unbinds global listeners when dependent property no longer has any listeners", ->
+      it "unbinds global subscribers when dependent property no longer has any subscribers", ->
         foo = ->
         bar = ->
         @object["~name"].subscribe(foo)
         @object["~bigName"].subscribe(bar)
-        expect(@object.author["~name"].listeners.length).to.eql(1)
-        expect(@object["~author"].listeners.length).to.eql(1)
+        expect(@object.author["~name"].subscribers.length).to.eql(1)
+        expect(@object["~author"].subscribers.length).to.eql(1)
         @object["~name"].unsubscribe(foo)
-        expect(@object.author["~name"].listeners.length).to.eql(1)
-        expect(@object["~author"].listeners.length).to.eql(1)
+        expect(@object.author["~name"].subscribers.length).to.eql(1)
+        expect(@object["~author"].subscribers.length).to.eql(1)
         @object["~bigName"].unsubscribe(bar)
-        expect(@object.author["~name"].listeners.length).to.eql(0)
-        expect(@object["~author"].listeners.length).to.eql(0)
+        expect(@object.author["~name"].subscribers.length).to.eql(0)
+        expect(@object["~author"].subscribers.length).to.eql(0)
         @object["~bigName"].subscribe(bar)
-        expect(@object.author["~name"].listeners.length).to.eql(1)
-        expect(@object["~author"].listeners.length).to.eql(1)
+        expect(@object.author["~name"].subscribers.length).to.eql(1)
+        expect(@object["~author"].subscribers.length).to.eql(1)
 
-      it "triggers change event if value in other object has changed while no listeners were attached", ->
+      it "triggers change event if value in other object has changed while no subscribers were attached", ->
         class Item extends Serenade.Model
-          @property "parent"
+          @attribute "parent"
           @property "active",
             dependsOn: "parent.active"
             get: -> @parent?.active
@@ -136,9 +136,10 @@ describe 'Serenade.defineProperty', ->
       it "observes changes to each individual object", ->
         @object.authors.push(Serenade(name: "Bert"))
         author = @object.authors[0]
+
         expect(-> author.name = 'test').to.emit(@object["~authorNames"])
 
-      it "is not affected by additional event listeners", ->
+      it "is not affected by additional event subscribers", ->
         @object["~authorNames"].subscribe -> @wasTriggered = true
         expect(=> @object.authors.push({ name: "Bert" })).to.emit(@object["~authorNames"])
         expect(@object.wasTriggered).to.be.ok
@@ -178,7 +179,7 @@ describe 'Serenade.defineProperty', ->
           oldAuthors[0].name = "Kim"
         .to.emit(@object["~authorNames"], count: 1)
 
-      it "unbinds global listeners when property no longer has any listeners", ->
+      it "unbinds global subscribers when property no longer has any subscribers", ->
         @object.authors = new Serenade.Collection([Serenade(name: "Jonas"), Serenade(name: "Kim")])
         foo = ->
         bar = ->
@@ -204,7 +205,7 @@ describe 'Serenade.defineProperty', ->
         expect(@object.authors.change.subscribers.length).to.eql(2)
         expect(@object["~authors"].subscribers.length).to.eql(1)
 
-      it "unbinds global listeners when dependent property no longer has any listeners", ->
+      it "unbinds global subscribers when dependent property no longer has any subscribers", ->
         @object.authors = new Serenade.Collection([Serenade(name: "Jonas"), Serenade(name: "Kim")])
         foo = ->
         bar = ->

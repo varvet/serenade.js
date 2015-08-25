@@ -1,4 +1,4 @@
-import { defineProperty } from "./property"
+import { defineProperty, defineAttribute } from "./property"
 import defineEvent from "./event"
 import { serializeObject } from "./helpers"
 import collection from "./model/collection"
@@ -26,6 +26,16 @@ class Model {
       }
     };
     return New;
+	}
+
+	static attribute(...names) {
+    let options;
+		if (typeof names[names.length - 1] !== "string") {
+      options = names.pop();
+		} else {
+      options = {}
+    }
+    names.forEach((name) => defineAttribute(this.prototype, name, options));
 	}
 
 	static property(...names) {
@@ -103,7 +113,7 @@ class Model {
 	}
 }
 
-["property", "event", "uniqueId", "extend", "find"].forEach((prop) => {
+["property", "attribute", "event", "uniqueId", "extend", "find"].forEach((prop) => {
   Object.defineProperty(Model, prop, {
     enumerable: true,
     configurable: true,

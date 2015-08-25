@@ -17,12 +17,11 @@ export default class PluckedChannel extends StaticChannel {
       oldValue = value;
     };
     this.subscribers = [];
-    this.handler(parent.value);
   }
 
   subscribe(cb) {
     if(!this.subscribers.length) {
-      this.parent.subscribe(this.handler)
+      this.parent.bind(this.handler);
     }
     this.subscribers.push(cb);
   }
@@ -30,7 +29,8 @@ export default class PluckedChannel extends StaticChannel {
   unsubscribe(cb) {
     deleteItem(this.subscribers, cb);
     if(!this.subscribers.length) {
-      this.parent.unsubscribe(this.handler)
+      this.parent.unsubscribe(this.handler);
+      this.handler(undefined);
     }
   }
 

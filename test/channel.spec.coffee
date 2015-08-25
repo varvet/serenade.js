@@ -1,6 +1,7 @@
 require "./spec_helper"
 
 {Channel} = Serenade
+{defineProperty, defineAttribute} = Serenade
 
 describe "Serenade.Channel", ->
   describe ".all", ->
@@ -139,6 +140,20 @@ describe "Serenade.Channel", ->
       expect(-> person1.name = "Eli").to.emit(names, with: ["Eli", "Kim"])
 
       expect(names.value).to.eql(["Eli", "Kim"])
+
+    it "emits values when collection changed", ->
+      person1 = Serenade(name: "Jonas")
+      person2 = Serenade(name: "Kim")
+      authors = new Serenade.Collection([person1, person2])
+
+      channel = Channel.of(authors)
+      names = channel.pluckAll("name")
+
+      expect(names.value.toArray()).to.eql(["Jonas", "Kim"])
+
+      expect(-> authors.push(Serenade(name: "Eli"))).to.emit(names, with: new Serenade.Collection(["Jonas", "Kim", "Eli"]))
+
+      expect(names.value.toArray()).to.eql(["Jonas", "Kim", "Eli"])
 
     it "doesn't emit values from old objects", ->
       person1 = Serenade(name: "Jonas")

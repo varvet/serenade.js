@@ -4,6 +4,7 @@ import { deleteItem } from "../helpers"
 
 export default class PluckedCollectionChannel extends StaticChannel {
   constructor(parent, property) {
+    var oldCollection;
     var oldValues;
     super(undefined);
     this.parent = parent;
@@ -18,20 +19,26 @@ export default class PluckedCollectionChannel extends StaticChannel {
           Channel.get(value, property).unsubscribe(this.appliedHandler);
         });
       }
+      if(oldCollection && oldCollection.change) {
+        oldCollection.change.unbind(this.appliedHandler);
+      }
       if(values) {
+        if(values.change) {
+          values.change.bind(this.appliedHandler);
+        }
         values.forEach((value) => {
           Channel.get(value, property).subscribe(this.appliedHandler);
         });
         this.appliedHandler();
       }
+      oldCollection = values;
       oldValues = [].concat(values);
     };
-    this.handler(parent.value);
   }
 
   subscribe(cb) {
     if(!this.subscribers.length) {
-      this.parent.bind(this.handler)
+      this.parent.bind(this.handler);
     }
     this.subscribers.push(cb);
   }
@@ -39,7 +46,8 @@ export default class PluckedCollectionChannel extends StaticChannel {
   unsubscribe(cb) {
     deleteItem(this.subscribers, cb);
     if(!this.subscribers.length) {
-      this.parent.unsubscribe(this.handler)
+      this.parent.unsubscribe(this.handler);
+      this.handler(undefined);
     }
   }
 
