@@ -1,16 +1,14 @@
-import { maybe, extend, defineOptions, safePush, primitiveTypes } from "./helpers"
-import { Event } from "./event"
-import Collection from "./collection"
 import Channel from "./channel/channel"
 
-export function defineChannel(object, name, options) {
+export function defineChannel(object, name, options = {}) {
   let privateChannelName = "~" + name;
+  let getter = options.channel || function() { return new Channel(options) };
 
   Object.defineProperty(object, name, {
     get: function() {
       if(!this.hasOwnProperty(privateChannelName)) {
         Object.defineProperty(this, privateChannelName, {
-          value: options.get.call(this),
+          value: getter.call(this),
           configurable: true,
         });
       }
@@ -23,7 +21,7 @@ export function defineChannel(object, name, options) {
 export function defineAttribute(object, name, options) {
   let channelName = "~" + name;
 
-  defineChannel(object, channelName, { get() { return new Channel(options) } });
+  defineChannel(object, channelName, options);
 
 	function define(object) {
     Object.defineProperty(object, name, {
@@ -52,12 +50,12 @@ export function defineProperty(object, name, options) {
 
   if(deps) {
     deps = [].concat(deps);
-    defineChannel(object, channelName, { get() {
+    defineChannel(object, channelName, { channel() {
       let channels = deps.map((d) => Channel.pluck(this, d));
       return Channel.all(channels).map((args) => options.get.apply(this, args));
     }});
   } else {
-    defineChannel(object, channelName, { get() {
+    defineChannel(object, channelName, { channel() {
       return Channel.static(options.get.call(this));
     }});
   }

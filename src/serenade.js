@@ -8,8 +8,7 @@ import MappedChannel from "./channel/mapped_channel"
 import PluckedChannel from "./channel/plucked_channel"
 import PluckedCollectionChannel from "./channel/plucked_collection_channel"
 import CompositeChannel from "./channel/composite_channel"
-import { defineProperty, defineAttribute } from "./property"
-import defineEvent from "./event"
+import { defineProperty, defineAttribute, defineChannel } from "./property"
 import { extend, settings } from "./helpers"
 
 import BoundViewView from "./views/bound_view_view"
@@ -40,7 +39,7 @@ extend(Serenade, {
 	VERSION: '0.5.0',
 	defineProperty: defineProperty,
 	defineAttribute: defineAttribute,
-	defineEvent: defineEvent,
+	defineChannel: defineChannel,
 
 	view: function(name, fn) {
 		return this.views[name] = (ast, context) => new fn(ast, context);

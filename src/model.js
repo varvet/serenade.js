@@ -1,5 +1,4 @@
-import { defineProperty, defineAttribute } from "./property"
-import defineEvent from "./event"
+import { defineProperty, defineAttribute, defineChannel } from "./property"
 import { serializeObject } from "./helpers"
 import collection from "./model/collection"
 import belongsTo from "./model/belongs_to"
@@ -48,8 +47,8 @@ class Model {
     names.forEach((name) => defineProperty(this.prototype, name, options));
 	}
 
-	static event(name, options) {
-		defineEvent(this.prototype, name, options);
+	static channel(name, options) {
+		defineChannel(this.prototype, name, options);
 	}
 
 	static uniqueId() {
@@ -113,7 +112,7 @@ class Model {
 	}
 }
 
-["property", "attribute", "event", "uniqueId", "extend", "find"].forEach((prop) => {
+["property", "attribute", "channel", "uniqueId", "extend", "find"].forEach((prop) => {
   Object.defineProperty(Model, prop, {
     enumerable: true,
     configurable: true,
@@ -134,9 +133,9 @@ Model.property('id', {
   }
 });
 
-Model.event("saved");
+Model.channel("saved");
 
-Model.event("changed", {
+Model.channel("changed", {
   optimize: function(queue) {
     let result = {};
     queue.forEach((item) => extend(result, item[0]));
