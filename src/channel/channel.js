@@ -22,10 +22,6 @@ export default class Channel extends StaticChannel {
   }
 
   static pluck(object, name) {
-    if(!name) {
-      return new StaticChannel()
-    }
-
     let parts = name.split(/[\.:]/)
 
     if(parts.length == 2) {

@@ -305,12 +305,13 @@ export function defineAttribute(object, name, options) {
 
 export function defineProperty(object, name, options) {
   let channelName = "~" + name;
-  let deps = [].concat(options.dependsOn);
+  let deps = options.dependsOn;
 
   if(deps) {
+    deps = [].concat(deps);
     attachChannel(object, name, function() {
-      return Channel.all(deps.map((d) => Channel.pluck(this, d)))
-                    .map((args) => options.get.apply(this, args));
+      let channels = deps.map((d) => Channel.pluck(this, d));
+      return Channel.all(channels).map((args) => options.get.apply(this, args));
     });
   } else {
     attachChannel(object, name, function() {
