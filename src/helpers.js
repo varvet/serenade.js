@@ -6,23 +6,6 @@ export var settings = {
   templates: {},
 };
 
-export var primitiveTypes = ["undefined", "boolean", "number", "string"];
-
-export function defineOptions(object, name) {
-  return Object.defineProperty(object, name, {
-    get: function get() {
-      if(!this.hasOwnProperty("_" + name)) {
-        let options;
-        if(name in Object.getPrototypeOf(this)) {
-          options = Object.create(Object.getPrototypeOf(this)[name]);
-        }
-        Object.defineProperty(this, "_" + name, { configurable: true, writable: true, value: options || {} });
-      }
-      return this["_" + name];
-    }
-  });
-};
-
 export function extend(target, source, enumerable) {
   if(enumerable == null) {
     enumerable = true;
@@ -84,31 +67,6 @@ export var hash = function (value) {
     key = value;
   }
   return typeof(value) + " " + key;
-};
-
-export function safePush(object, collection, item) {
-  if (!object[collection] || object[collection].indexOf(item) === -1) {
-    if(object.hasOwnProperty(collection)) {
-      object[collection].push(item);
-    } else if(object[collection]) {
-      Object.defineProperty(object, collection, { value: [item].concat(object[collection]) });
-    } else {
-      Object.defineProperty(object, collection, { value: [item] });
-    }
-  }
-};
-
-export var safeDelete = function (object, collection, item) {
-  if(!object[collection]) return;
-
-  let index = object[collection].indexOf(item);
-
-  if(index !== -1) {
-    if(!object.hasOwnProperty(collection)) {
-      Object.defineProperty(object, collection, { value: [].concat(object[collection]) });
-    }
-    object[collection].splice(index, 1);
-  }
 };
 
 export var deleteItem = function (collection, item) {
