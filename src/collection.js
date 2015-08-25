@@ -1,4 +1,4 @@
-import defineEvent from "./event"
+import Channel from "./channel/channel"
 import { serializeObject } from "./helpers"
 
 class Collection {
@@ -11,6 +11,7 @@ class Collection {
 	}
 
 	constructor(list) {
+    this.change = new Channel()
 		if(list) {
       for(let index = 0; index < list.length; index++) {
         this[index] = list[index];
@@ -102,8 +103,6 @@ class Collection {
 	}
 }
 
-defineEvent(Collection.prototype, "change");
-
 Object.getOwnPropertyNames(Array.prototype).forEach((fun) => {
   if(!Collection.prototype[fun]) {
     Collection.prototype[fun] = Array.prototype[fun]
@@ -122,7 +121,7 @@ Object.getOwnPropertyNames(Array.prototype).forEach((fun) => {
   Collection.prototype[fun] = function(...args) {
     let old = this.clone();
     let val = original.apply(this, args);
-    this.change.trigger(old, this);
+    this.change.emit(this);
     return val;
   };
 });
