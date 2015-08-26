@@ -140,9 +140,10 @@ describe 'Serenade.defineProperty', ->
         expect(-> author.name = 'test').to.emit(@object["~authorNames"])
 
       it "is not affected by additional event subscribers", ->
-        @object["~authorNames"].subscribe -> @wasTriggered = true
+        wasTriggered = false
+        @object["~authorNames"].subscribe -> wasTriggered = true
         expect(=> @object.authors.push({ name: "Bert" })).to.emit(@object["~authorNames"])
-        expect(@object.wasTriggered).to.be.ok
+        expect(wasTriggered).to.be.ok
 
       it "observes changes to elements added after event is bound", ->
         expect =>
@@ -187,12 +188,12 @@ describe 'Serenade.defineProperty', ->
         @object["~authorNames"].subscribe(bar)
         expect(@object.authors[0]["~name"].subscribers.length).to.eql(1)
         expect(@object.authors[1]["~name"].subscribers.length).to.eql(1)
-        expect(@object.authors.change.subscribers.length).to.eql(2)
+        expect(@object.authors.change.subscribers.length).to.eql(1)
         expect(@object["~authors"].subscribers.length).to.eql(1)
         @object["~authorNames"].unsubscribe(foo)
         expect(@object.authors[0]["~name"].subscribers.length).to.eql(1)
         expect(@object.authors[1]["~name"].subscribers.length).to.eql(1)
-        expect(@object.authors.change.subscribers.length).to.eql(2)
+        expect(@object.authors.change.subscribers.length).to.eql(1)
         expect(@object["~authors"].subscribers.length).to.eql(1)
         @object["~authorNames"].unsubscribe(bar)
         expect(@object.authors[0]["~name"].subscribers.length).to.eql(0)
@@ -202,7 +203,7 @@ describe 'Serenade.defineProperty', ->
         @object["~authorNames"].subscribe(bar)
         expect(@object.authors[0]["~name"].subscribers.length).to.eql(1)
         expect(@object.authors[1]["~name"].subscribers.length).to.eql(1)
-        expect(@object.authors.change.subscribers.length).to.eql(2)
+        expect(@object.authors.change.subscribers.length).to.eql(1)
         expect(@object["~authors"].subscribers.length).to.eql(1)
 
       it "unbinds global subscribers when dependent property no longer has any subscribers", ->
@@ -213,12 +214,12 @@ describe 'Serenade.defineProperty', ->
         @object["~attribution"].subscribe(bar)
         expect(@object.authors[0]["~name"].subscribers.length).to.eql(1)
         expect(@object.authors[1]["~name"].subscribers.length).to.eql(1)
-        expect(@object.authors.change.subscribers.length).to.eql(2)
+        expect(@object.authors.change.subscribers.length).to.eql(1)
         expect(@object["~authors"].subscribers.length).to.eql(1)
         @object["~authorNames"].unsubscribe(foo)
         expect(@object.authors[0]["~name"].subscribers.length).to.eql(1)
         expect(@object.authors[1]["~name"].subscribers.length).to.eql(1)
-        expect(@object.authors.change.subscribers.length).to.eql(2)
+        expect(@object.authors.change.subscribers.length).to.eql(1)
         expect(@object["~authors"].subscribers.length).to.eql(1)
         @object["~attribution"].unsubscribe(bar)
         expect(@object.authors[0]["~name"].subscribers.length).to.eql(0)
@@ -228,5 +229,5 @@ describe 'Serenade.defineProperty', ->
         @object["~attribution"].subscribe(bar)
         expect(@object.authors[0]["~name"].subscribers.length).to.eql(1)
         expect(@object.authors[1]["~name"].subscribers.length).to.eql(1)
-        expect(@object.authors.change.subscribers.length).to.eql(2)
+        expect(@object.authors.change.subscribers.length).to.eql(1)
         expect(@object["~authors"].subscribers.length).to.eql(1)

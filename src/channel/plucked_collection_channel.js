@@ -20,19 +20,21 @@ export default class PluckedCollectionChannel extends StaticChannel {
         });
       }
       if(oldCollection && oldCollection.change) {
-        oldCollection.change.unsubscribe(this.appliedHandler);
+        oldCollection.change.unsubscribe(this.handler);
       }
       if(values) {
         if(values.change) {
-          values.change.subscribe(this.appliedHandler);
+          values.change.subscribe(this.handler);
         }
         values.forEach((value) => {
           Channel.get(value, property).subscribe(this.appliedHandler);
         });
         this.appliedHandler();
+        oldValues = [].map.call(values, (x) => x)
+      } else {
+        oldValues = undefined;
       }
       oldCollection = values;
-      oldValues = [].concat(values);
     };
   }
 
