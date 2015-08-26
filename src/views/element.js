@@ -1,5 +1,5 @@
 import View from "./view"
-import defineEvent from "../event"
+import { defineChannel } from "../property"
 import { settings, assignUnlessEqual } from "../helpers"
 import Compile from "../compile"
 import Collection from "../collection"
@@ -208,8 +208,8 @@ class Element extends View {
 
 }
 
-defineEvent(Element.prototype, "load", { async: false });
-defineEvent(Element.prototype, "unload", { async: false });
+defineChannel(Element.prototype, "load", { async: false });
+defineChannel(Element.prototype, "unload", { async: false });
 
 Compile.element = function(ast, context) {
   if(settings.views[ast.name]) {
