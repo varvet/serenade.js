@@ -84,6 +84,31 @@ describe "Serenade.Channel", ->
       expect(channel.value).to.equal(3)
       expect(double.value).to.equal(6)
 
+  describe "#filter", ->
+    it "creates a new channel which filters the channel", ->
+      channel = Channel.of(2)
+      even = channel.filter((x) => x % 2 is 0)
+
+      expect(channel.value).to.equal(2)
+      expect(even.value).to.equal(2)
+
+      expect(-> channel.emit(6)).to.emit(even, with: 6)
+      expect(-> channel.emit(3)).not.to.emit(even)
+
+      expect(channel.value).to.equal(3)
+      expect(even.value).to.equal(3)
+
+    it "can take boolean option", ->
+      channel = Channel.of(2)
+      always = channel.filter(true)
+      never = channel.filter(false)
+
+      expect(-> channel.emit(3)).to.emit(always, with: 3)
+      expect(-> channel.emit(3)).not.to.emit(never)
+
+      expect(always.value).to.equal(3)
+      expect(never.value).to.equal(3)
+
   describe "#pluck", ->
     it "creates a new channel which returns the given property", ->
       channel = Channel.of(name: "Jonas")

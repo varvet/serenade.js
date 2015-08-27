@@ -8,6 +8,7 @@ import MappedChannel from "./channel/mapped_channel"
 import PluckedChannel from "./channel/plucked_channel"
 import PluckedCollectionChannel from "./channel/plucked_collection_channel"
 import CompositeChannel from "./channel/composite_channel"
+import FilteredChannel from "./channel/filtered_channel"
 import { defineProperty, defineAttribute, defineChannel } from "./property"
 import { extend, settings } from "./helpers"
 
