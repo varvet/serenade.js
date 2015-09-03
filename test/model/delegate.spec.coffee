@@ -42,17 +42,17 @@ describe "Serenade.Model.delegate", ->
       @delegate "name", "email", to: "author"
       @property "author"
     post = new Post(author: author)
-    post.name_property.trigger()
-    post.email_property.trigger()
-    expect(-> author.name = "peter").to.triggerEvent(post.name_property, with: ["Jonas", "peter"])
-    expect(-> author.email = "peter@elabs.se").to.triggerEvent(post.email_property, with: ["jonas@elabs.se", "peter@elabs.se"])
+    post["~name"].trigger()
+    post["~email"].trigger()
+    expect(-> author.name = "peter").to.emit(post["~name"], with: ["Jonas", "peter"])
+    expect(-> author.email = "peter@elabs.se").to.emit(post["~email"], with: ["jonas@elabs.se", "peter@elabs.se"])
 
   it "allows dependencies to be overwritten", ->
     author = Serenade(name: "Jonas", email: "jonas@elabs.se")
     class Post extends Serenade.Model
       @delegate "name", "email", to: "author", dependsOn: []
     post = new Post(author: author)
-    expect(-> author.name = "peter").not.to.triggerEvent(post.name_property)
+    expect(-> author.name = "peter").not.to.emit(post["~name"])
 
   it "can set prefix", ->
     author = Serenade(name: "Jonas", email: "jonas@elabs.se")

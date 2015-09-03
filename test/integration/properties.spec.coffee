@@ -38,7 +38,7 @@ describe 'Bound properties', ->
       set: (value) ->
         @_counter = value
 
-    context.counter_property.trigger()
+    context["~counter"].trigger()
     @render "input[property:disabled=@counter]", context
     expect(counter).to.eql(2)
     context.counter = true

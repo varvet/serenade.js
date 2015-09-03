@@ -62,25 +62,6 @@ chai.Assertion::attribute = (name) ->
   @assert @obj.hasAttribute(name), "expected #{@obj} to have attribute #{name}"
 chai.Assertion::property = (name) ->
   @assert @obj[name], "expected #{@obj} to have property #{name}"
-chai.Assertion::triggerEvent = (event, options={}) ->
-  args = null
-  count = 0
-  fun = (a...) ->
-    args = a
-    count += 1
-
-  event.bind fun
-  @obj()
-  event.unbind fun
-
-  if @negate
-    @assert count isnt 0, "", "event #{event.name} should not have been triggered (was triggered #{count} times)"
-  else
-    expectedCount = options.count ? 1
-    @assert count is expectedCount, "event #{event.name} was triggered #{count} times, expected #{expectedCount}"
-  if options.with
-    @assert compareArrays(args, options.with), "event arguments #{args} do not match expected arguments #{options.with}"
-
 chai.Assertion::emit = (channel, options={}) ->
   value = null
   count = 0

@@ -24,8 +24,8 @@ describe 'Serenade.Model', ->
         @property "ageListener", dependsOn: "age"
 
         constructor: ->
-          @nameListener_property.bind -> nameTriggered = true
-          @ageListener_property.bind -> ageTriggered = true
+          @["~nameListener"].bind -> nameTriggered = true
+          @["~ageListener"].bind -> ageTriggered = true
           super
 
       john = new Person(name: 'John', age: 23)
@@ -36,7 +36,7 @@ describe 'Serenade.Model', ->
       class Person extends Serenade.Model
         @property "name"
       john = new Person(name: 'John')
-      expect(-> john.name = 'Peter').to.triggerEvent(john.name_property, with: ["John", "Peter"])
+      expect(-> john.name = 'Peter').to.emit(john["~name"], with: ["John", "Peter"])
 
   describe '.extend', ->
     it 'sets up prototypes correctly', ->
@@ -96,7 +96,7 @@ describe 'Serenade.Model', ->
       class Person extends Serenade.Model
         @property "name"
       john = new Person(name: "John")
-      expect(-> john.name = "Johnny").to.triggerEvent john.name_property
+      expect(-> john.name = "Johnny").to.emit john["~name"]
 
     it 'makes property getters assignable', ->
       class Person extends Serenade.Model
@@ -111,13 +111,13 @@ describe 'Serenade.Model', ->
       class Person extends Serenade.Model
         @property "firstName", "lastName"
       john = new Person(firstName: "John", lastName: "Smith")
-      expect(-> john.firstName = "Johnny").to.triggerEvent john.firstName_property
+      expect(-> john.firstName = "Johnny").to.emit john["~firstName"]
 
     it 'adds multiple properties with options to the prototype', ->
       class Person extends Serenade.Model
         @property "firstName", "lastName", serialize: true
       john = new Person(firstName: "John", lastName: "Smith")
-      expect(-> john.firstName = "Johnny").to.triggerEvent john.firstName_property
+      expect(-> john.firstName = "Johnny").to.emit john["~firstName"]
       expect(john.toJSON().lastName).to.eql("Smith")
 
     it 'cannot break constructor by declaring a property called `set`', ->
