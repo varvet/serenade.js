@@ -12,16 +12,6 @@ describe 'Custom helpers', ->
     '''
     expect(@body).to.have.element('div > form')
 
-  it 'can return multiple elements', ->
-    Serenade.helper "funky", ->
-      [Serenade.document.createElement('form'), Serenade.document.createElement('article')]
-    @render '''
-      div
-        - funky
-    '''
-    expect(@body).to.have.element('div > form')
-    expect(@body).to.have.element('div > article')
-
   it 'can return a document fragment', ->
     Serenade.helper "funky", ->
       frag = Serenade.document.createDocumentFragment()
@@ -82,37 +72,6 @@ describe 'Custom helpers', ->
     '''
     expect(@body).to.have.element('div')
 
-  it 'can return a string of text', ->
-    Serenade.helper "funky", ->
-      "Hello"
-    @render '''
-      div
-        - funky
-    '''
-    expect(@body).to.have.element('div')
-    expect(@body).to.have.text("Hello")
-
-  it 'can return a string of html', ->
-    Serenade.helper "funky", ->
-      "<article>Hello</article>"
-    @render '''
-      div
-        - funky
-    '''
-    expect(@body).to.have.element('div > article')
-    expect(@body).to.have.text("Hello")
-
-  it 'can return a string with multiple children', ->
-    Serenade.helper "funky", ->
-      "<article>Hello</article><section></section>"
-    @render '''
-      div
-        - funky
-    '''
-    expect(@body).to.have.element('div > article')
-    expect(@body).to.have.element('div > section')
-    expect(@body).to.have.text("Hello")
-
   it 'provides access to context in helper', ->
     Serenade.helper "funky", ->
       element = Serenade.document.createElement('form')
@@ -156,7 +115,7 @@ describe 'Custom helpers', ->
       col: [1, 2]
     @render '''
       div
-        - collection @col
+        - collection $col
           - test
     ''', context
     expect(@body).to.have.element('div > span')
@@ -251,7 +210,7 @@ describe 'Custom helpers', ->
         Serenade.document.createTextNode(text.toUpperCase())
       @render """
         div
-          - upcase name
+          - upcase $name
       """, context
       expect(@body).to.have.text("JONAS")
       context.name = "Peter"
@@ -290,7 +249,7 @@ describe 'Custom helpers', ->
       Serenade.helper "funky", (id) ->
         Serenade.template("""
           #foo
-          div[id=@id]
+          div[id=id]
         """).render(id: id)
 
       @render '''
