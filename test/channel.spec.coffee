@@ -195,3 +195,18 @@ describe "Serenade.Channel", ->
       expect(-> person3.name = "Anna").to.emit(names, with: ["Anna", "Tor"])
 
       expect(names.value).to.eql(["Anna", "Tor"])
+
+  describe "#collection", ->
+    it "emits values when collection changed", ->
+      person1 = "Jonas"
+      person2 = "Kim"
+      authors = new Serenade.Collection([person1, person2])
+
+      channel = Channel.of(authors)
+      names = channel.collection()
+
+      expect(names.value.toArray()).to.eql(["Jonas", "Kim"])
+
+      expect(-> authors.push("Eli")).to.emit(names)
+
+      expect(names.value.toArray()).to.eql(["Jonas", "Kim", "Eli"])
