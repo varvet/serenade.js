@@ -5,7 +5,12 @@ import Compile from "../compile"
 class IfView extends DynamicView {
   constructor(ast, context) {
     super(ast, context);
-    this._bindToModel(ast.argument, (value) => {
+
+    if(ast.arguments.length !== 1) {
+      throw(new Error("`if` must take exactly one argument"))
+    }
+
+    Compile.parameter(ast.arguments[0], context).bind((value) => {
       if(value) {
         this.replace([new TemplateView(ast.children, context)]);
       } else if(ast.else) {

@@ -10,9 +10,9 @@ describe 'If', ->
 
     @render '''
       ul
-        - if @valid
+        - if $valid
           li[id="valid"]
-        - if @visible
+        - if $visible
           li[id="visible"]
     ''', context
     expect(@body).to.have.element('ul > li#valid')
@@ -23,7 +23,7 @@ describe 'If', ->
 
     @render '''
       ul
-        - if @valid
+        - if $valid
           li[id="valid"]
           li[id="visible"]
           li[id="monkey"]
@@ -37,9 +37,9 @@ describe 'If', ->
 
     @render '''
       ul
-        - if @valid
+        - if $valid
           li[id="valid"]
-        - if @visible
+        - if $visible
           li[id="visible"]
     ''', context
     expect(@body).not.to.have.element('ul > li#valid')
@@ -91,8 +91,8 @@ describe 'If', ->
     @render '''
       ul
         - collection @items
-          - if @valid
-            li[id=@name]
+          - if $valid
+            li[id=name]
     ''', context
     expect(@body).to.have.element('ul > li#foo')
     expect(@body).not.to.have.element('ul > li#bar')

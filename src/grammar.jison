@@ -41,7 +41,6 @@ Child
   : Element { $$ = $1 }
   | IfInstruction { $$ = $1 }
   | Instruction { $$ = $1 }
-  | Helper { $$ = $1 }
   | ContentList { $$ = $1 }
   ;
 
@@ -63,19 +62,18 @@ PropertyArguments
   | STRING_LITERAL { $$ = [{ value: $1 }] }
   ;
 
-Instruction
-  : DASH WHITESPACE VIEW WHITESPACE STRING_LITERAL { $$ = { children: [], type: "view", argument: $5 } }
-  | DASH WHITESPACE VIEW WHITESPACE Bound { $$ = { children: [], type: "view", argument: $5, bound: true } }
-  | DASH WHITESPACE COLLECTION WHITESPACE Bound { $$ = { children: [], type: "collection", argument: $5 } }
-  | DASH WHITESPACE UNLESS WHITESPACE Bound { $$ = { children: [], type: "unless", argument: $5 } }
-  | DASH WHITESPACE IN WHITESPACE Bound { $$ = { children: [], type: "in", argument: $5 } }
-  | Instruction INDENT ChildList OUTDENT { $1.children = $3; $$ = $1 }
+InstructionIdentifier
+  : VIEW { $$ = { children: [], arguments: [], type: "view" } }
+  | COLLECTION { $$ = { children: [], arguments: [], type: "collection" } }
+  | UNLESS { $$ = { children: [], arguments: [], type: "unless" } }
+  | IN { $$ = { children: [], arguments: [], type: "in" } }
+  | IDENTIFIER { $$ = { children: [], arguments: [], type: "helper", command: $3 } }
   ;
 
-Helper
-  : DASH WHITESPACE IDENTIFIER { $$ = { command: $3, arguments: [], children: [], type: "helper" } }
-  | Helper WHITESPACE HelperArgument { $1.arguments.push($3); $$ = $1 }
-  | Helper INDENT ChildList OUTDENT { $1.children = $3; $$ = $1 }
+Instruction
+  : DASH WHITESPACE InstructionIdentifier { $$ = $3 }
+  | DASH WHITESPACE InstructionIdentifier WHITESPACE InstructionArgumentList { $3.arguments = $4; $$ = $3 }
+  | Instruction INDENT ChildList OUTDENT { $1.children = $3; $$ = $1 }
   ;
 
 HelperArgument
@@ -85,13 +83,23 @@ HelperArgument
   ;
 
 IfInstruction
-  : DASH WHITESPACE IF WHITESPACE Bound { $$ = { children: [], type: "if", argument: $5 } }
+  : DASH WHITESPACE IF WHITESPACE InstructionArgumentList { $$ = { children: [], arguments: $5, type: "if" } }
   | IfInstruction INDENT ChildList OUTDENT { $1.children = $3; $$ = $1 }
   | IfInstruction ElseInstruction { $1.else = $2; $$ = $1 }
   ;
 
 ElseInstruction
   : DASH WHITESPACE ELSE INDENT ChildList OUTDENT { $$ = { arguments: [], children: $5, type: "else" } }
+  ;
+
+InstructionArgumentList
+  : InstructionArgument { $$ = [$1] }
+  | InstructionArgumentList WHITESPACE InstructionArgument { $$ = $1.concat($3) }
+  ;
+
+InstructionArgument
+  : Bound { $$ = { value: $1, bound: true } }
+  | STRING_LITERAL { $$ = { value: $1 } }
   ;
 
 AnyIdentifier
