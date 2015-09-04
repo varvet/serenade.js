@@ -104,6 +104,6 @@ AnyIdentifier
   ;
 
 Bound
-  : AT AnyIdentifier { $$ = $2 }
-  | AT { $$ = undefined }
+  : AT AnyIdentifier { $$ = "@" + $2 }
+  | AT { $$ = "this" }
   ;

@@ -164,11 +164,15 @@ class Element extends View {
       }
 
       if(property.bound) {
-        let value = context[property.value];
-        if(value && value.isChannel) {
-          channel = value;
+        if(property.value === "this") {
+          channel = new StaticChannel(context);
         } else {
-          channel = new StaticChannel(value);
+          let value = context[property.value];
+          if(value && value.isChannel) {
+            channel = value;
+          } else {
+            channel = new StaticChannel(value);
+          }
         }
       } else {
         channel = new StaticChannel(property.value);
