@@ -17,7 +17,7 @@ describe 'Bound properties', ->
 
   it 'get bound properties from the context', ->
     context = { disabled: true }
-    @render 'input[property:disabled=@disabled]', context
+    @render 'input[property:disabled=disabled]', context
     expect(@body).to.have.element('input[disabled]')
 
   it 'changes bound properties as they are changed', ->
@@ -28,23 +28,23 @@ describe 'Bound properties', ->
     expect(@body).not.to.have.element('input[disabled]')
 
   it 'does not access getter more than once when updating dom nodes', ->
-    context = {}
+    context = Serenade(score: 0)
     counter = 0
 
-    Serenade.defineProperty context, "counter",
+    Serenade.defineProperty context, "scoreCounter",
+      dependsOn: "score"
       get: ->
         counter += 1
-        @_counter
-      set: (value) ->
-        @_counter = value
+        @score
 
-    context["@counter"].trigger()
-    @render "input[property:disabled=@counter]", context
+    context.score += 1
+    expect(counter).to.eql(0)
+    @render "input[property:disabled=@scoreCounter]", context
+    expect(counter).to.eql(1)
+    context.score += 1
     expect(counter).to.eql(2)
-    context.counter = true
+    context.score += 1
     expect(counter).to.eql(3)
-    context.counter = false
-    expect(counter).to.eql(4)
 
   it 'can set several property bindings', ->
     context = Serenade(disabled: true, checked: true)
