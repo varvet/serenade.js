@@ -1,5 +1,6 @@
 require "./spec_helper"
 
+Serenade = require("../lib/serenade")
 {Channel} = Serenade
 {defineProperty, defineAttribute} = Serenade
 
