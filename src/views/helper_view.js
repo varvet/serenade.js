@@ -4,6 +4,7 @@ import TemplateView from "./template_view"
 import Collection from "../collection"
 import { settings } from "../helpers"
 import Compile from "../compile"
+import Channel from "../channel/channel"
 
 function normalize(val) {
   if(!val) return [];
@@ -35,30 +36,14 @@ class HelperView extends DynamicView {
     super(ast, context);
 
     this.helper = helper;
-    this.render = this.render.bind(this);
-    this.update = this.update.bind(this);
 
-    this.update();
-
-    this.ast.arguments.forEach(({ value, bound }) => {
-      if (bound === true) {
-        this._bindEvent(context["" + value + "_property"], this.update);
-      }
-    });
-  }
-
-  update() {
-    this.clear();
-    this.children = normalize(this.helper.call({
-      context: this.context,
-      render: this.render
-    }, ...this.arguments));
-    this.rebuild();
-  }
-
-  get arguments() {
-    return this.ast.arguments.map((argument) => {
-      return (argument.static || argument.bound) ? this.context[argument.value] : argument.value;
+    let propertyChannels = this.ast.properties.map((property) => Compile.parameter(property, context));
+    let channel = Channel.all(propertyChannels).bind((args) => {
+      this.children = normalize(this.helper.call({
+        context: this.context,
+        render: this.render.bind(this),
+      }, args));
+      this.rebuild();
     });
   }
 
