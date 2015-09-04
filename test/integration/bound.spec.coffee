@@ -17,12 +17,12 @@ describe 'Bound attributes and text nodes', ->
 
   it 'get bound text from the context', ->
     context = { name: 'Jonas Nicklas' }
-    @render 'div @name', context
+    @render 'div $name', context
     expect(@body.querySelector('div')).to.have.text('Jonas Nicklas')
 
   it 'get bound view from the context', ->
     context = { name: Serenade.template('h1 "Jonas"').render() }
-    @render 'div @name', context
+    @render 'div $name', context
     expect(@body.querySelector('div h1')).to.have.text('Jonas')
 
   it 'sets multiple classes with an array given as the class attribute', ->
@@ -90,7 +90,7 @@ describe 'Bound attributes and text nodes', ->
 
   it 'handles the number zero correctly', ->
     context = { number: 0 }
-    @render 'div[data-foo=@number] @number', context
+    @render 'div[data-foo=number] $number', context
     expect(@body.querySelector('div').getAttribute('data-foo')).to.eql("0")
     expect(@body.querySelector('div').textContent).to.eql("0")
 
@@ -106,13 +106,16 @@ describe 'Bound attributes and text nodes', ->
     expect(@body).to.have.text("Petter Nicklas")
 
   it 'does not access getter more than once when updating dom nodes', ->
-    context = {}
+    context = Serenade(score: 0)
     counter = 0
-    Serenade.defineProperty(context, "counter", get: -> counter += 1)
-    context["@counter"].trigger()
-    @render "h1 @counter", context
+    Serenade.defineProperty(context, "trackedScore", dependsOn: "score", get: (score) -> counter += 1; score)
+
+    context.score += 1
+    expect(counter).to.eql(0)
+    @render "h1 @trackedScore", context
+    expect(counter).to.eql(1)
+    expect(@body.querySelector('h1').textContent).to.eql("1")
+
+    context.score += 1
     expect(counter).to.eql(2)
-    context.counter = "foo"
-    expect(counter).to.eql(3)
-    context.counter = "blah"
-    expect(counter).to.eql(4)
+    expect(@body.querySelector('h1').textContent).to.eql("2")

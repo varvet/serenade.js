@@ -9,7 +9,8 @@ const LITERALS = {
 	"!": "BANG",
 	"#": "HASH",
 	".": "DOT",
-	"@": "AT"
+	"@": "AT",
+	"$": "DOLLAR",
 }
 
 const STRING = /^"((?:\\.|[^"])*)"/;

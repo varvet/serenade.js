@@ -4,7 +4,6 @@ import { settings, assignUnlessEqual } from "../helpers"
 import Compile from "../compile"
 import Collection from "../collection"
 import Channel from "../channel/channel"
-import StaticChannel from "../channel/static_channel"
 
 const Property = {
   style: {
@@ -181,6 +180,7 @@ class Element extends View {
       if(action.setup) {
         action.setup.call(this, property);
       }
+
       channel.bind((value) => {
         action.update.call(this, property, value);
       });

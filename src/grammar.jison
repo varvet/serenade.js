@@ -105,5 +105,6 @@ AnyIdentifier
 
 Bound
   : AT AnyIdentifier { $$ = "@" + $2 }
+  | DOLLAR AnyIdentifier { $$ = $2 }
   | AT { $$ = "this" }
   ;

@@ -7,19 +7,11 @@ class ContentView extends DynamicView {
     let value;
     super(ast, context);
 
-    if(ast.bound && ast.value) {
-      value = context[ast.value];
-      let property = context[ast.value + "_property"];
-      if(property && property.registerGlobal) {
-        property.registerGlobal(value);
-      }
-      this._bindEvent(property, (_, value) => this.update(value))
-    } else if(ast.value) {
-      value = ast.value;
-    } else {
-      value = context;
-    }
-    this.update(value);
+    let channel = Compile.parameter(ast, context);
+
+    channel.bind((value) => {
+      this.update(value);
+    });
   }
 
   update(value) {
