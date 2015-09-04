@@ -47,15 +47,23 @@ const Property = {
       if(!value) {
         throw SyntaxError("cannot bind to whole context, please specify an attribute to bind to");
       }
+      let setValue = (newValue) => {
+        let currentValue = this.context[value];
+        if(currentValue && currentValue.isChannel) {
+          currentValue.emit(newValue);
+        } else {
+          this.context[value] = newValue
+        }
+      }
       let domUpdated = () => {
         if(this.node.type === "checkbox") {
-          this.context[value] = this.node.checked;
+          setValue(this.node.checked);
         } else if(this.node.type === "radio") {
           if(this.node.checked) {
-            this.context[value] = this.node.value;
+            setValue(this.node.value);
           }
         } else {
-          this.context[value] = this.node.value;
+          setValue(this.node.value);
         }
       }
       if(property.name === "binding") {
@@ -65,7 +73,7 @@ const Property = {
           }
         };
         settings.document.addEventListener("submit", handler, true);
-        this.unload.bind(function() {
+        this.unload.subscribe(function() {
           settings.document.removeEventListener("submit", handler, true);
         });
       } else {
