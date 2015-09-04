@@ -9,7 +9,7 @@ class ContentView extends DynamicView {
 
     let channel = Compile.parameter(ast, context);
 
-    channel.bind((value) => {
+    this._bind(channel, (value) => {
       this.update(value);
     });
   }

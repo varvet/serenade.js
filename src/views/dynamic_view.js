@@ -19,7 +19,7 @@ class DynamicView extends View {
   }
 
   rebuild() {
-    if (this.anchor.parentNode) {
+    if(this.anchor.parentNode) {
       let last = this.anchor;
       this.children.forEach((child) => {
         child.insertAfter(last);
@@ -34,9 +34,8 @@ class DynamicView extends View {
   }
 
   remove() {
-    this.detach();
     this.clear();
-    if (this.anchor.parentNode) {
+    if(this.anchor.parentNode) {
       this.anchor.parentNode.removeChild(this.anchor);
     }
   }

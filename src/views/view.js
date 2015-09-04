@@ -4,6 +4,7 @@ class View {
   constructor(node) {
     this.node = node;
     this.children = [];
+    this.channels = new Collection();
   }
 
   append(inside) {
@@ -24,39 +25,32 @@ class View {
   detach() {
     this.children.forEach((child) => child.detach())
 
-    if (this.boundEvents) {
-      this.boundEvents.forEach(({ event, fun }) => event.unbind(fun))
-    }
+    this.channels.forEach(({ channel, fun }) => channel.unsubscribe(fun))
   }
 
   get lastElement() {
     return this.node;
   }
 
-  _bindEvent(event, fun) {
-    if(event) {
-      this.boundEvents || (this.boundEvents = new Collection());
-      this.boundEvents.push({ event, fun });
-      event.bind(fun);
+  _bind(channel, fun) {
+    if(channel) {
+      this.channels.push({ channel, fun });
+      channel.bind(fun);
     }
   }
 
-  _unbindEvent(event, fun) {
-    if(event) {
-      this.boundEvents || (this.boundEvents = new Collection());
-      this.boundEvents.delete(fun);
-      event.unbind(fun);
+  _subscribe(channel, fun) {
+    if(channel) {
+      this.channels.push({ channel, fun });
+      channel.subscribe(fun);
     }
   }
 
-  _bindToModel(name, fun) {
-    let value = this.context[name];
-    let property = this.context["" + name + "_property"];
-    if(property && property.registerGlobal) {
-      property.registerGlobal(value);
+  _unsubscribe(channel, fun) {
+    if(channel) {
+      this.channels.delete(fun);
+      channel.unsubscribe(fun);
     }
-    this._bindEvent(property, (_, value) => fun(value));
-    fun(value);
   }
 }
 
