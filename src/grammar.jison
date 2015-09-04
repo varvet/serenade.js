@@ -67,19 +67,13 @@ InstructionIdentifier
   | COLLECTION { $$ = { children: [], arguments: [], type: "collection" } }
   | UNLESS { $$ = { children: [], arguments: [], type: "unless" } }
   | IN { $$ = { children: [], arguments: [], type: "in" } }
-  | IDENTIFIER { $$ = { children: [], arguments: [], type: "helper", command: $3 } }
+  | IDENTIFIER { $$ = { children: [], arguments: [], type: "helper", command: $1 } }
   ;
 
 Instruction
   : DASH WHITESPACE InstructionIdentifier { $$ = $3 }
   | DASH WHITESPACE InstructionIdentifier WHITESPACE InstructionArgumentList { $3.arguments = $5; $$ = $3 }
   | Instruction INDENT ChildList OUTDENT { $1.children = $3; $$ = $1 }
-  ;
-
-HelperArgument
-  : Bound { $$ = { value: $1, bound: true } }
-  | AnyIdentifier { $$ = { value: $1, static: true } }
-  | STRING_LITERAL { $$ = { value: $1 } }
   ;
 
 IfInstruction
