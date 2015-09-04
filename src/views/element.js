@@ -181,9 +181,11 @@ class Element extends View {
         action.setup.call(this, property);
       }
 
-      channel.bind((value) => {
-        action.update.call(this, property, value);
-      });
+      if(action.bound) {
+        channel.bind((value) => {
+          action.update.call(this, property, value);
+        });
+      }
     });
     this.load.trigger();
   }
