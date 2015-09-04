@@ -67,7 +67,7 @@ export default class Channel extends StaticChannel {
   }
 
   resolve() {
-    this.subscribers.forEach((subscriber) => {
+    this.subscribers.map((i) => i).forEach((subscriber) => {
       subscriber(this.value);
     });
   }

@@ -10,7 +10,7 @@ describe 'Collection', ->
 
     @render '''
       ul
-        - collection @people
+        - collection $people
           li[id=name]
     ''', context
     expect(@body).to.have.element('ul > li#jonas')
@@ -21,7 +21,7 @@ describe 'Collection', ->
 
     @render '''
       ul
-        - collection @people
+        - collection $people
           li[id=name]
     ''', context
     expect(@body).to.have.element('ul')
@@ -31,7 +31,7 @@ describe 'Collection', ->
 
     @render '''
       ul
-        - collection @colors
+        - collection $colors
           li[id=@ style:color=@] @
     ''', context
     expect(@body).to.have.element('ul > li#red')
@@ -45,7 +45,7 @@ describe 'Collection', ->
 
     @render '''
       ul
-        - collection @people
+        - collection $people
           li[id=name]
     ''', context
     expect(@body).to.have.element('ul > li#jonas')
@@ -56,7 +56,7 @@ describe 'Collection', ->
 
     @render '''
       ul
-        - collection @people
+        - collection $people
           li[id=name]
     ''', context
     expect(@body).to.have.element('ul > li#jonas')
@@ -72,7 +72,7 @@ describe 'Collection', ->
 
     @render '''
       ul
-        - collection @people
+        - collection $people
           li[id=name]
     ''', context
     expect(@body).to.have.element('ul > li#jonas')
@@ -86,7 +86,7 @@ describe 'Collection', ->
 
     @render '''
       ul
-        - collection @people
+        - collection $people
           li[id=name]
     ''', context
     expect(@body).to.have.element('ul > li#jonas')
@@ -101,7 +101,7 @@ describe 'Collection', ->
 
     @render '''
       ul
-        - collection @people
+        - collection $people
           li[id=name]
     ''', context
     context.people.insertAt(0, {name: "carry"})
@@ -121,7 +121,7 @@ describe 'Collection', ->
 
   it 'updates when the collection is replaced for serenade contexts', ->
     class Thing extends Serenade.Model
-      @property "things"
+      @attribute "things"
     context = new Thing(things: ["hello"])
 
     @render """
@@ -138,7 +138,7 @@ describe 'Collection', ->
 
     @render """
       - collection @things
-        @
+        $this
     """, context
     expect(@body).to.have.text("hello")
     context.things = []
@@ -151,8 +151,8 @@ describe 'Collection', ->
     context = { things: new Serenade.Collection([{ name: "foo" }, {name: "bar"}]) }
     @render """
       ul
-        - collection @things
-          li[id=@name]
+        - collection $things
+          li[id=name]
     """, context
     @body.querySelector("#foo").setAttribute("thing", "true")
     context.things.push(name: "quox")
@@ -180,14 +180,14 @@ describe 'Collection', ->
 
   it 'does not apply transform multiple times if event is async', ->
     context = {}
-    Serenade.defineProperty(context, "things", async: true)
+    Serenade.defineAttribute(context, "things", async: true)
     context["@things"].bind(->)
     context.things = ["a", "b", "c"]
 
     @render """
       ul#things
         - collection @things
-          li[class=@]
+          li[class=this]
     """, context
     context["@things"].resolve()
 
@@ -198,14 +198,14 @@ describe 'Collection', ->
 
     @render '''
       div
-        - collection @people
+        - collection $people
     ''', context
     expect(@body.querySelector("div")).to.have.text("jonaspeter")
     context.people.push("mary")
     expect(@body.querySelector("div")).to.have.text("jonaspetermary")
 
   it 'renders a collection of views', ->
-    template = Serenade.template('li[id=@name]')
+    template = Serenade.template('li[id=name]')
     context = {
       people: new Serenade.Collection([
         template.render(name: "jonas"),
@@ -215,7 +215,7 @@ describe 'Collection', ->
 
     @render '''
       ul
-        - collection @people
+        - collection $people
     ''', context
     expect(@body).to.have.element('ul > li#jonas')
     expect(@body).to.have.element('ul > li#peter')
@@ -231,14 +231,17 @@ describe 'Collection', ->
 
     @render '''
       ul#one
-        - collection @people
-          li.one[class=@]
+        - collection $people
+          li.one[class=this]
       ul#two
-        - collection @people
-          li.two[class=@]
+        - collection $people
+          li.two[class=this]
       ul#three
-        - collection @people
-          li.three[class=@]
+        - collection $people
+          li.three[class=this]
+      ul#four
+        - collection $people
+          li.four[class=this]
     ''', context
     context.people.push("peter")
     context.people.push("kim")

@@ -9,20 +9,24 @@ class CollectionView extends DynamicView {
   constructor(ast, context) {
     super(ast, context);
 
-    this.update = this.update.bind(this);
+    if(ast.arguments.length !== 1) {
+      throw(new Error("`in` must take exactly one argument"))
+    }
 
-    let items = this.context[ast.argument] || [];
-    this.lastItems = items.map((i) => i)
-    this.children = new Collection(items.map(this._toView.bind(this)))
-    this.cb = (_, after) => this.replace(after);
-    this._bindEvent(this.context["" + ast.argument + "_property"], this.update);
-    this._bindEvent(items.change, this.cb);
-  }
-
-  update(before, after) {
-    this._unbindEvent(before && before.change, this.cb);
-    this._bindEvent(after && after.change, this.cb);
-    this.replace(after);
+    Compile.parameter(ast.arguments[0], context).collection().bind((values) => {
+      if(values && values.length) {
+        if(this.lastItems && this.lastItems.length) {
+          this.replace(values);
+        } else {
+          this.children = new Collection(values.map(this._toView.bind(this)))
+          this.rebuild()
+        }
+        this.lastItems = values.map((i) => i);
+      } else if(this.lastItems && this.lastItems.length) {
+        this.clear()
+        this.lastItems = undefined;
+      }
+    });
   }
 
   replace(items) {
@@ -61,6 +65,7 @@ class CollectionView extends DynamicView {
     if(this.anchor.parentNode) {
       let previousChild = this.children[index - 1]
       let previousElement = (previousChild && previousChild.lastElement) || this.anchor;
+      let a = view.children[0];
       view.insertAfter(previousElement);
     }
     this.children.insertAt(index, view);

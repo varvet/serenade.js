@@ -9,7 +9,7 @@ export default class CollectionChannel extends StaticChannel {
     this.parent = parent;
     this.subscribers = [];
     this.appliedHandler = () => {
-      this.subscribers.forEach((cb) => cb(this.value));
+      this.subscribers.map((i) => i).forEach((cb) => cb(this.value));
     };
     this.handler = (collection) => {
       if(oldCollection && oldCollection.change) {
