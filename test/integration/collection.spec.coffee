@@ -181,7 +181,7 @@ describe 'Collection', ->
   it 'does not apply transform multiple times if event is async', ->
     context = {}
     Serenade.defineProperty(context, "things", async: true)
-    context["~things"].bind(->)
+    context["@things"].bind(->)
     context.things = ["a", "b", "c"]
 
     @render """
@@ -189,7 +189,7 @@ describe 'Collection', ->
         - collection @things
           li[class=@]
     """, context
-    context["~things"].resolve()
+    context["@things"].resolve()
 
     expect(n.className for n in @body.querySelectorAll("#things li")).to.eql(["a", "b", "c"])
 

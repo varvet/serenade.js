@@ -1,7 +1,7 @@
 import Channel from "./channel/channel"
 
 export function defineChannel(object, name, options = {}) {
-  let privateChannelName = "~" + name;
+  let privateChannelName = "@" + name;
   let getter = options.channel || function() { return new Channel(options) };
 
   Object.defineProperty(object, name, {
@@ -19,7 +19,7 @@ export function defineChannel(object, name, options = {}) {
 }
 
 export function defineAttribute(object, name, options) {
-  let channelName = "~" + name;
+  let channelName = "@" + name;
 
   defineChannel(object, channelName, options);
 
@@ -45,7 +45,7 @@ export function defineAttribute(object, name, options) {
 };
 
 export function defineProperty(object, name, options) {
-  let channelName = "~" + name;
+  let channelName = "@" + name;
   let deps = options.dependsOn;
 
   if(deps) {

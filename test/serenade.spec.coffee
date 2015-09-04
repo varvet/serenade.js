@@ -7,12 +7,12 @@ describe "Serenade", ->
   it "can decorate an object with properties", ->
     object = Serenade(name: "Jonas")
     expect(object.name).to.eql("Jonas")
-    expect(-> object.name = "John").to.emit(object["~name"])
+    expect(-> object.name = "John").to.emit(object["@name"])
 
   it "can decorate an object which has an enumerable constructor property", ->
     object = Serenade(constructor: "Jonas")
     expect(object.constructor).to.eql("Jonas")
-    expect(-> object.constructor = "John").to.emit(object["~constructor"])
+    expect(-> object.constructor = "John").to.emit(object["@constructor"])
 
   describe ".view", ->
     it "registers a view object", ->

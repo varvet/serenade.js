@@ -15,7 +15,7 @@ describe 'Memory management', ->
               p "test"
     ''', context
     context.toggle = false
-    expect(context["~leaking"].subscribers.length).to.eql(0)
+    expect(context["@leaking"].subscribers.length).to.eql(0)
 
   it 'prevents memory leaks on unless statements', ->
     context = Serenade(leaking: true, toggle: true)
@@ -27,7 +27,7 @@ describe 'Memory management', ->
               p "test"
     ''', context
     context.toggle = false
-    expect(context["~leaking"].subscribers.length).to.eql(0)
+    expect(context["@leaking"].subscribers.length).to.eql(0)
 
   it 'prevents memory leaks on in statements', ->
     context = Serenade(leaking: true, toggle: true)
@@ -39,7 +39,7 @@ describe 'Memory management', ->
               p "test"
     ''', context
     context.toggle = false
-    expect(context["~leaking"].subscribers.length).to.eql(0)
+    expect(context["@leaking"].subscribers.length).to.eql(0)
 
   it 'prevents memory leaks on collection statements', ->
     context = Serenade(leaking: new Serenade.Collection([]), toggle: true)
@@ -73,7 +73,7 @@ describe 'Memory management', ->
           p @leaking
     ''', context
     context.toggle = false
-    expect(context["~leaking"].subscribers.length).to.eql(0)
+    expect(context["@leaking"].subscribers.length).to.eql(0)
 
   it 'prevents memory leaks on nodes in views', ->
     context = Serenade(leaking: "foobar", toggle: true)
@@ -84,7 +84,7 @@ describe 'Memory management', ->
           - view "test"
     """, context
     context.toggle = false
-    expect(context["~leaking"].subscribers.length).to.eql(0)
+    expect(context["@leaking"].subscribers.length).to.eql(0)
 
   it 'prevents memory leaks on attributes', ->
     context = Serenade(leaking: "foobar", toggle: true)
@@ -94,7 +94,7 @@ describe 'Memory management', ->
           p[id=@leaking]
     ''', context
     context.toggle = false
-    expect(context["~leaking"].subscribers.length).to.eql(0)
+    expect(context["@leaking"].subscribers.length).to.eql(0)
 
   it 'prevents memory leaks on two-way-bindings', ->
     context = Serenade(leaking: "foobar", toggle: true)
@@ -104,7 +104,7 @@ describe 'Memory management', ->
           input[binding:change=@leaking]
     ''', context
     context.toggle = false
-    expect(context["~leaking"].subscribers.length).to.eql(0)
+    expect(context["@leaking"].subscribers.length).to.eql(0)
 
   it 'prevents memory leaks on style bindings', ->
     context = Serenade(leaking: "foobar", toggle: true)
@@ -114,7 +114,7 @@ describe 'Memory management', ->
           input[style:color=@leaking]
     ''', context
     context.toggle = false
-    expect(context["~leaking"].subscribers.length).to.eql(0)
+    expect(context["@leaking"].subscribers.length).to.eql(0)
 
   it 'prevents global event bindings on submit from leaking', ->
     context = Serenade(leaking: "foobar", toggle: true)
@@ -133,4 +133,4 @@ describe 'Memory management', ->
     @body.appendChild(view)
     view.remove()
     expect(@body).not.to.have.element("h1")
-    expect(context["~leaking"].subscribers.length).to.eql(0)
+    expect(context["@leaking"].subscribers.length).to.eql(0)

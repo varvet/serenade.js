@@ -11,7 +11,7 @@ export default class Channel extends StaticChannel {
   }
 
   static get(object, name) {
-    let channelName = "~" + name;
+    let channelName = "@" + name;
     if(!object) {
       return new StaticChannel();
     } else if(object[channelName]) {

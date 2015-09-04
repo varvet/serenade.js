@@ -69,10 +69,10 @@ describe 'Custom helpers', ->
     ''', context
 
     expect(@body).to.have.element('#bar')
-    expect(context["~name"].subscribers.length).to.eql(1)
+    expect(context["@name"].subscribers.length).to.eql(1)
     context.active = false
     expect(@body).not.to.have.element('#bar')
-    expect(context["~name"].subscribers.length).to.eql(0)
+    expect(context["@name"].subscribers.length).to.eql(0)
 
   it 'can return undefined', ->
     Serenade.helper "funky", -> undefined
@@ -242,7 +242,7 @@ describe 'Custom helpers', ->
       @fireEvent(@body.querySelector("form"), "submit")
 
       expect(@body).not.to.have.element('div > form > div#jonas')
-      expect(context["~name"].subscribers.length).to.eql(0)
+      expect(context["@name"].subscribers.length).to.eql(0)
 
   describe 'with static argument', ->
     it "renders context attribute but does not update it", ->

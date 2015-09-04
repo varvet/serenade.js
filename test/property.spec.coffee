@@ -43,8 +43,8 @@ describe 'Serenade.defineProperty', ->
       expect(@object.foo).to.eql(23)
 
     it 'triggers a change event for this property', ->
-      expect(=> @object.foo = 23).to.emit(@object["~foo"], with: 23)
-      expect(=> @object.foo = 32).to.emit(@object["~foo"], with: 32)
+      expect(=> @object.foo = 23).to.emit(@object["@foo"], with: 23)
+      expect(=> @object.foo = 32).to.emit(@object["@foo"], with: 32)
 
     it 'uses a custom setter', ->
       setValue = null
@@ -122,7 +122,7 @@ describe 'Serenade.defineProperty', ->
       expect(@object.name).to.eql("Jonas")
       expect(@object.name).to.eql("Jonas")
       expect(hitCount).to.eql(1)
-      @object["~name"].trigger()
+      @object["@name"].trigger()
       expect(@object.name).to.eql("Jonas")
       expect(@object.name).to.eql("Jonas")
       expect(hitCount).to.eql(2)
@@ -130,58 +130,58 @@ describe 'Serenade.defineProperty', ->
     it "resets cache before attached events are fired", ->
       @object.__hitCount = 0
       defineProperty @object, "hitCount", cache: true, get: -> ++@__hitCount
-      @object["~hitCount"].subscribe -> @result = @hitCount
+      @object["@hitCount"].subscribe -> @result = @hitCount
 
       expect(@object.hitCount).to.eql(1)
       expect(@object.hitCount).to.eql(1)
 
-      @object["~hitCount"].trigger()
+      @object["@hitCount"].trigger()
       expect(@object.result).to.eql(2)
 
     it "resets cache before attached global events are fired", ->
       defineProperty @object, "foo", value: { __hitCount: 0 }
       defineProperty @object.foo, "hitCount", cache: true, get: -> ++@__hitCount
       defineProperty @object, "hitCount", dependsOn: "foo.hitCount", get: -> @foo.hitCount
-      @object["~hitCount"].subscribe -> @result = @hitCount
+      @object["@hitCount"].subscribe -> @result = @hitCount
 
       expect(@object.hitCount).to.eql(1)
       expect(@object.hitCount).to.eql(1)
 
-      @object.foo["~hitCount"].trigger()
+      @object.foo["@hitCount"].trigger()
       expect(@object.result).to.eql(2)
 
   describe "with `changed` option", ->
     it "triggers a change event if value of property has changed if option not given", ->
       defineAttribute @object, "name"
 
-      expect(=> @object.name = "jonas").to.emit(@object["~name"])
-      expect(=> @object.name = "jonas").not.to.emit(@object["~name"])
-      expect(=> @object.name = "kim").to.emit(@object["~name"])
+      expect(=> @object.name = "jonas").to.emit(@object["@name"])
+      expect(=> @object.name = "jonas").not.to.emit(@object["@name"])
+      expect(=> @object.name = "kim").to.emit(@object["@name"])
 
     it "triggers a change event if changed option evaluates to true", ->
       defineAttribute @object, "name", value: "jonas", changed: (oldVal, newVal) -> oldVal is newVal
 
-      expect(=> @object.name = "jonas").to.emit(@object["~name"])
-      expect(=> @object.name = "jonas").to.emit(@object["~name"])
-      expect(=> @object.name = "kim").not.to.emit(@object["~name"])
+      expect(=> @object.name = "jonas").to.emit(@object["@name"])
+      expect(=> @object.name = "jonas").to.emit(@object["@name"])
+      expect(=> @object.name = "kim").not.to.emit(@object["@name"])
 
     it "always triggers a change event the first time a property is changed when a function is given since we don't know the initial value", ->
       defineAttribute @object, "name", changed: -> false
-      expect(=> @object.name = "jonas").to.emit(@object["~name"])
-      expect(=> @object.name = "kim").not.to.emit(@object["~name"])
+      expect(=> @object.name = "jonas").to.emit(@object["@name"])
+      expect(=> @object.name = "kim").not.to.emit(@object["@name"])
 
     it "does not trigger dependencies when not changed", ->
       defineAttribute @object, "name", changed: (oldVal, newVal) -> oldVal isnt newVal
       defineAttribute @object, "bigName", dependsOn: "name", get: -> @name?.toUpperCase()
 
-      expect(=> @object.name = "jonas").to.emit(@object["~bigName"])
-      expect(=> @object.name = "jonas").not.to.emit(@object["~bigName"])
-      expect(=> @object.name = "kim").to.emit(@object["~bigName"])
+      expect(=> @object.name = "jonas").to.emit(@object["@bigName"])
+      expect(=> @object.name = "jonas").not.to.emit(@object["@bigName"])
+      expect(=> @object.name = "kim").to.emit(@object["@bigName"])
 
     it "always triggers a change event when mutable object is assigned", ->
       obj = {}
       defineAttribute @object, "name", value: obj
-      expect(=> @object.name = {}).to.emit(@object["~name"])
+      expect(=> @object.name = {}).to.emit(@object["@name"])
 
     it "does not trigger when computed property has not changed", ->
       defineAttribute @object, "name"
@@ -190,28 +190,28 @@ describe 'Serenade.defineProperty', ->
         get: -> @name?.toUpperCase()
         changed: (oldVal, newVal) -> oldVal isnt newVal
 
-      expect(=> @object.name = "jonas").to.emit(@object["~bigName"])
-      expect(=> @object.name = "jonas").not.to.emit(@object["~bigName"])
-      expect(=> @object.name = "kim").to.emit(@object["~bigName"])
+      expect(=> @object.name = "jonas").to.emit(@object["@bigName"])
+      expect(=> @object.name = "jonas").not.to.emit(@object["@bigName"])
+      expect(=> @object.name = "kim").to.emit(@object["@bigName"])
 
     it "never triggers a change event when option is false", ->
       defineAttribute @object, "name", changed: false
 
-      expect(=> @object.name = "jonas").not.to.emit(@object["~name"])
-      expect(=> @object.name = "jonas").not.to.emit(@object["~name"])
-      expect(=> @object.name = "kim").not.to.emit(@object["~name"])
+      expect(=> @object.name = "jonas").not.to.emit(@object["@name"])
+      expect(=> @object.name = "jonas").not.to.emit(@object["@name"])
+      expect(=> @object.name = "kim").not.to.emit(@object["@name"])
 
     it "always triggers a change event when option is true", ->
       defineAttribute @object, "name", changed: true
 
-      expect(=> @object.name = "jonas").to.emit(@object["~name"])
-      expect(=> @object.name = "jonas").to.emit(@object["~name"])
-      expect(=> @object.name = "kim").to.emit(@object["~name"])
+      expect(=> @object.name = "jonas").to.emit(@object["@name"])
+      expect(=> @object.name = "jonas").to.emit(@object["@name"])
+      expect(=> @object.name = "kim").to.emit(@object["@name"])
 
   describe "with `async` option", ->
     it "dispatches a change event for this property asynchronously", (done) ->
       defineAttribute @object, "foo", async: true
-      @object["~foo"].subscribe -> @result = true
+      @object["@foo"].subscribe -> @result = true
       @object.foo = 23
       expect(@object.result).not.to.be.ok
       expect(=> @object.result).to.become(true, done)
@@ -219,8 +219,8 @@ describe 'Serenade.defineProperty', ->
     it "optimizes multiple change events for a property into one", (done) ->
       @object.num = 0
       defineAttribute @object, "foo", value: 12, async: true
-      @object["~foo"].resolve()
-      @object["~foo"].subscribe (before, after) -> @result = "#{before}:#{after}"
+      @object["@foo"].resolve()
+      @object["@foo"].subscribe (before, after) -> @result = "#{before}:#{after}"
       @object.foo = 23
       @object.foo = 15
       @object.foo = 45
@@ -230,7 +230,7 @@ describe 'Serenade.defineProperty', ->
     it "dispatches change event asynchronously", (done) ->
       defineAttribute @object, "foo"
       Serenade.async = true
-      @object["~foo"].subscribe -> @result = true
+      @object["@foo"].subscribe -> @result = true
       @object.foo = 23
       expect(@object.result).not.to.be.ok
       expect(=> @object.result).to.become(true, done)
@@ -238,7 +238,7 @@ describe 'Serenade.defineProperty', ->
     it "stays asynchronous when async option is true", (done) ->
       defineAttribute @object, "foo", async: true
       Serenade.async = true
-      @object["~foo"].subscribe -> @result = true
+      @object["@foo"].subscribe -> @result = true
       @object.foo = 23
       expect(@object.result).not.to.be.ok
       expect(=> @object.result).to.become(true, done)
@@ -246,6 +246,6 @@ describe 'Serenade.defineProperty', ->
     it "can be made synchronous", ->
       defineAttribute @object, "foo", async: false
       Serenade.async = true
-      @object["~foo"].subscribe -> @result = true
+      @object["@foo"].subscribe -> @result = true
       @object.foo = 23
       expect(@object.result).to.be.ok

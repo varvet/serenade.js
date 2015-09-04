@@ -109,7 +109,7 @@ describe 'Bound attributes and text nodes', ->
     context = {}
     counter = 0
     Serenade.defineProperty(context, "counter", get: -> counter += 1)
-    context["~counter"].trigger()
+    context["@counter"].trigger()
     @render "h1 @counter", context
     expect(counter).to.eql(2)
     context.counter = "foo"

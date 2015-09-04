@@ -20,16 +20,16 @@ describe "Sereande.Model.collection", ->
     expect(@object.numbers[0]).to.eql(1)
 
   it 'triggers a change event when collection is changed', ->
-    expect(=> @object.numbers.push(4)).to.emit(@object["~numbers"])
+    expect(=> @object.numbers.push(4)).to.emit(@object["@numbers"])
 
   it 'adds a count property', ->
     @object.authors = ["John", "Peter"]
     expect(@object.authorsCount).to.eql(2)
-    expect(=> @object.authors.push("Harry")).to.emit(@object["~authorsCount"])
+    expect(=> @object.authors.push("Harry")).to.emit(@object["@authorsCount"])
 
   it 'triggers a change event in other object when collection is changed', ->
     class Page extends Serenade.Model
       @property "book"
       @property "authors", dependsOn: "book.authors", get: -> @book.authors
     @page = new Page(name: "45", book: @object)
-    expect(=> @object.authors.push(4)).to.emit(@page["~authors"])
+    expect(=> @object.authors.push(4)).to.emit(@page["@authors"])

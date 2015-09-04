@@ -49,4 +49,4 @@ describe 'View', ->
         - view @name
     ''', context
     context.name = "bar"
-    expect(context["~body"].subscribers.length).to.eql(0)
+    expect(context["@body"].subscribers.length).to.eql(0)

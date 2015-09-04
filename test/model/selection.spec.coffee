@@ -43,29 +43,29 @@ describe "Sereande.Model.selection", ->
     expect(@post.toJSON().deletedComments).to.be.ok
 
   it "updates selection when collection is updated", ->
-    expect(=> @post.comments.push({ message: "w00t" })).to.emit(@post["~publishedComments"], count: 2)
-    expect(=> @post.comments.push({ message: "w00t" })).to.emit(@post["~deletedComments"], count: 2)
-    expect(=> @post.comments.push({ message: "w00t" })).to.emit(@post["~commentMessages"], count: 2)
-    expect(=> @post.comments.push({ message: "w00t" })).to.emit(@post["~upcasedMessages"], count: 2)
-    expect(=> @post.comments.push({ message: "w00t" })).to.emit(@post["~activeComments"], count: 2)
+    expect(=> @post.comments.push({ message: "w00t" })).to.emit(@post["@publishedComments"], count: 2)
+    expect(=> @post.comments.push({ message: "w00t" })).to.emit(@post["@deletedComments"], count: 2)
+    expect(=> @post.comments.push({ message: "w00t" })).to.emit(@post["@commentMessages"], count: 2)
+    expect(=> @post.comments.push({ message: "w00t" })).to.emit(@post["@upcasedMessages"], count: 2)
+    expect(=> @post.comments.push({ message: "w00t" })).to.emit(@post["@activeComments"], count: 2)
 
   it "updates selection when item in collection is updated", ->
-    expect(=> @comment2.isPublished = false).to.emit(@post["~publishedComments"])
-    expect(=> @comment2.deleted = true).to.emit(@post["~deletedComments"])
-    expect(=> @comment2.message = "tada").to.emit(@post["~commentMessages"])
+    expect(=> @comment2.isPublished = false).to.emit(@post["@publishedComments"])
+    expect(=> @comment2.deleted = true).to.emit(@post["@deletedComments"])
+    expect(=> @comment2.message = "tada").to.emit(@post["@commentMessages"])
 
   it "does not update selection with function when item in collection is updated", ->
-    expect(=> @comment2.deleted = true).not.to.emit(@post["~activeComments"])
-    expect(=> @comment2.message = "tada").not.to.emit(@post["~upcasedMessages"])
+    expect(=> @comment2.deleted = true).not.to.emit(@post["@activeComments"])
+    expect(=> @comment2.message = "tada").not.to.emit(@post["@upcasedMessages"])
 
   it "adds a count property", ->
     expect(@post.publishedCommentsCount).to.eql(2)
     expect(@post.deletedCommentsCount).to.eql(2)
 
   it "updates count when collection is updated", ->
-    expect(=> @post.comments.push({ message: "w00t", isPublished: true })).to.emit(@post["~publishedCommentsCount"])
-    expect(=> @post.comments.push({ message: "w00t", deleted: true })).to.emit(@post["~deletedCommentsCount"])
+    expect(=> @post.comments.push({ message: "w00t", isPublished: true })).to.emit(@post["@publishedCommentsCount"])
+    expect(=> @post.comments.push({ message: "w00t", deleted: true })).to.emit(@post["@deletedCommentsCount"])
 
   it "updates count when item in collection is updated", ->
-    expect(=> @comment2.isPublished = false).to.emit(@post["~publishedCommentsCount"])
-    expect(=> @comment2.deleted = true).to.emit(@post["~deletedCommentsCount"])
+    expect(=> @comment2.isPublished = false).to.emit(@post["@publishedCommentsCount"])
+    expect(=> @comment2.deleted = true).to.emit(@post["@deletedCommentsCount"])
