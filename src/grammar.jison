@@ -56,9 +56,9 @@ Property
   ;
 
 PropertyArguments
-  : AnyIdentifier { $$ = [{ static: true, value: $1 }] }
+  : AnyIdentifier { $$ = [{ bound: true, value: $1 }] }
   | Bound { $$ = [{ bound: true, value: $1 }] }
-  | AnyIdentifier BANG { $$ = [{ static: true, value: $1, preventDefault: true }] }
+  | AnyIdentifier BANG { $$ = [{ bound: true, value: $1, preventDefault: true }] }
   | Bound BANG { $$ = [{ bound: true, value: $1, preventDefault: true }] }
   | STRING_LITERAL { $$ = [{ value: $1 }] }
   ;

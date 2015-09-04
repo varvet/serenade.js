@@ -22,3 +22,5 @@ export default class StaticChannel {
     this.subscribe(handler);
   }
 }
+
+StaticChannel.prototype.isChannel = true;
