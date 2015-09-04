@@ -14,10 +14,10 @@ const Property = {
   event: {
     setup: function(property) {
       this.node.addEventListener(property.name, (e) => {
-        if(property.arguments[0].preventDefault) {
+        if(property.preventDefault) {
           e.preventDefault();
         }
-        this.context[property.arguments[0].value](this.node, this.context, e);
+        this.context[property.value](this.node, this.context, e);
       });
     }
   },
@@ -40,7 +40,7 @@ const Property = {
   },
   binding: {
     setup: function(property) {
-      let value = property.arguments[0].value;
+      let value = property.value;
       if(this.ast.name !== "input" && this.ast.name !== "textarea" && this.ast.name !== "select") {
         throw SyntaxError("invalid view type " + this.ast.name + " for two way binding");
       }
@@ -113,8 +113,8 @@ const Property = {
   on: {
     setup: function(property) {
       if(property.name === "load" || property.name === "unload") {
-        this[property.name].bind(function() {
-          this.context[property.arguments[0].value](this.node, this.context);
+        this[property.name].subscribe(() => {
+          this.context[property.value](this.node, this.context);
         });
       } else {
         throw new SyntaxError("unkown lifecycle event '" + property.name + "'");

@@ -6,7 +6,7 @@ var Compile = {
       if(ast.value === "this") {
         return new StaticChannel(context);
       } else {
-        let value = context[ast.value];
+        let value = context && context[ast.value];
         if(value && value.isChannel) {
           return value;
         } else {
