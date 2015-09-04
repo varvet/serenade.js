@@ -150,7 +150,7 @@ class Element extends View {
     });
 
     ast.properties.forEach((property) => {
-      let action, channel;
+      let action;
 
       if(!property.scope && property.name === "binding") {
         action = Property.binding;
@@ -162,26 +162,13 @@ class Element extends View {
         throw SyntaxError("" + property.scope + " is not a valid scope");
       }
 
-      if(property.bound) {
-        if(property.value === "this") {
-          channel = new StaticChannel(context);
-        } else {
-          let value = context[property.value];
-          if(value && value.isChannel) {
-            channel = value;
-          } else {
-            channel = new StaticChannel(value);
-          }
-        }
-      } else {
-        channel = new StaticChannel(property.value);
-      }
+      let channel = Compile.parameter(property, context);
 
       if(action.setup) {
         action.setup.call(this, property);
       }
 
-      if(action.bound) {
+      if(action.update) {
         channel.bind((value) => {
           action.update.call(this, property, value);
         });

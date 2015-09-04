@@ -50,16 +50,16 @@ PropertyList
   ;
 
 Property
-  : AnyIdentifier EQUALS PropertyArguments { $$ = { name: $1, arguments: $3 } }
+  : AnyIdentifier EQUALS PropertyArgument { $3.name = $1; $$ = $3 }
   | AnyIdentifier COLON Property { $3.scope = $1; $$ = $3 }
   ;
 
-PropertyArguments
-  : AnyIdentifier { $$ = [{ bound: true, value: $1 }] }
-  | Bound { $$ = [{ bound: true, value: $1 }] }
-  | AnyIdentifier BANG { $$ = [{ bound: true, value: $1, preventDefault: true }] }
-  | Bound BANG { $$ = [{ bound: true, value: $1, preventDefault: true }] }
-  | STRING_LITERAL { $$ = [{ value: $1 }] }
+PropertyArgument
+  : AnyIdentifier { $$ = { bound: true, value: $1 } }
+  | Bound { $$ = { bound: true, value: $1 } }
+  | AnyIdentifier BANG { $$ = { bound: true, value: $1, preventDefault: true } }
+  | Bound BANG { $$ = { bound: true, value: $1, preventDefault: true } }
+  | STRING_LITERAL { $$ = { value: $1 } }
   ;
 
 InstructionIdentifier
