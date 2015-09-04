@@ -10,8 +10,8 @@ describe 'In', ->
 
     @render '''
       article
-        - in @author
-          p[id=@name]
+        - in $author
+          p[id=name]
     ''', context
     expect(@body).to.have.element('article > p#jonas')
 
@@ -20,7 +20,7 @@ describe 'In', ->
 
     @render '''
       article
-        - in @author
+        - in $author
           p[id=name]
           div
     ''', context
@@ -45,7 +45,7 @@ describe 'In', ->
 
     @render '''
       article
-        - in @author
+        - in $author
           p[id=@name]
     ''', context
     expect(@body).to.have.element('article > p#jonas')

@@ -72,7 +72,7 @@ InstructionIdentifier
 
 Instruction
   : DASH WHITESPACE InstructionIdentifier { $$ = $3 }
-  | DASH WHITESPACE InstructionIdentifier WHITESPACE InstructionArgumentList { $3.arguments = $4; $$ = $3 }
+  | DASH WHITESPACE InstructionIdentifier WHITESPACE InstructionArgumentList { $3.arguments = $5; $$ = $3 }
   | Instruction INDENT ChildList OUTDENT { $1.children = $3; $$ = $1 }
   ;
 

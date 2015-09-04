@@ -6,7 +6,9 @@ import Collection from "../collection"
 class TemplateView extends DynamicView {
   constructor(asts, context) {
     super(asts, context)
-    this.children = new Collection(asts.map((ast) => Compile[ast.type](ast, context)));
+    this.children = new Collection(asts.map((ast) => {
+      return Compile[ast.type](ast, context);
+    }));
   }
 
   get fragment() {
