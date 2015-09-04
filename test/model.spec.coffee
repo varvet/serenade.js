@@ -18,8 +18,8 @@ describe 'Serenade.Model', ->
       ageTriggered = false
 
       class Person extends Serenade.Model
-        @property "name", async: true
-        @property "age"
+        @attribute "name", async: true
+        @attribute "age"
         @property "nameListener", dependsOn: "name"
         @property "ageListener", dependsOn: "age"
 
@@ -34,7 +34,7 @@ describe 'Serenade.Model', ->
 
     it 'keeps track of constructor values for change events', ->
       class Person extends Serenade.Model
-        @property "name"
+        @attribute "name"
       john = new Person(name: 'John')
       expect(-> john.name = 'Peter').to.emit(john["@name"], with: ["John", "Peter"])
 
@@ -94,35 +94,26 @@ describe 'Serenade.Model', ->
   describe '.property', ->
     it 'adds a property to the prototype', ->
       class Person extends Serenade.Model
-        @property "name"
+        @attribute "name"
       john = new Person(name: "John")
       expect(-> john.name = "Johnny").to.emit john["@name"]
 
-    it 'makes property getters assignable', ->
-      class Person extends Serenade.Model
-        @property "name"
-        @property "loudName"
-        loudName: ->
-          @name.toUpperCase()
-      john = new Person(name: "John")
-      expect(john.loudName).to.eql("JOHN")
-
     it 'adds multiple properties to the prototype', ->
       class Person extends Serenade.Model
-        @property "firstName", "lastName"
+        @attribute "firstName", "lastName"
       john = new Person(firstName: "John", lastName: "Smith")
       expect(-> john.firstName = "Johnny").to.emit john["@firstName"]
 
     it 'adds multiple properties with options to the prototype', ->
       class Person extends Serenade.Model
-        @property "firstName", "lastName", serialize: true
+        @attribute "firstName", "lastName", serialize: true
       john = new Person(firstName: "John", lastName: "Smith")
       expect(-> john.firstName = "Johnny").to.emit john["@firstName"]
       expect(john.toJSON().lastName).to.eql("Smith")
 
-    it 'cannot break constructor by declaring a property called `set`', ->
+    it 'cannot break constructor by declaring a attribute called `set`', ->
       class Person extends Serenade.Model
-        @property "set", value: -> throw new Error("Set was called!")
+        @attribute "set", value: -> throw new Error("Set was called!")
       new Person(id: "hey", name: "Jonas")
       jonas = new Person(id: "hey", age: 28)
       expect(jonas.name).to.eql("Jonas")
@@ -140,7 +131,7 @@ describe 'Serenade.Model', ->
   describe "#id", ->
     it "updates identify map when changed", ->
       class Person extends Serenade.Model
-        @property "name"
+        @attribute "name"
       person = new Person(id: 5, name: "Nicklas")
       person.id = 10
       expect(person.id).to.eql(10)
@@ -150,7 +141,7 @@ describe 'Serenade.Model', ->
   describe "#toString()", ->
     it "returns the model serialized to JSON", ->
       class Person extends Serenade.Model
-        @property "name", serialize: true
+        @attribute "name", serialize: true
       person = new Person(id: 5, name: "Nicklas")
       expect(JSON.parse(person.toString()).name).to.eql("Nicklas")
 

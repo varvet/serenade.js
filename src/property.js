@@ -30,6 +30,9 @@ export function defineAttribute(object, name, options) {
       },
       set: function(value) {
         define(this);
+        if(options.set) {
+          value = options.set.call(this, value)
+        }
         this[channelName].emit(value);
       },
       enumerable: (options && "enumerable" in options) ? options.enumerable : true,
@@ -47,16 +50,17 @@ export function defineAttribute(object, name, options) {
 export function defineProperty(object, name, options) {
   let channelName = "@" + name;
   let deps = options.dependsOn;
+  let getter = options.get || function() {};
 
   if(deps) {
     deps = [].concat(deps);
     defineChannel(object, channelName, { channel() {
       let channels = deps.map((d) => Channel.pluck(this, d));
-      return Channel.all(channels).map((args) => options.get.apply(this, args));
+      return Channel.all(channels).map((args) => getter.apply(this, args));
     }});
   } else {
     defineChannel(object, channelName, { channel() {
-      return Channel.static(options.get.call(this));
+      return Channel.static(getter.call(this));
     }});
   }
 

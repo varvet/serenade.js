@@ -121,15 +121,12 @@ class Model {
   });
 });
 
-Model.property('id', {
+Model.attribute('id', {
   serialize: true,
   set: function(val) {
     Cache.unset(this.constructor, this.id);
     Cache.set(this.constructor, val, this);
-    this._s.val_id = val;
-  },
-  get: function() {
-    return this._s.val_id;
+    val;
   }
 });
 
