@@ -3,6 +3,8 @@ import { defineChannel } from "../property"
 import { settings, assignUnlessEqual } from "../helpers"
 import Compile from "../compile"
 import Collection from "../collection"
+import Channel from "../channel/channel"
+import StaticChannel from "../channel/static_channel"
 
 const Property = {
   style: {
@@ -149,7 +151,7 @@ class Element extends View {
     });
 
     ast.properties.forEach((property) => {
-      let action;
+      let action, channel;
 
       if(!property.scope && property.name === "binding") {
         action = Property.binding;
@@ -161,27 +163,20 @@ class Element extends View {
         throw SyntaxError("" + property.scope + " is not a valid scope");
       }
 
+      if(property.bound) {
+        channel = Channel.get(context, property.value);
+      } else if(property.static) {
+        channel = new StaticChannel(context[property.value]);
+      } else {
+        channel = new StaticChannel(property.value);
+      }
+
       if(action.setup) {
         action.setup.call(this, property);
       }
-
-      let argument = property.arguments[0];
-
-      if(action.update) {
-        if(argument.static) {
-          action.update.call(this, property, this.context[argument.value]);
-        } else if (argument.bound) {
-          if (argument.value) {
-            this._bindToModel(argument.value, (value) => action.update.call(this, property, value));
-          } else {
-            action.update.call(this, property, this.context);
-          }
-        } else {
-          action.update.call(this, property, argument.value);
-        }
-      } else if(argument.bound) {
-        throw SyntaxError("properties in scope " + property.scope + " cannot be bound, use: `" + property.scope + ":" + property.name + "=...")
-      }
+      channel.bind((value) => {
+        action.update.call(this, property, value);
+      });
     });
     this.load.trigger();
   }
