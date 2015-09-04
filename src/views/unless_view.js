@@ -5,7 +5,12 @@ import Compile from "../compile"
 class UnlessView extends DynamicView {
   constructor(ast, context) {
     super(ast, context);
-    this._bindToModel(ast.argument, (value) => {
+
+    if(ast.arguments.length !== 1) {
+      throw(new Error("`if` must take exactly one argument"))
+    }
+
+    this._bind(Compile.parameter(ast.arguments[0], context), (value) => {
       if (value) {
         return this.clear();
       } else {

@@ -10,9 +10,9 @@ describe 'Unless', ->
 
     @render '''
       ul
-        - unless @valid
+        - unless $valid
           li[id="valid"]
-        - unless @visible
+        - unless $visible
           li[id="visible"]
     ''', context
     expect(@body).to.have.element('ul > li#valid')
@@ -23,7 +23,7 @@ describe 'Unless', ->
 
     @render '''
       ul
-        - unless @valid
+        - unless $valid
           li[id="valid"]
           li[id="visible"]
           li[id="monkey"]
@@ -37,9 +37,9 @@ describe 'Unless', ->
 
     @render '''
       ul
-        - unless @valid
+        - unless $valid
           li[id="valid"]
-        - unless @visible
+        - unless $visible
           li[id="visible"]
     ''', context
     expect(@body).not.to.have.element('ul > li#valid')
@@ -74,8 +74,8 @@ describe 'Unless', ->
     @render '''
       ul
         - collection @items
-          - unless @valid
-            li[id=@name]
+          - unless $valid
+            li[id=name]
     ''', context
     expect(@body).not.to.have.element('ul > li#foo')
     expect(@body).to.have.element('ul > li#bar')
