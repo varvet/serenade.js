@@ -7,12 +7,12 @@ describe 'Classes', ->
 
   it 'adds bound class when context value is true', ->
     context = { isActive: true }
-    @render 'div[class:active=@isActive]', context
+    @render 'div[class:active=isActive]', context
     expect(@body).to.have.element("div.active")
 
   it 'adds multiple bindings', ->
     context = { isActive: true, isSelected: true }
-    @render 'div[class:active=@isActive class:selected=@isSelected]', context
+    @render 'div[class:active=isActive class:selected=isSelected]', context
     expect(@body.children[0].className).to.eql("active selected")
 
   it 'does not add bound class when context value is false', ->
