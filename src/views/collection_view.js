@@ -13,7 +13,8 @@ class CollectionView extends DynamicView {
       throw(new Error("`in` must take exactly one argument"))
     }
 
-    Compile.parameter(ast.arguments[0], context).collection().bind((values) => {
+    let channel = Compile.parameter(ast.arguments[0], context).collection();
+    this._bind(channel, (values) => {
       if(values && values.length) {
         if(this.lastItems && this.lastItems.length) {
           this.replace(values);

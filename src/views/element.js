@@ -177,7 +177,7 @@ class Element extends View {
       }
 
       if(action.update) {
-        channel.bind((value) => {
+        this._bind(channel, (value) => {
           action.update.call(this, property, value);
         });
       }

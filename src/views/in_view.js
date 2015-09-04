@@ -10,7 +10,7 @@ class InView extends DynamicView {
       throw(new Error("`in` must take exactly one argument"))
     }
 
-    Compile.parameter(ast.arguments[0], context).bind((value) => {
+    this._bind(Compile.parameter(ast.arguments[0], context), (value) => {
       if (value) {
         this.replace([new TemplateView(ast.children, value)]);
       } else {

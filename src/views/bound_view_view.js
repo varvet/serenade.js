@@ -6,7 +6,7 @@ class BoundViewView extends DynamicView {
   constructor(ast, context) {
     super(ast, context);
 
-    Compile.parameter(ast.arguments[0], context).bind((value) => {
+    this._bind(Compile.parameter(ast.arguments[0], context), (value) => {
       let view = settings.templates[value].render(context).view;
       this.replace([view]);
     });
