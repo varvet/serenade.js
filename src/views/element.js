@@ -3,7 +3,7 @@ import { defineChannel } from "../property"
 import { settings, assignUnlessEqual } from "../helpers"
 import Compile from "../compile"
 import Collection from "../collection"
-import Channel from "../channel/channel"
+import Channel from "../channel"
 
 const Property = {
   style: {

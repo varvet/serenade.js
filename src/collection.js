@@ -1,4 +1,4 @@
-import Channel from "./channel/channel"
+import Channel from "./channel"
 import { serializeObject } from "./helpers"
 
 class Collection {

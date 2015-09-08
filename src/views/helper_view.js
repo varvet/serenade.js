@@ -4,7 +4,7 @@ import TemplateView from "./template_view"
 import Collection from "../collection"
 import { settings } from "../helpers"
 import Compile from "../compile"
-import Channel from "../channel/channel"
+import Channel from "../channel"
 
 function normalize(val) {
   if(!val) {

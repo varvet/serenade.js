@@ -1,4 +1,4 @@
-import Channel from "./channel/channel"
+import Channel from "./channel"
 
 export function defineChannel(object, name, options = {}) {
   let privateChannelName = "@" + name;
