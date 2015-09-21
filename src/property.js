@@ -78,6 +78,15 @@ class PropertyAccessor {
 		}
 	}
 
+  format(val) {
+    if(arguments.length === 0) { val = this.get(); }
+    if(typeof(this.definition.format) === "function") {
+      return this.definition.format.call(this.object, val);
+    } else {
+      return val;
+    }
+  }
+
 	get() {
 		if (this.definition.get && !(this.definition.cache && this.valueName in this.object)) {
 			let value = this.definition.get.call(this.object);

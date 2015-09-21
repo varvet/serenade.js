@@ -1,6 +1,7 @@
 import DynamicView from "./dynamic_view"
 import TextView from "./text_view"
 import Compile from "../compile"
+import { format } from "../helpers"
 
 class ContentView extends DynamicView {
   constructor(ast, context) {
@@ -8,12 +9,12 @@ class ContentView extends DynamicView {
     super(ast, context);
 
     if(ast.bound && ast.value) {
-      value = context[ast.value];
+      value = format(context, ast.value);
       let property = context[ast.value + "_property"];
       if(property && property.registerGlobal) {
         property.registerGlobal(value);
       }
-      this._bindEvent(property, (_, value) => this.update(value))
+      this._bindEvent(property, (_, value) => this.update(format(context, ast.value, value)))
     } else if(ast.value) {
       value = ast.value;
     } else {

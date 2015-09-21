@@ -1,4 +1,4 @@
-import { merge, capitalize } from "../helpers"
+import { merge, capitalize, format } from "../helpers"
 
 export default function(...names) {
   let options = typeof(names[names.length - 1]) !== "string" ? names.pop() : {};
@@ -18,12 +18,17 @@ export default function(...names) {
     }
     let propOptions = merge(options, {
       dependsOn: options.dependsOn || `${to}.${name}`,
-      get: function() {
+      get() {
         return this[to] && this[to][name]
       },
-      set: function(value) {
+      set(value) {
         if(this[to]) {
           this[to][name] = value;
+        }
+      },
+      format() {
+        if(this[to]) {
+          return format(this[to], name)
         }
       }
     });

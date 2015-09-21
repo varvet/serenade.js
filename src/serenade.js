@@ -4,7 +4,7 @@ import Template from "./template"
 import Collection from "./collection"
 import defineProperty from "./property"
 import defineEvent from "./event"
-import { extend, settings } from "./helpers"
+import { extend, settings, format } from "./helpers"
 
 import BoundViewView from "./views/bound_view_view"
 import CollectionView from "./views/collection_view"
@@ -68,6 +68,7 @@ extend(Serenade, {
 		Serenade.templates = {};
 	},
 
+  format: format,
 	Model: Model,
 	Collection: Collection,
 	Cache: Cache,
