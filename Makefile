@@ -39,4 +39,8 @@ target/serenade.min.js.gz: target/serenade.min.js
 test/%: build
 	mocha $@
 
+clean:
+	rm -rf lib
+	rm -rf target
+
 .PHONY: test test/%
