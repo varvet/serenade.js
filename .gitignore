@@ -1,7 +1,6 @@
 .bundle
 node_modules
 .node_modules
-lib/*
 extras/*
 target/*
 npm-debug.log
