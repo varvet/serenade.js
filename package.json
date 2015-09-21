@@ -46,7 +46,7 @@
     "chai": "0.5.x",
     "coffee-script": "1.x.x",
     "jison": "0.3.10",
-    "jsdom": "^3.1.2",
+    "jsdom": "^6.5.1",
     "mocha": "1.x.x",
     "sinon": "1.x.x",
     "uglify-js": "1.x.x",
