@@ -33,8 +33,12 @@ class Template {
 		}
 	}
 
+	compile(context) {
+		return new TemplateView(this.ast, context);
+	}
+
 	render(context) {
-		return new TemplateView(this.ast, context).fragment;
+		return this.compile(context).fragment;
 	}
 }
 
