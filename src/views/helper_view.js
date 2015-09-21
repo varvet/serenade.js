@@ -15,14 +15,8 @@ function normalize(val) {
       Array.prototype.forEach.call(div.childNodes, (child) => {
         aggregate.push(new View(child));
       });
-    } else if(element.nodeName === "#document-fragment") {
-      if (element.view) {
-        aggregate = aggregate.concat(element.view);
-      } else {
-        Array.prototype.forEach.call(element.childNodes, (child) => {
-          aggregate.push(new View(child));
-        });
-      }
+    } else if(element && element.isView) {
+      aggregate = aggregate.concat(element);
     } else {
       aggregate.push(new View(element));
     }

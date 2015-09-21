@@ -60,6 +60,6 @@ class View {
   }
 }
 
-View.isView = true;
+View.prototype.isView = true;
 
 export default View;
