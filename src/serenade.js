@@ -3,8 +3,9 @@ import Cache from "./cache"
 import Template from "./template"
 import Collection from "./collection"
 import { defineProperty, defineAttribute, defineChannel } from "./property"
-import { extend, settings } from "./helpers"
+import { extend, settings, format } from "./helpers"
 import Channel from "./channel"
+
 import BoundViewView from "./views/bound_view_view"
 import CollectionView from "./views/collection_view"
 import Element from "./views/element"
@@ -68,6 +69,7 @@ extend(Serenade, {
 		Serenade.templates = {};
 	},
 
+  format: format,
 	Model: Model,
 	Collection: Collection,
 	Cache: Cache,

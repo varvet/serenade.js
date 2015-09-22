@@ -1,6 +1,7 @@
 import DynamicView from "./dynamic_view"
 import TextView from "./text_view"
 import Compile from "../compile"
+import { format } from "../helpers"
 
 class ContentView extends DynamicView {
   constructor(ast, context) {

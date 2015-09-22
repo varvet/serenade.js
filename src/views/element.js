@@ -1,6 +1,6 @@
 import View from "./view"
 import { defineChannel } from "../property"
-import { settings, assignUnlessEqual } from "../helpers"
+import { settings, assignUnlessEqual, format } from "../helpers"
 import Compile from "../compile"
 import Collection from "../collection"
 import Channel from "../channel"
@@ -8,7 +8,7 @@ import Channel from "../channel"
 const Property = {
   style: {
     update: function(property, value) {
-      assignUnlessEqual(this.node.style, property.name, value);
+      assignUnlessEqual(this.node.style, property.name, format(this.context, property.arguments[0].value, value));
     }
   },
   event: {
@@ -104,7 +104,7 @@ const Property = {
       } else if(property.name === 'class') {
         this.attributeClasses = value;
         this._updateClass();
-      } else if(value === void 0) {
+      } else if(value === undefined) {
         if(this.node.hasAttribute(property.name)) {
           this.node.removeAttribute(property.name);
         }
@@ -113,7 +113,7 @@ const Property = {
           value = "0";
         }
         if(this.node.getAttribute(property.name) !== value) {
-          this.node.setAttribute(property.name, value);
+          this.node.setAttribute(property.name, format(this.context, property.arguments[0].value, value));
         }
       }
     }
