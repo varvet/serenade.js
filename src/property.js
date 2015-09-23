@@ -30,9 +30,6 @@ export function defineAttribute(object, name, options) {
       },
       set: function(value) {
         define(this);
-        if(options.set) {
-          value = options.set.call(this, value)
-        }
         this[channelName].emit(value);
       },
       enumerable: (options && "enumerable" in options) ? options.enumerable : true,

@@ -31,20 +31,6 @@ export function merge(target, source, enumerable) {
   return extend(extend({}, target, enumerable), source, enumerable);
 };
 
-function isArray(object) {
-  return Object.prototype.toString.call(object) === "[object Array]";
-};
-
-export function serializeObject(object) {
-  if(object && typeof(object.toJSON) === "function") {
-    return object.toJSON();
-  } else if(isArray(object)) {
-    return object.map((item) => serializeObject(item))
-  } else {
-    return object;
-  }
-};
-
 export var capitalize = function (word) {
   return word.slice(0, 1).toUpperCase() + word.slice(1);
 };

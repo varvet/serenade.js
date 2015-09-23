@@ -1,5 +1,4 @@
 import { defineProperty, defineAttribute, defineChannel } from "./property"
-import { serializeObject } from "./helpers"
 import collection from "./model/collection"
 import belongsTo from "./model/belongs_to"
 import delegate from "./model/delegate"
@@ -93,18 +92,9 @@ class Model {
   }
 
 	toJSON() {
-    let serialized = {};
-    this._s.properties.forEach((property) => {
-      if(typeof property.serialize === 'string') {
-        serialized[property.serialize] = serializeObject(this[property.name]);
-      } else if(typeof property.serialize === 'function') {
-        let [key, value] = property.serialize.call(this);
-        serialized[key] = serializeObject(value);
-      } else if(property.serialize) {
-        serialized[property.name] = serializeObject(this[property.name]);
-      }
-    });
-    return serialized;
+    let result = {};
+    Object.keys(this).forEach((key) => result[key] = this[key])
+    return result;
 	}
 
 	toString() {
