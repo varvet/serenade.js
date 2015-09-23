@@ -8,7 +8,7 @@ import Channel from "../channel"
 const Property = {
   style: {
     update: function(property, value) {
-      assignUnlessEqual(this.node.style, property.name, format(this.context, property.arguments[0].value, value));
+      assignUnlessEqual(this.node.style, property.name, format(this.context, property.value, value));
     }
   },
   event: {
@@ -113,7 +113,7 @@ const Property = {
           value = "0";
         }
         if(this.node.getAttribute(property.name) !== value) {
-          this.node.setAttribute(property.name, format(this.context, property.arguments[0].value, value));
+          this.node.setAttribute(property.name, format(this.context, property.value, value));
         }
       }
     }
