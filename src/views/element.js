@@ -88,6 +88,7 @@ const Property = {
   },
   attribute: {
     update: function(property, value) {
+      value = format(this.context, property.arguments[0].value, value);
       if(property.name === 'value') {
         assignUnlessEqual(this.node, "value", value || '');
       } else if(this.ast.name === 'input' && property.name === 'checked') {
@@ -104,7 +105,7 @@ const Property = {
           value = "0";
         }
         if(this.node.getAttribute(property.name) !== value) {
-          this.node.setAttribute(property.name, format(this.context, property.arguments[0].value, value));
+          this.node.setAttribute(property.name, value);
         }
       }
     }

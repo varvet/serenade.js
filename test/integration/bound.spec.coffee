@@ -97,14 +97,20 @@ describe 'Bound attributes and text nodes', ->
   it 'uses model formatter', ->
     model = {}
     Serenade.defineProperty model, "name", value: "OrAnGE", format: (val) -> val.toLowerCase()
-    @render 'div[data-name=@name style:color=@name] @name', model
+    @render """
+      div[data-name=@name style:color=@name] @name
+      input[value=@name]
+    """, model
+
     expect(@body.querySelector('div').getAttribute('data-name')).to.eql("orange")
     expect(@body.querySelector('div').style.color).to.eql("orange")
     expect(@body.querySelector('div').textContent).to.eql("orange")
+    expect(@body.querySelector('input').value).to.eql("orange")
     model.name = "ReD"
     expect(@body.querySelector('div').getAttribute('data-name')).to.eql("red")
     expect(@body.querySelector('div').style.color).to.eql("red")
     expect(@body.querySelector('div').textContent).to.eql("red")
+    expect(@body.querySelector('input').value).to.eql("red")
 
   it 'can handle bound text as root nodes', ->
     context = Serenade(first: "Jonas", last: "Nicklas")
