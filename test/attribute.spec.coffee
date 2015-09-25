@@ -1,73 +1,50 @@
 require './spec_helper'
 
 Serenade = require('../lib/serenade')
-{defineProperty, defineAttribute} = Serenade
+{defineAttribute, defineProperty} = Serenade
 
-describe 'Serenade.defineProperty', ->
+describe 'Serenade.defineAttribute', ->
   beforeEach ->
     @object = {}
 
   it 'does not bleed over between objects with same prototype', ->
     @inst1 = Object.create(@object)
     @inst2 = Object.create(@object)
-    defineProperty @object, 'name', get: -> "Jonas"
-    defineProperty @inst1, 'age', get: -> 29
-    defineProperty @inst2, 'height', get: -> 179
+    defineAttribute @object, 'name'
+    defineAttribute @inst1, 'age'
+    defineAttribute @inst2, 'height'
     expect(Object.keys(@inst1)).to.include('age')
     expect(Object.keys(@inst2)).not.to.include('age')
 
   it 'can be redefined', ->
-    defineProperty @object, 'name', get: -> "foo"
-    defineProperty @object, 'name', get: -> "bar"
+    defineAttribute @object, 'name', value: "foo"
+    defineAttribute @object, 'name', value: "bar"
     expect(@object.name).to.eql("bar")
 
-  it 'is not listed as an own property', ->
-    defineProperty @object, 'name', get: -> "blah"
-    expect(Object.keys(@object)).to.eql([])
-    expect(prop for prop of @object).to.eql([])
+  it 'is listed as an own property', ->
+    defineAttribute @object, 'name'
+    expect(Object.keys(@object)).to.eql(["name"])
+    expect(prop for prop of @object).to.eql(["name"])
     @child = Object.create(@object)
     expect(Object.keys(@child)).to.eql([])
 
-  describe '{ set() { ... } }', ->
-    it 'is not setable by default', ->
-      defineProperty @object, 'foo'
-      expect(=> @object.foo = 42).to.eql(123)
+  it 'adopts own property status when redefined', ->
+    defineAttribute @object, 'name'
+    @child = Object.create(@object)
+    @child.name = "bar"
+    expect(Object.keys(@child)).to.eql(["name"])
 
-    it 'uses a custom setter', ->
-      defineProperty @object, 'foo', set: (value) -> @bar = foo + 10
+  describe '{ as() { ... } }', ->
+    beforeEach ->
+      defineAttribute @object, "foo"
+
+    it 'maps through the given function', ->
+      setValue = null
+      defineAttribute @object, 'foo', as: (value) -> value + 12
       @object.foo = 42
-      expect(@object.bar).to.eql(52)
+      expect(setValue).to.eql(54)
 
-  describe '{ get() { ... } }', ->
-    it 'reads an existing property', ->
-      @object.foo = 23
-      expect(@object.foo).to.eql(23)
-
-    it 'uses a custom getter', ->
-      defineProperty @object, 'foo', get: -> 42
-      expect(@object.foo).to.eql(42)
-
-    it 'runs custom getter in context of object', ->
-      @object.first = 'Jonas'
-      @object.last = 'Nicklas'
-      defineProperty @object, 'fullName', get: -> [@first, @last].join(' ')
-      expect(@object.fullName).to.eql('Jonas Nicklas')
-
-  describe '#format', ->
-    it 'defaults to value', ->
-      defineProperty @object, 'foo', value: 42
-      expect(@object.foo_property.format()).to.eql(42)
-
-    it 'uses a custom formatter', ->
-      defineProperty @object, 'foo', value: 12, format: (val) -> val + "px"
-      expect(@object.foo_property.format()).to.eql("12px")
-
-    it 'runs formatter in object context', ->
-      @object.unit = "em"
-      defineProperty @object, 'foo', value: 12, format: (val) -> val + @unit
-      expect(@object.foo_property.format()).to.eql("12em")
-
-  describe 'enumerable', ->
+  describe '{ enumerable: true|false }', ->
     it 'defaults to true', ->
       defineAttribute @object, 'foo'
       expect(Object.keys(@object)).to.include('foo')
@@ -84,7 +61,7 @@ describe 'Serenade.defineProperty', ->
       defineAttribute @object, 'foo', enumerable: true
       expect(Object.keys(@object)).to.eql(['foo'])
 
-  describe "with `value` option", ->
+  describe "{ value: ... }", ->
     it 'can be given a value', ->
       defineAttribute @object, 'name', value: "Jonas"
       expect(@object.name).to.eql("Jonas")
@@ -101,56 +78,7 @@ describe 'Serenade.defineProperty', ->
       defineAttribute @object, 'name', value: null
       expect(@object.name).to.equal(null)
 
-  describe "with `cache` option", ->
-    it "returns values from cache", ->
-      hitCount = 0
-      defineProperty @object, "name", cache: true, get: -> hitCount++; "Jonas"
-
-      expect(@object.name).to.eql("Jonas")
-      expect(@object.name).to.eql("Jonas")
-      expect(hitCount).to.eql(1)
-
-    it "does not make cache enumerable", ->
-      defineProperty @object, "name", cache: true, get: -> "Jonas"
-      expect(@object.name).to.eql("Jonas")
-      expect(Object.keys(@object)).to.eql(["name"])
-
-    it "resets cache when change event triggered", ->
-      hitCount = 0
-      defineProperty @object, "name", cache: true, get: -> hitCount++; "Jonas"
-
-      expect(@object.name).to.eql("Jonas")
-      expect(@object.name).to.eql("Jonas")
-      expect(hitCount).to.eql(1)
-      @object["@name"].trigger()
-      expect(@object.name).to.eql("Jonas")
-      expect(@object.name).to.eql("Jonas")
-      expect(hitCount).to.eql(2)
-
-    it "resets cache before attached events are fired", ->
-      @object.__hitCount = 0
-      defineProperty @object, "hitCount", cache: true, get: -> ++@__hitCount
-      @object["@hitCount"].subscribe -> @result = @hitCount
-
-      expect(@object.hitCount).to.eql(1)
-      expect(@object.hitCount).to.eql(1)
-
-      @object["@hitCount"].trigger()
-      expect(@object.result).to.eql(2)
-
-    it "resets cache before attached global events are fired", ->
-      defineProperty @object, "foo", value: { __hitCount: 0 }
-      defineProperty @object.foo, "hitCount", cache: true, get: -> ++@__hitCount
-      defineProperty @object, "hitCount", dependsOn: "foo.hitCount", get: -> @foo.hitCount
-      @object["@hitCount"].subscribe -> @result = @hitCount
-
-      expect(@object.hitCount).to.eql(1)
-      expect(@object.hitCount).to.eql(1)
-
-      @object.foo["@hitCount"].trigger()
-      expect(@object.result).to.eql(2)
-
-  describe "with `changed` option", ->
+  describe "{ changed() { ... } }", ->
     it "triggers a change event if value of property has changed if option not given", ->
       defineAttribute @object, "name"
 
@@ -178,17 +106,6 @@ describe 'Serenade.defineProperty', ->
       defineAttribute @object, "name", value: obj
       expect(=> @object.name = {}).to.emit(@object["@name"])
 
-    it "does not trigger when computed property has not changed", ->
-      defineAttribute @object, "name"
-      defineProperty @object, "bigName",
-        dependsOn: "name"
-        get: (name) -> name?.toUpperCase()
-        changed: (oldVal, newVal) -> oldVal isnt newVal
-
-      expect(=> @object.name = "jonas").to.emit(@object["@bigName"])
-      expect(=> @object.name = "jonas").not.to.emit(@object["@bigName"])
-      expect(=> @object.name = "kim").to.emit(@object["@bigName"])
-
     it "never triggers a change event when option is false", ->
       defineAttribute @object, "name", changed: false
 
@@ -203,7 +120,7 @@ describe 'Serenade.defineProperty', ->
       expect(=> @object.name = "jonas").to.emit(@object["@name"])
       expect(=> @object.name = "kim").to.emit(@object["@name"])
 
-  describe "with `async` option", ->
+  describe "{ async: true|false }", ->
     it "dispatches a change event for this property asynchronously", (done) ->
       defineAttribute @object, "foo", async: true
       @object["@foo"].subscribe -> @result = true
