@@ -1,45 +1,22 @@
 import Channel from "./channel"
 import BaseChannel from "./base_channel"
-import { deleteItem } from "../helpers"
+import DerivedChannel from "./derived_channel"
 
-export default class PluckedChannel extends BaseChannel {
+export default class PluckedChannel extends DerivedChannel {
   constructor(parent, property) {
-    var oldValue;
-    super(undefined);
-    this.parent = parent;
+    super(parent);
     this.property = property;
-    this.appliedHandler = (value) => {
-      this.subscribers.forEach((cb) => cb(this.value));
-    };
-    this.handler = (value) => {
-      Channel.get(oldValue, property).unsubscribe(this.appliedHandler);
-      Channel.get(value, property).bind(this.appliedHandler);
-      oldValue = value;
-    };
     this.subscribers = [];
   }
 
-  subscribe(cb) {
-    if(!this.subscribers.length) {
-      this.parent.bind(this.handler);
-    }
-    this.subscribers.push(cb);
-  }
-
-  unsubscribe(cb) {
-    deleteItem(this.subscribers, cb);
-    if(!this.subscribers.length) {
-      this.parent.unsubscribe(this.handler);
-      this.handler(undefined);
-    }
+  _update(value) {
+    Channel.get(this._oldValue, this.property).unsubscribe(this.trigger);
+    Channel.get(value, this.property).subscribe(this.trigger);
+    this._oldValue = value;
   }
 
   get value() {
     return Channel.get(this.parent.value, this.property).value
-  }
-
-  set value(value) {
-    // No op
   }
 }
 

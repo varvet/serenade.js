@@ -6,29 +6,14 @@ export default class CollectionChannel extends DerivedChannel {
     super(parent);
   }
 
-  update(collection) {
+  _update(collection) {
     if(this._oldCollection && this._oldCollection.change) {
-      this._oldCollection.change.unsubscribe(this.handler);
+      this._oldCollection.change.unsubscribe(this._handler);
     }
     if(collection && collection.change) {
-      collection.change.subscribe(this.handler);
+      collection.change.subscribe(this._handler);
     }
     this._oldCollection = collection;
-  }
-
-  handler(collection) {
-    this.update(collection);
-    this.trigger();
-  };
-
-  _activate() {
-    super._activate();
-    this.update(this.parent.value);
-  }
-
-  _deactivate() {
-    super._deactivate();
-    this.update(undefined)
   }
 
   get value() {

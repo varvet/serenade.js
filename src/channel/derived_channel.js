@@ -4,22 +4,27 @@ export default class DerivedChannel extends BaseChannel {
   constructor(parent, fn) {
     super();
     this.parent = parent;
-    this.handler = this.handler.bind(this);
-  }
-
-  handler() {
-    this.trigger()
+    this._handler = this._handler.bind(this);
   }
 
   get value() {
     return this.parent.value;
   }
 
+  _handler(value) {
+    this._update(value)
+    this.trigger()
+  }
+
+  _update(value) { }
+
   _activate() {
-    this.parent.subscribe(this.handler)
+    this.parent.subscribe(this._handler)
+    this._update(this.parent.value);
   }
 
   _deactivate() {
-    this.parent.unsubscribe(this.handler)
+    this.parent.unsubscribe(this._handler)
+    this._update(undefined);
   }
 }

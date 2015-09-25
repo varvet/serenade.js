@@ -7,7 +7,7 @@ export default class FilteredChannel extends DerivedChannel {
     this.fn = typeof(fn) === "function" ? fn : () => fn;
   }
 
-  handler(value) {
+  _handler(value) {
     if(this.fn(value)) {
       this.trigger(value);
     }
