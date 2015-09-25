@@ -77,44 +77,41 @@ describe 'Serenade.defineAttribute', ->
       defineAttribute @object, 'name', value: null
       expect(@object.name).to.equal(null)
 
-  describe "{ async: true|false }", ->
-    it "dispatches a change event for this property asynchronously", (done) ->
-      defineAttribute @object, "foo", async: true
-      @object["@foo"].subscribe -> @result = true
-      @object.foo = 23
-      expect(@object.result).not.to.be.ok
-      expect(=> @object.result).to.become(true, done)
+  describe "when Serenade.async is false", ->
+    it "dispatches a change event for this property synchronously", ->
+      result = null
+
+      defineAttribute @object, "name", value: "Kim"
+
+      @object["@name"].subscribe (val) -> result = val
+
+      @object.name = "Jonas"
+
+      expect(result).to.equal("Jonas")
+
+  describe "when Serenade.async is true", ->
+    beforeEach ->
+      Serenade.async = true
+
+    it "dispatches change event asynchronously", (done) ->
+      result = null
+
+      defineAttribute @object, "name", value: "Kim"
+
+      @object["@name"].subscribe (val) -> result = val
+
+      @object.name = "Jonas"
+
+      expect(result).not.to.be.ok
+      expect(-> result).to.become("Jonas", done)
 
     it "optimizes multiple change events for a property into one", (done) ->
-      @object.num = 0
-      defineAttribute @object, "foo", value: 12, async: true
-      @object["@foo"].resolve()
-      @object["@foo"].subscribe (before, after) -> @result = "#{before}:#{after}"
+      values = []
+
+      defineAttribute @object, "foo", value: 12
+
+      @object["@foo"].subscribe (val) -> values.push(val)
       @object.foo = 23
       @object.foo = 15
       @object.foo = 45
-      expect(=> @object.result).to.become("12:45", done)
-
-  describe "when Serenade.async is true", ->
-    it "dispatches change event asynchronously", (done) ->
-      defineAttribute @object, "foo"
-      Serenade.async = true
-      @object["@foo"].subscribe -> @result = true
-      @object.foo = 23
-      expect(@object.result).not.to.be.ok
-      expect(=> @object.result).to.become(true, done)
-
-    it "stays asynchronous when async option is true", (done) ->
-      defineAttribute @object, "foo", async: true
-      Serenade.async = true
-      @object["@foo"].subscribe -> @result = true
-      @object.foo = 23
-      expect(@object.result).not.to.be.ok
-      expect(=> @object.result).to.become(true, done)
-
-    it "can be made synchronous", ->
-      defineAttribute @object, "foo", async: false
-      Serenade.async = true
-      @object["@foo"].subscribe -> @result = true
-      @object.foo = 23
-      expect(@object.result).to.be.ok
+      expect(=> values.toString()).to.become("45", done)

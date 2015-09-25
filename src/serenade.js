@@ -5,6 +5,7 @@ import Collection from "./collection"
 import { defineProperty, defineAttribute, defineChannel } from "./property"
 import { extend, settings, format } from "./helpers"
 import Channel from "./channel"
+import EventManager from "./event_manager"
 
 import BoundViewView from "./views/bound_view_view"
 import CollectionView from "./views/collection_view"
@@ -29,6 +30,8 @@ function Serenade(wrapped) {
 if(typeof(window) !== "undefined") {
   settings.document = window.document;
 }
+
+settings.eventManager = EventManager.default();
 
 extend(Serenade, {
 	VERSION: '0.5.0',
@@ -109,6 +112,14 @@ extend(Serenade, {
 
 	set templates(value) {
 		settings.templates = value;
+	},
+
+  get eventManager() {
+		return settings.eventManager;
+	},
+
+	set eventManager(value) {
+		settings.eventManager = value;
 	},
 });
 

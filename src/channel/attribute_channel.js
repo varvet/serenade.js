@@ -6,7 +6,11 @@ export default class AttributeChannel extends BaseChannel {
   constructor(context, options) {
     super()
     this.write = new Channel();
-    this.read = this.write.withOptions(context, options);
+    this.read = this.write;
+    if(options.as) {
+      this.read = this.read.map(options.as.bind(context));
+    }
+    this.read = this.read.async("attribute");
   }
 
   emit(value) {

@@ -65,7 +65,11 @@ export function defineProperty(object, name, options = {}) {
     } else {
       channel = Channel.static(this).map((val) => getter.call(val)).static();
     }
-    return channel.withOptions(this, options);
+    if(options.cache) {
+      channel = channel.cache();
+    }
+    channel = channel.async("property");
+    return channel;
   }});
 
   options.get = function() {
