@@ -4,35 +4,20 @@ import { deleteItem } from "../helpers"
 
 export default class CompositeChannel extends BaseChannel {
   constructor(parents) {
-    super(undefined);
+    super();
     this.parents = parents;
-
-    this.handler = () => {
-      this.subscribers.forEach((callback) => callback(this.value));
-    }
-    this.subscribers = [];
   }
 
-  subscribe(callback) {
-    if(!this.subscribers.length) {
-      this.parents.forEach((parent) => parent.subscribe(this.handler));
-    }
-    this.subscribers.push(callback);
+  _activate() {
+    this.parents.forEach((parent) => parent.subscribe(this.trigger));
   }
 
-  unsubscribe(callback) {
-    deleteItem(this.subscribers, callback);
-    if(!this.subscribers.length) {
-      this.parents.forEach((parent) => parent.unsubscribe(this.handler));
-    }
+  _deactivate() {
+    this.parents.forEach((parent) => parent.unsubscribe(this.trigger));
   }
 
   get value() {
     return this.parents.map((p) => p.value)
-  }
-
-  set value(value) {
-    // No op
   }
 }
 
