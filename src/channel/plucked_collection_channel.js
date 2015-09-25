@@ -1,44 +1,26 @@
 import Channel from "./channel"
 import BaseChannel from "./base_channel"
-import { deleteItem } from "../helpers"
+import DerivedChannel from "./derived_channel"
 
-export default class PluckedCollectionChannel extends BaseChannel {
+export default class PluckedCollectionChannel extends DerivedChannel {
   constructor(parent, property) {
-    var oldValues;
-    super(undefined);
-    this.parent = parent;
+    super(parent);
     this.property = property;
-    this.subscribers = [];
-    this.handler = (values) => {
-      if(oldValues) {
-        oldValues.forEach((value) => {
-          Channel.get(value, property).unsubscribe(this.trigger);
-        });
-      }
-      if(values) {
-        values.forEach((value) => {
-          Channel.get(value, property).subscribe(this.trigger);
-        });
-        this.trigger();
-        oldValues = [].map.call(values, (x) => x)
-      } else {
-        oldValues = undefined;
-      }
-    };
   }
 
-  subscribe(cb) {
-    if(!this.subscribers.length) {
-      this.parent.bind(this.handler);
+  _update(values) {
+    if(this._oldValues) {
+      this._oldValues.forEach((value) => {
+        Channel.get(value, this.property).unsubscribe(this.trigger);
+      });
     }
-    this.subscribers.push(cb);
-  }
-
-  unsubscribe(cb) {
-    deleteItem(this.subscribers, cb);
-    if(!this.subscribers.length) {
-      this.parent.unsubscribe(this.handler);
-      this.handler(undefined);
+    if(values) {
+      values.forEach((value) => {
+        Channel.get(value, this.property).subscribe(this.trigger);
+      });
+      this._oldValues = [].map.call(values, (x) => x)
+    } else {
+      this._oldValues = undefined;
     }
   }
 
@@ -46,10 +28,6 @@ export default class PluckedCollectionChannel extends BaseChannel {
     return this.parent.value.map((value) => {
       return Channel.get(value, this.property).value
     });
-  }
-
-  set value(value) {
-    // No op
   }
 }
 
