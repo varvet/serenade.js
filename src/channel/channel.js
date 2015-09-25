@@ -1,6 +1,5 @@
 import BaseChannel from "./base_channel"
 import StaticChannel from "./static_channel"
-import { deleteItem } from "../helpers"
 
 export default class Channel extends BaseChannel {
   static of(value) {

@@ -1,6 +1,5 @@
 import Channel from "./channel"
 import BaseChannel from "./base_channel"
-import { deleteItem } from "../helpers"
 
 export default class CompositeChannel extends BaseChannel {
   constructor(parents) {
