@@ -36,14 +36,8 @@ class Model {
     names.forEach((name) => defineAttribute(this.prototype, name, options));
 	}
 
-	static property(...names) {
-    let options;
-		if (typeof names[names.length - 1] !== "string") {
-      options = names.pop();
-		} else {
-      options = {}
-    }
-    names.forEach((name) => defineProperty(this.prototype, name, options));
+	static property(name, options) {
+    defineProperty(this.prototype, name, options);
 	}
 
 	static channel(name, options) {
@@ -58,7 +52,7 @@ class Model {
 		return this._uniqueId;
 	}
 
-	constructor(attributes) {
+	constructor(attributes = {}) {
 		if(this.constructor.identityMap && attributes && attributes.id) {
 			let fromCache = Cache.get(this.constructor, attributes.id);
 			if(fromCache) {
@@ -68,16 +62,9 @@ class Model {
 				Cache.set(this.constructor, attributes.id, this);
 			}
 		}
-		for(let name in attributes) {
-			if(!attributes.hasOwnProperty(name)) continue;
-			let value = attributes[name];
-			let property = this[name + "_property"];
-			if(property) {
-				property.initialize(value);
-			} else {
-				this[name] = value;
-			}
-		}
+    Object.keys(attributes).forEach((name) => {
+			this[name] = attributes[name];
+		});
 	}
 
 	set(attributes) {
@@ -112,11 +99,10 @@ class Model {
 });
 
 Model.attribute('id', {
-  serialize: true,
   set: function(val) {
     Cache.unset(this.constructor, this.id);
     Cache.set(this.constructor, val, this);
-    val;
+    this["@id"].emit(val);
   }
 });
 

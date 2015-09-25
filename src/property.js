@@ -1,3 +1,4 @@
+import { merge } from "./helpers"
 import Channel from "./channel"
 import AttributeChannel from "./channel/attribute_channel"
 
@@ -20,7 +21,8 @@ export function defineChannel(object, name, options = {}) {
   })
 }
 
-export function defineAttribute(object, name, options = {}) {
+export function defineAttribute(object, name, options) {
+  options = merge({}, options);
   options.channelName = options.channelName || "@" + name;
 
   defineChannel(object, options.channelName, {
@@ -29,21 +31,25 @@ export function defineAttribute(object, name, options = {}) {
     }
   });
 
-	function define(object) {
+  function define(object) {
     Object.defineProperty(object, name, {
       get: function() {
         return this[options.channelName].value
       },
       set: function(value) {
         define(this);
-        this[options.channelName].emit(value);
+        if(options.set) {
+          options.set.call(this, value);
+        } else {
+          this[options.channelName].emit(value);
+        }
       },
       enumerable: ("enumerable" in options) ? options.enumerable : true,
       configurable: true,
     })
-	};
+  };
 
-	define(object);
+  define(object);
 
   if("value" in options) {
     object[name] = options.value;

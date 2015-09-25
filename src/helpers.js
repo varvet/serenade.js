@@ -6,10 +6,7 @@ export var settings = {
   templates: {},
 };
 
-export function extend(target, source, enumerable) {
-  if(enumerable == null) {
-    enumerable = true;
-  }
+export function extend(target, source) {
   for(let key in source) {
     if(Object.hasOwnProperty.call(source, key)) {
       Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
@@ -24,11 +21,8 @@ export function assignUnlessEqual(object, prop, value) {
   }
 };
 
-export function merge(target, source, enumerable) {
-  if (enumerable == null) {
-    enumerable = true;
-  }
-  return extend(extend({}, target, enumerable), source, enumerable);
+export function merge(...args) {
+  return args.reduce(((ack, object) => extend(ack, object)), {})
 };
 
 export var capitalize = function (word) {

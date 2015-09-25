@@ -2,8 +2,7 @@ require './spec_helper'
 Serenade = require('../lib/serenade')
 
 describe 'Serenade.Model', ->
-  describe '#constructor', ->
-    it 'sets the given properties', ->
+  describe '#constructor', ->    it 'sets the given properties', ->
       john = new Serenade.Model(name: 'John', age: 23)
       expect(john.age).to.eql(23)
       expect(john.name).to.eql('John')
@@ -12,31 +11,6 @@ describe 'Serenade.Model', ->
       john = new Serenade.Model(name: 'John', age: 23)
       expect(Object.keys(john)).to.eql(["name", "age"])
       expect(prop for prop of john).to.eql(["name", "age", "id"])
-
-    it 'does not trigger any change events', ->
-      nameTriggered = false
-      ageTriggered = false
-
-      class Person extends Serenade.Model
-        @attribute "name", async: true
-        @attribute "age"
-        @property "nameListener", dependsOn: "name"
-        @property "ageListener", dependsOn: "age"
-
-        constructor: ->
-          @["@nameListener"].bind -> nameTriggered = true
-          @["@ageListener"].bind -> ageTriggered = true
-          super
-
-      john = new Person(name: 'John', age: 23)
-      expect(nameTriggered).to.be.false
-      expect(ageTriggered).to.be.false
-
-    it 'keeps track of constructor values for change events', ->
-      class Person extends Serenade.Model
-        @attribute "name"
-      john = new Person(name: 'John')
-      expect(-> john.name = 'Peter').to.emit(john["@name"], with: ["John", "Peter"])
 
   describe '.extend', ->
     it 'sets up prototypes correctly', ->
@@ -91,49 +65,64 @@ describe 'Serenade.Model', ->
       expect(john2.test).to.be.ok
       expect(john2.name).to.eql('John')
 
-  describe '.property', ->
-    it 'adds a property to the prototype', ->
+  describe '.attribute', ->
+    it 'adds an attribute to the prototype', ->
       class Person extends Serenade.Model
         @attribute "name"
       john = new Person(name: "John")
       expect(-> john.name = "Johnny").to.emit john["@name"]
 
-    it 'adds multiple properties to the prototype', ->
+    it 'adds multiple attributes to the prototype', ->
       class Person extends Serenade.Model
         @attribute "firstName", "lastName"
       john = new Person(firstName: "John", lastName: "Smith")
       expect(-> john.firstName = "Johnny").to.emit john["@firstName"]
 
-    it 'adds multiple properties with options to the prototype', ->
+    it 'adds multiple attributes with options to the prototype', ->
       class Person extends Serenade.Model
-        @attribute "firstName", "lastName", serialize: true
+        @attribute "firstName", "lastName", as: (val) ->
+          val.toUpperCase()
+
       john = new Person(firstName: "John", lastName: "Smith")
-      expect(-> john.firstName = "Johnny").to.emit john["@firstName"]
-      expect(john.toJSON().lastName).to.eql("Smith")
+      expect(john.firstName).to.equal("JOHN")
+      expect(john.lastName).to.equal("SMITH")
 
     it 'cannot break constructor by declaring a attribute called `set`', ->
       class Person extends Serenade.Model
         @attribute "set", value: -> throw new Error("Set was called!")
+
       new Person(id: "hey", name: "Jonas")
+
       jonas = new Person(id: "hey", age: 28)
       expect(jonas.name).to.eql("Jonas")
       expect(jonas.age).to.eql(28)
 
-  describe '.event', ->
-    it 'adds an event to the prototype', ->
+  describe '.property', ->
+    it 'adds a property to the prototype', ->
       class Person extends Serenade.Model
-        @event "fluctuate"
+        @attribute "name"
+        @property "bigName", dependsOn: "name", get: (name) -> name.toUpperCase()
+
       john = new Person(name: "John")
-      john.fluctuate.bind -> @fluctuated = true
+      expect(-> john.name = "Johnny").to.emit john["@bigName"], with: "JOHNNY"
+
+  describe '.channel', ->
+    it 'adds an channel to the prototype', ->
+      class Person extends Serenade.Model
+        @channel "fluctuate"
+      john = new Person(name: "John")
+      john.fluctuate.subscribe -> john.fluctuated = true
       john.fluctuate.trigger()
       expect(john.fluctuated).to.be.ok
 
   describe "#id", ->
-    it "updates identify map when changed", ->
+    it "updates identity map when changed", ->
       class Person extends Serenade.Model
         @attribute "name"
+
       person = new Person(id: 5, name: "Nicklas")
       person.id = 10
+
       expect(person.id).to.eql(10)
       expect(Person.find(5).name).to.eql(undefined)
       expect(Person.find(10).name).to.eql("Nicklas")
