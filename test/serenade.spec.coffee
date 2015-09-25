@@ -35,28 +35,5 @@ describe "Serenade", ->
 
     it "can take context as parameter", ->
       context = { id: "test" }
-      @body.appendChild Serenade.template("test", "h1[id=@id]").render(context)
+      @body.appendChild Serenade.template("test", "h1[id=id]").render(context)
       expect(@body).to.have.element("h1#test")
-
-  describe ".format", ->
-    it "reads an existing property normally on a normal object", ->
-      @object = { foo: 23 }
-      expect(Serenade.format(@object, "foo")).to.eql(23)
-    it "reads an existing property normally if it is not declared", ->
-      @object = Serenade(foo: 23)
-      expect(Serenade.format(@object, "foo")).to.eql(23)
-    it "reads an existing property normally if it is declared without format", ->
-      @object = {}
-      Serenade.defineProperty(@object, "foo")
-      @object.foo = 23
-      expect(Serenade.format(@object, "foo")).to.eql(23)
-    it "converts a property through a given format function", ->
-      @object = {}
-      Serenade.defineProperty(@object, "foo", format: (x) -> x + 2)
-      @object.foo = 23
-      expect(Serenade.format(@object, "foo")).to.eql(25)
-    it "properly assigns the formatters scope", ->
-      @object = Serenade({ bar: 2 })
-      Serenade.defineProperty(@object, "foo", format: (x) -> x + @bar)
-      @object.foo = 23
-      expect(Serenade.format(@object, "foo")).to.eql(25)
