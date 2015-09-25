@@ -72,6 +72,17 @@ describe "Serenade.Channel", ->
 
       expect(sum).to.equal(21)
 
+  describe "#static", ->
+    it "creates a new channel which never emits", ->
+      channel = Channel.of(2)
+      staticChannel = channel.static()
+
+      expect(staticChannel.value).to.equal(2)
+
+      expect(-> channel.emit(3)).not.to.emit(staticChannel)
+
+      expect(staticChannel.value).to.equal(3)
+
   describe "#map", ->
     it "creates a new channel which maps over the existing channel", ->
       channel = Channel.of(2)

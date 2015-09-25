@@ -1,5 +1,6 @@
 import Channel from "./channel/channel"
 import StaticChannel from "./channel/static_channel"
+import DerivedStaticChannel from "./channel/derived_static_channel"
 import MappedChannel from "./channel/mapped_channel"
 import PluckedChannel from "./channel/plucked_channel"
 import CollectionChannel from "./channel/collection_channel"
