@@ -48,16 +48,6 @@ export default class Channel extends StaticChannel {
     this.trigger();
   }
 
-  trigger() {
-    if(this.options.async) {
-      if(!this.timeout) {
-        this.timeout = requestAnimationFrame(() => { this.resolve() });
-      }
-    } else {
-      this.resolve();
-    }
-  }
-
   subscribe(callback) {
     this.subscribers.push(callback);
   }
@@ -66,7 +56,7 @@ export default class Channel extends StaticChannel {
     deleteItem(this.subscribers, callback);
   }
 
-  resolve() {
+  trigger() {
     this.subscribers.map((i) => i).forEach((subscriber) => {
       subscriber(this.value);
     });
