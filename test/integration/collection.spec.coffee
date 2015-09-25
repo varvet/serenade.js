@@ -189,7 +189,7 @@ describe 'Collection', ->
         - collection @things
           li[class=this]
     """, context
-    context["@things"].resolve()
+    context["@things"].trigger()
 
     expect(n.className for n in @body.querySelectorAll("#things li")).to.eql(["a", "b", "c"])
 

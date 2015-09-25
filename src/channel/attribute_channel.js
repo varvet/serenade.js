@@ -28,4 +28,12 @@ export default class AttributeChannel extends BaseChannel {
   get value() {
     return this.read.value;
   }
+
+  get subscribers() {
+    return this.read.subscribers
+  }
+
+  set subscribers(value) {
+    // no op
+  }
 }
