@@ -50,7 +50,7 @@ export function defineAttribute(object, name, options) {
         this[options.channelName].emit(value);
       },
       enumerable: (options && "enumerable" in options) ? options.enumerable : true,
-      configurable: (options && "configurable" in options) ? options.configurable : true,
+      configurable: true,
     })
 	};
 
@@ -66,25 +66,25 @@ export function defineProperty(object, name, options) {
   let deps = options.dependsOn;
   let getter = options.get || function() {};
 
-  if(deps) {
-    deps = [].concat(deps);
-    defineChannel(object, options.channelName, { channel() {
+  defineChannel(object, options.channelName, { channel() {
+    let channel;
+    if(deps) {
+      deps = [].concat(deps);
       let dependentChannels = deps.map((d) => Channel.pluck(this, d));
-      let channel = Channel.all(dependentChannels).map((args) => getter.apply(this, args));
-      return channel;
-    }});
-  } else {
-    defineChannel(object, options.channelName, { channel() {
-      return Channel.static(getter.call(this));
-    }});
-  }
+      channel = Channel.all(dependentChannels).map((args) => getter.apply(this, args));
+    } else {
+      channel = Channel.static(this).map((val) => getter.call(val)).static();
+    }
+    if(options.cache) {
+      channel = channel.cache();
+    }
+    return channel;
+  }});
 
-  Object.defineProperty(object, name, {
-    get: function() {
-      return this[options.channelName].value
-    },
-    set: options.set,
-    enumerable: (options && "enumerable" in options) ? options.enumerable : false,
-    configurable: (options && "configurable" in options) ? options.configurable : true,
-  })
+  options.get = function() {
+    return this[options.channelName].value
+  }
+  options.configurable = true;
+
+  Object.defineProperty(object, name, options);
 };
