@@ -97,10 +97,6 @@ class Collection {
 	toLocaleString() {
 		return this.toArray().toLocaleString();
 	}
-
-	toJSON() {
-		return serializeObject(this.toArray());
-	}
 }
 
 Object.getOwnPropertyNames(Array.prototype).forEach((fun) => {
