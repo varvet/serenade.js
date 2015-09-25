@@ -105,59 +105,6 @@ describe 'Serenade.defineProperty', ->
 
       expect(=> @object.name = "Kim").to.emit(@object["@bigName"], with: "KIM")
 
-  describe "{ changed() { ... } }", ->
-    it "triggers a change event if value of property has changed if option not given", ->
-      defineAttribute @object, "name"
-
-      expect(=> @object.name = "jonas").to.emit(@object["@name"])
-      expect(=> @object.name = "jonas").not.to.emit(@object["@name"])
-      expect(=> @object.name = "kim").to.emit(@object["@name"])
-
-    it "triggers a change event if changed option evaluates to true", ->
-      defineAttribute @object, "name", value: "jonas", changed: (oldVal, newVal) -> oldVal is newVal
-
-      expect(=> @object.name = "jonas").to.emit(@object["@name"])
-      expect(=> @object.name = "jonas").to.emit(@object["@name"])
-      expect(=> @object.name = "kim").not.to.emit(@object["@name"])
-
-    it "does not trigger dependencies when not changed", ->
-      defineAttribute @object, "name", changed: (oldVal, newVal) -> oldVal isnt newVal
-      defineProperty @object, "bigName", dependsOn: "name", get: (name) -> name?.toUpperCase()
-
-      expect(=> @object.name = "jonas").to.emit(@object["@bigName"])
-      expect(=> @object.name = "jonas").not.to.emit(@object["@bigName"])
-      expect(=> @object.name = "kim").to.emit(@object["@bigName"])
-
-    it "always triggers a change event when mutable object is assigned", ->
-      obj = {}
-      defineAttribute @object, "name", value: obj
-      expect(=> @object.name = {}).to.emit(@object["@name"])
-
-    it "does not trigger when computed property has not changed", ->
-      defineAttribute @object, "name"
-      defineProperty @object, "bigName",
-        dependsOn: "name"
-        get: (name) -> name?.toUpperCase()
-        changed: (oldVal, newVal) -> oldVal isnt newVal
-
-      expect(=> @object.name = "jonas").to.emit(@object["@bigName"])
-      expect(=> @object.name = "jonas").not.to.emit(@object["@bigName"])
-      expect(=> @object.name = "kim").to.emit(@object["@bigName"])
-
-    it "never triggers a change event when option is false", ->
-      defineAttribute @object, "name", changed: false
-
-      expect(=> @object.name = "jonas").not.to.emit(@object["@name"])
-      expect(=> @object.name = "jonas").not.to.emit(@object["@name"])
-      expect(=> @object.name = "kim").not.to.emit(@object["@name"])
-
-    it "always triggers a change event when option is true", ->
-      defineAttribute @object, "name", changed: true
-
-      expect(=> @object.name = "jonas").to.emit(@object["@name"])
-      expect(=> @object.name = "jonas").to.emit(@object["@name"])
-      expect(=> @object.name = "kim").to.emit(@object["@name"])
-
   describe "{ async: true|false }", ->
     it "dispatches a change event for this property asynchronously", (done) ->
       defineAttribute @object, "foo", async: true

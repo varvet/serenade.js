@@ -1,18 +1,31 @@
+import Channel from "./channel"
 import BaseChannel from "./base_channel"
 import StaticChannel from "./static_channel"
 
 export default class AttributeChannel extends BaseChannel {
   constructor(context, options) {
     super()
-    this.context = context;
-    this.options = options;
+    this.write = new Channel();
+    this.read = this.write.withOptions(context, options);
   }
 
   emit(value) {
-    let changed = this.options.changed.call(this.context, this.value, value);
-    this.value = value;
-    if(changed) {
-      this.trigger();
-    }
+    this.write.emit(value);
+  }
+
+  subscribe(callback) {
+    this.read.subscribe(callback);
+  }
+
+  unsubscribe(callback) {
+    this.read.unsubscribe(callback);
+  }
+
+  trigger() {
+    this.write.trigger();
+  }
+
+  get value() {
+    return this.read.value;
   }
 }

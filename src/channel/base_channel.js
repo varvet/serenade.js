@@ -25,10 +25,6 @@ export default class BaseChannel {
   }
 
   subscribe(callback) {
-    this.subscribers.push(callback);
-  }
-
-  subscribe(callback) {
     if(!this.subscribers.length) {
       this._activate()
     }

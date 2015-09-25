@@ -1,17 +1,6 @@
 import Channel from "./channel"
 import AttributeChannel from "./channel/attribute_channel"
 
-function normalizeOptions(object, name, options = {}) {
-  if(!("changed" in options)) {
-    options.changed = function(oldVal, newVal) { return oldVal !== newVal };
-  } else if(typeof(options.changed) !== "function") {
-    let value = options.changed;
-    options.changed = function() { return value };
-  }
-  options.channelName = options.channelName || "@" + name;
-  return options;
-}
-
 export function defineChannel(object, name, options = {}) {
   let privateChannelName = "@" + name;
   let getter = options.channel || function() { return new Channel() };
@@ -31,8 +20,8 @@ export function defineChannel(object, name, options = {}) {
   })
 }
 
-export function defineAttribute(object, name, options) {
-  options = normalizeOptions(object, name, options);
+export function defineAttribute(object, name, options = {}) {
+  options.channelName = options.channelName || "@" + name;
 
   defineChannel(object, options.channelName, {
     channel() {
@@ -49,20 +38,21 @@ export function defineAttribute(object, name, options) {
         define(this);
         this[options.channelName].emit(value);
       },
-      enumerable: (options && "enumerable" in options) ? options.enumerable : true,
+      enumerable: ("enumerable" in options) ? options.enumerable : true,
       configurable: true,
     })
 	};
 
 	define(object);
 
-  if(options && "value" in options) {
+  if("value" in options) {
     object[name] = options.value;
   }
 };
 
-export function defineProperty(object, name, options) {
-  options = normalizeOptions(object, name, options);
+export function defineProperty(object, name, options = {}) {
+  options.channelName = options.channelName || "@" + name;
+
   let deps = options.dependsOn;
   let getter = options.get || function() {};
 
@@ -75,10 +65,7 @@ export function defineProperty(object, name, options) {
     } else {
       channel = Channel.static(this).map((val) => getter.call(val)).static();
     }
-    if(options.cache) {
-      channel = channel.cache();
-    }
-    return channel;
+    return channel.withOptions(this, options);
   }});
 
   options.get = function() {
