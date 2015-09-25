@@ -1,8 +1,8 @@
 import Channel from "./channel"
-import StaticChannel from "./static_channel"
+import BaseChannel from "./base_channel"
 import { deleteItem } from "../helpers"
 
-export default class CompositeChannel extends StaticChannel {
+export default class CompositeChannel extends BaseChannel {
   constructor(parents) {
     super(undefined);
     this.parents = parents;

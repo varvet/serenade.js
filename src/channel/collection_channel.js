@@ -1,8 +1,8 @@
 import Channel from "./channel"
-import StaticChannel from "./static_channel"
+import BaseChannel from "./base_channel"
 import { deleteItem } from "../helpers"
 
-export default class CollectionChannel extends StaticChannel {
+export default class CollectionChannel extends BaseChannel {
   constructor(parent) {
     var oldCollection;
     super(undefined);
@@ -49,6 +49,6 @@ export default class CollectionChannel extends StaticChannel {
   }
 }
 
-StaticChannel.prototype.collection = function() {
+BaseChannel.prototype.collection = function() {
   return new CollectionChannel(this);
 }

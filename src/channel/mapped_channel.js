@@ -1,7 +1,7 @@
-import StaticChannel from "./static_channel"
+import BaseChannel from "./base_channel"
 import { deleteItem } from "../helpers"
 
-export default class MappedChannel extends StaticChannel {
+export default class MappedChannel extends BaseChannel {
   constructor(parent, fn) {
     super(undefined);
     this.subscribers = []
@@ -37,6 +37,6 @@ export default class MappedChannel extends StaticChannel {
   }
 }
 
-StaticChannel.prototype.map = function(fn) {
+BaseChannel.prototype.map = function(fn) {
   return new MappedChannel(this, fn);
 }

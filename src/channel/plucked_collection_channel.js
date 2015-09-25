@@ -1,8 +1,8 @@
 import Channel from "./channel"
-import StaticChannel from "./static_channel"
+import BaseChannel from "./base_channel"
 import { deleteItem } from "../helpers"
 
-export default class PluckedCollectionChannel extends StaticChannel {
+export default class PluckedCollectionChannel extends BaseChannel {
   constructor(parent, property) {
     var oldValues;
     super(undefined);
@@ -56,6 +56,6 @@ export default class PluckedCollectionChannel extends StaticChannel {
   }
 }
 
-StaticChannel.prototype.pluckAll = function(property) {
+BaseChannel.prototype.pluckAll = function(property) {
   return new PluckedCollectionChannel(this.collection(), property);
 }

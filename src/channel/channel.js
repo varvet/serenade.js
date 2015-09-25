@@ -1,7 +1,8 @@
+import BaseChannel from "./base_channel"
 import StaticChannel from "./static_channel"
 import { deleteItem } from "../helpers"
 
-export default class Channel extends StaticChannel {
+export default class Channel extends BaseChannel {
   static of(value) {
     return new Channel(value);
   }
@@ -37,9 +38,9 @@ export default class Channel extends StaticChannel {
     }
   }
 
-  constructor(value, options = {}) {
-    super(value)
-    this.options = options;
+  constructor(value) {
+    super()
+    this.value = value
     this.subscribers = [];
   }
 

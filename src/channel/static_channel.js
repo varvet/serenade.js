@@ -1,26 +1,12 @@
-export default class StaticChannel {
+import BaseChannel from "./base_channel"
+
+export default class StaticChannel extends BaseChannel {
   constructor(value) {
+    super()
     this.value = value;
   }
 
-  subscribe(cb) {
-  }
-
-  unsubscribe(cb) {
-  }
-
-  bind(cb) {
-    this.subscribe(cb);
-    cb(this.value);
-  }
-
-  once(cb) {
-    let handler = (value) => {
-      cb(value);
-      this.unsubscribe(handler);
-    }
-    this.subscribe(handler);
-  }
+  subscribe() {}
+  unsubscribe() {}
+  trigger() {}
 }
-
-StaticChannel.prototype.isChannel = true;

@@ -1,7 +1,7 @@
-import StaticChannel from "./static_channel"
+import BaseChannel from "./base_channel"
 import { deleteItem } from "../helpers"
 
-export default class FilteredChannel extends StaticChannel {
+export default class FilteredChannel extends BaseChannel {
   constructor(parent, fn) {
     super(undefined);
     this.fn = typeof(fn) === "function" ? fn : () => fn;
@@ -39,6 +39,6 @@ export default class FilteredChannel extends StaticChannel {
   }
 }
 
-StaticChannel.prototype.filter = function(fn) {
+BaseChannel.prototype.filter = function(fn) {
   return new FilteredChannel(this, fn);
 }
