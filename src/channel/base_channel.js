@@ -3,6 +3,7 @@ import { deleteItem } from "../helpers"
 export default class BaseChannel {
   constructor() {
     this.subscribers = [];
+    this.trigger = this.trigger.bind(this);
   }
 
   bind(cb) {
@@ -27,8 +28,18 @@ export default class BaseChannel {
     this.subscribers.push(callback);
   }
 
+  subscribe(callback) {
+    if(!this.subscribers.length) {
+      this._activate()
+    }
+    this.subscribers.push(callback);
+  }
+
   unsubscribe(callback) {
     deleteItem(this.subscribers, callback);
+    if(!this.subscribers.length) {
+      this._deactivate()
+    }
   }
 
   trigger() {
@@ -36,6 +47,9 @@ export default class BaseChannel {
       subscriber(this.value);
     });
   }
+
+  _activate() {}
+  _deactivate() {}
 }
 
 BaseChannel.prototype.isChannel = true;

@@ -177,7 +177,7 @@ describe "Serenade.Channel", ->
 
       expect(names.value.toArray()).to.eql(["Jonas", "Kim"])
 
-      expect(-> authors.push(Serenade(name: "Eli"))).to.emit(names, with: new Serenade.Collection(["Jonas", "Kim", "Eli"]))
+      expect(-> authors.push(Serenade(name: "Eli"))).to.emit(names.map((x) -> x.toArray()), with: ["Jonas", "Kim", "Eli"])
 
       expect(names.value.toArray()).to.eql(["Jonas", "Kim", "Eli"])
 

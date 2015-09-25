@@ -9,20 +9,17 @@ export default class PluckedCollectionChannel extends BaseChannel {
     this.parent = parent;
     this.property = property;
     this.subscribers = [];
-    this.appliedHandler = () => {
-      this.subscribers.forEach((cb) => cb(this.value));
-    };
     this.handler = (values) => {
       if(oldValues) {
         oldValues.forEach((value) => {
-          Channel.get(value, property).unsubscribe(this.appliedHandler);
+          Channel.get(value, property).unsubscribe(this.trigger);
         });
       }
       if(values) {
         values.forEach((value) => {
-          Channel.get(value, property).subscribe(this.appliedHandler);
+          Channel.get(value, property).subscribe(this.trigger);
         });
-        this.appliedHandler();
+        this.trigger();
         oldValues = [].map.call(values, (x) => x)
       } else {
         oldValues = undefined;

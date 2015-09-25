@@ -41,25 +41,10 @@ export default class Channel extends BaseChannel {
   constructor(value) {
     super()
     this.value = value
-    this.subscribers = [];
   }
 
   emit(value) {
     this.value = value;
     this.trigger();
-  }
-
-  subscribe(callback) {
-    this.subscribers.push(callback);
-  }
-
-  unsubscribe(callback) {
-    deleteItem(this.subscribers, callback);
-  }
-
-  trigger() {
-    this.subscribers.map((i) => i).forEach((subscriber) => {
-      subscriber(this.value);
-    });
   }
 }
