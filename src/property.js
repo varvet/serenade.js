@@ -79,16 +79,12 @@ export function defineProperty(object, name, options) {
     }});
   }
 
-	function define(object) {
-    Object.defineProperty(object, name, {
-      get: function() {
-        return this[options.channelName].value
-      },
-      set: options.set,
-      enumerable: (options && "enumerable" in options) ? options.enumerable : true,
-      configurable: (options && "configurable" in options) ? options.configurable : true,
-    })
-	};
-
-	define(object);
+  Object.defineProperty(object, name, {
+    get: function() {
+      return this[options.channelName].value
+    },
+    set: options.set,
+    enumerable: (options && "enumerable" in options) ? options.enumerable : false,
+    configurable: (options && "configurable" in options) ? options.configurable : true,
+  })
 };
