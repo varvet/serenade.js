@@ -1,41 +1,16 @@
 import BaseChannel from "./base_channel"
-import { deleteItem } from "../helpers"
+import DerivedChannel from "./derived_channel"
 
-export default class FilteredChannel extends BaseChannel {
+export default class FilteredChannel extends DerivedChannel {
   constructor(parent, fn) {
-    super(undefined);
+    super(parent);
     this.fn = typeof(fn) === "function" ? fn : () => fn;
-    this.subscribers = [];
-    this.parent = parent;
-    this.handler = (value) => {
-      if(this.fn(value)) {
-        this.subscribers.forEach((callback) => {
-          callback(this.value);
-        });
-      }
-    };
   }
 
-  subscribe(callback) {
-    if(!this.subscribers.length) {
-      this.parent.subscribe(this.handler)
+  handler(value) {
+    if(this.fn(value)) {
+      this.trigger(value);
     }
-    this.subscribers.push(callback);
-  }
-
-  unsubscribe(callback) {
-    deleteItem(this.subscribers, callback)
-    if(!this.subscribers.length) {
-      this.parent.unsubscribe(this.handler)
-    }
-  }
-
-  get value() {
-    return this.parent.value;
-  }
-
-  set value(value) {
-    // No op
   }
 }
 

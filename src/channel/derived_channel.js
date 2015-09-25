@@ -11,11 +11,15 @@ export default class DerivedChannel extends BaseChannel {
     this.trigger()
   }
 
+  get value() {
+    return this.parent.value;
+  }
+
   _activate() {
-    this.parent.subscribe(this.trigger)
+    this.parent.subscribe(this.handler)
   }
 
   _deactivate() {
-    this.parent.unsubscribe(this.trigger)
+    this.parent.unsubscribe(this.handler)
   }
 }
