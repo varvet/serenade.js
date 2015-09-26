@@ -22,8 +22,7 @@ export function defineChannel(object, name, options = {}) {
 }
 
 export function defineAttribute(object, name, options) {
-  options = merge({}, options);
-  options.channelName = options.channelName || "@" + name;
+  options = merge({ channelName: "@" + name }, options)
 
   defineChannel(object, options.channelName, {
     channel() {
@@ -56,8 +55,8 @@ export function defineAttribute(object, name, options) {
   }
 };
 
-export function defineProperty(object, name, options = {}) {
-  options.channelName = options.channelName || "@" + name;
+export function defineProperty(object, name, options) {
+  options = merge({ channelName: "@" + name }, options)
 
   let deps = options.dependsOn;
   let getter = options.get || function() {};
