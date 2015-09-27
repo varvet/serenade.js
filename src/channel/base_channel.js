@@ -23,11 +23,6 @@ export default class BaseChannel {
     this.once(cb);
   }
 
-  emit(value) {
-    this.value = value;
-    this.trigger();
-  }
-
   subscribe(callback) {
     if(!this.subscribers.length) {
       this._activate()
