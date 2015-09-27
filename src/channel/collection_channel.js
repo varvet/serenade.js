@@ -15,10 +15,6 @@ export default class CollectionChannel extends DerivedChannel {
     }
     this._oldCollection = collection;
   }
-
-  get value() {
-    return this.parent.value
-  }
 }
 
 BaseChannel.prototype.collection = function() {
