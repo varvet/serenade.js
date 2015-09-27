@@ -3,11 +3,10 @@ import AttributeChannel from "../channel/attribute_channel"
 import AssociationCollection from "../association_collection"
 import Collection from "../collection"
 
-export default function(name, options = {}) {
+export default function(name, options) {
   options = merge({ channelName: "@" + name }, options);
 
   let attributeOptions = merge(options, {
-    changed: true,
     channel: function(channelOptions) {
       let collection = new AssociationCollection(this, options, []);
       return new AttributeChannel(this, channelOptions, collection).collection();

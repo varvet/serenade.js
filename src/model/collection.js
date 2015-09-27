@@ -1,28 +1,24 @@
 import { merge } from "../helpers"
 import Collection from "../collection"
+import AttributeChannel from "../channel/attribute_channel"
 
 export default function(name, options) {
-  if(!options) options = {};
+  options = merge({ channelName: "@" + name }, options);
 
-  let propOptions = merge(options, {
-    changed: true,
-    get: function() {
-      let valueName = "_" + name;
-      if(!this[valueName]) {
-        this[valueName] = new Collection([]);
-        this[valueName].change.bind(this[name + "_property"].trigger);
-      }
-      return this[valueName];
+  let attributeOptions = merge(options, {
+    channel: function(channelOptions) {
+      let collection = new Collection();
+      return new AttributeChannel(this, channelOptions, collection).collection();
     },
     set: function(value) {
-      this[name].update(value);
+      this[options.channelName].value.update(value);
     }
   });
 
-  this.property(name, propOptions);
+  this.attribute(name, attributeOptions);
   this.property(name + 'Count', {
-    get: function() {
-      return this[name].length;
+    get: function(collection) {
+      return collection.length;
     },
     dependsOn: name
   });

@@ -7,7 +7,8 @@ describe "Sereande.Model.collection", ->
       @collection "numbers"
       @collection "authors"
 
-      @property 'authorNames', dependsOn: ['authors', 'authors:name']
+      @property 'authorNames', dependsOn: ['authors', 'authors:name'], get: ->
+        @authors.map((n) -> n.name)
     @object = new @Person()
 
   it 'is initialized to a collection', ->
@@ -29,7 +30,7 @@ describe "Sereande.Model.collection", ->
 
   it 'triggers a change event in other object when collection is changed', ->
     class Page extends Serenade.Model
-      @property "book"
+      @attribute "book"
       @property "authors", dependsOn: "book.authors", get: -> @book.authors
     @page = new Page(name: "45", book: @object)
     expect(=> @object.authors.push(4)).to.emit(@page["@authors"])

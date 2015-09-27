@@ -4,12 +4,12 @@ Serenade = require('../../lib/serenade')
 describe "Sereande.Model.selection", ->
   beforeEach ->
     class Comment extends Serenade.Model
-      @property "isPublished", "deleted", "message"
+      @attribute "isPublished", "deleted", "message"
     class Post extends Serenade.Model
       @hasMany "comments", as: -> Comment
 
       @selection "publishedComments", from: "comments", filter: "isPublished"
-      @selection "deletedComments", from: "comments", filter: "deleted", serialize: true
+      @selection "deletedComments", from: "comments", filter: "deleted"
 
       @selection "commentMessages", from: "comments", map: "message"
       @selection "publishedCommentMessages", filter: "isPublished", from: "comments", map: "message"
@@ -39,15 +39,12 @@ describe "Sereande.Model.selection", ->
   it "can combine map and filter", ->
     expect(@post.publishedCommentMessages.toArray()).to.eql(["Cool", "Dude"])
 
-  it "allows other options to be forwarded", ->
-    expect(@post.toJSON().deletedComments).to.be.ok
-
   it "updates selection when collection is updated", ->
-    expect(=> @post.comments.push({ message: "w00t" })).to.emit(@post["@publishedComments"], count: 2)
-    expect(=> @post.comments.push({ message: "w00t" })).to.emit(@post["@deletedComments"], count: 2)
-    expect(=> @post.comments.push({ message: "w00t" })).to.emit(@post["@commentMessages"], count: 2)
-    expect(=> @post.comments.push({ message: "w00t" })).to.emit(@post["@upcasedMessages"], count: 2)
-    expect(=> @post.comments.push({ message: "w00t" })).to.emit(@post["@activeComments"], count: 2)
+    expect(=> @post.comments.push({ message: "w00t" })).to.emit(@post["@publishedComments"], count: 3)
+    expect(=> @post.comments.push({ message: "w00t" })).to.emit(@post["@deletedComments"], count: 3)
+    expect(=> @post.comments.push({ message: "w00t" })).to.emit(@post["@commentMessages"], count: 3)
+    expect(=> @post.comments.push({ message: "w00t" })).to.emit(@post["@upcasedMessages"])
+    expect(=> @post.comments.push({ message: "w00t" })).to.emit(@post["@activeComments"])
 
   it "updates selection when item in collection is updated", ->
     expect(=> @comment2.isPublished = false).to.emit(@post["@publishedComments"])
@@ -63,8 +60,8 @@ describe "Sereande.Model.selection", ->
     expect(@post.deletedCommentsCount).to.eql(2)
 
   it "updates count when collection is updated", ->
-    expect(=> @post.comments.push({ message: "w00t", isPublished: true })).to.emit(@post["@publishedCommentsCount"])
-    expect(=> @post.comments.push({ message: "w00t", deleted: true })).to.emit(@post["@deletedCommentsCount"])
+    expect(=> @post.comments.push({ message: "w00t", isPublished: true })).to.emit(@post["@publishedCommentsCount"], count: 3)
+    expect(=> @post.comments.push({ message: "w00t", deleted: true })).to.emit(@post["@deletedCommentsCount"], count: 3)
 
   it "updates count when item in collection is updated", ->
     expect(=> @comment2.isPublished = false).to.emit(@post["@publishedCommentsCount"])
