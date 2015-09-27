@@ -4,7 +4,7 @@ Serenade = require('../../lib/serenade')
 describe 'Serenade.Model.hasMany', ->
   it 'allows objects to be added and retrieved', ->
     class Comment extends Serenade.Model
-      @property 'body'
+      @attribute 'body'
     class Post extends Serenade.Model
       @hasMany 'comments', as: -> Comment
     comment1 = new Comment(body: 'Hello')
@@ -15,7 +15,7 @@ describe 'Serenade.Model.hasMany', ->
 
   it 'uses the given constructor', ->
     class Comment extends Serenade.Model
-      @property 'body'
+      @attribute 'body'
     class Post extends Serenade.Model
       @hasMany 'comments', as: -> Comment
     post = new Post(comments: [{ body: 'Hello' }, { body: 'Monkey' }])
@@ -26,7 +26,7 @@ describe 'Serenade.Model.hasMany', ->
 
   it 'creates plain objects if there is no constructor given', ->
     class Comment extends Serenade.Model
-      @property 'body'
+      @attribute 'body'
     class Post extends Serenade.Model
       @hasMany 'comments'
     post = new Post(comments: [{ body: 'Hello' }, { body: 'Monkey' }])
@@ -37,7 +37,7 @@ describe 'Serenade.Model.hasMany', ->
 
   it 'updates the ids property as it changes', ->
     class Comment extends Serenade.Model
-      @property 'body'
+      @attribute 'body'
     class Post extends Serenade.Model
       @hasMany 'comments', as: -> Comment
     post = new Post(comments: [{ id: 4 }, { id: 3 }])
@@ -49,7 +49,7 @@ describe 'Serenade.Model.hasMany', ->
 
   it 'is updated if the ids property changes', ->
     class Comment extends Serenade.Model
-      @property 'body'
+      @attribute 'body'
     class Post extends Serenade.Model
       @hasMany 'comments', as: -> Comment
     comment = new Comment(id: 5, body: 'Hello')
@@ -62,32 +62,13 @@ describe 'Serenade.Model.hasMany', ->
     expect(post.comments[0].body).to.eql('World')
     expect(post.comments[1].body).to.eql('Cat')
 
-  it 'serializes the entire associated documents', ->
-    class Comment extends Serenade.Model
-      @property 'body', serialize: true
-    class Post extends Serenade.Model
-      @hasMany 'comments', serialize: true, as: -> Comment
-    post = new Post(comments: [{ body: 'Hello' }, { body: 'Monkey' }])
-    serialized = post.toJSON()
-    expect(serialized.comments[0].body).to.eql('Hello')
-    expect(serialized.comments[1].body).to.eql('Monkey')
-
-  it 'serializes the ids', ->
-    class Comment extends Serenade.Model
-      @property 'body', serialize: true
-    class Post extends Serenade.Model
-      @hasMany 'comments', serializeIds: true, as: -> Comment
-    post = new Post(comments: [{ id: 5, body: 'Hello' }, { id: 8, body: 'Monkey' }])
-    serialized = post.toJSON()
-    expect(serialized.commentsIds[0]).to.eql(5)
-    expect(serialized.commentsIds[1]).to.eql(8)
-
   it 'can observe changes to items in the collection', ->
     class Comment extends Serenade.Model
-      @property 'confirmed'
+      @attribute 'confirmed'
     class Post extends Serenade.Model
       @hasMany 'comments', as: -> Comment
-      @property 'confirmedComments', dependsOn: 'comments:confirmed', get: -> @comments.filter (c) -> c.confirmed
+      @property 'confirmedComments', dependsOn: 'comments:confirmed', get: ->
+        @comments.filter (c) -> c.confirmed
     post = new Post(name: "test")
     post.confirmedComments
     post.comments = [{ id: 5, body: 'Hello', confirmed: true }, { id: 8, body: 'Monkey', confirmed: false }]

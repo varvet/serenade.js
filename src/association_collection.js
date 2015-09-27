@@ -3,7 +3,7 @@ import Collection from "./collection"
 class AssociationCollection extends Collection {
   constructor(owner, options, list) {
     super()
-      this.owner = owner;
+    this.owner = owner;
     this.options = options;
     this.splice(0, 0, ...list)
   }
@@ -39,11 +39,11 @@ class AssociationCollection extends Collection {
 
     let returnValue = fn(items)
 
-      items.forEach((item) => {
-        if(this.options.inverseOf && item[this.options.inverseOf] !== this.owner) {
-          item[this.options.inverseOf] = this.owner;
-        }
-      });
+    items.forEach((item) => {
+      if(this.options.inverseOf && item[this.options.inverseOf] !== this.owner) {
+        item[this.options.inverseOf] = this.owner;
+      }
+    });
 
     return returnValue;
   }

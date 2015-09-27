@@ -19,6 +19,10 @@ export default class BaseChannel {
     this.subscribe(handler);
   }
 
+  gc(cb) {
+    this.once(cb);
+  }
+
   emit(value) {
     this.value = value;
     this.trigger();

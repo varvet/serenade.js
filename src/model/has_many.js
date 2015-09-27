@@ -1,24 +1,23 @@
 import { merge } from "../helpers"
+import AttributeChannel from "../channel/attribute_channel"
 import AssociationCollection from "../association_collection"
 import Collection from "../collection"
 
-export default function(name, options) {
-  if(!options) options = {};
-
-  let channelName = "@" + name;
+export default function(name, options = {}) {
+  options = merge({ channelName: "@" + name }, options);
 
   let attributeOptions = merge(options, {
     changed: true,
-    get: function() {
-      if(!this[channelName]) {
-        this[channelName] = new AssociationCollection(this, options, []);
-      }
-      return this[channelName].collection().value;
+    channel: function(channelOptions) {
+      let collection = new AssociationCollection(this, options, []);
+      return new AttributeChannel(this, channelOptions, collection).collection();
     },
     set: function(value) {
-      this[channelName].value.update(value);
+      this[options.channelName].value.update(value);
     }
   });
+
+  delete attributeOptions.as;
 
   this.attribute(name, attributeOptions);
   this.property(name + 'Ids', {

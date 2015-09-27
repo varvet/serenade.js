@@ -3,14 +3,21 @@ import BaseChannel from "./base_channel"
 import StaticChannel from "./static_channel"
 
 export default class AttributeChannel extends BaseChannel {
-  constructor(context, options) {
+  constructor(context, options, value) {
     super()
-    this.write = new Channel();
+    this.write = new Channel(value);
     this.read = this.write;
     if(options.as) {
       this.read = this.read.map(options.as.bind(context));
     }
     this.read = this.read.async("attribute");
+  }
+
+  // Since the read end of an attribute channel
+  // is (usually) async, and we want GC to run
+  // immediately.
+  gc(cb) {
+    this.write.once(cb);
   }
 
   emit(value) {

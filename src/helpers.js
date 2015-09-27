@@ -49,6 +49,14 @@ export var hash = function (value) {
   return typeof(value) + " " + key;
 };
 
+export var addItem = function (collection, item) {
+  let index = collection.indexOf(item);
+
+  if(index === -1) {
+    collection.push(item);
+  }
+};
+
 export var deleteItem = function (collection, item) {
   let index = collection.indexOf(item);
 

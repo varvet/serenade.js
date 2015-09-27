@@ -1,29 +1,24 @@
-import { merge } from "../helpers"
+import { merge, addItem, deleteItem } from "../helpers"
 import Collection from "../collection"
 
-export default function(name, options) {
-  let channelName = "@" + name;
-
-  if(!options) options = {};
+export default function(name, options = {}) {
+  options = merge({ channelName: "@" + name }, options);
 
   let attributeOptions = merge(options, {
     set: function(model) {
       if(model && model.constructor === Object && options.as) {
         model = new (options.as())(model);
       }
-      let previous = this[channelName].value;
-      this[channelName].emit(model);
-      if (options.inverseOf) {
-        if(previous) {
-          previous[options.inverseOf].delete(this);
-        }
-        if(model) {
-          let newCollection = model[options.inverseOf];
-          if(newCollection.indexOf(this) === -1) newCollection.push(this);
-        }
+      this[options.channelName].emit(model);
+      if (options.inverseOf && model) {
+        let collection = model[options.inverseOf];
+        addItem(collection, this);
+        this[options.channelName].gc(() => deleteItem(collection, this));
       }
     }
   });
+
+  delete attributeOptions.as;
 
   this.attribute(name, attributeOptions);
   this.property(name + 'Id', {

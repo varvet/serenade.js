@@ -26,7 +26,11 @@ export function defineAttribute(object, name, options) {
 
   defineChannel(object, options.channelName, {
     channel() {
-      return new AttributeChannel(this, options)
+      if(options.channel) {
+        return options.channel.call(this, options);
+      } else {
+        return new AttributeChannel(this, options);
+      }
     }
   });
 
