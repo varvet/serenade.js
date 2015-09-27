@@ -33,7 +33,11 @@ export function defineAttribute(object, name, options) {
   function define(object) {
     Object.defineProperty(object, name, {
       get: function() {
-        return this[options.channelName].value
+        if(options.get) {
+          return options.get.call(this);
+        } else {
+          return this[options.channelName].value
+        }
       },
       set: function(value) {
         define(this);

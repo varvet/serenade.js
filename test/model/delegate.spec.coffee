@@ -9,12 +9,6 @@ describe "Serenade.Model.delegate", ->
     expect(post.name).to.eql("Jonas")
     expect(post.email).to.eql("jonas@elabs.se")
 
-  it "forwards other options", ->
-    class Post extends Serenade.Model
-      @delegate "name", "email", to: "author", serialize: true
-    post = new Post(author: { name: "Jonas", email: "jonas@elabs.se" })
-    expect(post.toJSON().name).to.eql("Jonas")
-
   it "assigns value to delegated object when given", ->
     class Post extends Serenade.Model
       @delegate "name", "email", to: "author"
@@ -39,13 +33,13 @@ describe "Serenade.Model.delegate", ->
   it "notifies of changes when delegated attributes are changed", ->
     author = Serenade(name: "Jonas", email: "jonas@elabs.se")
     class Post extends Serenade.Model
+      @attribute "author"
       @delegate "name", "email", to: "author"
-      @property "author"
     post = new Post(author: author)
     post["@name"].trigger()
     post["@email"].trigger()
-    expect(-> author.name = "peter").to.emit(post["@name"], with: ["Jonas", "peter"])
-    expect(-> author.email = "peter@elabs.se").to.emit(post["@email"], with: ["jonas@elabs.se", "peter@elabs.se"])
+    expect(-> author.name = "peter").to.emit(post["@name"], with: "peter")
+    expect(-> author.email = "peter@elabs.se").to.emit(post["@email"], with: "peter@elabs.se")
 
   it "allows dependencies to be overwritten", ->
     author = Serenade(name: "Jonas", email: "jonas@elabs.se")
@@ -85,18 +79,3 @@ describe "Serenade.Model.delegate", ->
     post = new Post(author: { name: "Jonas", email: "jonas@elabs.se" })
     expect(post.nameQuox).to.eql("Jonas")
     expect(post.emailQuox).to.eql("jonas@elabs.se")
-
-  it "forwards formatters", ->
-    class Author extends Serenade.Model
-      @property "email",
-        format: (email) ->
-          email.replace(/@/, "[at]")
-
-    class Post extends Serenade.Model
-      @delegate "email", to: "author", prefix: true
-
-    author = new Author({ email: "jonas@elabs.se" })
-    post = new Post(author: author)
-
-    expect(post.authorEmail).to.eql("jonas@elabs.se")
-    expect(Serenade.format(post, "authorEmail")).to.eql("jonas[at]elabs.se")

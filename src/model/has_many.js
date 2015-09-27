@@ -5,25 +5,25 @@ import Collection from "../collection"
 export default function(name, options) {
   if(!options) options = {};
 
-  let propOptions = merge(options, {
+  let channelName = "@" + name;
+
+  let attributeOptions = merge(options, {
     changed: true,
     get: function() {
-      let valueName = "_" + name;
-      if(!this[valueName]) {
-        this[valueName] = new AssociationCollection(this, options, []);
-        this[valueName].change.bind(this[name + "_property"].trigger);
+      if(!this[channelName]) {
+        this[channelName] = new AssociationCollection(this, options, []);
       }
-      return this[valueName];
+      return this[channelName].collection().value;
     },
     set: function(value) {
-      this[name].update(value);
+      this[channelName].value.update(value);
     }
   });
 
-  this.property(name, propOptions);
+  this.attribute(name, attributeOptions);
   this.property(name + 'Ids', {
-    get: function() {
-      return new Collection(this[name]).map((item) => item.id);
+    get: function(collection) {
+      return collection.map((item) => item.id);
     },
     set: function(ids) {
       let objects = ids.map((id) => options.as().find(id));
@@ -33,8 +33,8 @@ export default function(name, options) {
     serialize: options.serializeIds
   });
   this.property(name + 'Count', {
-    get: function() {
-      return this[name].length;
+    get: function(collection) {
+      return collection.length;
     },
     dependsOn: name
   });

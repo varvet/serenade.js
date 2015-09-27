@@ -25,11 +25,6 @@ export default function(...names) {
         if(this[to]) {
           this[to][name] = value;
         }
-      },
-      format() {
-        if(this[to]) {
-          return format(this[to], name)
-        }
       }
     });
 
