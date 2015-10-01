@@ -57,16 +57,6 @@ describe 'Two-way bindings', ->
     input = @body.querySelector('textarea')
     expect(input.value).to.eql("My name")
 
-  it "sets value of select box to context's value", ->
-    context = {name: "My name"}
-    @render """
-      select[binding:change=name]
-        option "Other name"
-        option "My name"
-    """, context, {}
-    input = @body.querySelector('select')
-    expect(input.value).to.eql("My name")
-
   it 'updates the value of input when context changes', ->
     class MyModel extends Serenade.Model
       @property 'name'

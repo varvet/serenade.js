@@ -22,7 +22,7 @@ class DynamicView extends View {
     if (this.anchor.parentNode) {
       let last = this.anchor;
       this.children.forEach((child) => {
-        child.insertAfter(last);
+        child.insertAfter(last, !this.attached);
         last = child.lastElement;
       });
     }
@@ -35,20 +35,22 @@ class DynamicView extends View {
 
   remove() {
     this.detach();
-    this.clear();
+    this.children.forEach((child) => child.remove());
     if (this.anchor.parentNode) {
       this.anchor.parentNode.removeChild(this.anchor);
     }
   }
 
-  append(inside) {
+  append(inside, skipAttach = false) {
     inside.appendChild(this.anchor);
     this.rebuild();
+    if(!skipAttach) this.attach();
   }
 
-  insertAfter(after) {
+  insertAfter(after, skipAttach = false) {
     after.parentNode.insertBefore(this.anchor, after.nextSibling);
     this.rebuild();
+    if(!skipAttach) this.attach();
   }
 
   get lastElement() {

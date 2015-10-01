@@ -31,23 +31,25 @@ class HelperView extends DynamicView {
     this.helper = helper;
     this.render = this.render.bind(this);
     this.update = this.update.bind(this);
+  }
 
-    this.update();
-
-    this.ast.arguments.forEach(({ value, bound }) => {
-      if (bound === true) {
-        this._bindEvent(context["" + value + "_property"], this.update);
-      }
-    });
+  attach() {
+    if(!this.attached) {
+      this.ast.arguments.forEach(({ value, bound }) => {
+        if (bound === true) {
+          this._bindEvent(this.context["" + value + "_property"], this.update);
+        }
+      });
+      this.update();
+    }
+    super.attach();
   }
 
   update() {
-    this.clear();
-    this.children = normalize(this.helper.call({
+    this.replace(normalize(this.helper.call({
       context: this.context,
       render: this.render
-    }, ...this.arguments));
-    this.rebuild();
+    }, ...this.arguments)));
   }
 
   get arguments() {

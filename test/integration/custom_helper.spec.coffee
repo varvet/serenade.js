@@ -70,7 +70,9 @@ describe 'Custom helpers', ->
 
     expect(@body).to.have.element('#bar')
     expect(context.name_property.listeners.length).to.eql(1)
+
     context.active = false
+
     expect(@body).not.to.have.element('#bar')
     expect(context.name_property.listeners.length).to.eql(0)
 

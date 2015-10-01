@@ -4,14 +4,17 @@ class View {
   constructor(node) {
     this.node = node;
     this.children = [];
+    this.attached = false;
   }
 
-  append(inside) {
+  append(inside, skipAttach = false) {
     inside.appendChild(this.node);
+    if(!skipAttach) this.attach();
   }
 
-  insertAfter(after) {
+  insertAfter(after, skipAttach = false) {
     after.parentNode.insertBefore(this.node, after.nextSibling);
+    if(!skipAttach) this.attach();
   }
 
   remove() {
@@ -21,11 +24,20 @@ class View {
     this.detach();
   }
 
-  detach() {
-    this.children.forEach((child) => child.detach())
+  attach() {
+    this.attached = true;
 
-    if (this.boundEvents) {
+    this.children.forEach((child) => child.attach());
+  }
+
+  detach() {
+    this.attached = false;
+
+    this.children.forEach((child) => child.detach());
+
+    if(this.boundEvents) {
       this.boundEvents.forEach(({ event, fun }) => event.unbind(fun))
+      this.boundEvents = [];
     }
   }
 

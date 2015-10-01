@@ -3,17 +3,19 @@ import TemplateView from "./template_view"
 import Compile from "../compile"
 
 class IfView extends DynamicView {
-  constructor(ast, context) {
-    super(ast, context);
-    this._bindToModel(ast.argument, (value) => {
-      if(value) {
-        this.replace([new TemplateView(ast.children, context)]);
-      } else if(ast.else) {
-        this.replace([new TemplateView(ast.else.children, context)]);
-      } else {
-        this.clear();
-      }
-    });
+  attach() {
+    if(!this.attached) {
+      this._bindToModel(this.ast.argument, (value) => {
+        if(value) {
+          this.replace([new TemplateView(this.ast.children, this.context)]);
+        } else if(this.ast.else) {
+          this.replace([new TemplateView(this.ast.else.children, this.context)]);
+        } else {
+          this.clear();
+        }
+      });
+    }
+    super.attach();
   }
 }
 

@@ -42,7 +42,7 @@ describe 'Serenade.defineProperty', ->
         dependsOn: 'name'
       expect(=> @object.name = 'Jonas').to.triggerEvent(@object.reverseName_property, with: [undefined, 'sanoJ'])
 
-    context "reaching into an object", ->
+    describe "reaching into an object", ->
       beforeEach ->
         defineProperty @object, 'bigName', dependsOn: 'name', get: -> @name.toUpperCase() if @name
         defineProperty @object, 'name', dependsOn: 'author.name', get: -> @author.name
@@ -123,7 +123,7 @@ describe 'Serenade.defineProperty', ->
         model.active = false
         expect(-> model.active = true).to.triggerEvent item.active_property
 
-    context "reaching into a collection", ->
+    describe "reaching into a collection", ->
       beforeEach ->
         defineProperty @object, 'authors', value: new Serenade.Collection()
         defineProperty @object, 'authorNames', dependsOn: "authors:name", get: -> @authors.map (a) -> a.name

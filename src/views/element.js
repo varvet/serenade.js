@@ -145,7 +145,7 @@ class Element extends View {
 
     ast.children.forEach((child) => {
       let childView = Compile[child.type](child, context);
-      childView.append(this.node);
+      childView.append(this.node, true);
       this.children.push(childView);
     });
 

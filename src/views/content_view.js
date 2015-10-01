@@ -4,23 +4,24 @@ import Compile from "../compile"
 import { format } from "../helpers"
 
 class ContentView extends DynamicView {
-  constructor(ast, context) {
-    let value;
-    super(ast, context);
-
-    if(ast.bound && ast.value) {
-      value = format(context, ast.value);
-      let property = context[ast.value + "_property"];
-      if(property && property.registerGlobal) {
-        property.registerGlobal(value);
+  attach() {
+    if(!this.attached) {
+      let value;
+      if(this.ast.bound && this.ast.value) {
+        value = format(this.context, this.ast.value);
+        let property = this.context[this.ast.value + "_property"];
+        if(property && property.registerGlobal) {
+          property.registerGlobal(value);
+        }
+        this._bindEvent(property, (_, value) => this.update(format(this.context, this.ast.value, value)))
+      } else if(this.ast.value) {
+        value = this.ast.value;
+      } else {
+        value = this.context;
       }
-      this._bindEvent(property, (_, value) => this.update(format(context, ast.value, value)))
-    } else if(ast.value) {
-      value = ast.value;
-    } else {
-      value = context;
+      this.update(value);
     }
-    this.update(value);
+    super.attach();
   }
 
   update(value) {

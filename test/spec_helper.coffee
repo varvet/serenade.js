@@ -41,7 +41,7 @@ beforeEach ->
     element.dispatchEvent(event)
 
   @render = (template, context) =>
-    @body.appendChild(Serenade.template(template).render(context))
+    Serenade.template(template).compile(context).append(@body)
 
   @sinon = sinon.sandbox.create()
 
@@ -92,5 +92,3 @@ chai.Assertion::become = (value, done) ->
       count += 1
       setTimeout(test, 5)
   test()
-
-root.context = describe

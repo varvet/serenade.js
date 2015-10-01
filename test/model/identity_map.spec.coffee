@@ -2,7 +2,7 @@ require './../spec_helper'
 Serenade = require('../../lib/serenade')
 
 describe 'Serenade.Model.identityMap', ->
-  context 'when true', ->
+  describe 'when true', ->
     it 'returns the same object if given the same id', ->
       john1 = new Serenade.Model(id: 'j123', name: 'John', age: 23)
       john1.test = true
@@ -34,7 +34,7 @@ describe 'Serenade.Model.identityMap', ->
       expect(john2.age).to.eql(46)
       expect(john2.name).to.not.exist
 
-  context 'when false', ->
+  describe 'when false', ->
     it 'returns a different object if given the same id', ->
       class Person extends Serenade.Model
         @identityMap: false

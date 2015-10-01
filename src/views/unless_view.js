@@ -3,15 +3,17 @@ import TemplateView from "./template_view"
 import Compile from "../compile"
 
 class UnlessView extends DynamicView {
-  constructor(ast, context) {
-    super(ast, context);
-    this._bindToModel(ast.argument, (value) => {
-      if (value) {
-        return this.clear();
-      } else {
-        return this.replace([new TemplateView(ast.children, context)]);
-      }
-    });
+  attach() {
+    if(!this.attached) {
+      this._bindToModel(this.ast.argument, (value) => {
+        if (value) {
+          return this.clear();
+        } else {
+          return this.replace([new TemplateView(this.ast.children, this.context)]);
+        }
+      });
+    }
+    super.attach();
   }
 }
 

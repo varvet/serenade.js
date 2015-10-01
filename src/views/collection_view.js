@@ -10,13 +10,18 @@ class CollectionView extends DynamicView {
     super(ast, context);
 
     this.update = this.update.bind(this);
-
-    let items = this.context[ast.argument] || [];
-    this.lastItems = items.map((i) => i)
-    this.children = new Collection(items.map(this._toView.bind(this)))
     this.cb = (_, after) => this.replace(after);
-    this._bindEvent(this.context["" + ast.argument + "_property"], this.update);
-    this._bindEvent(items.change, this.cb);
+    this.lastItems = [];
+  }
+
+  attach() {
+    if(!this.attached) {
+      let items = this.context[this.ast.argument];
+      this.replace(items);
+      this._bindEvent(this.context["" + this.ast.argument + "_property"], this.update);
+      this._bindEvent(items && items.change, this.cb);
+    }
+    super.attach();
   }
 
   update(before, after) {
@@ -26,15 +31,20 @@ class CollectionView extends DynamicView {
   }
 
   replace(items) {
-    Transform(this.lastItems, items).forEach((operation) => {
-      if(operation.type == "insert") {
-        this._insertChild(operation.index, this._toView(operation.value));
-      } else if(operation.type == "remove") {
-        this._deleteChild(operation.index);
-      } else if(operation.type == "swap") {
-        this._swapChildren(operation.index, operation["with"]);
-      }
-    });
+    if(this.lastItems.length) {
+      Transform(this.lastItems, items).forEach((operation) => {
+        if(operation.type == "insert") {
+          this._insertChild(operation.index, this._toView(operation.value));
+        } else if(operation.type == "remove") {
+          this._deleteChild(operation.index);
+        } else if(operation.type == "swap") {
+          this._swapChildren(operation.index, operation["with"]);
+        }
+      });
+    } else if(items) {
+      super.replace(items.map((item) => this._toView(item)));
+    }
+
     if(items) {
       this.lastItems = items.map((i) => i);
     } else {

@@ -15,6 +15,7 @@ describe 'If', ->
         - if @visible
           li[id="visible"]
     ''', context
+
     expect(@body).to.have.element('ul > li#valid')
     expect(@body).to.have.element('ul > li#visible')
 
@@ -123,3 +124,53 @@ describe 'If', ->
     context.valid = true
     expect(@body).to.have.element('p#valid')
     expect(@body).not.to.have.element('p#invalid')
+
+  it 'it does not lose listeners on re-render', ->
+    class Thing extends Serenade.Model
+      @property "shown", value: true
+
+    person  = Serenade(name: "Jonas")
+    personView = Serenade.template('@name').render(person)
+    context = new Thing(person: personView)
+
+    @render '''
+      - if @shown
+        p#name
+          @person
+    ''', context
+
+    expect(@body.querySelector("#name").textContent).to.eql("Jonas")
+
+    context.shown = true
+    person.name = "Kim"
+
+    expect(@body.querySelector("#name").textContent).to.eql("Kim")
+
+  it 'it reads views when attching listenres', ->
+    person  = Serenade(name: "Jonas")
+    template = Serenade.template('p#name @name')
+    personView = template.render(person)
+
+    person.name = "Kim"
+
+    personView.append(@body)
+
+    expect(@body.querySelector("#name").textContent).to.eql("Kim")
+
+  it 'it does not lose listeners on re-render 2', ->
+    class Person extends Serenade.Model
+      @property "name"
+
+    person  = new Person(name: "Jonas")
+    personView = Serenade.template('p#name @name').render(person)
+
+    personView.append(@body)
+
+    expect(@body.querySelector("#name").textContent).to.eql("Jonas")
+
+    personView.remove()
+    personView.append(@body)
+
+    expect(@body.querySelector("#name").textContent).to.eql("Jonas")
+    person.name = "Kim"
+    expect(@body.querySelector("#name").textContent).to.eql("Kim")

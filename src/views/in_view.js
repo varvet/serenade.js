@@ -3,15 +3,17 @@ import TemplateView from "./template_view"
 import Compile from "../compile"
 
 class InView extends DynamicView {
-  constructor(ast, context) {
-    super(ast, context)
-    this._bindToModel(ast.argument, (value) => {
-      if (value) {
-        this.replace([new TemplateView(ast.children, value)]);
-      } else {
-        this.clear();
-      }
-    });
+  attach() {
+    if(!this.attached) {
+      this._bindToModel(this.ast.argument, (value) => {
+        if (value) {
+          this.replace([new TemplateView(this.ast.children, value)]);
+        } else {
+          this.clear();
+        }
+      });
+    }
+    super.attach();
   }
 }
 

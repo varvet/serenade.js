@@ -3,12 +3,14 @@ import Compile from "../compile"
 import { settings } from "../helpers"
 
 class BoundViewView extends DynamicView {
-  constructor(ast, context) {
-    super(ast, context);
-    this._bindToModel(ast.argument, (value) => {
-        let view = settings.templates[value].render(context).view;
+  attach() {
+    if(!this.attached) {
+      this._bindToModel(this.ast.argument, (value) => {
+        let view = settings.templates[value].render(this.context).view;
         this.replace([view]);
-    });
+      });
+    }
+    super.attach();
   }
 }
 
