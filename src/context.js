@@ -4,8 +4,7 @@ import ContentView from "./views/content_view"
 
 export default {
   if(channel, options) {
-    let view = new DynamicView()
-    channel.bind((value) => {
+    return new DynamicView(channel, (value) => {
       if(value) {
         view.replace([options.do.render(this)]);
       } else {

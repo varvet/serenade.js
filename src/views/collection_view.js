@@ -14,7 +14,7 @@ class CollectionView extends DynamicView {
     }
 
     let channel = Compile.parameter(ast.arguments[0], context).collection();
-    this._bind(channel, (values) => {
+    this.bind(channel, (values) => {
       if(values && values.length) {
         if(this.lastItems && this.lastItems.length) {
           this.replace(values);

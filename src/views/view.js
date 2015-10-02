@@ -1,10 +1,11 @@
 import Collection from "../collection"
 
 class View {
-  constructor(node) {
+  constructor(node, channel, fn) {
     this.node = node;
     this.children = [];
     this.channels = new Collection();
+    this.bind(channel, fn);
   }
 
   append(inside) {
@@ -32,7 +33,7 @@ class View {
     return this.node;
   }
 
-  _bind(channel, fun) {
+  bind(channel, fun) {
     if(channel) {
       this.channels.push({ channel, fun });
       channel.bind(fun);

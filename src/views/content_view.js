@@ -6,7 +6,7 @@ import { format } from "../helpers"
 class ContentView extends DynamicView {
   constructor(channel) {
     super();
-    this._bind(channel, (value) => {
+    this.bind(channel, (value) => {
       if(value && value.isView) {
         this.replace([value]);
       } else {

@@ -3,9 +3,8 @@ import Collection from "../collection"
 import { settings } from "../helpers"
 
 class DynamicView extends View {
-  constructor() {
-    super()
-    this.anchor = settings.document.createTextNode('');
+  constructor(channel, fn) {
+    super(settings.document.createTextNode(''), channel, fn);
     this.items = [];
     this.children = new Collection();
   }
@@ -17,8 +16,8 @@ class DynamicView extends View {
   }
 
   rebuild() {
-    if(this.anchor.parentNode) {
-      let last = this.anchor;
+    if(this.node.parentNode) {
+      let last = this.node;
       this.children.forEach((child) => {
         child.insertAfter(last);
         last = child.lastElement;
@@ -32,19 +31,17 @@ class DynamicView extends View {
   }
 
   remove() {
-    this.clear();
-    if(this.anchor.parentNode) {
-      this.anchor.parentNode.removeChild(this.anchor);
-    }
+    this.children.forEach((child) => child.remove())
+    super.remove();
   }
 
   append(inside) {
-    inside.appendChild(this.anchor);
+    super.append(inside);
     this.rebuild();
   }
 
   insertAfter(after) {
-    after.parentNode.insertBefore(this.anchor, after.nextSibling);
+    super.insertAfter(after);
     this.rebuild();
   }
 

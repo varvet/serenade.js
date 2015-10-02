@@ -23,7 +23,7 @@ class HelperView extends DynamicView {
     this.helper = helper;
 
     let argChannels = this.ast.arguments.map((property) => Compile.parameter(property, context));
-    this._bind(Channel.all(argChannels), (args) => {
+    this.bind(Channel.all(argChannels), (args) => {
       let result = this.helper.apply({
         context: this.context,
         render: this.render.bind(this),
