@@ -13,12 +13,14 @@ export default function(name, options) {
       let previous = this[valueName];
       this[valueName] = model;
       if (options.inverseOf) {
-        if(previous) {
-          previous[options.inverseOf].delete(this);
-        }
-        if(model) {
-          let newCollection = model[options.inverseOf];
-          if(newCollection.indexOf(this) === -1) newCollection.push(this);
+        if(previous !== model) {
+          if(previous) {
+            previous[options.inverseOf].delete(this);
+          }
+          if(model) {
+            let newCollection = model[options.inverseOf];
+            if(newCollection.indexOf(this) === -1) newCollection.push(this);
+          }
         }
       }
     }

@@ -131,3 +131,18 @@ describe 'Serenade.Model.belongsTo', ->
     comment.post = null
     expect(post.comments.length).to.eql(0)
     expect(comment.post).to.be.null
+
+  it 'does not move itself in the inverse relation when not changed', ->
+    class Comment extends Serenade.Model
+      @belongsTo "post", inverseOf: "comments", as: -> Post
+    class Post extends Serenade.Model
+      @hasMany 'comments', as: -> Comment
+
+    post = new Post()
+    comment1 = new Comment(post: post)
+    comment2 = new Comment(post: post)
+    comment3 = new Comment(post: post)
+
+    comment2.post = post
+
+    expect(post.comments.toArray()).to.eql([comment1, comment2, comment3])
