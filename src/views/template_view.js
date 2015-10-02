@@ -1,5 +1,5 @@
 import DynamicView from "./dynamic_view"
-import { settings, extend } from "../helpers"
+import { settings, extend, except } from "../helpers"
 import Compile from "../compile"
 import Collection from "../collection"
 import GlobalContext from "../context"
@@ -23,7 +23,7 @@ function parameter(ast, context) {
     channel = Channel.static(ast.value);
   }
 
-  extend(channel, ast);
+  extend(channel, except(ast, ["value"]));
 
   return channel;
 }
