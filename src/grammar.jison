@@ -12,19 +12,19 @@ ChildList
   ;
 
 ElementIdentifier
-  : AnyIdentifier { $$ = { name: $1, classes: [] } }
-  | AnyIdentifier HASH AnyIdentifier { $$ = { name: $1, id: $3, classes: [] } }
-  | HASH AnyIdentifier { $$ = { name: "div", id: $2, classes: [] } }
-  | DOT AnyIdentifier { $$ = { name: "div", classes: [$2] } }
-  | ElementIdentifier DOT AnyIdentifier { $1.classes.push($3); $$ = $1 }
+  : AnyIdentifier { $$ = { name: $1, type: "element" } }
+  | AnyIdentifier HASH AnyIdentifier { $$ = { name: $1, options: [{ name: "id", value: $3 }], type: "element" } }
+  | HASH AnyIdentifier { $$ = { name: "div", options: [{ name: "id", value: $2 }], type: "element" } }
+  | DOT AnyIdentifier { $$ = { name: "div", classes: [$2], type: "element" } }
+  | ElementIdentifier DOT AnyIdentifier { $1.classes = ($1.classes || []).concat($3); $$ = $1 }
   ;
 
 Element
-  : ElementIdentifier { $$ = { name: $1.name, id: $1.id, classes: $1.classes, properties: [], children: [], type: "element" } }
+  : ElementIdentifier { $$ = $1 }
   | Element LBRACKET RBRACKET { $$ = $1 }
-  | Element LBRACKET PropertyList RBRACKET { $1.properties = $3; $$ = $1 }
-  | Element WHITESPACE Content { $1.children = $1.children.concat($3); $$ = $1 }
-  | Element INDENT ChildList OUTDENT { $1.children = $1.children.concat($3); $$ = $1 }
+  | Element LBRACKET PropertyList RBRACKET { $1.options = $3; $$ = $1 }
+  | Element WHITESPACE Content { $1.children = ($1.children || []).concat($3); $$ = $1 }
+  | Element INDENT ChildList OUTDENT { $1.children = ($1.children || []).concat($3); $$ = $1 }
   ;
 
 ContentList
@@ -33,8 +33,8 @@ ContentList
   ;
 
 Content
-  : Bound { $$ = { type: "content", value: $1, bound: true } }
-  | STRING_LITERAL { $$ = { type: "content", value: $1 } }
+  : Bound { $$ = { type: "content", arguments: [{ value: $1, bound: true }] } }
+  | STRING_LITERAL { $$ = { type: "content", arguments: [{ value: $1 }] } }
   ;
 
 Child

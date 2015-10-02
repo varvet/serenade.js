@@ -18,18 +18,10 @@ parser.lexer = {
 };
 
 class Template {
-	constructor(name, ast) {
-		this.name = name;
+	constructor(ast) {
 		this.ast = ast;
 		if (typeof this.ast === 'string') {
-			try {
-				this.ast = parser.parse(new Lexer().tokenize(this.ast));
-			} catch (error) {
-				if (this.name) {
-					error.message = `In view '${this.name}': ${error.message}`;
-				}
-				throw error;
-			}
+      this.ast = parser.parse(new Lexer().tokenize(this.ast));
 		}
 	}
 

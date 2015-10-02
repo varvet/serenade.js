@@ -49,9 +49,9 @@ extend(Serenade, {
 
 	template: function(nameOrTemplate, template) {
 		if(template) {
-			return this.templates[nameOrTemplate] = new Template(nameOrTemplate, template);
+			return this.templates[nameOrTemplate] = new Template(template);
 		} else {
-			return new Template(void 0, nameOrTemplate);
+			return new Template(nameOrTemplate);
 		}
 	},
 

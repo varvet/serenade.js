@@ -3,10 +3,8 @@ import Collection from "../collection"
 import { settings } from "../helpers"
 
 class DynamicView extends View {
-  constructor(ast, context) {
+  constructor() {
     super()
-    this.ast = ast;
-    this.context = context;
     this.anchor = settings.document.createTextNode('');
     this.items = [];
     this.children = new Collection();

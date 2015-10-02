@@ -4,23 +4,15 @@ import Compile from "../compile"
 import { format } from "../helpers"
 
 class ContentView extends DynamicView {
-  constructor(ast, context) {
-    let value;
-    super(ast, context);
-
-    let channel = Compile.parameter(ast, context);
-
+  constructor(channel) {
+    super();
     this._bind(channel, (value) => {
-      this.update(value);
+      if(value && value.isView) {
+        this.replace([value]);
+      } else {
+        this.replace([new TextView(value)]);
+      }
     });
-  }
-
-  update(value) {
-    if(value && value.isView) {
-      this.replace([value]);
-    } else {
-      this.replace([new TextView(value)]);
-    }
   }
 }
 

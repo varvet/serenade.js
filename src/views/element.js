@@ -41,8 +41,8 @@ const Property = {
   binding: {
     setup: function(property) {
       let value = property.value;
-      if(this.ast.name !== "input" && this.ast.name !== "textarea" && this.ast.name !== "select") {
-        throw SyntaxError("invalid view type " + this.ast.name + " for two way binding");
+      if(this.type !== "input" && this.type !== "textarea" && this.type !== "select") {
+        throw SyntaxError("invalid view type " + this.type + " for two way binding");
       }
       if(!value) {
         throw SyntaxError("cannot bind to whole context, please specify an attribute to bind to");
@@ -99,7 +99,7 @@ const Property = {
     update: function(property, value) {
       if(property.name === 'value') {
         assignUnlessEqual(this.node, "value", value || '');
-      } else if(this.ast.name === 'input' && property.name === 'checked') {
+      } else if(this.type === 'input' && property.name === 'checked') {
         assignUnlessEqual(this.node, "checked", !!value);
       } else if(property.name === 'class') {
         this.attributeClasses = value;
@@ -137,56 +137,55 @@ const Property = {
 };
 
 class Element extends View {
-  constructor(ast, context) {
-    super(settings.document.createElement(ast.name))
+  constructor(context, type, options) {
+    super(settings.document.createElement(type))
 
-    this.ast = ast;
+    this.type = type;
     this.context = context;
+    this.classes = options.classes;
+    this._updateClass();
 
-    if (ast.id) {
-      this.node.setAttribute('id', ast.id);
+    if(options.do) {
+      let view = options.do.compile(context);
+      view.append(this.node);
+    } else {
+      this.children = [];
     }
 
-    if(ast.classes && ast.classes.length) {
-      this.node.setAttribute('class', ast.classes.join(' '));
-    }
+    delete options.classes;
+    delete options.do;
 
-    ast.children.forEach((child) => {
-      let childView = Compile[child.type](child, context);
-      childView.append(this.node);
-      this.children.push(childView);
-    });
-
-    ast.properties.forEach((property) => {
+    Object.keys(options).forEach((key) => {
+      let channel = options[key];
       let action;
 
-      if(!property.scope && property.name === "binding") {
+      if(!channel.scope && channel.name === "binding") {
         action = Property.binding;
       } else {
-        action = Property[property.scope || "attribute"];
+        action = Property[channel.scope || "attribute"];
       }
 
       if(!action) {
-        throw SyntaxError("" + property.scope + " is not a valid scope");
+        throw SyntaxError("" + channel.scope + " is not a valid scope");
       }
 
-      let channel = Compile.parameter(property, context);
-
       if(action.setup) {
-        action.setup.call(this, property);
+        action.setup.call(this, channel);
       }
 
       if(action.update) {
         this._bind(channel, (value) => {
-          action.update.call(this, property, value);
+          action.update.call(this, channel, value);
         });
       }
     });
+
+
     this.load.trigger();
   }
 
   _updateClass() {
-    let classes = this.ast.classes;
+    let classes = this.classes;
     if(this.attributeClasses) {
       classes = classes.concat(this.attributeClasses);
     }
