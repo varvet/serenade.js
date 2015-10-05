@@ -1,7 +1,9 @@
+import { settings } from "./helpers"
 import DynamicView from "./views/dynamic_view"
 import Element from "./views/element"
 import TextView from "./views/text_view"
 import CollectionView from "./views/collection_view"
+import Channel from "./channel"
 
 export default {
   if(channel, options) {
@@ -13,6 +15,33 @@ export default {
       } else {
         view.clear()
       }
+    });
+  },
+
+  unless(channel, options) {
+    return DynamicView.bind(channel, (view, value) => {
+      if(value) {
+        view.clear()
+      } else {
+        view.replace([options.do.render(this)]);
+      }
+    });
+  },
+
+  in(channel, options) {
+    return DynamicView.bind(channel, (view, value) => {
+      if(value) {
+        view.replace([options.do.render(value)]);
+      } else {
+        view.clear();
+      }
+    });
+  },
+
+  view(channel) {
+    return DynamicView.bind(channel, (view, value) => {
+      let result = settings.templates[value].compile(value);
+      view.replace([result]);
     });
   },
 
@@ -32,5 +61,5 @@ export default {
 
   collection(channel, options) {
     return new CollectionView(channel.collection(), options.do);
-  }
+  },
 }

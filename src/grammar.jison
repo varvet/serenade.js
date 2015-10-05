@@ -63,16 +63,16 @@ PropertyArgument
   ;
 
 InstructionIdentifier
-  : VIEW { $$ = { children: [], arguments: [], type: "view" } }
-  | COLLECTION { $$ = { children: [], arguments: [], type: "collection" } }
-  | UNLESS { $$ = { children: [], arguments: [], type: "unless" } }
-  | IN { $$ = { children: [], arguments: [], type: "in" } }
-  | IDENTIFIER { $$ = { children: [], arguments: [], type: "helper", command: $1 } }
+  : VIEW { $$ = { children: [], type: "view" } }
+  | COLLECTION { $$ = { children: [], type: "collection" } }
+  | UNLESS { $$ = { children: [], type: "unless" } }
+  | IN { $$ = { children: [], type: "in" } }
+  | IDENTIFIER { $$ = { children: [], type: $1 } }
   ;
 
 Instruction
   : DASH WHITESPACE InstructionIdentifier { $$ = $3 }
-  | DASH WHITESPACE InstructionIdentifier WHITESPACE InstructionArgumentList { $3.arguments = $5; $$ = $3 }
+  | DASH WHITESPACE InstructionIdentifier WHITESPACE InstructionArgumentList { $3.arguments = ($3.arguments || []).concat($5); $$ = $3 }
   | Instruction INDENT ChildList OUTDENT { $1.children = $3; $$ = $1 }
   ;
 

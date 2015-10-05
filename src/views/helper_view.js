@@ -6,16 +6,6 @@ import { settings } from "../helpers"
 import Compile from "../compile"
 import Channel from "../channel"
 
-function normalize(val) {
-  if(!val) {
-    return [];
-  } else if(val.isView) {
-    return [val];
-  } else {
-    return [new View(val)];
-  }
-};
-
 class HelperView extends DynamicView {
   constructor(ast, context, helper) {
     super();
@@ -30,7 +20,14 @@ class HelperView extends DynamicView {
         context: this.context,
         render: this.render.bind(this),
       }, args);
-      this.replace(normalize(result));
+
+      if(!result) {
+        this.clear();
+      } else if(result.isView) {
+        this.replace([result]);
+      } else {
+        this.replace(new View(result));
+      }
     });
   }
 
