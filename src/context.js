@@ -1,6 +1,7 @@
 import DynamicView from "./views/dynamic_view"
 import Element from "./views/element"
 import TextView from "./views/text_view"
+import CollectionView from "./views/collection_view"
 
 export default {
   if(channel, options) {
@@ -28,4 +29,8 @@ export default {
       }
     });
   },
+
+  collection(channel, options) {
+    return new CollectionView(channel.collection(), options.do);
+  }
 }
