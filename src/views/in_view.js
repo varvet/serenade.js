@@ -4,7 +4,9 @@ import Compile from "../compile"
 
 class InView extends DynamicView {
   constructor(ast, context) {
-    super(ast, context)
+    super();
+    this.ast = ast;
+    this.context = context;
 
     if(ast.arguments.length !== 1) {
       throw(new Error("`in` must take exactly one argument"))

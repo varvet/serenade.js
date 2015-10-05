@@ -4,7 +4,9 @@ import { settings } from "../helpers"
 
 class BoundViewView extends DynamicView {
   constructor(ast, context) {
-    super(ast, context);
+    super();
+    this.ast = ast;
+    this.context = context;
 
     this.bind(Compile.parameter(ast.arguments[0], context), (value) => {
       let view = settings.templates[value].render(context).view;

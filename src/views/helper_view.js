@@ -18,7 +18,9 @@ function normalize(val) {
 
 class HelperView extends DynamicView {
   constructor(ast, context, helper) {
-    super(ast, context);
+    super();
+    this.ast = ast;
+    this.context = context;
 
     this.helper = helper;
 

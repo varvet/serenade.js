@@ -3,8 +3,14 @@ import Collection from "../collection"
 import { settings } from "../helpers"
 
 class DynamicView extends View {
-  constructor(channel, fn) {
-    super(settings.document.createTextNode(''), channel, fn);
+  static bind(channel, fn) {
+    let view = new this();
+    view.bind(channel, (value) => fn(view, value));
+    return view;
+  }
+
+  constructor() {
+    super(settings.document.createTextNode(''));
     this.items = [];
     this.children = new Collection();
   }
@@ -46,7 +52,7 @@ class DynamicView extends View {
   }
 
   get lastElement() {
-    return (this.children.last && this.children.last.lastElement) || this.anchor;
+    return (this.children.last && this.children.last.lastElement) || this.node;
   }
 }
 

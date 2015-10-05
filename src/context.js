@@ -1,12 +1,14 @@
 import DynamicView from "./views/dynamic_view"
 import Element from "./views/element"
-import ContentView from "./views/content_view"
+import TextView from "./views/text_view"
 
 export default {
   if(channel, options) {
-    return new DynamicView(channel, (value) => {
+    return DynamicView.bind(channel, (view, value) => {
       if(value) {
         view.replace([options.do.render(this)]);
+      } else if(options.else) {
+        view.replace([options.else.render(this)]);
       } else {
         view.clear()
       }
@@ -18,6 +20,12 @@ export default {
   },
 
   content(channel) {
-    return new ContentView(channel);
+    return DynamicView.bind(channel, (view, value) => {
+      if(value && value.isView) {
+        view.replace([value]);
+      } else {
+        view.replace([new TextView(value)]);
+      }
+    });
   },
 }
