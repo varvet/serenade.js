@@ -115,7 +115,6 @@ Object.getOwnPropertyNames(Array.prototype).forEach((fun) => {
 ["push", "pop", "unshift", "shift", "splice", "sort", "reverse", "update", "set", "insertAt", "deleteAt"].forEach(function(fun) {
   let original = Collection.prototype[fun];
   Collection.prototype[fun] = function(...args) {
-    let old = this.clone();
     let val = original.apply(this, args);
     this.change.emit(this);
     return val;
