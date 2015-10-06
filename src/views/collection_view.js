@@ -1,7 +1,6 @@
 import DynamicView from "./dynamic_view"
 import TemplateView from "./template_view"
 import TextView from "./text_view"
-import Compile from "../compile"
 import Collection from "../collection"
 import Transform from "../transform"
 
@@ -80,9 +79,5 @@ class CollectionView extends DynamicView {
     return _ref2 = [this.children[toIndex], this.children[fromIndex]], this.children[fromIndex] = _ref2[0], this.children[toIndex] = _ref2[1], _ref2;
   }
 }
-
-Compile.collection = function(ast, context) {
-  return new CollectionView(ast, context);
-};
 
 export default CollectionView;

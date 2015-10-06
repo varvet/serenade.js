@@ -1,7 +1,6 @@
 import View from "./view"
 import { defineChannel } from "../property"
 import { settings, assignUnlessEqual } from "../helpers"
-import Compile from "../compile"
 import Collection from "../collection"
 import Channel from "../channel"
 
@@ -208,13 +207,5 @@ class Element extends View {
 
 defineChannel(Element.prototype, "load", { async: false });
 defineChannel(Element.prototype, "unload", { async: false });
-
-Compile.element = function(ast, context) {
-  if(settings.views[ast.name]) {
-    return settings.views[ast.name](ast, context);
-  } else {
-    return new Element(ast, context);
-  }
-};
 
 export default Element;
