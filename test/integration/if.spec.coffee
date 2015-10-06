@@ -123,3 +123,17 @@ describe 'If', ->
     context.valid = true
     expect(@body).to.have.element('p#valid')
     expect(@body).not.to.have.element('p#invalid')
+
+  it 'it does not lose listeners on re-render', ->
+    context = Serenade(shown: true, name: "Jonas")
+
+    @render '''
+      - if @shown
+        p[id="name"] @name
+    ''', context
+
+    expect(@body.querySelector("#name").textContent).to.eql("Jonas")
+    context.shown = true
+    context.name = "Kim"
+    expect(@body.querySelector("#name").textContent).to.eql("Kim")
+

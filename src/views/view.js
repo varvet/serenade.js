@@ -32,7 +32,7 @@ class View {
     return this.node;
   }
 
-  _bind(channel, fun) {
+  bind(channel, fun) {
     if(channel) {
       this.channels.push({ channel, fun });
       channel.bind(fun);

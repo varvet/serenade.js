@@ -12,19 +12,19 @@ ChildList
   ;
 
 ElementIdentifier
-  : AnyIdentifier { $$ = { name: $1, classes: [] } }
-  | AnyIdentifier HASH AnyIdentifier { $$ = { name: $1, id: $3, classes: [] } }
-  | HASH AnyIdentifier { $$ = { name: "div", id: $2, classes: [] } }
-  | DOT AnyIdentifier { $$ = { name: "div", classes: [$2] } }
-  | ElementIdentifier DOT AnyIdentifier { $1.classes.push($3); $$ = $1 }
+  : AnyIdentifier { $$ = { name: $1, type: "element" } }
+  | AnyIdentifier HASH AnyIdentifier { $$ = { name: $1, options: [{ name: "id", property: $3 }], type: "element" } }
+  | HASH AnyIdentifier { $$ = { name: "div", options: [{ name: "id", property: $2 }], type: "element" } }
+  | DOT AnyIdentifier { $$ = { name: "div", classes: [$2], type: "element" } }
+  | ElementIdentifier DOT AnyIdentifier { $1.classes = ($1.classes || []).concat($3); $$ = $1 }
   ;
 
 Element
-  : ElementIdentifier { $$ = { name: $1.name, id: $1.id, classes: $1.classes, properties: [], children: [], type: "element" } }
+  : ElementIdentifier { $$ = $1 }
   | Element LBRACKET RBRACKET { $$ = $1 }
-  | Element LBRACKET PropertyList RBRACKET { $1.properties = $3; $$ = $1 }
-  | Element WHITESPACE Content { $1.children = $1.children.concat($3); $$ = $1 }
-  | Element INDENT ChildList OUTDENT { $1.children = $1.children.concat($3); $$ = $1 }
+  | Element LBRACKET PropertyList RBRACKET { $1.options = $3; $$ = $1 }
+  | Element WHITESPACE Content { $1.children = ($1.children || []).concat($3); $$ = $1 }
+  | Element INDENT ChildList OUTDENT { $1.children = ($1.children || []).concat($3); $$ = $1 }
   ;
 
 ContentList
@@ -33,8 +33,8 @@ ContentList
   ;
 
 Content
-  : Bound { $$ = { type: "content", value: $1, bound: true } }
-  | STRING_LITERAL { $$ = { type: "content", value: $1 } }
+  : Bound { $$ = { type: "content", arguments: [{ property: $1, bound: true }] } }
+  | STRING_LITERAL { $$ = { type: "content", arguments: [{ property: $1 }] } }
   ;
 
 Child
@@ -55,24 +55,24 @@ Property
   ;
 
 PropertyArgument
-  : AnyIdentifier { $$ = { bound: true, value: $1 } }
-  | Bound { $$ = { bound: true, value: $1 } }
-  | AnyIdentifier BANG { $$ = { bound: true, value: $1, preventDefault: true } }
-  | Bound BANG { $$ = { bound: true, value: $1, preventDefault: true } }
-  | STRING_LITERAL { $$ = { value: $1 } }
+  : AnyIdentifier { $$ = { bound: true, property: $1 } }
+  | Bound { $$ = { bound: true, property: $1 } }
+  | AnyIdentifier BANG { $$ = { bound: true, property: $1, preventDefault: true } }
+  | Bound BANG { $$ = { bound: true, property: $1, preventDefault: true } }
+  | STRING_LITERAL { $$ = { property: $1 } }
   ;
 
 InstructionIdentifier
-  : VIEW { $$ = { children: [], arguments: [], type: "view" } }
-  | COLLECTION { $$ = { children: [], arguments: [], type: "collection" } }
-  | UNLESS { $$ = { children: [], arguments: [], type: "unless" } }
-  | IN { $$ = { children: [], arguments: [], type: "in" } }
-  | IDENTIFIER { $$ = { children: [], arguments: [], type: "helper", command: $1 } }
+  : VIEW { $$ = { children: [], type: "view" } }
+  | COLLECTION { $$ = { children: [], type: "collection" } }
+  | UNLESS { $$ = { children: [], type: "unless" } }
+  | IN { $$ = { children: [], type: "in" } }
+  | IDENTIFIER { $$ = { children: [], type: $1 } }
   ;
 
 Instruction
   : DASH WHITESPACE InstructionIdentifier { $$ = $3 }
-  | DASH WHITESPACE InstructionIdentifier WHITESPACE InstructionArgumentList { $3.arguments = $5; $$ = $3 }
+  | DASH WHITESPACE InstructionIdentifier WHITESPACE InstructionArgumentList { $3.arguments = ($3.arguments || []).concat($5); $$ = $3 }
   | Instruction INDENT ChildList OUTDENT { $1.children = $3; $$ = $1 }
   ;
 
@@ -92,8 +92,8 @@ InstructionArgumentList
   ;
 
 InstructionArgument
-  : Bound { $$ = { value: $1, bound: true } }
-  | STRING_LITERAL { $$ = { value: $1 } }
+  : Bound { $$ = { property: $1, bound: true } }
+  | STRING_LITERAL { $$ = { property: $1 } }
   ;
 
 AnyIdentifier

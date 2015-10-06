@@ -47,9 +47,7 @@ describe 'Custom helpers', ->
     context = Serenade(name: "Jonas", active: true)
     Serenade.helper "funky", (active) ->
       if active
-        Serenade.template("""
-          #bar @name
-        """).render(@context)
+        Serenade.template("#bar @name").compile(@context)
       else
         undefined
 

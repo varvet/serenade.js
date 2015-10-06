@@ -1,4 +1,4 @@
-import { merge, capitalize, format } from "../helpers"
+import { merge, capitalize } from "../helpers"
 
 export default function(...names) {
   let options = typeof(names[names.length - 1]) !== "string" ? names.pop() : {};

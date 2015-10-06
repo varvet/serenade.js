@@ -3,21 +3,15 @@ import Cache from "./cache"
 import Template from "./template"
 import Collection from "./collection"
 import { defineProperty, defineAttribute, defineChannel } from "./property"
-import { extend, settings, format } from "./helpers"
+import { extend, settings } from "./helpers"
 import Channel from "./channel"
 import EventManager from "./event_manager"
 
-import BoundViewView from "./views/bound_view_view"
 import CollectionView from "./views/collection_view"
 import Element from "./views/element"
-import HelperView from "./views/helper_view"
-import IfView from "./views/if_view"
-import InView from "./views/in_view"
-import TemplateView from "./views/template_view"
-import TextView from "./views/text_view"
-import ContentView from "./views/content_view"
-import UnlessView from "./views/unless_view"
 import View from "./views/view"
+import DynamicView from "./views/dynamic_view"
+import GlobalContext from "./context"
 
 function Serenade(wrapped) {
 	let object = Object.create(wrapped);
@@ -38,20 +32,37 @@ extend(Serenade, {
 	defineProperty: defineProperty,
 	defineAttribute: defineAttribute,
 	defineChannel: defineChannel,
+  Context: GlobalContext,
 
 	view: function(name, fn) {
 		return this.views[name] = (ast, context) => new fn(ast, context);
 	},
 
 	helper: function(name, fn) {
-		return this.views[name] = (ast, context) => new HelperView(ast, context, fn);
+    GlobalContext[name] = function(...args) {
+      let options = args.pop();
+      return DynamicView.bind(Channel.all(args), (view, args) => {
+        let result = fn.apply({
+          context: this,
+          render: options.do && options.do.render.bind(options.do),
+        }, args);
+
+        if(!result) {
+          view.clear();
+        } else if(result.isView) {
+          view.replace([result]);
+        } else {
+          view.replace([new View(result)]);
+        }
+      });
+    }
 	},
 
 	template: function(nameOrTemplate, template) {
 		if(template) {
-			return this.templates[nameOrTemplate] = new Template(nameOrTemplate, template);
+			return this.templates[nameOrTemplate] = new Template(template);
 		} else {
-			return new Template(void 0, nameOrTemplate);
+			return new Template(nameOrTemplate);
 		}
 	},
 
@@ -72,7 +83,6 @@ extend(Serenade, {
 		Serenade.templates = {};
 	},
 
-  format: format,
 	Model: Model,
 	Collection: Collection,
 	Cache: Cache,

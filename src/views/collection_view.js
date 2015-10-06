@@ -6,15 +6,12 @@ import Collection from "../collection"
 import Transform from "../transform"
 
 class CollectionView extends DynamicView {
-  constructor(ast, context) {
-    super(ast, context);
+  constructor(channel, template) {
+    super();
 
-    if(ast.arguments.length !== 1) {
-      throw(new Error("`in` must take exactly one argument"))
-    }
+    this.template = template
 
-    let channel = Compile.parameter(ast.arguments[0], context).collection();
-    this._bind(channel, (values) => {
+    this.bind(channel, (values) => {
       if(values && values.length) {
         if(this.lastItems && this.lastItems.length) {
           this.replace(values);
@@ -48,8 +45,8 @@ class CollectionView extends DynamicView {
   }
 
   _toView(item) {
-    if(this.ast.children.length) {
-      return new TemplateView(this.ast.children || [], item);
+    if(this.template) {
+      return this.template.render(item);
     } else if(item && item.isView) {
       return item;
     } else {
@@ -63,9 +60,9 @@ class CollectionView extends DynamicView {
   }
 
   _insertChild(index, view) {
-    if(this.anchor.parentNode) {
+    if(this.node.parentNode) {
       let previousChild = this.children[index - 1]
-      let previousElement = (previousChild && previousChild.lastElement) || this.anchor;
+      let previousElement = (previousChild && previousChild.lastElement) || this.node;
       let a = view.children[0];
       view.insertAfter(previousElement);
     }
@@ -74,10 +71,10 @@ class CollectionView extends DynamicView {
 
   _swapChildren(fromIndex, toIndex) {
     var last, _ref, _ref1, _ref2;
-    if (this.anchor.parentNode) {
-      last = ((_ref = this.children[fromIndex - 1]) != null ? _ref.lastElement : void 0) || this.anchor;
+    if (this.node.parentNode) {
+      last = ((_ref = this.children[fromIndex - 1]) != null ? _ref.lastElement : void 0) || this.node;
       this.children[toIndex].insertAfter(last);
-      last = ((_ref1 = this.children[toIndex - 1]) != null ? _ref1.lastElement : void 0) || this.anchor;
+      last = ((_ref1 = this.children[toIndex - 1]) != null ? _ref1.lastElement : void 0) || this.node;
       this.children[fromIndex].insertAfter(last);
     }
     return _ref2 = [this.children[toIndex], this.children[fromIndex]], this.children[fromIndex] = _ref2[0], this.children[toIndex] = _ref2[1], _ref2;
