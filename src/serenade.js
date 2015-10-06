@@ -37,19 +37,11 @@ extend(Serenade, {
 	helper: function(name, fn) {
     GlobalContext[name] = function(...args) {
       let options = args.pop();
-      return DynamicView.bind(Channel.all(args), (view, args) => {
-        let result = fn.apply({
+      return Channel.all(args).map((args) => {
+        return fn.apply({
           context: this,
           render: options.do && options.do.render.bind(options.do),
         }, args);
-
-        if(!result) {
-          view.clear();
-        } else if(result.isView) {
-          view.replace([result]);
-        } else {
-          view.replace([new View(result)]);
-        }
       });
     }
 	},

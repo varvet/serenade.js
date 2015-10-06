@@ -3,12 +3,6 @@ import Collection from "../collection"
 import { settings } from "../helpers"
 
 class DynamicView extends View {
-  static bind(channel, fn) {
-    let view = new this();
-    view.bind(channel, (value) => fn(view, value));
-    return view;
-  }
-
   constructor() {
     super(settings.document.createTextNode(''));
     this.items = [];

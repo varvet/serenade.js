@@ -1,4 +1,3 @@
-import DynamicView from "./views/dynamic_view"
 import Element from "./views/element"
 import TextView from "./views/text_view"
 import CollectionView from "./views/collection_view"
@@ -6,33 +5,27 @@ import Channel from "./channel"
 
 export default {
   if(channel, options) {
-    return DynamicView.bind(channel, (view, value) => {
+    return channel.map((value) => {
       if(value) {
-        view.replace([options.do.render(this)]);
+        return options.do.render(this);
       } else if(options.else) {
-        view.replace([options.else.render(this)]);
-      } else {
-        view.clear()
+        return options.else.render(this);
       }
     });
   },
 
   unless(channel, options) {
-    return DynamicView.bind(channel, (view, value) => {
-      if(value) {
-        view.clear()
-      } else {
-        view.replace([options.do.render(this)]);
+    return channel.map((value) => {
+      if(!value) {
+        return options.do.render(this);
       }
     });
   },
 
   in(channel, options) {
-    return DynamicView.bind(channel, (view, value) => {
+    return channel.map((value) => {
       if(value) {
-        view.replace([options.do.render(value)]);
-      } else {
-        view.clear();
+        return options.do.render(value);
       }
     });
   },
@@ -42,11 +35,11 @@ export default {
   },
 
   content(channel) {
-    return DynamicView.bind(channel, (view, value) => {
+    return channel.map((value) => {
       if(value && value.isView) {
-        view.replace([value]);
+        return value;
       } else {
-        view.replace([new TextView(value)]);
+        return new TextView(value);
       }
     });
   },

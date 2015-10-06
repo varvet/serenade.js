@@ -1,9 +1,8 @@
 import { settings, extend } from "../helpers"
 
 import DynamicView from "./dynamic_view"
-import TextView from "./text_view"
 
-import Compile from "../compile"
+import { toView } from "../compile"
 import Collection from "../collection"
 import GlobalContext from "../context"
 import Channel from "../channel"
@@ -70,17 +69,7 @@ class TemplateView extends DynamicView {
 
       let result = action.apply(context, args);
 
-      if(result && result.isView) {
-        return result;
-      } else if(result && result.isChannel) {
-        let view = new DynamicView();
-        view.bind(channel, (value) => {
-          view.replace([].concat(value));
-        });
-        return view;
-      } else {
-        return new TextView();
-      }
+      return toView(result);
     }));
   }
 

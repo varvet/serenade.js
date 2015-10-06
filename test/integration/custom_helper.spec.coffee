@@ -12,21 +12,6 @@ describe 'Custom helpers', ->
     '''
     expect(@body).to.have.element('div > form')
 
-  it 'can return a document fragment', ->
-    Serenade.helper "funky", ->
-      frag = Serenade.document.createDocumentFragment()
-      frag.appendChild Serenade.document.createElement('form')
-      frag.appendChild Serenade.document.createElement('article')
-      frag
-
-    @render '''
-      div
-        - funky
-    '''
-
-    expect(@body).to.have.element('div > form')
-    expect(@body).to.have.element('div > article')
-
   it 'can return a renderered Serenade.template', ->
     Serenade.helper "funky", ->
       Serenade.template("""
