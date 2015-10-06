@@ -47,8 +47,8 @@ class TemplateView extends DynamicView {
       if(ast.children && ast.children.length) {
         options.do = new Template(ast.children);
       }
-      if(ast.else && ast.else.length) {
-        options.else = new Template(ast.children);
+      if(ast.else && ast.else.children.length) {
+        options.else = new Template(ast.else.children);
       }
       if(ast.type === "element") {
         args.unshift(ast.name);
