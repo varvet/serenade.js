@@ -3,7 +3,7 @@ import Cache from "./cache"
 import Template from "./template"
 import Collection from "./collection"
 import { defineProperty, defineAttribute, defineChannel } from "./property"
-import { extend, settings, format } from "./helpers"
+import { extend, settings } from "./helpers"
 import Channel from "./channel"
 import EventManager from "./event_manager"
 
@@ -83,7 +83,6 @@ extend(Serenade, {
 		Serenade.templates = {};
 	},
 
-  format: format,
 	Model: Model,
 	Collection: Collection,
 	Cache: Cache,

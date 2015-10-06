@@ -71,22 +71,6 @@ export var deleteItem = function (collection, item) {
   }
 };
 
-export function format(model, key, value) {
-  if(model && model[key + "_property"]) {
-    if(arguments.length === 3) {
-      return model[key + "_property"].format(value);
-    } else {
-      return model[key + "_property"].format();
-    }
-  } else {
-    if(arguments.length === 3) {
-      return value;
-    } else {
-      return model && model[key];
-    }
-  }
-}
-
 var nextTickTimeout = null;
 
 var nextTickList = [];
