@@ -40,7 +40,7 @@ export default {
 
   view(channel) {
     return DynamicView.bind(channel, (view, value) => {
-      let result = settings.templates[value].compile(value);
+      let result = settings.templates[value].compile(this);
       view.replace([result]);
     });
   },

@@ -53,3 +53,24 @@ describe 'Basics', ->
       div "hello \\"Serenade\\""
     '''
     expect(@body.children[0]).to.have.text('hello "Serenade"')
+
+  it 'ignores comments', ->
+    @render '''
+      // Hello
+      // From
+      div // this
+        // view
+      // which
+        ul // has
+          // lots
+          li "only text"
+          // foo
+          p
+      // of
+      // comments
+    '''
+    expect(@body.textContent).to.eql('only text')
+    expect(@body.children[0].nodeName).to.eql('DIV')
+    expect(@body.children[0].children[0].nodeName).to.eql('UL')
+    expect(@body.children[0].children[0].children[0].nodeName).to.eql('LI')
+    expect(@body.children[0].children[0].children[1].nodeName).to.eql('P')
