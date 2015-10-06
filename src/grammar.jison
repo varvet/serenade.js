@@ -13,8 +13,8 @@ ChildList
 
 ElementIdentifier
   : AnyIdentifier { $$ = { name: $1, type: "element" } }
-  | AnyIdentifier HASH AnyIdentifier { $$ = { name: $1, options: [{ name: "id", value: $3 }], type: "element" } }
-  | HASH AnyIdentifier { $$ = { name: "div", options: [{ name: "id", value: $2 }], type: "element" } }
+  | AnyIdentifier HASH AnyIdentifier { $$ = { name: $1, options: [{ name: "id", property: $3 }], type: "element" } }
+  | HASH AnyIdentifier { $$ = { name: "div", options: [{ name: "id", property: $2 }], type: "element" } }
   | DOT AnyIdentifier { $$ = { name: "div", classes: [$2], type: "element" } }
   | ElementIdentifier DOT AnyIdentifier { $1.classes = ($1.classes || []).concat($3); $$ = $1 }
   ;
@@ -33,8 +33,8 @@ ContentList
   ;
 
 Content
-  : Bound { $$ = { type: "content", arguments: [{ value: $1, bound: true }] } }
-  | STRING_LITERAL { $$ = { type: "content", arguments: [{ value: $1 }] } }
+  : Bound { $$ = { type: "content", arguments: [{ property: $1, bound: true }] } }
+  | STRING_LITERAL { $$ = { type: "content", arguments: [{ property: $1 }] } }
   ;
 
 Child
@@ -55,11 +55,11 @@ Property
   ;
 
 PropertyArgument
-  : AnyIdentifier { $$ = { bound: true, value: $1 } }
-  | Bound { $$ = { bound: true, value: $1 } }
-  | AnyIdentifier BANG { $$ = { bound: true, value: $1, preventDefault: true } }
-  | Bound BANG { $$ = { bound: true, value: $1, preventDefault: true } }
-  | STRING_LITERAL { $$ = { value: $1 } }
+  : AnyIdentifier { $$ = { bound: true, property: $1 } }
+  | Bound { $$ = { bound: true, property: $1 } }
+  | AnyIdentifier BANG { $$ = { bound: true, property: $1, preventDefault: true } }
+  | Bound BANG { $$ = { bound: true, property: $1, preventDefault: true } }
+  | STRING_LITERAL { $$ = { property: $1 } }
   ;
 
 InstructionIdentifier
@@ -92,8 +92,8 @@ InstructionArgumentList
   ;
 
 InstructionArgument
-  : Bound { $$ = { value: $1, bound: true } }
-  | STRING_LITERAL { $$ = { value: $1 } }
+  : Bound { $$ = { property: $1, bound: true } }
+  | STRING_LITERAL { $$ = { property: $1 } }
   ;
 
 AnyIdentifier

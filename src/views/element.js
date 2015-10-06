@@ -7,52 +7,51 @@ import Channel from "../channel"
 
 const Property = {
   style: {
-    update: function(property, value) {
-      assignUnlessEqual(this.node.style, property.name, value);
+    update: function(channel, value) {
+      assignUnlessEqual(this.node.style, channel.name, value);
     }
   },
   event: {
-    setup: function(property) {
-      this.node.addEventListener(property.name, (e) => {
-        if(property.preventDefault) {
+    setup: function(channel) {
+      this.node.addEventListener(channel.name, (e) => {
+        if(channel.preventDefault) {
           e.preventDefault();
         }
-        this.context[property.value](this.node, this.context, e);
+        this.context[channel.property](this.node, this.context, e);
       });
     }
   },
   class: {
-    update: function(property, value) {
+    update: function(channel, value) {
       if(value) {
         if(!this.boundClasses) {
           this.boundClasses = new Collection();
         }
-        if(!this.boundClasses.includes(property.name)) {
-          this.boundClasses.push(property.name);
+        if(!this.boundClasses.includes(channel.name)) {
+          this.boundClasses.push(channel.name);
           this._updateClass();
         }
       } else if(this.boundClasses) {
-        let index = this.boundClasses.indexOf(property.name);
-        this.boundClasses.delete(property.name);
+        let index = this.boundClasses.indexOf(channel.name);
+        this.boundClasses.delete(channel.name);
         this._updateClass();
       }
     }
   },
   binding: {
-    setup: function(property) {
-      let value = property.value;
+    setup: function(channel) {
       if(this.type !== "input" && this.type !== "textarea" && this.type !== "select") {
         throw SyntaxError("invalid view type " + this.type + " for two way binding");
       }
-      if(!value) {
+      if(!channel.property) {
         throw SyntaxError("cannot bind to whole context, please specify an attribute to bind to");
       }
       let setValue = (newValue) => {
-        let currentValue = this.context[value];
+        let currentValue = this.context[channel.property];
         if(currentValue && currentValue.isChannel) {
           currentValue.emit(newValue);
         } else {
-          this.context[value] = newValue
+          this.context[channel.property] = newValue
         }
       }
       let domUpdated = () => {
@@ -66,7 +65,7 @@ const Property = {
           setValue(this.node.value);
         }
       }
-      if(property.name === "binding") {
+      if(channel.name === "binding") {
         let handler = (e) => {
           if (this.node.form === (e.target || e.srcElement)) {
             domUpdated();
@@ -77,10 +76,10 @@ const Property = {
           settings.document.removeEventListener("submit", handler, true);
         });
       } else {
-        this.node.addEventListener(property.name, domUpdated);
+        this.node.addEventListener(channel.name, domUpdated);
       }
     },
-    update: function(property, value) {
+    update: function(channel, value) {
       if(this.node.type === "checkbox") {
         return this.node.checked = !!value;
       } else if(this.node.type === "radio") {
@@ -96,42 +95,42 @@ const Property = {
     }
   },
   attribute: {
-    update: function(property, value) {
-      if(property.name === 'value') {
+    update: function(channel, value) {
+      if(channel.name === 'value') {
         assignUnlessEqual(this.node, "value", value || '');
-      } else if(this.type === 'input' && property.name === 'checked') {
+      } else if(this.type === 'input' && channel.name === 'checked') {
         assignUnlessEqual(this.node, "checked", !!value);
-      } else if(property.name === 'class') {
+      } else if(channel.name === 'class') {
         this.attributeClasses = value;
         this._updateClass();
       } else if(value === undefined) {
-        if(this.node.hasAttribute(property.name)) {
-          this.node.removeAttribute(property.name);
+        if(this.node.hasAttribute(channel.name)) {
+          this.node.removeAttribute(channel.name);
         }
       } else {
         if(value === 0) {
           value = "0";
         }
-        if(this.node.getAttribute(property.name) !== value) {
-          this.node.setAttribute(property.name, value);
+        if(this.node.getAttribute(channel.name) !== value) {
+          this.node.setAttribute(channel.name, value);
         }
       }
     }
   },
   on: {
-    setup: function(property) {
-      if(property.name === "load" || property.name === "unload") {
-        this[property.name].subscribe(() => {
-          this.context[property.value](this.node, this.context);
+    setup: function(channel) {
+      if(channel.name === "load" || channel.name === "unload") {
+        this[channel.name].subscribe(() => {
+          this.context[channel.property](this.node, this.context);
         });
       } else {
-        throw new SyntaxError("unkown lifecycle event '" + property.name + "'");
+        throw new SyntaxError("unkown lifecycle event '" + channel.name + "'");
       }
     }
   },
   property: {
-    update: function(property, value) {
-      assignUnlessEqual(this.node, property.name, value);
+    update: function(channel, value) {
+      assignUnlessEqual(this.node, channel.name, value);
     }
   }
 };

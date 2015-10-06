@@ -1,5 +1,5 @@
 import DynamicView from "./dynamic_view"
-import { settings, extend, except } from "../helpers"
+import { settings, extend } from "../helpers"
 import Compile from "../compile"
 import Collection from "../collection"
 import GlobalContext from "../context"
@@ -9,10 +9,10 @@ import Template from "../template"
 function parameter(ast, context) {
   let channel;
   if(ast.bound) {
-    if(ast.value === "this") {
+    if(ast.property === "this") {
       channel = Channel.static(context);
     } else {
-      let value = context && context[ast.value];
+      let value = context && context[ast.property];
       if(value && value.isChannel) {
         channel = value;
       } else {
@@ -20,10 +20,10 @@ function parameter(ast, context) {
       }
     }
   } else {
-    channel = Channel.static(ast.value);
+    channel = Channel.static(ast.property);
   }
 
-  extend(channel, except(ast, ["value"]));
+  extend(channel, ast);
 
   return channel;
 }

@@ -21,12 +21,6 @@ export function assignUnlessEqual(object, prop, value) {
   }
 };
 
-export function except(object, keys) {
-  let target = extend({}, object);
-  keys.forEach((key) => delete target[key]);
-  return target;
-}
-
 export function merge(...args) {
   return args.reduce(((ack, object) => extend(ack, object)), {})
 };
