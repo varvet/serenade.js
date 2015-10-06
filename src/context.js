@@ -1,4 +1,3 @@
-import { settings } from "./helpers"
 import DynamicView from "./views/dynamic_view"
 import Element from "./views/element"
 import TextView from "./views/text_view"
@@ -35,13 +34,6 @@ export default {
       } else {
         view.clear();
       }
-    });
-  },
-
-  view(channel) {
-    return DynamicView.bind(channel, (view, value) => {
-      let result = settings.templates[value].compile(this);
-      view.replace([result]);
     });
   },
 

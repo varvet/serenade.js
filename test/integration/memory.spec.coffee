@@ -75,17 +75,6 @@ describe 'Memory management', ->
     context.toggle = false
     expect(context["@leaking"].subscribers.length).to.eql(0)
 
-  it 'prevents memory leaks on nodes in views', ->
-    context = Serenade(leaking: "foobar", toggle: true)
-    Serenade.template "test", "p @leaking"
-    @render """
-      div
-        - if @toggle
-          - view "test"
-    """, context
-    context.toggle = false
-    expect(context["@leaking"].subscribers.length).to.eql(0)
-
   it 'prevents memory leaks on attributes', ->
     context = Serenade(leaking: "foobar", toggle: true)
     @render '''

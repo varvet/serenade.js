@@ -54,16 +54,8 @@ extend(Serenade, {
     }
 	},
 
-	template: function(nameOrTemplate, template) {
-		if(template) {
-			return this.templates[nameOrTemplate] = new Template(template);
-		} else {
-			return new Template(nameOrTemplate);
-		}
-	},
-
-	render: function(name, context) {
-		return this.templates[name].render(context);
+	template: function(ast) {
+    return new Template(ast);
 	},
 
 	clearIdentityMap: function() {
@@ -72,10 +64,6 @@ extend(Serenade, {
 
 	clearCache: function() {
 		Serenade.clearIdentityMap();
-	},
-
-	unregisterAll: function() {
-		Serenade.templates = {};
 	},
 
 	Model: Model,
@@ -101,14 +89,6 @@ extend(Serenade, {
 
 	set document(value) {
 		settings.document = value;
-	},
-
-  get templates() {
-		return settings.templates;
-	},
-
-	set templates(value) {
-		settings.templates = value;
 	},
 
   get eventManager() {

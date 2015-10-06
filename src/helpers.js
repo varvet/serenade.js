@@ -2,7 +2,6 @@
 
 export var settings = {
   async: false,
-  templates: {},
 };
 
 export function extend(target, source) {

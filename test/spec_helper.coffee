@@ -26,7 +26,6 @@ root.cancelAnimationFrame = clearTimeout
 
 beforeEach ->
   Serenade.async = false
-  Serenade.unregisterAll()
   Serenade.clearCache()
 
   @setupDom = =>

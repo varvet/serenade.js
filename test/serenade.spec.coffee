@@ -14,26 +14,9 @@ describe "Serenade", ->
     expect(object.constructor).to.eql("Jonas")
     expect(-> object.constructor = "John").to.emit(object["@constructor"])
 
-  describe ".view", ->
-    it "registers a view object", ->
-      Serenade.template("test", "h1#test")
-      @body.appendChild Serenade.render("test", {}, {})
-      expect(@body).to.have.element("h1#test")
-
-    it "doesn't require context to be given", ->
-      Serenade.template("test", "h1#test")
-      @body.appendChild Serenade.render("test")
-      expect(@body).to.have.element("h1#test")
-
-    it "can be rendered directly", ->
-      @body.appendChild Serenade.template("test", "h1#test").render()
-      expect(@body).to.have.element("h1#test")
-
-    it "works fine without a name", ->
-      @body.appendChild Serenade.template("h1#test").render()
-      expect(@body).to.have.element("h1#test")
-
-    it "can take context as parameter", ->
+  describe ".template", ->
+    it "returns a template", ->
       context = { id: "test" }
-      @body.appendChild Serenade.template("test", "h1[id=id]").render(context)
+      fragment = Serenade.template("h1[id=id]").render(context)
+      @body.appendChild(fragment)
       expect(@body).to.have.element("h1#test")
