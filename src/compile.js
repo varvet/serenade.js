@@ -71,7 +71,7 @@ export function toView(object) {
   } else if(object && object.isChannel) {
     let view = new DynamicView();
     view.bind(object, (value) => {
-      view.replace([].concat(value || []).map(toView));
+      view.replace([toView(value)]);
     });
     return view;
   } else if(object && object.nodeType === 1) {

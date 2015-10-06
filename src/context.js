@@ -35,13 +35,7 @@ export default {
   },
 
   content(channel) {
-    return channel.map((value) => {
-      if(value && value.isView) {
-        return value;
-      } else {
-        return new TextView(value);
-      }
-    });
+    return channel;
   },
 
   collection(channel, options) {
