@@ -34,10 +34,6 @@ extend(Serenade, {
 	defineChannel: defineChannel,
   Context: GlobalContext,
 
-	view: function(name, fn) {
-		return this.views[name] = (ast, context) => new fn(ast, context);
-	},
-
 	helper: function(name, fn) {
     GlobalContext[name] = function(...args) {
       let options = args.pop();
@@ -79,7 +75,6 @@ extend(Serenade, {
 	},
 
 	unregisterAll: function() {
-		Serenade.views = {};
 		Serenade.templates = {};
 	},
 
@@ -106,14 +101,6 @@ extend(Serenade, {
 
 	set document(value) {
 		settings.document = value;
-	},
-
-  get views() {
-		return settings.views;
-	},
-
-	set views(value) {
-		settings.views = value;
 	},
 
   get templates() {
