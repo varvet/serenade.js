@@ -148,6 +148,7 @@ class Element extends View {
     if(options.do) {
       let view = options.do.compile(context);
       view.append(this.node);
+      this.children = [view];
     } else {
       this.children = [];
     }

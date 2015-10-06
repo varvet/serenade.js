@@ -52,7 +52,7 @@ extend(Serenade, {
         } else if(result.isView) {
           view.replace([result]);
         } else {
-          view.replace(new View(result));
+          view.replace([new View(result)]);
         }
       });
     }
