@@ -1,5 +1,8 @@
-import DynamicView from "./dynamic_view"
 import { settings, extend } from "../helpers"
+
+import DynamicView from "./dynamic_view"
+import TextView from "./text_view"
+
 import Compile from "../compile"
 import Collection from "../collection"
 import GlobalContext from "../context"
@@ -59,11 +62,25 @@ class TemplateView extends DynamicView {
       args.push(options)
 
       let action = (context && context[ast.type]) || GlobalContext[ast.type];
+
       if(!action) {
         console.error("No such action in context:", ast.type, context);
         throw(new Error("No such action in context: " + ast.type));
       }
-      return action.apply(context, args);
+
+      let result = action.apply(context, args);
+
+      if(result && result.isView) {
+        return result;
+      } else if(result && result.isChannel) {
+        let view = new DynamicView();
+        view.bind(channel, (value) => {
+          view.replace([].concat(value));
+        });
+        return view;
+      } else {
+        return new TextView();
+      }
     }));
   }
 
