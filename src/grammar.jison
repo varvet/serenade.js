@@ -62,28 +62,20 @@ PropertyArgument
   | STRING_LITERAL { $$ = { property: $1 } }
   ;
 
-InstructionIdentifier
-  : VIEW { $$ = { children: [], type: "view" } }
-  | COLLECTION { $$ = { children: [], type: "collection" } }
-  | UNLESS { $$ = { children: [], type: "unless" } }
-  | IN { $$ = { children: [], type: "in" } }
-  | IDENTIFIER { $$ = { children: [], type: $1 } }
-  ;
-
 Instruction
-  : DASH WHITESPACE InstructionIdentifier { $$ = $3 }
-  | DASH WHITESPACE InstructionIdentifier WHITESPACE InstructionArgumentList { $3.arguments = ($3.arguments || []).concat($5); $$ = $3 }
+  : DASH WHITESPACE IDENTIFIER { $$ = { type: $3 } }
+  | DASH WHITESPACE IDENTIFIER WHITESPACE InstructionArgumentList { $$ = { type: $3, arguments: $5 } }
   | Instruction INDENT ChildList OUTDENT { $1.children = $3; $$ = $1 }
   ;
 
 IfInstruction
-  : DASH WHITESPACE IF WHITESPACE InstructionArgumentList { $$ = { children: [], arguments: $5, type: "if" } }
+  : DASH WHITESPACE IF WHITESPACE InstructionArgumentList { $$ = { arguments: $5, type: "if" } }
   | IfInstruction INDENT ChildList OUTDENT { $1.children = $3; $$ = $1 }
   | IfInstruction ElseInstruction { $1.else = $2; $$ = $1 }
   ;
 
 ElseInstruction
-  : DASH WHITESPACE ELSE INDENT ChildList OUTDENT { $$ = { arguments: [], children: $5, type: "else" } }
+  : DASH WHITESPACE ELSE INDENT ChildList OUTDENT { $$ = { children: $5, type: "else" } }
   ;
 
 InstructionArgumentList
@@ -97,11 +89,8 @@ InstructionArgument
   ;
 
 AnyIdentifier
-  : VIEW { $$ = $1 }
-  | COLLECTION { $$ = $1 }
-  | IF { $$ = $1 }
-  | UNLESS { $$ = $1 }
-  | IN { $$ = $1 }
+  : IF { $$ = $1 }
+  | ELSE { $$ = $1 }
   | IDENTIFIER { $$ = $1 }
   ;
 

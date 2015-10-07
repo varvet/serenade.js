@@ -21,7 +21,7 @@ const WHITESPACE = /^[^\r\n\S]+/;
 
 const COMMENT = /^\s*\/\/[^\n]*/;
 
-const KEYWORDS = ["IF", "ELSE", "COLLECTION", "IN", "VIEW", "UNLESS"];
+const KEYWORDS = ["IF", "ELSE"];
 
 class Lexer {
 	tokenize(code, opts) {
