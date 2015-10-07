@@ -1,4 +1,3 @@
-import Channel from "./channel"
 import BaseChannel from "./base_channel"
 
 export default class CompositeChannel extends BaseChannel {
@@ -18,8 +17,4 @@ export default class CompositeChannel extends BaseChannel {
   get value() {
     return this.parents.map((p) => p.value)
   }
-}
-
-Channel.all = function(parents) {
-  return new CompositeChannel(parents);
 }

@@ -1,5 +1,4 @@
 import Channel from "./channel"
-import BaseChannel from "./base_channel"
 import DerivedChannel from "./derived_channel"
 
 export default class PluckedCollectionChannel extends DerivedChannel {
@@ -29,8 +28,4 @@ export default class PluckedCollectionChannel extends DerivedChannel {
       return Channel.get(value, this.property).value
     });
   }
-}
-
-BaseChannel.prototype.pluckAll = function(property) {
-  return new PluckedCollectionChannel(this.collection(), property);
 }

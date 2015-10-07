@@ -1,6 +1,5 @@
 import Channel from "./channel"
 import BaseChannel from "./base_channel"
-import StaticChannel from "./static_channel"
 
 export default class AttributeChannel extends BaseChannel {
   constructor(context, options, value) {

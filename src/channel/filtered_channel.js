@@ -1,4 +1,3 @@
-import BaseChannel from "./base_channel"
 import DerivedChannel from "./derived_channel"
 
 export default class FilteredChannel extends DerivedChannel {
@@ -12,8 +11,4 @@ export default class FilteredChannel extends DerivedChannel {
       this.trigger(value);
     }
   }
-}
-
-BaseChannel.prototype.filter = function(fn) {
-  return new FilteredChannel(this, fn);
 }

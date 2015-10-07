@@ -1,7 +1,6 @@
 import { settings } from "../helpers"
 
 import DerivedChannel from "./derived_channel"
-import BaseChannel from "./base_channel"
 
 export default class AsyncChannel extends DerivedChannel {
   constructor(parent, queueName) {
@@ -21,8 +20,3 @@ export default class AsyncChannel extends DerivedChannel {
     this.isEnqueued = false;
   }
 }
-
-BaseChannel.prototype.async = function(queue) {
-  return new AsyncChannel(this, queue);
-}
-

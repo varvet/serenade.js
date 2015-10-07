@@ -1,4 +1,3 @@
-import BaseChannel from "./base_channel"
 import DerivedChannel from "./derived_channel"
 
 export default class CollectionChannel extends DerivedChannel {
@@ -15,8 +14,4 @@ export default class CollectionChannel extends DerivedChannel {
     }
     this._oldCollection = collection;
   }
-}
-
-BaseChannel.prototype.collection = function() {
-  return new CollectionChannel(this);
 }

@@ -23,7 +23,3 @@ export default class CachedChannel extends BaseChannel {
     delete this._cache;
   }
 }
-
-BaseChannel.prototype.cache = function(fn) {
-  return new CachedChannel(this, fn);
-}

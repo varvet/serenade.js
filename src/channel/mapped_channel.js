@@ -1,5 +1,4 @@
 import DerivedChannel from "./derived_channel"
-import BaseChannel from "./base_channel"
 
 export default class MappedChannel extends DerivedChannel {
   constructor(parent, fn) {
@@ -10,8 +9,4 @@ export default class MappedChannel extends DerivedChannel {
   get value() {
     return this.fn(this.parent.value);
   }
-}
-
-BaseChannel.prototype.map = function(fn) {
-  return new MappedChannel(this, fn);
 }
