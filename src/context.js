@@ -41,6 +41,18 @@ let context = {
   collection(channel, options) {
     return new CollectionView(channel.collection(), options.do);
   },
+
+  coalesce(...args) {
+    return Channel.all(args).map((args) => args.join(" "));
+  },
+
+  toUpperCase(channel) {
+    return channel.map((val) => val.toUpperCase());
+  },
+
+  toLowerCase(channel) {
+    return channel.map((val) => val.toLowerCase());
+  },
 };
 
 ["px"].forEach((unit) => {
