@@ -3,7 +3,7 @@ import TextView from "./views/text_view"
 import CollectionView from "./views/collection_view"
 import Channel from "./channel"
 
-export default {
+let context = {
   if(channel, options) {
     return channel.map((value) => {
       if(value) {
@@ -41,4 +41,12 @@ export default {
   collection(channel, options) {
     return new CollectionView(channel.collection(), options.do);
   },
-}
+};
+
+["px"].forEach((unit) => {
+  context[unit] = function(channel) {
+    return channel.map((val) => val + unit);
+  };
+});
+
+export default context;

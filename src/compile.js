@@ -7,6 +7,17 @@ import TextView from "./views/text_view"
 import GlobalContext from "./context"
 import Template from "./template"
 
+export function callAction(context, name, args) {
+  let action = (context && context[name]) || GlobalContext[name];
+
+  if(!action) {
+    console.error("No such action in context:", name, context);
+    throw(new Error("No such action in context: " + name));
+  }
+
+  return action.apply(context, args);
+}
+
 export function instruction(ast, context) {
   let args = [];
   let options = {};
@@ -31,21 +42,15 @@ export function instruction(ast, context) {
 
   args.push(options)
 
-  let action = (context && context[ast.type]) || GlobalContext[ast.type];
-
-  if(!action) {
-    console.error("No such action in context:", ast.type, context);
-    throw(new Error("No such action in context: " + ast.type));
-  }
-
-  let result = action.apply(context, args);
-
-  return toView(result);
+  return toView(callAction(context, ast.type, args));
 }
 
 export function parameter(ast, context) {
   let channel;
-  if(ast.bound) {
+  if(ast.filter) {
+    let args = ast.arguments.map((arg) => parameter(arg, context));
+    channel = callAction(context, ast.filter, args);
+  } else if(ast.bound) {
     if(ast.property === "this") {
       channel = Channel.static(context);
     } else {

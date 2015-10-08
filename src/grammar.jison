@@ -54,12 +54,18 @@ Property
   | AnyIdentifier COLON Property { $3.scope = $1; $$ = $3 }
   ;
 
+PropertyArgumentList
+  : PropertyArgument { $$ = [$1] }
+  | PropertyArgumentList WHITESPACE PropertyArgument { $$ = $1.concat($3) }
+  ;
+
 PropertyArgument
   : AnyIdentifier { $$ = { bound: true, property: $1 } }
   | Bound { $$ = { bound: true, property: $1 } }
   | AnyIdentifier BANG { $$ = { bound: true, property: $1, preventDefault: true } }
   | Bound BANG { $$ = { bound: true, property: $1, preventDefault: true } }
   | STRING_LITERAL { $$ = { property: $1 } }
+  | AnyIdentifier LPAREN PropertyArgumentList RPAREN { $$ = { filter: $1, arguments: $3 } }
   ;
 
 Instruction
