@@ -27,3 +27,11 @@ describe 'Bound attributes and text nodes', ->
     expect(@body.querySelector('div').title).to.equal("PETER 29")
     context.age = 30
     expect(@body.querySelector('div').title).to.equal("PETER 30")
+
+  it 'cleans up subscribers', ->
+    context = Serenade(name: "Jonas", age: 29)
+    view = Serenade.template('div[title=coalesce(toUpperCase(@name) @age)]').render(context)
+    view.append(@body)
+    expect(context["@name"].subscribers.length).to.equal(1)
+    view.remove()
+    expect(context["@name"].subscribers.length).to.equal(0)
