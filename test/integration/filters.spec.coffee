@@ -10,7 +10,7 @@ describe 'Bound attributes and text nodes', ->
     @render 'div[style:height=px(height)]', context
     expect(@body.querySelector('div').style.height).to.equal("123px")
 
-  it 'filters updates attribute when any value changes', ->
+  it 'updates attribute when any value changes', ->
     context = Serenade(name: "Jonas", age: 29)
     @render 'div[title=coalesce(@name @age)]', context
     expect(@body.querySelector('div').title).to.equal("Jonas 29")
