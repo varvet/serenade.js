@@ -36,12 +36,8 @@ extend(Serenade, {
 
 	helper: function(name, fn) {
     GlobalContext[name] = function(...args) {
-      let options = args.pop();
       return Channel.all(args).map((args) => {
-        return fn.apply({
-          context: this,
-          render: options.do && options.do.render.bind(options.do),
-        }, args);
+        return fn.apply(this, args)
       });
     }
 	},

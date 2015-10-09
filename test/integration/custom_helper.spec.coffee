@@ -32,7 +32,7 @@ describe 'Custom helpers', ->
     context = Serenade(name: "Jonas", active: true)
     Serenade.helper "funky", (active) ->
       if active
-        Serenade.template("#bar @name").compile(@context)
+        Serenade.template("#bar @name").compile(this)
       else
         undefined
 
@@ -58,7 +58,7 @@ describe 'Custom helpers', ->
   it 'provides access to context in helper', ->
     Serenade.helper "funky", ->
       element = Serenade.document.createElement('form')
-      element.setAttribute('id', @context.name)
+      element.setAttribute('id', @name)
       element
     context = name: 'jonas'
     @render '''
@@ -105,9 +105,9 @@ describe 'Custom helpers', ->
 
   describe 'with block argument', ->
     it 'renders the block contents into an element', ->
-      Serenade.helper "form", ->
+      Serenade.helper "form", (options) ->
         element = Serenade.document.createElement('form')
-        element.appendChild(@render())
+        element.appendChild(options.do.render())
         element
       @render '''
         div
@@ -117,9 +117,9 @@ describe 'Custom helpers', ->
       expect(@body).to.have.element('div > form > div#jonas')
 
     it 'works with muliple elements at the same indentation level in a block', ->
-      Serenade.helper "form", ->
+      Serenade.helper "form", (options) ->
         element = Serenade.document.createElement('form')
-        element.appendChild(@render())
+        element.appendChild(options.do.render())
         element
       @render '''
         div
@@ -141,9 +141,9 @@ describe 'Custom helpers', ->
       expect(@body).not.to.have.element('div > form > div#jonas')
 
     it 'allows context to be changed by passing it as an argument to render', ->
-      Serenade.helper "form", ->
+      Serenade.helper "form", (options) ->
         element = Serenade.document.createElement('form')
-        element.appendChild(@render(name: 'peter'))
+        element.appendChild(options.do.render(name: 'peter'))
         element
       @render '''
         div
@@ -154,10 +154,10 @@ describe 'Custom helpers', ->
 
     it 'allows block content to be reused', ->
       funked = false
-      Serenade.helper "form", ->
+      Serenade.helper "form", (options) ->
         element = Serenade.document.createElement('form')
-        element.appendChild(@render(name: 'jonas'))
-        element.appendChild(@render(name: 'peter'))
+        element.appendChild(options.do.render(name: 'jonas'))
+        element.appendChild(options.do.render(name: 'peter'))
         element
       @render '''
         div
@@ -169,9 +169,9 @@ describe 'Custom helpers', ->
 
     it 'allows rendered block contents to be manually cleaned up', ->
       context = Serenade(name: "jonas")
-      Serenade.helper "form", ->
+      Serenade.helper "form", (options) ->
         element = Serenade.document.createElement('form')
-        view = @render(context)
+        view = options.do.render(context)
         element.appendChild(view)
         element.addEventListener("submit", -> view.remove())
         element

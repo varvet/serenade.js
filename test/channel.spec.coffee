@@ -19,6 +19,17 @@ describe "Serenade.Channel", ->
       expect(-> channel2.emit(5)).to.emit(combined, with: "4,5,3")
       expect(-> channel3.emit(6)).to.emit(combined, with: "4,5,6")
 
+    it "can combine channels and non channels", ->
+      channel1 = Channel.of(1)
+      channel2 = undefined
+      channel3 = 123
+
+      combined = Channel.all([channel1, channel2, channel3]).map((args) => args.join(","))
+
+      expect(combined.value).to.equal("1,,123")
+
+      expect(-> channel1.emit(2)).to.emit(combined, with: "2,,123")
+
   describe ".pluck", ->
     it "creates a channel which listens to changes in a nested property", ->
       person1 = Serenade(name: "Jonas")

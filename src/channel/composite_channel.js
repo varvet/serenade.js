@@ -1,9 +1,16 @@
 import BaseChannel from "./base_channel"
+import Channel from "./channel"
 
 export default class CompositeChannel extends BaseChannel {
   constructor(parents) {
     super();
-    this.parents = parents;
+    this.parents = parents.map((parent) => {
+      if(parent && parent.isChannel) {
+        return parent;
+      } else {
+        return Channel.static(parent);
+      }
+    });
   }
 
   _activate() {
