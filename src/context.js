@@ -46,6 +46,12 @@ let context = {
     return Channel.all(args).map((args) => args.join(" "));
   },
 
+  join(...args) {
+    return Channel.all(args).map(([elements, divider]) => {
+      return elements.join(divider);
+    });
+  },
+
   toUpperCase(channel) {
     return channel.map((val) => val.toUpperCase());
   },

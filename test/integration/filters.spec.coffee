@@ -28,6 +28,15 @@ describe 'Bound attributes and text nodes', ->
     context.age = 30
     expect(@body.querySelector('div').title).to.equal("PETER 30")
 
+  it 'can create collections within filters', ->
+    context = Serenade(name: "Jonas", age: 29)
+    @render 'div[title=join([toUpperCase(@name) @age] "|")]', context
+    expect(@body.querySelector('div').title).to.equal("JONAS|29")
+    context.name = "Peter"
+    expect(@body.querySelector('div').title).to.equal("PETER|29")
+    context.age = 30
+    expect(@body.querySelector('div').title).to.equal("PETER|30")
+
   it 'cleans up subscribers', ->
     context = Serenade(name: "Jonas", age: 29)
     view = Serenade.template('div[title=coalesce(toUpperCase(@name) @age)]').render(context)

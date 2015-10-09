@@ -47,7 +47,10 @@ export function instruction(ast, context) {
 
 export function parameter(ast, context) {
   let channel;
-  if(ast.filter) {
+  if(ast.collection) {
+    let args = ast.arguments.map((arg) => parameter(arg, context));
+    channel = Channel.all(args);
+  } else if(ast.filter) {
     let args = ast.arguments.map((arg) => parameter(arg, context));
     channel = callAction(context, ast.filter, args);
   } else if(ast.bound) {

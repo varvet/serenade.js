@@ -65,6 +65,7 @@ PropertyArgument
   | AnyIdentifier BANG { $$ = { bound: true, property: $1, preventDefault: true } }
   | Bound BANG { $$ = { bound: true, property: $1, preventDefault: true } }
   | STRING_LITERAL { $$ = { property: $1 } }
+  | LBRACKET PropertyArgumentList RBRACKET { $$ = { collection: true, arguments: $2 } }
   | AnyIdentifier LPAREN PropertyArgumentList RPAREN { $$ = { filter: $1, arguments: $3 } }
   ;
 
