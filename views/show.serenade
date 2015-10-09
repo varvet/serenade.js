@@ -1,6 +1,0 @@
-html
-  head
-    title @title
-    script[src="/src/serenade.js"]
-    script[src=@source]
-  body
