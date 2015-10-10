@@ -22,7 +22,7 @@ lib/grammar.js: src/grammar.jison
 build: $(LIB) lib/grammar.js
 
 test: build
-	$(MOCHA) test/*.spec.coffee test/**/*.spec.coffee
+	$(MOCHA) test/*.spec.{js,coffee} test/**/*.spec.coffee test/
 
 target/serenade.js: build
 	@mkdir -p $(@D)

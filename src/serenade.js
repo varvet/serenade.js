@@ -12,6 +12,7 @@ import Element from "./views/element"
 import View from "./views/view"
 import DynamicView from "./views/dynamic_view"
 import GlobalContext from "./context"
+import * as Decorators from "./decorators"
 
 function Serenade(wrapped) {
 	let object = Object.create(wrapped);
@@ -33,6 +34,7 @@ extend(Serenade, {
 	defineAttribute: defineAttribute,
 	defineChannel: defineChannel,
   Context: GlobalContext,
+  Decorators: Decorators,
 
 	helper: function(name, fn) {
     GlobalContext[name] = function(...args) {

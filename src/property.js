@@ -90,5 +90,9 @@ export function defineProperty(object, name, options) {
   }
   options.configurable = true;
 
-  Object.defineProperty(object, name, options);
+  if(options.returnDescriptor) {
+    return options;
+  } else {
+    Object.defineProperty(object, name, options);
+  }
 };

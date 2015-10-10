@@ -1,3 +1,5 @@
---compilers coffee:coffee-script/register --recursive
+--compilers coffee:coffee-script/register
+--compilers babel:./test/register_babel
+--recursive
 --globals document,window,body
 -R progress
