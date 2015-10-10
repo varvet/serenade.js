@@ -59,9 +59,18 @@ let context = {
   toLowerCase(channel) {
     return channel.map((val) => val.toLowerCase());
   },
+
+  url(channel) {
+    return channel.map((val) => "url(" + val + ")");
+  },
+
+  percent(channel) {
+    return channel.map((val) => val + "%");
+  },
 };
 
-["px"].forEach((unit) => {
+
+"em,ex,px,cm,mm,pt,pc,ch,rem,vh,vw,vm,vmin,vmax,deg,rad,grad,turn,ms,s".split(",").forEach((unit) => {
   context[unit] = function(channel) {
     return channel.map((val) => val + unit);
   };
