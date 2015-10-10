@@ -1,25 +1,30 @@
 import Element from "./views/element"
-import TextView from "./views/text_view"
 import CollectionView from "./views/collection_view"
-import Channel from "./channel"
+import { helper } from "./decorators"
 
 let context = {
-  if(channel, options) {
-    return channel.map((value) => {
-      if(value) {
-        return options.do.render(this);
-      } else if(options.else) {
-        return options.else.render(this);
-      }
-    });
+  element(name, options) {
+    return new Element(this, name, options);
   },
 
-  unless(channel, options) {
-    return channel.map((value) => {
-      if(!value) {
-        return options.do.render(this);
-      }
-    });
+  content(channel) {
+    return channel;
+  },
+
+  @helper
+  if(value, options) {
+    if(value) {
+      return options.do.render(this);
+    } else if(options.else) {
+      return options.else.render(this);
+    }
+  },
+
+  @helper
+  unless(value, options) {
+    if(!value) {
+      return options.do.render(this);
+    }
   },
 
   in(channel, options) {
@@ -30,42 +35,38 @@ let context = {
     });
   },
 
-  element(name, options) {
-    return new Element(this, name, options);
-  },
-
-  content(channel) {
-    return channel;
-  },
-
   collection(channel, options) {
     return new CollectionView(channel.collection(), options.do);
   },
 
+  @helper
   coalesce(...args) {
-    return Channel.all(args).map((args) => args.join(" "));
+    return args.join(" ");
   },
 
-  join(...args) {
-    return Channel.all(args).map(([elements, divider]) => {
-      return elements.join(divider);
-    });
+  @helper
+  join(elements, divider) {
+    return elements.join(divider);
   },
 
-  toUpperCase(channel) {
-    return channel.map((val) => val.toUpperCase());
+  @helper
+  toUpperCase(value) {
+    return value.toUpperCase();
   },
 
-  toLowerCase(channel) {
-    return channel.map((val) => val.toLowerCase());
+  @helper
+  toLowerCase(value) {
+    return value.toLowerCase();
   },
 
-  url(channel) {
-    return channel.map((val) => "url(" + val + ")");
+  @helper
+  url(value) {
+    return "url(" + value + ")";
   },
 
-  percent(channel) {
-    return channel.map((val) => val + "%");
+  @helper
+  percent(value) {
+    return value + "%";
   },
 };
 
