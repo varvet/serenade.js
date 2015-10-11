@@ -12,10 +12,10 @@ ChildList
   ;
 
 ElementIdentifier
-  : AnyIdentifier { $$ = { name: $1, type: "element" } }
-  | AnyIdentifier HASH AnyIdentifier { $$ = { name: $1, options: [{ name: "id", property: $3 }], type: "element" } }
-  | HASH AnyIdentifier { $$ = { name: "div", options: [{ name: "id", property: $2 }], type: "element" } }
-  | DOT AnyIdentifier { $$ = { name: "div", classes: [$2], type: "element" } }
+  : AnyIdentifier { $$ = { name: $1, type: "__element" } }
+  | AnyIdentifier HASH AnyIdentifier { $$ = { name: $1, options: [{ name: "id", property: $3 }], type: "__element" } }
+  | HASH AnyIdentifier { $$ = { name: "div", options: [{ name: "id", property: $2 }], type: "__element" } }
+  | DOT AnyIdentifier { $$ = { name: "div", classes: [$2], type: "__element" } }
   | ElementIdentifier DOT AnyIdentifier { $1.classes = ($1.classes || []).concat($3); $$ = $1 }
   ;
 
@@ -33,8 +33,8 @@ ContentList
   ;
 
 Content
-  : Bound { $$ = { type: "content", arguments: [{ property: $1, bound: true }] } }
-  | STRING_LITERAL { $$ = { type: "content", arguments: [{ property: $1 }] } }
+  : Bound { $$ = { type: "__content", arguments: [{ property: $1, bound: true }] } }
+  | STRING_LITERAL { $$ = { type: "__content", arguments: [{ property: $1 }] } }
   ;
 
 Child

@@ -3,11 +3,11 @@ import CollectionView from "./views/collection_view"
 import { helper } from "./decorators"
 
 let context = {
-  element(name, options) {
+  __element(name, options) {
     return new Element(this, name, options);
   },
 
-  content(channel) {
+  __content(channel) {
     return channel;
   },
 

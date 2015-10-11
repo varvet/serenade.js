@@ -37,7 +37,7 @@ export function instruction(ast, context) {
   if(ast.else && ast.else.children.length) {
     options.else = new Template(ast.else.children);
   }
-  if(ast.type === "element") {
+  if(ast.type === "__element") {
     args.unshift(ast.name);
   }
 
