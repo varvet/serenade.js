@@ -62,7 +62,6 @@ class CollectionView extends DynamicView {
     if(this.node.parentNode) {
       let previousChild = this.children[index - 1]
       let previousElement = (previousChild && previousChild.lastElement) || this.node;
-      let a = view.children[0];
       view.insertAfter(previousElement);
     }
     this.children.insertAt(index, view);
