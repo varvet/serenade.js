@@ -65,6 +65,11 @@ describe 'Serenade.defineAttribute', ->
       defineAttribute @object, 'name', value: "Jonas"
       expect(@object.name).to.eql("Jonas")
 
+    it 'assumes value when inheriting', ->
+      defineAttribute @object, 'name', value: "Jonas"
+      child = Object.create(@object)
+      expect(child.name).to.eql("Jonas")
+
     it 'can set up default value', ->
       defineAttribute @object, 'name', value: "foobar"
       expect(@object.name).to.eql("foobar")

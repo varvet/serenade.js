@@ -29,7 +29,7 @@ export function defineAttribute(object, name, options) {
       if(options.channel) {
         return options.channel.call(this, options);
       } else {
-        return new AttributeChannel(this, options);
+        return new AttributeChannel(this, options, options.value);
       }
     }
   });
@@ -57,10 +57,6 @@ export function defineAttribute(object, name, options) {
   };
 
   define(object);
-
-  if("value" in options) {
-    object[name] = options.value;
-  }
 };
 
 export function defineProperty(object, name, options) {
