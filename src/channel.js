@@ -12,6 +12,7 @@ import CollectionChannel from "./channel/collection_channel"
 import PluckedCollectionChannel from "./channel/plucked_collection_channel"
 import CompositeChannel from "./channel/composite_channel"
 import FilteredChannel from "./channel/filtered_channel"
+import AttributeChannel from "./channel/attribute_channel"
 
 extend(Channel, {
   all(parents) {
@@ -24,6 +25,10 @@ extend(Channel, {
 
   static(value) {
     return new StaticChannel(value);
+  },
+
+  attribute(context, options, value) {
+    return new AttributeChannel(context, options, value);
   },
 
   get(object, name) {
