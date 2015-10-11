@@ -13,6 +13,9 @@ export function callAction(context, name, args) {
   if(!action) {
     console.error("No such action in context:", name, context);
     throw(new Error("No such action in context: " + name));
+  } else if(typeof(action) !== "function") {
+    console.error("Action is not a function:", name, action, context);
+    throw(new Error("Action is not a function: " + name));
   }
 
   return action.apply(context, args);
