@@ -33,12 +33,17 @@ describe 'Serenade.defineProperty', ->
   describe '{ set() { ... } }', ->
     it 'is not setable by default', ->
       defineProperty @object, 'foo'
-      @object.foo = 42
+      expect(=> @object.foo = 42).to.throw(TypeError)
       expect(@object.foo).to.eql(undefined)
 
     it 'uses a custom setter', ->
       defineProperty @object, 'foo', set: (value) -> @bar = value + 10
       @object.foo = 42
+      expect(@object.bar).to.eql(52)
+
+    it 'can emit through channel', ->
+      defineProperty @object, 'foo', set: (value) -> @bar = value + 10
+      @object["@foo"].emit(42)
       expect(@object.bar).to.eql(52)
 
   describe '{ get() { ... } }', ->

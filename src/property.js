@@ -62,33 +62,46 @@ export function defineAttribute(object, name, options) {
 export function defineProperty(object, name, options) {
   options = merge({ channelName: "@" + name }, options)
 
-  let deps = options.dependsOn;
+  let deps = [].concat(options.dependsOn || []);
   let getter = options.get || function() {};
 
   defineChannel(object, options.channelName, { channel() {
     let channel;
-    if(deps) {
-      deps = [].concat(deps);
+
+    if(deps.length) {
       let dependentChannels = deps.map((d) => Channel.pluck(this, d));
       channel = Channel.all(dependentChannels).map((args) => getter.apply(this, args));
     } else {
       channel = Channel.static(this).map((val) => getter.call(val)).static();
     }
+
     if(options.cache) {
       channel = channel.cache();
     }
+
     channel = channel.async("property");
+
+    if(options.set) {
+      channel.emit = options.set.bind(this)
+    }
+
     return channel;
   }});
 
-  options.get = function() {
-    return this[options.channelName].value
+  let descriptor = {
+    get() {
+      return this[options.channelName].value
+    },
+    set(value) {
+      this[options.channelName].emit(value)
+    },
+    configurable: true,
+    enumerable: options.enumerable || false,
   }
-  options.configurable = true;
 
   if(options.returnDescriptor) {
-    return options;
+    return descriptor;
   } else {
-    Object.defineProperty(object, name, options);
+    Object.defineProperty(object, name, descriptor);
   }
 };
