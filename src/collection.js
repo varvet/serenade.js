@@ -11,7 +11,7 @@ class Collection {
 	}
 
 	constructor(list) {
-    this.change = new Channel()
+    this.change = Channel.of(this)
 		if(list) {
       for(let index = 0; index < list.length; index++) {
         this[index] = list[index];
