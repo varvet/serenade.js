@@ -11,6 +11,10 @@ export default class DerivedChannel extends BaseChannel {
     return this.parent.value;
   }
 
+  expire() {
+    this.parent.expire();
+  }
+
   _handler(value) {
     this._update(value)
     this.trigger()

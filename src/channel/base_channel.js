@@ -43,6 +43,9 @@ export default class BaseChannel {
     });
   }
 
+  expire() {
+  }
+
   _activate() {}
   _deactivate() {}
 }

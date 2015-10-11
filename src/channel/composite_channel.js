@@ -13,6 +13,10 @@ export default class CompositeChannel extends BaseChannel {
     });
   }
 
+  expire() {
+    this.parens.forEach((parent) => parent.expire());
+  }
+
   _activate() {
     this.parents.forEach((parent) => parent.subscribe(this.trigger));
   }
