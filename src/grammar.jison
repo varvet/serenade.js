@@ -22,7 +22,7 @@ ElementIdentifier
 Element
   : ElementIdentifier { $$ = $1 }
   | Element LBRACKET RBRACKET { $$ = $1 }
-  | Element LBRACKET PropertyList RBRACKET { $1.options = $3; $$ = $1 }
+  | Element LBRACKET PropertyList RBRACKET { $1.options = ($1.options || []).concat($3); $$ = $1 }
   | Element WHITESPACE Content { $1.children = ($1.children || []).concat($3); $$ = $1 }
   | Element INDENT ChildList OUTDENT { $1.children = ($1.children || []).concat($3); $$ = $1 }
   ;
