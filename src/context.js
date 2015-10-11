@@ -68,6 +68,11 @@ let context = {
   percent(value) {
     return (value * 100) + "%";
   },
+
+  @helper
+  debug(...args) {
+    console.log("[SERENADE DEBUG]", this, ...args)
+  },
 };
 
 
