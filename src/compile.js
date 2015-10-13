@@ -77,17 +77,19 @@ export function parameter(ast, context) {
 }
 
 export function toView(object) {
-  if(object && object.isView) {
+  if(!object) {
+    return new TextView(object)
+  } else if(object.isView) {
     return object;
-  } else if(object && object.isChannel) {
+  } else if(object.isChannel) {
     let view = new DynamicView();
     view.bind(object, (value) => {
       view.replace([toView(value)]);
     });
     return view;
-  } else if(object && object.nodeType === 1) {
+  } else if(object.nodeType === 1) {
     return new View(object);
-  } else if(object && object.nodeType === 3) {
+  } else if(object.nodeType === 3) {
     return new TextView(object.nodeValue);
   } else {
     return new TextView(object);
