@@ -15,11 +15,11 @@ import GlobalContext from "./context"
 import * as Decorators from "./decorators"
 
 function Serenade(wrapped) {
-	let object = Object.create(wrapped);
-	for(let key in wrapped) {
-		defineAttribute(object, key, { value: wrapped[key] });
-	}
-	return object;
+  let object = Object.create(wrapped);
+  for(let key in wrapped) {
+    defineAttribute(object, key, { value: wrapped[key] });
+  }
+  return object;
 };
 
 if(typeof(window) !== "undefined") {
@@ -29,40 +29,40 @@ if(typeof(window) !== "undefined") {
 settings.eventManager = EventManager.default();
 
 extend(Serenade, {
-	VERSION: '0.5.0',
-	defineProperty: defineProperty,
-	defineAttribute: defineAttribute,
-	defineChannel: defineChannel,
+  VERSION: '0.5.0',
+  defineProperty: defineProperty,
+  defineAttribute: defineAttribute,
+  defineChannel: defineChannel,
   Context: GlobalContext,
   Decorators: Decorators,
 
-	helper: function(name, fn) {
+  helper: function(name, fn) {
     GlobalContext[name] = function(...args) {
       return Channel.all(args).map((args) => {
         return fn.apply(this, args)
       });
     }
-	},
+  },
 
-	template: function(ast) {
+  template: function(ast) {
     return new Template(ast);
-	},
+  },
 
-	clearIdentityMap: function() {
-		Cache._identityMap = {};
-	},
+  clearIdentityMap: function() {
+    Cache._identityMap = {};
+  },
 
-	clearCache: function() {
-		Serenade.clearIdentityMap();
-	},
+  clearCache: function() {
+    Serenade.clearIdentityMap();
+  },
 
-	Model: Model,
-	Collection: Collection,
-	Cache: Cache,
-	Template: Template,
-	View: View,
-	Element: Element,
-	CollectionView: CollectionView,
+  Model: Model,
+  Collection: Collection,
+  Cache: Cache,
+  Template: Template,
+  View: View,
+  Element: Element,
+  CollectionView: CollectionView,
   Channel: Channel,
 
   get async() {
@@ -73,21 +73,21 @@ extend(Serenade, {
     settings.async = value;
   },
 
-	get document() {
-		return settings.document;
-	},
+  get document() {
+    return settings.document;
+  },
 
-	set document(value) {
-		settings.document = value;
-	},
+  set document(value) {
+    settings.document = value;
+  },
 
   get eventManager() {
-		return settings.eventManager;
-	},
+    return settings.eventManager;
+  },
 
-	set eventManager(value) {
-		settings.eventManager = value;
-	},
+  set eventManager(value) {
+    settings.eventManager = value;
+  },
 });
 
 
