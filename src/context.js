@@ -66,7 +66,7 @@ let context = {
 
   @helper
   percent(value) {
-    return value + "%";
+    return (value * 100) + "%";
   },
 };
 
