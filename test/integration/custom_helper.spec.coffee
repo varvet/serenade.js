@@ -103,6 +103,21 @@ describe 'Custom helpers', ->
     ''', context
     expect(@body).to.have.element('div > span')
 
+  it "can use filters on arguments", ->
+    Serenade.helper "test", (value) ->
+      value.toUpperCase()
+
+    context = Serenade(first: "Jonas", last: "Nicklas")
+    @render '''
+      div
+        - test join([@first @last] " ")
+    ''', context
+
+    expect(@body.querySelector("div").textContent).to.equal("JONAS NICKLAS")
+    context.first = "Peter"
+
+    expect(@body.querySelector("div").textContent).to.equal("PETER NICKLAS")
+
   describe 'with block argument', ->
     it 'renders the block contents into an element', ->
       Serenade.helper "form", (options) ->

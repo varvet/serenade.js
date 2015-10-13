@@ -51,6 +51,7 @@ PropertyList
 
 Property
   : AnyIdentifier EQUALS PropertyArgument { $3.name = $1; $$ = $3 }
+  | AnyIdentifier EQUALS PropertyArgument BANG { $3.name = $1; $3.preventDefault = true; $$ = $3 }
   | AnyIdentifier COLON Property { $3.scope = $1; $$ = $3 }
   ;
 
@@ -62,8 +63,6 @@ PropertyArgumentList
 PropertyArgument
   : AnyIdentifier { $$ = { bound: true, property: $1 } }
   | Bound { $$ = { bound: true, property: $1 } }
-  | AnyIdentifier BANG { $$ = { bound: true, property: $1, preventDefault: true } }
-  | Bound BANG { $$ = { bound: true, property: $1, preventDefault: true } }
   | STRING_LITERAL { $$ = { property: $1 } }
   | LBRACKET PropertyArgumentList RBRACKET { $$ = { collection: true, arguments: $2 } }
   | AnyIdentifier LPAREN PropertyArgumentList RPAREN { $$ = { filter: $1, arguments: $3 } }
@@ -71,28 +70,18 @@ PropertyArgument
 
 Instruction
   : DASH WHITESPACE IDENTIFIER { $$ = { type: $3 } }
-  | DASH WHITESPACE IDENTIFIER WHITESPACE InstructionArgumentList { $$ = { type: $3, arguments: $5 } }
+  | DASH WHITESPACE IDENTIFIER WHITESPACE PropertyArgumentList { $$ = { type: $3, arguments: $5 } }
   | Instruction INDENT ChildList OUTDENT { $1.children = $3; $$ = $1 }
   ;
 
 IfInstruction
-  : DASH WHITESPACE IF WHITESPACE InstructionArgumentList { $$ = { arguments: $5, type: "if" } }
+  : DASH WHITESPACE IF WHITESPACE PropertyArgumentList { $$ = { arguments: $5, type: "if" } }
   | IfInstruction INDENT ChildList OUTDENT { $1.children = $3; $$ = $1 }
   | IfInstruction ElseInstruction { $1.else = $2; $$ = $1 }
   ;
 
 ElseInstruction
   : DASH WHITESPACE ELSE INDENT ChildList OUTDENT { $$ = { children: $5, type: "else" } }
-  ;
-
-InstructionArgumentList
-  : InstructionArgument { $$ = [$1] }
-  | InstructionArgumentList WHITESPACE InstructionArgument { $$ = $1.concat($3) }
-  ;
-
-InstructionArgument
-  : Bound { $$ = { property: $1, bound: true } }
-  | STRING_LITERAL { $$ = { property: $1 } }
   ;
 
 AnyIdentifier
