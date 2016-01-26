@@ -6,7 +6,7 @@ import { settings } from "../helpers"
 import Compile from "../compile"
 
 function normalize(val) {
-  if(!val) return [];
+  if(!val) return new Collection();
 
   return new Collection([].concat(val).reduce((aggregate, element) => {
     if(typeof element === "string") {
