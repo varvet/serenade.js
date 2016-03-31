@@ -14,7 +14,7 @@ export default class CompositeChannel extends BaseChannel {
   }
 
   expire() {
-    this.parens.forEach((parent) => parent.expire());
+    this.parents.forEach((parent) => parent.expire());
   }
 
   _activate() {
