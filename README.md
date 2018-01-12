@@ -1,3 +1,5 @@
+# PROJECT IS ARCHIVED, DO NOT USE
+
 # Serenade.js
 
 [![Build Status](https://secure.travis-ci.org/elabs/serenade.js.png)](http://travis-ci.org/elabs/serenade.js)
